@@ -113,6 +113,7 @@
   <div id="summary"></div>
   <button id="add" title="Ctrl+Enter">Add to list</button>
   <button id="ducktiles" title="Open the missing letters as tiles on ducktiles.com">Ducktiles</button>
+  <button id="reset" title="Clear the anagrist and anagram">Reset</button>
   <div id="attempts-header">
     <h2>Attempts</h2>
     <span>
@@ -199,6 +200,35 @@
     save(ANAGRIST_KEY, anagrist.value);
     save(ANAGRAM_KEY, anagram.value);
   }
+
+  // clear via editing commands where possible, so Ctrl+Z can undo it
+  function clearBox(box) {
+    box.focus();
+    box.select();
+    if (!document.execCommand("delete") || box.value !== "") box.value = "";
+  }
+
+  // reset needs two clicks in a row, to avoid accidents
+  const resetButton = document.getElementById("reset");
+  let resetArmed = false, resetTimer;
+  function disarmReset() {
+    resetArmed = false;
+    clearTimeout(resetTimer);
+    resetButton.textContent = "Reset";
+  }
+  resetButton.addEventListener("blur", disarmReset);
+  resetButton.addEventListener("click", () => {
+    if (!resetArmed) {
+      resetArmed = true;
+      resetButton.textContent = "Click again to reset";
+      resetTimer = setTimeout(disarmReset, 3000);
+      return;
+    }
+    disarmReset();
+    clearBox(anagram);
+    clearBox(anagrist);
+    update();
+  });
 
   // attempts list, saved in the browser's local storage where available;
   // each attempt keeps both parts so it can be loaded back into the boxes

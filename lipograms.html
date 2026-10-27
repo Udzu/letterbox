@@ -60,7 +60,7 @@
   #editor textarea::selection { background: rgba(0, 120, 255, 0.25); color: transparent; }
   .bad { color: #d00; }
   #summary { margin-top: 12px; font-size: 1.1rem; }
-  #copy { margin-top: 12px; font-size: 1rem; cursor: pointer; }
+  #copy, #reset { margin-top: 12px; font-size: 1rem; cursor: pointer; }
   #copy:disabled { cursor: default; }
   .note { margin-left: 8px; font-size: 0.9rem; color: #666; }
   nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
@@ -78,6 +78,7 @@
   </div>
   <div id="summary"></div>
   <button id="copy">Copy to clipboard</button>
+  <button id="reset" title="Clear the text and reset the avoided characters to e">Reset</button>
   <span id="copy-note" class="note">Remove the avoided characters to enable copying</span>
 </main>
 <script>
@@ -89,6 +90,36 @@
   const summary = document.getElementById("summary");
   const copyButton = document.getElementById("copy");
   const copyNote = document.getElementById("copy-note");
+
+  // set a box's value via an editing command where possible, so Ctrl+Z can undo it
+  function setBox(box, value) {
+    box.focus();
+    box.select();
+    const ok = value === "" ? document.execCommand("delete") : document.execCommand("insertText", false, value);
+    if (!ok || box.value !== value) box.value = value;
+  }
+
+  // reset needs two clicks in a row, to avoid accidents
+  const resetButton = document.getElementById("reset");
+  let resetArmed = false, resetTimer;
+  function disarmReset() {
+    resetArmed = false;
+    clearTimeout(resetTimer);
+    resetButton.textContent = "Reset";
+  }
+  resetButton.addEventListener("blur", disarmReset);
+  resetButton.addEventListener("click", () => {
+    if (!resetArmed) {
+      resetArmed = true;
+      resetButton.textContent = "Click again to reset";
+      resetTimer = setTimeout(disarmReset, 3000);
+      return;
+    }
+    disarmReset();
+    setBox(avoid, "e");
+    setBox(text, "");
+    update();
+  });
 
   copyButton.addEventListener("click", async () => {
     try {
