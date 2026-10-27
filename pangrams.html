@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pangram Finder</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  #left { flex: 2 1 500px; min-width: 0; }
+  #right { flex: 1 1 300px; min-width: 0; }
+  #input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    font-size: 1.2rem;
+    font-family: inherit;
+  }
+  button { font-size: 1rem; cursor: pointer; }
+  #add { margin-top: 8px; }
+  #letters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 16px;
+  }
+  .letter {
+    width: 2em;
+    text-align: center;
+    font-family: ui-monospace, monospace;
+    font-size: 1.3rem;
+  }
+  .letter .count { font-size: 0.9rem; }
+  .c0 { color: #000; }
+  .c1 { color: #bbb; }
+  .c2 { color: #d00; }
+  .green { color: #080; }
+  .grey { color: #888; }
+  .incomplete { font-style: italic; color: #888; }
+  #summary { margin-top: 16px; font-size: 1.1rem; }
+  #summary .done { color: #080; font-weight: bold; }
+  #attempts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  #right h2 { margin: 0; font-size: 1.1rem; }
+  #attempts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #999;
+    min-height: 6em;
+  }
+  #attempts li {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 6px 8px;
+    border-bottom: 1px solid #ddd;
+  }
+  #attempts li:last-child { border-bottom: none; }
+  #attempts .text { flex: 1; overflow-wrap: anywhere; cursor: pointer; }
+  #attempts li:hover { background: #f3f3f3; }
+  #attempts .remove {
+    border: none;
+    background: none;
+    color: #888;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 4px;
+  }
+  #attempts .remove:hover { color: #d00; }
+  nav { max-width: 1300px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <b>Pangrams</b></nav>
+<main>
+  <div id="left">
+    <input id="input" type="text" placeholder="Type a potential pangram..." autocomplete="off" autofocus>
+    <button id="add" title="Ctrl+Enter">Add to list</button>
+    <div id="letters"></div>
+    <div id="summary"></div>
+  </div>
+  <div id="right">
+    <div id="attempts-header">
+      <h2>Attempts</h2>
+      <span>
+        <button id="export">Export list</button>
+        <button id="clear">Clear list</button>
+      </span>
+    </div>
+    <ul id="attempts"></ul>
+  </div>
+</main>
+<script>
+  const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+  const STORAGE_KEY = "pangram-attempts";
+  const input = document.getElementById("input");
+  const lettersDiv = document.getElementById("letters");
+  const summary = document.getElementById("summary");
+  const addButton = document.getElementById("add");
+  const attemptsList = document.getElementById("attempts");
+
+  const cells = {};
+  for (const ch of ALPHABET) {
+    const cell = document.createElement("div");
+    cell.className = "letter c0";
+    cell.innerHTML = `<div>${ch}</div><div class="count">0</div>`;
+    lettersDiv.appendChild(cell);
+    cells[ch] = cell;
+  }
+
+  function analyse(text) {
+    const counts = Object.fromEntries([...ALPHABET].map(ch => [ch, 0]));
+    // strip accents (é → e) by decomposing and dropping combining marks
+    for (const ch of text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()) {
+      if (ch in counts) counts[ch]++;
+    }
+    let total = 0, missing = "", duplicates = "";
+    for (const ch of ALPHABET) {
+      const n = counts[ch];
+      total += n;
+      if (n === 0) missing += ch;
+      if (n >= 2) duplicates += ch.repeat(n - 1);
+    }
+    return { counts, total, missing, duplicates };
+  }
+
+  function update() {
+    const { counts, total, missing, duplicates } = analyse(input.value);
+    for (const ch of ALPHABET) {
+      const n = counts[ch];
+      cells[ch].className = "letter " + (n === 0 ? "c0" : n === 1 ? "c1" : "c2");
+      cells[ch].querySelector(".count").textContent = n;
+    }
+    const parts = [total === 26 ? `<span class="green">Letters: ${total}</span>` : `Letters: ${total}`];
+    if (missing !== "") parts.push(`Missing: ${missing.length} (${missing})`);
+    if (duplicates !== "") parts.push(`<span class="c2">Duplicates: ${duplicates.length} (${duplicates})</span>`);
+    if (missing === "") parts.push(`<span class="done">✓ ${duplicates === "" ? "perfect pangram" : "pangram"}</span>`);
+    summary.innerHTML = parts.join(" &nbsp;·&nbsp; ");
+  }
+
+  // attempts list, saved in the browser's local storage where available
+  let attempts = [];
+  try {
+    attempts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch (e) {}
+  // strip summary suffixes saved by older versions (they're now computed when rendering)
+  attempts = attempts.map(text => text.replace(/ \(\d+-\d+\)$/, ""));
+
+  function saveAttempts() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(attempts));
+    } catch (e) {}
+  }
+
+  function renderAttempts() {
+    attemptsList.innerHTML = "";
+    attempts.sort((a, b) => analyse(a).total - analyse(b).total || a.localeCompare(b));
+    attempts.forEach((text, i) => {
+      const li = document.createElement("li");
+      const span = document.createElement("span");
+      span.className = "text";
+      const { total, missing } = analyse(text);
+      const textSpan = document.createElement("span");
+      textSpan.textContent = text;
+      if (missing !== "") {
+        textSpan.className = "incomplete";
+        span.classList.add("grey");
+      }
+      span.append(`[${total}] `, textSpan);
+      span.title = "Load into box";
+      span.addEventListener("click", () => {
+        input.value = text;
+        update();
+        input.focus();
+      });
+      const remove = document.createElement("button");
+      remove.className = "remove";
+      remove.title = "Remove";
+      remove.textContent = "×";
+      remove.addEventListener("click", () => {
+        attempts.splice(i, 1);
+        saveAttempts();
+        renderAttempts();
+      });
+      li.append(span, remove);
+      attemptsList.appendChild(li);
+    });
+  }
+
+  addButton.addEventListener("click", () => {
+    const text = input.value.trim();
+    if (text === "") return;
+    attempts.push(text);
+    saveAttempts();
+    renderAttempts();
+    input.focus();
+  });
+
+  document.getElementById("export").addEventListener("click", () => {
+    if (attempts.length === 0) return;
+    const blob = new Blob([attempts.join("\n") + "\n"], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "pangrams.txt";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  });
+
+  document.getElementById("clear").addEventListener("click", () => {
+    if (attempts.length === 0 || !confirm("Clear all attempts?")) return;
+    attempts = [];
+    saveAttempts();
+    renderAttempts();
+  });
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      addButton.click();
+    }
+  });
+
+  input.addEventListener("input", update);
+  update();
+  renderAttempts();
+</script>
+</body>
+</html>

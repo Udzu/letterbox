@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anagram Helper</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main { max-width: 900px; margin: 0 auto; }
+  #anagrist {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    font-size: 1.2rem;
+    font-family: inherit;
+  }
+  /* The textarea's text is transparent; an identical copy with highlights is
+     drawn behind it. Both must share exactly the same text metrics. */
+  #editor {
+    position: relative;
+    margin-top: 16px;
+  }
+  #editor textarea, #backdrop {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 8em;
+    margin: 0;
+    padding: 8px;
+    border: 1px solid #999;
+    font-family: inherit;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    letter-spacing: normal;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+  #backdrop {
+    position: absolute;
+    inset: 0;
+    border-color: transparent;
+    color: #000;
+    pointer-events: none;
+  }
+  #editor textarea {
+    position: relative;
+    display: block;
+    background: transparent;
+    color: transparent;
+    caret-color: #000;
+    resize: none;
+    overflow: hidden;
+  }
+  #editor textarea::selection { background: rgba(0, 120, 255, 0.25); color: transparent; }
+  .bad { color: #d00; }
+  .done { color: #080; font-weight: bold; }
+  #summary { margin-top: 12px; font-size: 1.1rem; }
+  button { font-size: 1rem; cursor: pointer; }
+  #add { margin-top: 12px; }
+  #attempts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 24px 0 8px;
+  }
+  h2 { margin: 0; font-size: 1.1rem; }
+  #attempts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #999;
+    min-height: 6em;
+  }
+  #attempts li {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 6px 8px;
+    border-bottom: 1px solid #ddd;
+  }
+  #attempts li:last-child { border-bottom: none; }
+  #attempts li:hover { background: #f3f3f3; }
+  #attempts .text { flex: 1; overflow-wrap: anywhere; white-space: pre-wrap; cursor: pointer; }
+  #attempts .remove {
+    border: none;
+    background: none;
+    color: #888;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 4px;
+  }
+  #attempts .remove:hover { color: #d00; }
+  .grey { color: #888; }
+  .incomplete { font-style: italic; }
+  nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><b>Anagrams</b> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a></nav>
+<main>
+  <input id="anagrist" type="text" placeholder="Anagrist..." autocomplete="off" spellcheck="false" autofocus>
+  <div id="editor">
+    <div id="backdrop"></div>
+    <textarea id="anagram" placeholder="Anagram..." spellcheck="false"></textarea>
+  </div>
+  <div id="summary"></div>
+  <button id="add" title="Ctrl+Enter">Add to list</button>
+  <button id="ducktiles" title="Open the missing letters as tiles on ducktiles.com">Ducktiles</button>
+  <div id="attempts-header">
+    <h2>Attempts</h2>
+    <span>
+      <button id="export">Export list</button>
+      <button id="clear">Clear list</button>
+    </span>
+  </div>
+  <ul id="attempts"></ul>
+</main>
+<script>
+  const ANAGRIST_KEY = "anagram-anagrist";
+  const ANAGRAM_KEY = "anagram-anagram";
+  const anagrist = document.getElementById("anagrist");
+  const anagram = document.getElementById("anagram");
+  const backdrop = document.getElementById("backdrop");
+  const summary = document.getElementById("summary");
+
+  // case-insensitive and accent-insensitive form of a character (É → e)
+  const fold = ch => ch.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  // folded form if the character is a letter or number, otherwise null
+  const key = ch => {
+    const f = fold(ch);
+    return /^[\p{L}\p{N}]+$/u.test(f) ? f : null;
+  };
+  const escape = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const sorted = chars => chars.sort((a, b) => a.localeCompare(b)).join("");
+
+  function load(name) {
+    try {
+      return localStorage.getItem(name) || "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function save(name, value) {
+    try {
+      localStorage.setItem(name, value);
+    } catch (e) {}
+  }
+
+  function analyse(anagristText, anagramText) {
+    const available = new Map();
+    for (const ch of anagristText) {
+      const k = key(ch);
+      if (k !== null) available.set(k, (available.get(k) || 0) + 1);
+    }
+
+    // use up available letters in reading order; anything beyond that is extra
+    let html = "";
+    const extra = [];
+    for (const ch of anagramText) {
+      const k = key(ch);
+      if (k === null) {
+        html += escape(ch);
+      } else if (available.get(k) > 0) {
+        available.set(k, available.get(k) - 1);
+        html += escape(ch);
+      } else {
+        extra.push(k);
+        html += `<span class="bad">${escape(ch)}</span>`;
+      }
+    }
+
+    const missing = [];
+    for (const [k, n] of available) for (let i = 0; i < n; i++) missing.push(k);
+    return { html, missing, extra };
+  }
+
+  function update() {
+    const { html, missing, extra } = analyse(anagrist.value, anagram.value);
+    // a trailing newline needs something after it to take up a line
+    backdrop.innerHTML = html + "​";
+
+    anagram.style.height = "auto";
+    anagram.style.height = anagram.scrollHeight + "px";
+
+    const parts = [];
+    if (missing.length > 0) parts.push(`Missing: ${missing.length} (${escape(sorted(missing))})`);
+    if (extra.length > 0) parts.push(`<span class="bad">Extra: ${extra.length} (${escape(sorted(extra))})</span>`);
+    if (parts.length === 0 && anagrist.value.trim() !== "") parts.push(`<span class="done">✓ anagram</span>`);
+    summary.innerHTML = parts.join(" &nbsp;·&nbsp; ");
+
+    save(ANAGRIST_KEY, anagrist.value);
+    save(ANAGRAM_KEY, anagram.value);
+  }
+
+  // attempts list, saved in the browser's local storage where available;
+  // each attempt keeps both parts so it can be loaded back into the boxes
+  const ATTEMPTS_KEY = "anagram-attempts";
+  const addButton = document.getElementById("add");
+  const attemptsList = document.getElementById("attempts");
+  let attempts = [];
+  try {
+    attempts = JSON.parse(localStorage.getItem(ATTEMPTS_KEY)) || [];
+  } catch (e) {}
+
+  const formatted = a => `[${a.anagrist}] ${a.anagram}`;
+
+  function saveAttempts() {
+    save(ATTEMPTS_KEY, JSON.stringify(attempts));
+  }
+
+  function renderAttempts() {
+    attemptsList.innerHTML = "";
+    attempts.sort((a, b) => a.anagrist.localeCompare(b.anagrist) || a.anagram.localeCompare(b.anagram));
+    attempts.forEach((attempt, i) => {
+      const { missing, extra } = analyse(attempt.anagrist, attempt.anagram);
+      const li = document.createElement("li");
+      const span = document.createElement("span");
+      span.className = "text";
+      const anagramSpan = document.createElement("span");
+      anagramSpan.textContent = attempt.anagram;
+      if (missing.length > 0 || extra.length > 0) {
+        span.classList.add("grey");
+        anagramSpan.className = "incomplete";
+      }
+      span.append(`[${attempt.anagrist}] `, anagramSpan);
+      span.title = "Load into boxes";
+      span.addEventListener("click", () => {
+        anagrist.value = attempt.anagrist;
+        anagram.value = attempt.anagram;
+        update();
+        anagram.focus();
+      });
+      const remove = document.createElement("button");
+      remove.className = "remove";
+      remove.title = "Remove";
+      remove.textContent = "×";
+      remove.addEventListener("click", () => {
+        attempts.splice(i, 1);
+        saveAttempts();
+        renderAttempts();
+      });
+      li.append(span, remove);
+      attemptsList.appendChild(li);
+    });
+  }
+
+  addButton.addEventListener("click", () => {
+    const attempt = { anagrist: anagrist.value, anagram: anagram.value };
+    if (attempt.anagram.trim() === "") return;
+    attempts.push(attempt);
+    saveAttempts();
+    renderAttempts();
+  });
+
+  // Ducktiles reads its tiles from the URL hash: base64-encoded JSON of
+  // {id, char, offset} objects, with offsets in pixels from the window centre.
+  document.getElementById("ducktiles").addEventListener("click", () => {
+    const { missing } = analyse(anagrist.value, anagram.value);
+    if (missing.length === 0) return;
+    const chars = [...sorted(missing)].map(ch => ch.toUpperCase().length === 1 ? ch.toUpperCase() : ch);
+    const TILE = 54, STEP = 62, PER_ROW = 10;
+    const cols = Math.min(chars.length, PER_ROW), rows = Math.ceil(chars.length / PER_ROW);
+    const width = cols * STEP - (STEP - TILE), height = rows * STEP - (STEP - TILE);
+    const tiles = chars.map((char, i) => ({
+      id: i + 1,
+      char,
+      offset: [-width / 2 + (i % PER_ROW) * STEP, -height / 2 + Math.floor(i / PER_ROW) * STEP],
+    }));
+    const hash = btoa(unescape(encodeURIComponent(JSON.stringify(tiles))));
+    window.open(`https://ducktiles.com/#${hash}`, "_blank", "noopener");
+  });
+
+  document.getElementById("export").addEventListener("click", () => {
+    if (attempts.length === 0) return;
+    const blob = new Blob([attempts.map(formatted).join("\n") + "\n"], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "anagrams.txt";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  });
+
+  document.getElementById("clear").addEventListener("click", () => {
+    if (attempts.length === 0 || !confirm("Clear all attempts?")) return;
+    attempts = [];
+    saveAttempts();
+    renderAttempts();
+  });
+
+  for (const box of [anagrist, anagram]) {
+    box.addEventListener("keydown", e => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        addButton.click();
+      }
+    });
+  }
+
+  renderAttempts();
+
+  anagrist.value = load(ANAGRIST_KEY);
+  anagram.value = load(ANAGRAM_KEY);
+  anagrist.addEventListener("input", update);
+  anagram.addEventListener("input", update);
+  window.addEventListener("resize", update);
+  update();
+</script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palindrome Explorer</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  #boxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  button { font-size: 1rem; cursor: pointer; }
+  .note { margin: 8px 0 0; font-size: 0.9rem; color: #666; }
+  #add { margin-top: 8px; }
+  #attempts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 24px 0 8px;
+  }
+  h2 { margin: 0; font-size: 1.1rem; }
+  #attempts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #999;
+    min-height: 6em;
+  }
+  #attempts li {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 6px 8px;
+    border-bottom: 1px solid #ddd;
+  }
+  #attempts li:last-child { border-bottom: none; }
+  #attempts li:hover { background: #f3f3f3; }
+  #attempts .text { flex: 1; overflow-wrap: anywhere; cursor: pointer; }
+  #attempts .remove {
+    border: none;
+    background: none;
+    color: #888;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 4px;
+  }
+  #attempts .remove:hover { color: #d00; }
+  input {
+    flex: 1 1 300px;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 8px;
+    font-size: 1.2rem;
+    font-family: inherit;
+  }
+  #left { text-align: right; }
+  #middle {
+    flex: 0 0 2.5em;
+    text-align: center;
+  }
+  nav { max-width: 1300px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <b>Palindromes</b> · <a href="pangrams.html">Pangrams</a></nav>
+<main>
+  <div id="boxes">
+    <input id="left" type="text" placeholder="Forwards..." autocomplete="off" autofocus>
+    <input id="middle" type="text" maxlength="1" autocomplete="off" title="Middle letter">
+    <input id="right" type="text" placeholder="...backwards" autocomplete="off">
+  </div>
+  <p class="note">To change a letter's case on one side only, select it and type it again in the other case.</p>
+  <button id="add" title="Ctrl+Enter">Add to list</button>
+  <div id="attempts-header">
+    <h2>Attempts</h2>
+    <span>
+      <button id="export">Export list</button>
+      <button id="clear">Clear list</button>
+    </span>
+  </div>
+  <ul id="attempts"></ul>
+</main>
+<script>
+  const STORAGE_KEY = "palindrome-attempts";
+  const left = document.getElementById("left");
+  const middle = document.getElementById("middle");
+  const right = document.getElementById("right");
+  const addButton = document.getElementById("add");
+  const attemptsList = document.getElementById("attempts");
+
+  // letters are handled as arrays of code points, so letters outside the BMP work
+  const isLetter = ch => /[\p{L}0-9]/u.test(ch);
+  const letters = s => [...s].filter(isLetter);
+  const reverse = arr => [...arr].reverse();
+
+  // Replace the letters with indices [start, end) in text with ins, leaving any
+  // non-letters (spaces, punctuation) where they are.
+  function spliceLetters(text, start, end, ins) {
+    const positions = [];
+    [...text].forEach((ch, i) => { if (isLetter(ch)) positions.push(i); });
+    let insPos;
+    if (start < end) insPos = positions[start];
+    else if (start > 0) insPos = positions[start - 1] + 1;
+    else if (positions.length > 0) insPos = positions[0];
+    else insPos = text.length;
+    const deleted = new Set(positions.slice(start, end));
+    let out = "";
+    [...text].forEach((ch, i) => {
+      if (i === insPos) out += ins;
+      if (!deleted.has(i)) out += ch;
+    });
+    if (insPos === text.length) out += ins;
+    return out;
+  }
+
+  // Propagate an edit in source to target, which holds the same letters reversed.
+  function sync(source, target) {
+    const newLetters = letters(source.value);
+    const oldLetters = reverse(letters(target.value));
+    // compare case-insensitively, so each side can have its own capitalisation
+    const newLower = newLetters.map(ch => ch.toLowerCase());
+    const oldLower = oldLetters.map(ch => ch.toLowerCase());
+    if (newLower.join("") === oldLower.join("")) return;
+    // find the changed region via common prefix and suffix
+    let p = 0;
+    while (p < newLower.length && p < oldLower.length && newLower[p] === oldLower[p]) p++;
+    let s = 0;
+    while (s < newLower.length - p && s < oldLower.length - p &&
+           newLower[newLower.length - 1 - s] === oldLower[oldLower.length - 1 - s]) s++;
+    const inserted = newLetters.slice(p, newLetters.length - s);
+    // in the reversed text, the region [p, len - s) becomes [s, len - p)
+    target.value = spliceLetters(target.value, s, oldLetters.length - p, reverse(inserted).join(""));
+  }
+
+  left.addEventListener("input", () => sync(left, right));
+  right.addEventListener("input", () => sync(right, left));
+
+  // attempts list, saved in the browser's local storage where available;
+  // each attempt keeps its three parts so it can be loaded back into the boxes
+  let attempts = [];
+  try {
+    attempts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch (e) {}
+
+  const joined = a => a.left + a.middle + a.right;
+
+  function saveAttempts() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(attempts));
+    } catch (e) {}
+  }
+
+  const letterCount = a => (joined(a).match(/\p{L}/gu) || []).length;
+
+  function renderAttempts() {
+    attemptsList.innerHTML = "";
+    attempts.sort((a, b) => letterCount(a) - letterCount(b) || joined(a).localeCompare(joined(b)));
+    attempts.forEach((attempt, i) => {
+      const li = document.createElement("li");
+      const span = document.createElement("span");
+      span.className = "text";
+      span.textContent = `[${letterCount(attempt)}] ${joined(attempt)}`;
+      span.title = "Load into boxes";
+      span.addEventListener("click", () => {
+        left.value = attempt.left;
+        middle.value = attempt.middle;
+        right.value = attempt.right;
+        left.focus();
+      });
+      const remove = document.createElement("button");
+      remove.className = "remove";
+      remove.title = "Remove";
+      remove.textContent = "×";
+      remove.addEventListener("click", () => {
+        attempts.splice(i, 1);
+        saveAttempts();
+        renderAttempts();
+      });
+      li.append(span, remove);
+      attemptsList.appendChild(li);
+    });
+  }
+
+  addButton.addEventListener("click", () => {
+    const attempt = { left: left.value, middle: middle.value, right: right.value };
+    if (joined(attempt).trim() === "") return;
+    attempts.push(attempt);
+    saveAttempts();
+    renderAttempts();
+  });
+
+  document.getElementById("export").addEventListener("click", () => {
+    if (attempts.length === 0) return;
+    const blob = new Blob([attempts.map(joined).join("\n") + "\n"], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "palindromes.txt";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  });
+
+  document.getElementById("clear").addEventListener("click", () => {
+    if (attempts.length === 0 || !confirm("Clear all attempts?")) return;
+    attempts = [];
+    saveAttempts();
+    renderAttempts();
+  });
+
+  for (const box of [left, middle, right]) {
+    box.addEventListener("keydown", e => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        addButton.click();
+      }
+    });
+  }
+
+  renderAttempts();
+</script>
+</body>
+</html>
