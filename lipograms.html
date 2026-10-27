@@ -78,7 +78,7 @@
   </div>
   <div id="summary"></div>
   <button id="copy">Copy to clipboard</button>
-  <button id="reset">Start again</button>
+  <button id="reset">Start from scratch</button>
   <span id="copy-note" class="note">Banish all taboo symbols to unlock copying</span>
 </main>
 <script>
@@ -105,7 +105,7 @@
   function disarmReset() {
     resetArmed = false;
     clearTimeout(resetTimer);
-    resetButton.textContent = "Start again";
+    resetButton.textContent = "Start from scratch";
   }
   resetButton.addEventListener("blur", disarmReset);
   resetButton.addEventListener("click", () => {
