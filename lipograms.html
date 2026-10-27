@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lipogram Helper</title>
+<title>Lipogram Workshop</title>
 <style>
   body {
     margin: 0;
@@ -74,12 +74,12 @@
   <label>Avoid:<input id="avoid" type="text" autocomplete="off"></label>
   <div id="editor">
     <div id="backdrop"></div>
-    <textarea id="text" placeholder="Write here..." spellcheck="false" autofocus></textarea>
+    <textarea id="text" placeholder="Start writing…" spellcheck="false" autofocus></textarea>
   </div>
   <div id="summary"></div>
   <button id="copy">Copy to clipboard</button>
-  <button id="reset" title="Clear the text and reset the avoided characters to e">Reset</button>
-  <span id="copy-note" class="note">Remove the avoided characters to enable copying</span>
+  <button id="reset">Start again</button>
+  <span id="copy-note" class="note">Banish all taboo symbols to unlock copying</span>
 </main>
 <script>
   const TEXT_KEY = "lipogram-text";
@@ -105,13 +105,13 @@
   function disarmReset() {
     resetArmed = false;
     clearTimeout(resetTimer);
-    resetButton.textContent = "Reset";
+    resetButton.textContent = "Start again";
   }
   resetButton.addEventListener("blur", disarmReset);
   resetButton.addEventListener("click", () => {
     if (!resetArmed) {
       resetArmed = true;
-      resetButton.textContent = "Click again to reset";
+      resetButton.textContent = "Click again to confirm";
       resetTimer = setTimeout(disarmReset, 3000);
       return;
     }
@@ -129,7 +129,7 @@
       text.select();
       document.execCommand("copy");
     }
-    copyButton.textContent = "Copied!";
+    copyButton.textContent = "In clipboard!";
     setTimeout(() => { copyButton.textContent = "Copy to clipboard"; }, 1500);
   });
 
@@ -178,7 +178,7 @@
     text.style.height = "auto";
     text.style.height = text.scrollHeight + "px";
 
-    let line = `Avoided characters: ${total > 0 ? `<span class="bad">${total}</span>` : total}`;
+    let line = `Taboo count: ${total > 0 ? `<span class="bad">${total}</span>` : total}`;
     if (avoided.size > 1) {
       line += " (" + [...avoided].map(([ch, n]) => `${escape(ch)}: ${n}`).join(", ") + ")";
     }
