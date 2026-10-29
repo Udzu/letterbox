@@ -128,17 +128,33 @@
   const calendar = document.getElementById("calendar");
   const details = document.getElementById("details");
 
-  // special counts scoring 1: ascending runs (123 … 123456789) and repdigits of
-  // length 3 or more (111, 2222, …)
-  const SPECIAL_COUNTS = new Set();
-  for (let n = 3; n <= 9; n++) SPECIAL_COUNTS.add(Number("123456789".slice(0, n)));
-  for (let n = 3; n <= 15; n++) for (let d = 1; d <= 9; d++) SPECIAL_COUNTS.add(Number(String(d).repeat(n)));
+  // special counts, with their score and an optional label for the description:
+  // ascending runs (123 … 123456789) and repdigits of length 3 or more (111, 2222, …)
+  // score 1, powers of two score 2, and factorials score 1
+  const SPECIAL_COUNTS = new Map();
+  function addSpecial(c, score, label = null) {
+    const existing = SPECIAL_COUNTS.get(c);
+    if (!existing || score > existing.score) SPECIAL_COUNTS.set(c, { score, label });
+  }
+  for (let n = 3; n <= 9; n++) addSpecial(Number("123456789".slice(0, n)), 1);
+  for (let n = 3; n <= 15; n++) for (let d = 1; d <= 9; d++) addSpecial(Number(String(d).repeat(n)), 1);
+  const superscript = n => String(n).replace(/\d/g, d => "⁰¹²³⁴⁵⁶⁷⁸⁹"[d]);
+  for (let n = 0; n <= 52; n++) addSpecial(2 ** n, 2, `2${superscript(n)}`);
+  for (let n = 0, f = 1; n <= 18; f *= ++n) addSpecial(f, 1, `${n}!`);
+
+  // count score and label, or null if the count isn't an anniversary: special counts
+  // are used when they score at least as well as the significant-figures score
+  function countInfo(c) {
+    const score = figuresScore(c);
+    const special = SPECIAL_COUNTS.get(c);
+    if (special && (score === null || special.score >= score)) return special;
+    return score === null ? null : { score, label: null };
+  }
 
   // count scores by significant figures: 10^n → 3, a×10^n → 2, two figures → 1,
   // three figures → 0, plus 1 if not divisible by 10 except for powers of ten
-  // (so 2 → 3, 20 → 2); anything else → null (not an anniversary); special counts → 1
-  function countScore(c) {
-    if (SPECIAL_COUNTS.has(c)) return 1;
+  // (so 2 → 3, 20 → 2); anything else → null (not an anniversary)
+  function figuresScore(c) {
     const bonus = c % 10 === 0 ? 0 : 1;
     while (c % 10 === 0) c /= 10;
     if (c === 1) return 3;
@@ -152,9 +168,9 @@
   function niceCounts(lo, hi) {
     lo = Math.max(lo, 1);
     const counts = [];
-    // special counts below 1000 have three figures, so the loop below includes them
-    for (const c of SPECIAL_COUNTS) {
-      if (c >= lo && c <= hi && c > 999) counts.push(c);
+    // special counts with three figures or fewer are already included by the loop below
+    for (const c of SPECIAL_COUNTS.keys()) {
+      if (c >= lo && c <= hi && figuresScore(c) === null) counts.push(c);
     }
     for (let p = 1; p <= hi; p *= 10) {
       for (let m = 1; m < 1000; m++) {
@@ -203,8 +219,8 @@
   function anniversaries(start, year, month) {
     const results = [];
     const add = (unit, count, unitScore, ms) => {
-      const cs = countScore(count);
-      if (cs !== null) results.push({ unit, count, score: unitScore + cs, ms });
+      const info = countInfo(count);
+      if (info !== null) results.push({ unit, count, label: info.label, score: unitScore + info.score, ms });
     };
 
     // calendar units: skipped when the start day doesn't exist in the target month
@@ -243,7 +259,8 @@
     { timeZone: "UTC", day: "numeric", month: "long" });
 
   function describe(a) {
-    const text = `${a.count.toLocaleString("en-GB")} ${a.unit}${a.count === 1 ? "" : "s"}`;
+    const count = a.count.toLocaleString("en-GB") + (a.label ? ` (=${a.label})` : "");
+    const text = `${count} ${a.unit}${a.count === 1 ? "" : "s"}`;
     return a.unit === "Islamic year" ? `${text} (${islamicLongFormat.format(a.ms)})` : text;
   }
 
