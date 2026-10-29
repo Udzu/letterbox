@@ -147,7 +147,7 @@
   function countInfo(c) {
     const score = figuresScore(c);
     const special = SPECIAL_COUNTS.get(c);
-    if (special && (score === null || special.score >= score)) return special;
+    if (special && (score === null || special.score > score)) return special;
     return score === null ? null : { score, label: null };
   }
 
