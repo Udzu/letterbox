@@ -48,8 +48,7 @@
   .s2 { background: #fbe5b4; }
   .s3 { background: #f8cf7a; }
   .s4 { background: #f0ab3c; }
-  .s5 { background: #e48a10; color: #fff; }
-  #legend { display: flex; gap: 12px; align-items: center; margin-top: 8px; font-size: 0.85rem; color: #666; }
+  .s5 { background: #e48a10; color: #fff; }  #legend { display: flex; gap: 12px; align-items: center; margin-top: 8px; font-size: 0.85rem; color: #666; }
   #legend span.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
   #details h2 { font-size: 1.1rem; margin: 24px 0 8px; }
   #details ul { list-style: none; margin: 0; padding: 0; }
@@ -97,8 +96,7 @@
     <span><span class="swatch s2"></span>2</span>
     <span><span class="swatch s3"></span>3</span>
     <span><span class="swatch s4"></span>4</span>
-    <span><span class="swatch s5"></span>5</span>
-  </div>
+    <span><span class="swatch s5"></span>5</span>  </div>
   <div id="details"></div>
 </main>
 <script>
@@ -130,21 +128,34 @@
   const calendar = document.getElementById("calendar");
   const details = document.getElementById("details");
 
+  // special counts scoring 1: ascending runs (123 … 123456789) and repdigits of
+  // length 3 or more (111, 2222, …)
+  const SPECIAL_COUNTS = new Set();
+  for (let n = 3; n <= 9; n++) SPECIAL_COUNTS.add(Number("123456789".slice(0, n)));
+  for (let n = 3; n <= 15; n++) for (let d = 1; d <= 9; d++) SPECIAL_COUNTS.add(Number(String(d).repeat(n)));
+
   // count scores by significant figures: 10^n → 3, a×10^n → 2, two figures → 1,
-  // three figures → 0, anything else → null (not an anniversary)
+  // three figures → 0, plus 1 if not divisible by 10 except for powers of ten
+  // (so 2 → 3, 20 → 2); anything else → null (not an anniversary); special counts → 1
   function countScore(c) {
+    if (SPECIAL_COUNTS.has(c)) return 1;
+    const bonus = c % 10 === 0 ? 0 : 1;
     while (c % 10 === 0) c /= 10;
     if (c === 1) return 3;
-    if (c < 10) return 2;
-    if (c < 100) return 1;
-    if (c < 1000) return 0;
+    if (c < 10) return 2 + bonus;
+    if (c < 100) return 1 + bonus;
+    if (c < 1000) return 0 + bonus;
     return null;
   }
 
-  // all counts in [lo, hi] with at most three significant figures
+  // all counts in [lo, hi] with at most three significant figures, plus special counts
   function niceCounts(lo, hi) {
     lo = Math.max(lo, 1);
     const counts = [];
+    // special counts below 1000 have three figures, so the loop below includes them
+    for (const c of SPECIAL_COUNTS) {
+      if (c >= lo && c <= hi && c > 999) counts.push(c);
+    }
     for (let p = 1; p <= hi; p *= 10) {
       for (let m = 1; m < 1000; m++) {
         if (m % 10 === 0) continue;
@@ -244,6 +255,12 @@
       const d = new Date(a.ms).getUTCDate();
       if (!byDay.has(d)) byDay.set(d, []);
       byDay.get(d).push(a);
+    }
+    // within a day, drop anniversaries outscored by another with the same unit
+    for (const [d, items] of byDay) {
+      const best = new Map();
+      for (const a of items) best.set(a.unit, Math.max(best.get(a.unit) ?? -Infinity, a.score));
+      byDay.set(d, items.filter(a => a.score === best.get(a.unit)));
     }
 
     monthLabel.textContent = new Date(utc(viewYear, viewMonth, 1))
