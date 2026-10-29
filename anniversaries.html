@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anniversaries</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main { max-width: 600px; margin: 0 auto; }
+  #start { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 1.1rem; }
+  #start input { font-size: 1.1rem; font-family: inherit; padding: 4px; }
+  .utc { color: #666; }
+  #month-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 24px 0 8px;
+  }
+  #month-label { font-size: 1.2rem; font-weight: bold; }
+  button { font-size: 1rem; cursor: pointer; }
+  #calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .weekday { text-align: center; font-size: 0.85rem; color: #666; padding-bottom: 4px; }
+  .day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .day:hover { border-color: #bbb; }
+  .day.today { font-weight: bold; text-decoration: underline; }
+  .day.selected { border-color: #000; }
+  .s1 { background: #fdf6e7; }
+  .s2 { background: #fbe5b4; }
+  .s3 { background: #f8cf7a; }
+  .s4 { background: #f0ab3c; }
+  .s5 { background: #e48a10; color: #fff; }
+  #legend { display: flex; gap: 12px; align-items: center; margin-top: 8px; font-size: 0.85rem; color: #666; }
+  #legend span.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+  #details h2 { font-size: 1.1rem; margin: 24px 0 8px; }
+  #details ul { list-style: none; margin: 0; padding: 0; }
+  #details li {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid #ddd;
+  }
+  #details li:last-child { border-bottom: none; }
+  #details .score {
+    flex: 0 0 auto;
+    width: 1.6em;
+    text-align: center;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  #details .what { flex: 1; }
+  #details .time { color: #666; font-variant-numeric: tabular-nums; }
+  #details .none { color: #666; }
+  nav { max-width: 600px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> &nbsp;|&nbsp; <b>Anniversaries</b></nav>
+<main>
+  <div id="start">
+    <label>Start: <input id="date" type="date" required></label>
+    <input id="time" type="time" step="1" required>
+    <span class="utc">UTC</span>
+    <button id="billion" title="Reset to 1 billion seconds ago">Reset</button>
+  </div>
+  <div id="month-header">
+    <button id="prev" title="Previous month">◀</button>
+    <span id="month-label"></span>
+    <button id="next" title="Next month">▶</button>
+  </div>
+  <div id="calendar"></div>
+  <div id="legend">
+    Best score:
+    <span><span class="swatch s1"></span>1</span>
+    <span><span class="swatch s2"></span>2</span>
+    <span><span class="swatch s3"></span>3</span>
+    <span><span class="swatch s4"></span>4</span>
+    <span><span class="swatch s5"></span>5</span>
+  </div>
+  <div id="details"></div>
+</main>
+<script>
+  const STORAGE_KEY = "anniversaries-start";
+  const DAY = 86400000;
+  const MAX_SHOWN = 10;
+  // fixed-length units, in milliseconds
+  const FIXED_UNITS = [
+    { name: "week", score: 2, ms: 7 * DAY },
+    { name: "day", score: 2, ms: DAY },
+    { name: "hour", score: 2, ms: 3600000 },
+    { name: "minute", score: 2, ms: 60000 },
+    { name: "second", score: 2, ms: 1000 },
+    // sidereal orbital periods, in days
+    { name: "Mercury year", score: 1, ms: 87.969 * DAY },
+    { name: "Venus year", score: 1, ms: 224.701 * DAY },
+    { name: "Mars year", score: 1, ms: 686.980 * DAY },
+    { name: "Jupiter year", score: 1, ms: 4332.59 * DAY },
+    { name: "Saturn year", score: 1, ms: 10759.22 * DAY },
+    { name: "Uranus year", score: 1, ms: 30688.5 * DAY },
+    // Martian solar day
+    { name: "Mars sol", score: 1, ms: 88775244 },
+  ];
+  const UNIT_ORDER = ["year", "month", ...FIXED_UNITS.map(u => u.name), "Islamic year"];
+
+  const dateInput = document.getElementById("date");
+  const timeInput = document.getElementById("time");
+  const monthLabel = document.getElementById("month-label");
+  const calendar = document.getElementById("calendar");
+  const details = document.getElementById("details");
+
+  // count scores by significant figures: 10^n → 3, a×10^n → 2, two figures → 1,
+  // three figures → 0, anything else → null (not an anniversary)
+  function countScore(c) {
+    while (c % 10 === 0) c /= 10;
+    if (c === 1) return 3;
+    if (c < 10) return 2;
+    if (c < 100) return 1;
+    if (c < 1000) return 0;
+    return null;
+  }
+
+  // all counts in [lo, hi] with at most three significant figures
+  function niceCounts(lo, hi) {
+    lo = Math.max(lo, 1);
+    const counts = [];
+    for (let p = 1; p <= hi; p *= 10) {
+      for (let m = 1; m < 1000; m++) {
+        if (m % 10 === 0) continue;
+        const c = m * p;
+        if (c >= lo && c <= hi) counts.push(c);
+      }
+    }
+    return counts;
+  }
+
+  // UTC timestamp, safe for years below 100
+  function utc(y, mo, d, h = 0, mi = 0, s = 0) {
+    const date = new Date(0);
+    date.setUTCFullYear(y, mo, d);
+    date.setUTCHours(h, mi, s, 0);
+    return date.getTime();
+  }
+  const daysInMonth = (y, mo) => new Date(utc(y, mo + 1, 0)).getUTCDate();
+
+  // Islamic (Umm al-Qura) calendar conversion, using the browser's built-in calendar data
+  const ISLAMIC_YEAR = 354.367 * DAY;
+  const islamicFormat = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura",
+    { timeZone: "UTC", year: "numeric", month: "numeric", day: "numeric" });
+  function toIslamic(ms) {
+    const parts = Object.fromEntries(islamicFormat.formatToParts(ms).map(p => [p.type, p.value]));
+    return { y: Number(parts.year), m: Number(parts.month), d: Number(parts.day) };
+  }
+  // UTC midnight of the given Islamic date, searching near an estimate; null if it doesn't exist
+  function fromIslamic(y, m, d, estimate) {
+    const base = Math.floor(estimate / DAY) * DAY;
+    for (let k = -5; k <= 5; k++) {
+      const i = toIslamic(base + k * DAY);
+      if (i.y === y && i.m === m && i.d === d) return base + k * DAY;
+    }
+    return null;
+  }
+
+  function getStart() {
+    const [y, mo, d] = (dateInput.value || "2000-01-01").split("-").map(Number);
+    const [h, mi, s = 0] = (timeInput.value || "00:00").split(":").map(Number);
+    return { y, mo: mo - 1, d, h, mi, s, ms: utc(y, mo - 1, d, h, mi, s) };
+  }
+
+  // all anniversaries falling within the given UTC month
+  function anniversaries(start, year, month) {
+    const results = [];
+    const add = (unit, count, unitScore, ms) => {
+      const cs = countScore(count);
+      if (cs !== null) results.push({ unit, count, score: unitScore + cs, ms });
+    };
+
+    // calendar units: skipped when the start day doesn't exist in the target month
+    if (start.d <= daysInMonth(year, month)) {
+      const ms = utc(year, month, start.d, start.h, start.mi, start.s);
+      const months = (year - start.y) * 12 + (month - start.mo);
+      if (months >= 1) add("month", months, 2, ms);
+      if (month === start.mo && year > start.y) add("year", year - start.y, 2, ms);
+    }
+
+    const from = utc(year, month, 1), to = utc(year, month + 1, 1);
+    // Islamic years: at most two Islamic years overlap a Gregorian month
+    const startIslamic = toIslamic(utc(start.y, start.mo, start.d));
+    const timeOfDay = start.ms - utc(start.y, start.mo, start.d);
+    const islamicYears = new Set([toIslamic(from).y, toIslamic(to - DAY).y]);
+    for (const iy of islamicYears) {
+      const count = iy - startIslamic.y;
+      if (count < 1) continue;
+      const day = fromIslamic(iy, startIslamic.m, startIslamic.d, start.ms + count * ISLAMIC_YEAR);
+      if (day !== null && day >= from && day < to) add("Islamic year", count, 1, day + timeOfDay);
+    }
+
+    for (const unit of FIXED_UNITS) {
+      const lo = Math.ceil((from - start.ms) / unit.ms);
+      const hi = Math.floor((to - 1 - start.ms) / unit.ms);
+      for (const c of niceCounts(lo, hi)) add(unit.name, c, unit.score, start.ms + c * unit.ms);
+    }
+    return results;
+  }
+
+  const today = new Date();
+  let viewYear = today.getUTCFullYear(), viewMonth = today.getUTCMonth();
+  let selectedDay = today.getUTCDate();
+
+  const islamicLongFormat = new Intl.DateTimeFormat("en-GB-u-ca-islamic-umalqura",
+    { timeZone: "UTC", day: "numeric", month: "long" });
+
+  function describe(a) {
+    const text = `${a.count.toLocaleString("en-GB")} ${a.unit}${a.count === 1 ? "" : "s"}`;
+    return a.unit === "Islamic year" ? `${text} (${islamicLongFormat.format(a.ms)})` : text;
+  }
+
+  function render() {
+    const start = getStart();
+    const list = anniversaries(start, viewYear, viewMonth);
+    const byDay = new Map();
+    for (const a of list) {
+      const d = new Date(a.ms).getUTCDate();
+      if (!byDay.has(d)) byDay.set(d, []);
+      byDay.get(d).push(a);
+    }
+
+    monthLabel.textContent = new Date(utc(viewYear, viewMonth, 1))
+      .toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+
+    calendar.innerHTML = "";
+    for (const name of ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]) {
+      const div = document.createElement("div");
+      div.className = "weekday";
+      div.textContent = name;
+      calendar.appendChild(div);
+    }
+    const offset = (new Date(utc(viewYear, viewMonth, 1)).getUTCDay() + 6) % 7;
+    for (let i = 0; i < offset; i++) calendar.appendChild(document.createElement("div"));
+
+    for (let d = 1; d <= daysInMonth(viewYear, viewMonth); d++) {
+      const cell = document.createElement("div");
+      cell.className = "day";
+      cell.textContent = d;
+      const items = byDay.get(d);
+      if (items) cell.classList.add("s" + Math.max(...items.map(a => a.score)));
+      if (viewYear === today.getUTCFullYear() && viewMonth === today.getUTCMonth() && d === today.getUTCDate()) {
+        cell.classList.add("today");
+      }
+      if (d === selectedDay) cell.classList.add("selected");
+      cell.addEventListener("click", () => {
+        selectedDay = d;
+        render();
+      });
+      calendar.appendChild(cell);
+    }
+
+    details.innerHTML = "";
+    if (selectedDay === null) return;
+    const h2 = document.createElement("h2");
+    h2.textContent = new Date(utc(viewYear, viewMonth, selectedDay))
+      .toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+    details.appendChild(h2);
+    const items = (byDay.get(selectedDay) || []).sort((a, b) =>
+      b.score - a.score || a.ms - b.ms || UNIT_ORDER.indexOf(a.unit) - UNIT_ORDER.indexOf(b.unit));
+    if (items.length === 0) {
+      const p = document.createElement("p");
+      p.className = "none";
+      p.textContent = "No anniversaries on this day.";
+      details.appendChild(p);
+      return;
+    }
+    const ul = document.createElement("ul");
+    for (const a of items.slice(0, MAX_SHOWN)) {
+      const li = document.createElement("li");
+      const score = document.createElement("span");
+      score.className = "score s" + a.score;
+      score.textContent = a.score;
+      const what = document.createElement("span");
+      what.className = "what";
+      what.textContent = describe(a);
+      const time = document.createElement("span");
+      time.className = "time";
+      time.textContent = new Date(a.ms).toISOString().slice(11, 19);
+      li.append(score, what, time);
+      ul.appendChild(li);
+    }
+    details.appendChild(ul);
+    if (items.length > MAX_SHOWN) {
+      const p = document.createElement("p");
+      p.className = "none";
+      p.textContent = `…and ${(items.length - MAX_SHOWN).toLocaleString("en-GB")} more.`;
+      details.appendChild(p);
+    }
+  }
+
+  function changeMonth(delta) {
+    viewMonth += delta;
+    viewYear += Math.floor(viewMonth / 12);
+    viewMonth = (viewMonth + 12) % 12;
+    selectedDay = null;
+    render();
+  }
+
+  function saveStart() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: dateInput.value, time: timeInput.value }));
+    } catch (e) {}
+  }
+
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  } catch (e) {}
+  // default to exactly 1,000,000,000 seconds ago
+  function setBillionSecondsAgo() {
+    const start = new Date(Date.now() - 1e12).toISOString();
+    dateInput.value = start.slice(0, 10);
+    timeInput.value = start.slice(11, 19);
+  }
+  setBillionSecondsAgo();
+  if (saved?.date) dateInput.value = saved.date;
+  if (saved?.time) timeInput.value = saved.time;
+
+  // resets to the default, forgetting any saved start, and shows today
+  document.getElementById("billion").addEventListener("click", () => {
+    setBillionSecondsAgo();
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+    const now = new Date();
+    viewYear = now.getUTCFullYear();
+    viewMonth = now.getUTCMonth();
+    selectedDay = now.getUTCDate();
+    render();
+  });
+
+  for (const input of [dateInput, timeInput]) {
+    input.addEventListener("input", () => {
+      saveStart();
+      render();
+    });
+  }
+  document.getElementById("prev").addEventListener("click", () => changeMonth(-1));
+  document.getElementById("next").addEventListener("click", () => changeMonth(1));
+  render();
+</script>
+</body>
+</html>
