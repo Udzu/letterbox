@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dice</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main { max-width: 600px; margin: 0 auto; }
+  .intro { margin: 0 0 24px; color: #666; }
+  #inputs { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; font-size: 1.1rem; }
+  #inputs input, #inputs select { font-size: 1.1rem; font-family: inherit; padding: 4px; }
+  #inputs input { width: 4em; }
+  #mix-label { display: block; margin-top: 12px; }
+  #result { margin-top: 24px; }
+  #roll { font-size: 1.6rem; font-weight: bold; font-variant-numeric: tabular-nums; }
+  #stats { margin-top: 8px; color: #666; }
+  .none { color: #666; }
+  .help { margin-top: 32px; font-size: 0.9rem; color: #666; }
+  nav { max-width: 600px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> &nbsp;|&nbsp; <a href="anniversaries.html">Anniversaries</a> · <b>Dice</b></nav>
+<main>
+  <p class="intro">Replace a roll of many dice with fewer dice, keeping the same mean and variance.</p>
+  <div id="inputs">
+    <label>Roll: <input id="n" type="number" min="1" max="100" required></label>
+    <select id="k" aria-label="Die">
+      <option value="4">d4</option>
+      <option value="6">d6</option>
+      <option value="8">d8</option>
+      <option value="10">d10</option>
+      <option value="12">d12</option>
+      <option value="20">d20</option>
+    </select>
+    <label>+ <input id="c" type="number" step="1" placeholder="0" aria-label="Modifier"></label>
+    <label>using at most <input id="r" type="number" min="1" required> dice</label>
+  </div>
+  <label id="mix-label"><input id="mix" type="checkbox"> Allow other dice (d4, d6, d8, d10, d12, d20)</label>
+  <div id="result"></div>
+  <p class="help">
+    Syntax: <b>4d6</b> means roll four six-sided dice and add them up.
+    <b>4d6×2</b> means roll 4d6 and double the total.
+    <b>+ 7</b> adds a fixed number to the result.
+  </p>
+</main>
+<script>
+  const MAX_N = 100;
+  const DICE = [4, 6, 8, 10, 12, 20];
+  const nInput = document.getElementById("n");
+  const kInput = document.getElementById("k");
+  const cInput = document.getElementById("c");
+  const rInput = document.getElementById("r");
+  const mixInput = document.getElementById("mix");
+  const result = document.getElementById("result");
+
+  // A die dk with multiplier a adds a²·(k²−1)/12 to the variance, so a solution for ndk
+  // is a set of groups (m dice dk × a) whose weights a²·(k²−1) sum to n·(k²−1), and the
+  // mean then fixes the constant. Among solutions it prefers the most dice up to r, then
+  // the fewest groups, then the smallest largest multiplier, then the most dice of type k.
+  // Returns { dice, groups }, or { fewest } with the fewest dice possible if none fits.
+  function solve(n, k, r, types) {
+    let items = [];
+    for (const d of types) {
+      for (let a = 1; a * a * (d * d - 1) <= n * (k * k - 1); a++) items.push({ d, a, w: a * a * (d * d - 1) });
+    }
+    // divide through by the common factor, which for a single die type leaves Σ m·a² = n
+    const factor = items.reduce((x, item) => gcd(x, item.w), n * (k * k - 1));
+    const target = n * (k * k - 1) / factor;
+    for (const item of items) item.w /= factor;
+    items.sort((x, y) => y.w - x.w);
+    // weights are distinct, since each die's k²−1 has a different square-free part
+    const index = new Map(items.map((item, i) => [item.w, i]));
+
+    // reach[s] is a bitset of the totals reachable with exactly s dice
+    const words = (target >> 5) + 1;
+    const reach = [new Uint32Array(words)];
+    reach[0][0] = 1;
+    const reachable = (s, t) => (reach[s][t >> 5] >>> (t & 31)) & 1;
+    let dice = 0;
+    for (let s = 1; s <= n; s++) {
+      const prev = reach[s - 1];
+      const next = new Uint32Array(words);
+      for (const { w } of items) {
+        const shift = w >> 5, bits = w & 31;
+        for (let i = words - 1; i >= shift; i--) {
+          let v = prev[i - shift] << bits;
+          if (bits && i > shift) v |= prev[i - shift - 1] >>> (32 - bits);
+          next[i] |= v;
+        }
+      }
+      reach.push(next);
+      if (reachable(s, target)) {
+        if (s > r) return { fewest: s };
+        dice = s;
+      }
+      if (s >= r && dice) break;
+    }
+
+    // depth-first search for exactly `groups` groups with multipliers up to maxA, using
+    // items in decreasing weight order and keeping the solution with most dice of type k
+    let found = null, foundPreferred = -1;
+    function search(start, diceLeft, totalLeft, groupsLeft, maxA, preferred, chosen) {
+      if (preferred + diceLeft <= foundPreferred || !reachable(diceLeft, totalLeft)) return;
+      if (groupsLeft === 1) {
+        const i = totalLeft % diceLeft ? undefined : index.get(totalLeft / diceLeft);
+        if (i >= start && items[i].a <= maxA) {
+          found = [...chosen, { ...items[i], m: diceLeft }];
+          foundPreferred = preferred + (items[i].d === k ? diceLeft : 0);
+        }
+        return;
+      }
+      for (let i = start; i < items.length; i++) {
+        const item = items[i];
+        // the remaining items are lighter, so stop once they can't reach the total
+        if (item.w * diceLeft < totalLeft) break;
+        if (item.a > maxA) continue;
+        for (let m = 1; m <= diceLeft - groupsLeft + 1 && m * item.w <= totalLeft; m++) {
+          search(i + 1, diceLeft - m, totalLeft - m * item.w, groupsLeft - 1, maxA,
+            preferred + (item.d === k ? m : 0), [...chosen, { ...item, m }]);
+        }
+      }
+    }
+    const largestA = Math.max(...items.map(item => item.a));
+    for (let groups = 1; groups <= dice; groups++) {
+      for (let maxA = 1; maxA <= largestA; maxA++) {
+        search(0, dice, target, groups, maxA, 0, []);
+        if (found) return { dice, groups: found };
+      }
+    }
+  }
+
+  function gcd(x, y) {
+    while (y) [x, y] = [y, x % y];
+    return x;
+  }
+
+  function format(groups, n, k, modifier) {
+    const sorted = [...groups].sort((x, y) => y.d - x.d || y.a - x.a);
+    const terms = sorted.map(g => `${g.m}d${g.d}` + (g.a > 1 ? `×${g.a}` : ""));
+    // always an integer: every die has an even number of faces, so the weights are odd
+    // and Σ m·a has the same parity as n
+    const c = (n * (k + 1) - groups.reduce((sum, g) => sum + g.m * g.a * (g.d + 1), 0)) / 2 + modifier;
+    const text = terms.join(" + ");
+    if (c > 0) return `${text} + ${c}`;
+    if (c < 0) return `${text} − ${-c}`;
+    return text;
+  }
+
+  function formatNumber(x) {
+    return x.toLocaleString("en-GB", { maximumFractionDigits: 2 });
+  }
+
+  function render() {
+    const n = Number(nInput.value);
+    const k = Number(kInput.value);
+    const r = Number(rInput.value);
+    const modifier = Number(cInput.value);
+    rInput.max = Number.isInteger(n) && n >= 1 ? Math.min(n, MAX_N) : MAX_N;
+    result.replaceChildren();
+    if (!nInput.checkValidity() || !rInput.checkValidity() || !cInput.checkValidity() ||
+        !Number.isInteger(n) || !Number.isInteger(r) || !Number.isInteger(modifier)) {
+      const p = document.createElement("p");
+      p.className = "none";
+      p.textContent = `Enter a whole number of dice from 1 to ${MAX_N}, a whole-number modifier,` +
+        ` and a maximum from 1 to the number of dice.`;
+      result.appendChild(p);
+      return;
+    }
+    const solution = solve(n, k, r, mixInput.checked ? DICE : [k]);
+    if (solution.groups) {
+      const s = solution.dice;
+      const roll = document.createElement("div");
+      roll.id = "roll";
+      roll.textContent = format(solution.groups, n, k, modifier);
+      const stats = document.createElement("div");
+      stats.id = "stats";
+      stats.textContent = `${s} ${s === 1 ? "die" : "dice"} · mean ${formatNumber(n * (k + 1) / 2 + modifier)}` +
+        ` · variance ${formatNumber(n * (k * k - 1) / 12)}`;
+      result.append(roll, stats);
+    } else {
+      const p = document.createElement("p");
+      p.className = "none";
+      p.textContent = `There's no way to roll ${n}d${k} with at most ${r} ${r === 1 ? "die" : "dice"}.` +
+        ` The fewest dice possible is ${solution.fewest}.`;
+      result.appendChild(p);
+    }
+  }
+
+  // set explicitly, so a refresh resets any values the browser restores
+  nInput.value = "10";
+  kInput.value = "6";
+  cInput.value = "";
+  rInput.value = "4";
+  mixInput.checked = false;
+
+  // keep r within 1..n as n shrinks
+  nInput.addEventListener("input", () => {
+    const n = Number(nInput.value);
+    if (Number.isInteger(n) && n >= 1 && n <= MAX_N && Number(rInput.value) > n) rInput.value = n;
+  });
+  for (const input of [nInput, kInput, cInput, rInput, mixInput]) {
+    input.addEventListener("input", render);
+  }
+  render();
+</script>
+</body>
+</html>
