@@ -16,6 +16,7 @@ function show(node) {
     }
     case "repeat": return `(repeat ${node.min} ${node.max ?? "∞"} ${show(node.node)})`;
     case "not": return `(not ${show(node.node)})`;
+    case "spatial": return `(${node.op} ${show(node.left)} ${show(node.right)})`;
     default: return `(${node.type} ${node.items.map(show).join(" ")})`;
   }
 }
@@ -86,6 +87,28 @@ const PARSES = [
   ["!(a|b)", "(not (alt a b))"],
   ["a(!b)", "(concat a (not b))"],
   ["!()", "(not ε)"],
+  // spatial operators
+  ["a<b", "(< a b)"],
+  ["ab<cd", "(< (concat a b) (concat c d))"],
+  ["a*<b+", "(< (repeat 0 ∞ a) (repeat 1 ∞ b))"],
+  ["a<b<c", "(< (< a b) c)"],
+  ["a<(b<c)", "(< a (< b c))"],
+  ["(a<b)^c", "(^ (< a b) c)"],
+  ["a<b|c", "(alt (< a b) c)"],
+  ["a<b&c", "(and (< a b) c)"],
+  ["!a<b", "(not (< a b))"],
+  ["a-b-c", "(- (- a b) c)"],
+  ["a-b", "(- a b)"],
+  ["a_-b", "(_- a b)"],
+  ["a->>b", "(->> a b)"],
+  ["a->^b", "(->^ a b)"],
+  ["a-<^b", "(-<^ a b)"],
+  ["a_-##b", "(_-## a b)"],
+  ["a##b", "(## a b)"],
+  ["a>^b", "(>^ a b)"],
+  ["()<a", "(< ε a)"],
+  ["a\\-b", "(concat a - b)"],
+  ["[a-z]-[a-c]", "(- [a-z] [a-c])"],
 ];
 
 for (const [pattern, expected] of PARSES) {
@@ -120,8 +143,19 @@ const ERRORS = [
   ["\\u{110000}", "Invalid code point", [0, 10]],
   ["\\u{d800}", "Invalid code point", [0, 8]],
   ["\\u{12", "Missing }", [0, 5]],
-  ["a-b", "- is reserved", [1, 2]],
-  ["a<b", "< is reserved", [1, 2]],
+  ["a=b", "= is reserved", [1, 2]],
+  ["a~b", "~ is reserved", [1, 2]],
+  ["a_b", "_ is reserved", [1, 2]],
+  ["_", "_ is reserved", [0, 1]],
+  // spatial operators
+  ["<a", "Missing operand before <", [0, 1]],
+  ["a|->b", "Missing operand before ->", [2, 4]],
+  ["a<", "Missing operand after <", [1, 2]],
+  ["a<<|b", "Missing operand after <<", [1, 3]],
+  ["a<b^c", "Parenthesise to mix < and ^", [3, 4]],
+  ["a-b->c", "Parenthesise to mix - and ->", [3, 5]],
+  ["a<!b", "Parenthesise ! after <", [2, 3]],
+  ["a<b!c", "Parenthesise ! inside a sequence", [3, 4]],
   ["$", "$ is reserved", [0, 1]],
   ["😀,", ", is reserved", [2, 3]],
   ["(?i:a)", "Group modifiers", [1, 2]],
@@ -181,6 +215,15 @@ const FORMATS = [
   ["\\t", "\\t"],
   ["[\\]\\\\\\^\\-\\[]", "[\\]\\\\\\^\\-\\[]"],
   ["[a-z.]", "[a-z.]"],
+  ["(a<b)<c", "a<b<c"],
+  ["a<(b<c)", "a<(b<c)"],
+  ["(a<b)^c", "(a<b)^c"],
+  ["(ab)<(cd)", "ab<cd"],
+  ["(a<b)c", "(a<b)c"],
+  ["(a<b)*", "(a<b)*"],
+  ["!(a<b)", "!a<b"],
+  ["(!a)<b", "(!a)<b"],
+  ["a<(b|c)", "a<(b|c)"],
 ];
 
 for (const [pattern, canonical] of FORMATS) {

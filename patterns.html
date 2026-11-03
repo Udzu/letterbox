@@ -77,13 +77,15 @@
   .help { margin-top: 32px; font-size: 0.9rem; color: #444; }
   .help table { border-collapse: collapse; }
   .help td { padding: 2px 16px 2px 0; vertical-align: top; }
+  .help td:first-child { white-space: nowrap; }
+  .help td:first-child code + code, .help .ops code + code { margin-left: 0.5em; }
   .help code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
 </style>
 </head>
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <b>Patterns</b> &nbsp;|&nbsp; <a href="anniversaries.html">Anniversaries</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Explore regular expressions as finite automata, including conjunction and negation.</p>
+  <p class="intro">Explore regular expressions as finite automata, with extra operators for wordplay such as containment, interleaving and subtraction.</p>
 
   <div class="editor">
     <div class="backdrop" id="pattern-backdrop" aria-hidden="true"></div>
@@ -116,15 +118,22 @@
       <tr><td><code>a</code> <code>\*</code> <code>\n</code> <code>\u{e9}</code></td><td>a character</td></tr>
       <tr><td><code>.</code></td><td>any character</td></tr>
       <tr><td><code>[abc]</code> <code>[a-z]</code> <code>[^a-z]</code></td><td>character classes (<code>[]</code> matches nothing)</td></tr>
-      <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more, 1 or more, 0 or 1</td></tr>
-      <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n, n or more, m to n</td></tr>
+      <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
+      <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
       <tr><td><code>PQ</code></td><td>P followed by Q</td></tr>
+      <tr><td><code>P&lt;Q</code> <code>P&gt;Q</code></td><td>P inside Q; P outside Q (<code>o+&lt;l+</code> matches <i>loool</i>)</td></tr>
+      <tr><td><code>P&lt;&lt;Q</code> <code>P&gt;&gt;Q</code></td><td>strictly inside or outside, with the outer part on both sides</td></tr>
+      <tr><td><code>P^Q</code></td><td>P interleaved with Q (<code>the^A+</code> matches <i>tAAhAe</i>)</td></tr>
+      <tr><td><code>P&lt;^Q</code> <code>P&gt;^Q</code></td><td>interleaved strictly inside or outside, with the outer part at both ends</td></tr>
+      <tr><td><code>P#Q</code> <code>P##Q</code></td><td>P alternating with Q, in either order; with P first (<code>U+##w+</code> matches <i>UwUwU</i>)</td></tr>
+      <tr><td><code>P-Q</code> <code>P_-Q</code></td><td>P with Q removed from the end or the start (<code>(the|a)-.</code> matches <i>th</i>)</td></tr>
+      <tr><td><code>P-</code><i>op</i><code>Q</code></td><td>P with Q removed according to any operator above: <span class="ops"><code>-&lt;</code> <code>-&gt;</code> <code>-&lt;&lt;</code> <code>-&gt;&gt;</code> <code>-^</code> <code>-&lt;^</code> <code>-&gt;^</code> <code>-#</code> <code>-##</code> <code>_-##</code></span> (<code>Madrid-^..</code> matches <i>Mdrd</i>)</td></tr>
       <tr><td><code>!P</code></td><td>anything P doesn't match</td></tr>
       <tr><td><code>P&amp;Q</code></td><td>both P and Q</td></tr>
       <tr><td><code>P|Q</code></td><td>either P or Q</td></tr>
       <tr><td><code>(P)</code></td><td>grouping</td></tr>
     </table>
-    <p>Operators are listed from tightest to loosest binding, so <code>!ab|c</code> means <code>(!(ab))|c</code>.</p>
+    <p>Operators are listed from tightest to loosest binding, so <code>!ab&lt;c|d</code> means <code>(!((ab)&lt;c))|d</code>. One of the operators from <code>&lt;</code> to <code>-</code><i>op</i> can be repeated, as in <code>a-b-c</code>, but different ones need parentheses, as in <code>(a&lt;b)^c</code>.</p>
   </div>
 </main>
 <script>
@@ -3152,6 +3161,30 @@
     }
   };
   var RESERVED = new Set('!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~');
+  var SPATIAL_OPS = [
+    "<",
+    ">",
+    "<<",
+    ">>",
+    "^",
+    "<^",
+    ">^",
+    "#",
+    "##",
+    "-",
+    "_-",
+    "-<",
+    "->",
+    "-<<",
+    "->>",
+    "-^",
+    "-<^",
+    "->^",
+    "-#",
+    "-##",
+    "_-##"
+  ];
+  var SPATIAL_BY_LENGTH = [...SPATIAL_OPS].sort((x, y) => y.length - x.length);
   var NAMED_ESCAPES = { n: 10, r: 13, t: 9 };
   var MAX_REPEAT = 1e3;
   var HEX = /^[0-9a-fA-F]{1,6}$/;
@@ -3225,12 +3258,36 @@
       return combine("and", items, start, this.pos);
     }
     parseNot() {
-      if (this.peek() !== "!") return this.parseConcat();
+      if (this.peek() !== "!") return this.parseSpatial();
       const start = this.pos;
       this.next();
       const node = this.parseNot();
       if (node === null) throw this.error("Missing operand after !", start);
       return { type: "not", node, span: [start, this.pos] };
+    }
+    peekSpatial() {
+      return SPATIAL_BY_LENGTH.find((op) => this.src.startsWith(op, this.pos)) ?? null;
+    }
+    parseSpatial() {
+      const start = this.pos;
+      let left = this.parseConcat();
+      const first = this.peekSpatial();
+      if (first === null) return left;
+      if (left === null) throw this.error(`Missing operand before ${first}`, this.pos, this.pos + first.length);
+      for (let op = first; op !== null; op = this.peekSpatial()) {
+        const opPos = this.pos;
+        if (op !== first) {
+          throw this.error(`Parenthesise to mix ${first} and ${op}, as in (a${first}b)${op}c`, opPos, opPos + op.length);
+        }
+        this.pos += op.length;
+        const right = this.parseConcat();
+        if (right === null) {
+          if (this.peek() === "!") throw this.error(`Parenthesise ! after ${op}, as in a${op}(!b)`);
+          throw this.error(`Missing operand after ${op}`, opPos, opPos + op.length);
+        }
+        left = { type: "spatial", op, left, right, span: [start, this.pos] };
+      }
+      return left;
     }
     parseConcat() {
       const start = this.pos;
@@ -3291,7 +3348,7 @@
     parseAtom() {
       const start = this.pos;
       const c = this.peek();
-      if (c === void 0) return null;
+      if (c === void 0 || this.peekSpatial() !== null) return null;
       switch (c) {
         case "|":
         case ")":
@@ -3760,7 +3817,100 @@
     return trim(determinize(reverse(determinize(reverse(nfa2)))));
   }
 
+  // src/patterns/weave.js
+  var L = "L".codePointAt(0);
+  var R = "R".codePointAt(0);
+  function product(a, b, split, step2) {
+    const builder = new Builder();
+    const ids = /* @__PURE__ */ new Map();
+    const triples = [];
+    const id = (p, q, s) => {
+      const key = (p * b.size + q) * split.size + s;
+      if (!ids.has(key)) {
+        ids.set(key, builder.state());
+        triples.push([p, q, s]);
+      }
+      return ids.get(key);
+    };
+    const start = id(a.start, b.start, split.start);
+    for (let i = 0; i < triples.length; i++) {
+      const [p, q, s] = triples[i];
+      for (const e of a.edges[p]) if (e.label === null) builder.edge(i, null, id(e.to, q, s));
+      for (const f of b.edges[q]) if (f.label === null) builder.edge(i, null, id(p, f.to, s));
+      for (const g of split.edges[s]) {
+        if (g.label === null) builder.edge(i, null, id(p, q, g.to));
+        else step2(builder, i, p, q, g, id);
+      }
+    }
+    const accepting = [];
+    triples.forEach(([p, q, s], i) => {
+      if (a.accepting.has(p) && b.accepting.has(q) && split.accepting.has(s)) accepting.push(i);
+    });
+    return builder.build(start, accepting);
+  }
+  function weave(a, b, split) {
+    return product(a, b, split, (builder, i, p, q, g, id) => {
+      if (g.label.has(L)) {
+        for (const e of a.edges[p]) if (e.label !== null) builder.edge(i, e.label, id(e.to, q, g.to));
+      }
+      if (g.label.has(R)) {
+        for (const f of b.edges[q]) if (f.label !== null) builder.edge(i, f.label, id(p, f.to, g.to));
+      }
+    });
+  }
+  function unweave(a, b, split) {
+    return product(a, b, split, (builder, i, p, q, g, id) => {
+      if (g.label.has(L)) {
+        for (const e of a.edges[p]) if (e.label !== null) builder.edge(i, e.label, id(e.to, q, g.to));
+      }
+      if (g.label.has(R)) {
+        for (const e of a.edges[p]) {
+          if (e.label === null) continue;
+          for (const f of b.edges[q]) {
+            if (f.label !== null && !e.label.intersect(f.label).isEmpty()) builder.edge(i, null, id(e.to, f.to, g.to));
+          }
+        }
+      }
+    });
+  }
+
   // src/patterns/compile.js
+  var SPLITS = {
+    "": "L*R*",
+    //      AB    A then B
+    "<": "R*L*R*",
+    //   A<B   A inside B
+    ">": "L*R*L*",
+    //   A>B   A outside B
+    "<<": "R+L*R+",
+    //  A<<B  A strictly inside B
+    ">>": "L+R*L+",
+    //  A>>B  A strictly outside B
+    "^": "[LR]*",
+    //    A^B   A interleaved with B
+    "<^": "R[LR]*R",
+    // A<^B  A interleaved strictly inside B
+    ">^": "L[LR]*L",
+    // A>^B  A interleaved strictly outside B
+    "#": "(LR)*L?|(RL)*R?",
+    // A#B  A alternating with B
+    "##": "(LR)*L?"
+    // A##B  A alternating with B, A first
+  };
+  function spatialOp(op) {
+    if (op in SPLITS) return { construct: weave, split: SPLITS[op] };
+    if (op.startsWith("-")) return { construct: unweave, split: SPLITS[op.slice(1)] };
+    if (op.startsWith("_-")) return { construct: unweave, split: swap(SPLITS[op.slice(2)]) };
+    throw new Error(`Unknown spatial operator ${op}`);
+  }
+  function swap(split) {
+    return split.replace(/[LR]/g, (c) => c === "L" ? "R" : "L");
+  }
+  var splitCache = /* @__PURE__ */ new Map();
+  function splitDfa(split) {
+    if (!splitCache.has(split)) splitCache.set(split, minimize(compile(parse(split))));
+    return splitCache.get(split);
+  }
   function compile(ast) {
     const b = new Builder();
     const start = b.state();
@@ -3794,6 +3944,11 @@
       }
       case "not":
         return embed(b, complement(compile(node.node)), from);
+      case "spatial": {
+        const { construct, split } = spatialOp(node.op);
+        const nfa2 = construct(removeEpsilons(compile(node.left)), removeEpsilons(compile(node.right)), splitDfa(split));
+        return embed(b, nfa2, from);
+      }
       default:
         throw new Error(`Unknown node type ${node.type}`);
     }

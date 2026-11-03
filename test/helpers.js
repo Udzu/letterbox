@@ -1,5 +1,7 @@
 // shared test helpers
 
+import { SPATIAL_OPS } from "../src/patterns/parser.js";
+
 export const DEFAULT_CHARS = ["a", "b", "é", "😀", " ", "'", "*", "\\", "-", "]", "^", "[", "|", "\n", "\x00", "!"];
 
 // deterministic pseudo-random numbers in [0, 1)
@@ -14,7 +16,7 @@ export function stripSpans(node) {
 }
 
 // random ASTs in normal form: associative nodes are flattened and have 2+ items
-export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true } = {}) {
+export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, spatial = logic } = {}) {
   const pick = (xs) => xs[Math.floor(rand() * xs.length)];
   const cp = () => pick(chars).codePointAt(0);
   const leaf = () => pick([
@@ -30,7 +32,7 @@ export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true } =
     },
   ])();
   if (depth === 0) return leaf();
-  const sub = () => randomAst(rand, depth - 1, { chars, logic });
+  const sub = () => randomAst(rand, depth - 1, { chars, logic, spatial });
   const items = (type) => {
     const out = [];
     for (let i = 0, n = 2 + Math.floor(rand() * 2); i < n; i++) {
@@ -48,6 +50,7 @@ export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true } =
     () => items("concat"),
     () => items("alt"),
     ...(logic ? [() => ({ type: "not", node: sub() }), () => items("and")] : []),
+    ...(spatial ? [() => ({ type: "spatial", op: pick(SPATIAL_OPS), left: sub(), right: sub() })] : []),
   ])();
 }
 

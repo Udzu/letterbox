@@ -7,7 +7,44 @@
 // - the returned end state has no outgoing edges yet, unless it is `from` itself.
 
 import { CharSet } from "./charset.js";
-import { Builder, complement, intersect } from "./nfa.js";
+import { Builder, complement, intersect, minimize, removeEpsilons } from "./nfa.js";
+import { parse } from "./parser.js";
+import { unweave, weave } from "./weave.js";
+
+// Split patterns for the separating operators: which positions of a combined string come
+// from the left operand (L) and which from the right (R). See weave.js.
+export const SPLITS = {
+  "": "L*R*", //      AB    A then B
+  "<": "R*L*R*", //   A<B   A inside B
+  ">": "L*R*L*", //   A>B   A outside B
+  "<<": "R+L*R+", //  A<<B  A strictly inside B
+  ">>": "L+R*L+", //  A>>B  A strictly outside B
+  "^": "[LR]*", //    A^B   A interleaved with B
+  "<^": "R[LR]*R", // A<^B  A interleaved strictly inside B
+  ">^": "L[LR]*L", // A>^B  A interleaved strictly outside B
+  "#": "(LR)*L?|(RL)*R?", // A#B  A alternating with B
+  "##": "(LR)*L?", // A##B  A alternating with B, A first
+};
+
+// How each spatial operator token is built: A op B weaves A and B with SPLITS[op], while
+// A-op B removes B from A (w matches if w op b is in A for some b in B), and A_-op B is
+// the mirror image (b op w is in A).
+export function spatialOp(op) {
+  if (op in SPLITS) return { construct: weave, split: SPLITS[op] };
+  if (op.startsWith("-")) return { construct: unweave, split: SPLITS[op.slice(1)] };
+  if (op.startsWith("_-")) return { construct: unweave, split: swap(SPLITS[op.slice(2)]) };
+  throw new Error(`Unknown spatial operator ${op}`);
+}
+
+function swap(split) {
+  return split.replace(/[LR]/g, (c) => (c === "L" ? "R" : "L"));
+}
+
+const splitCache = new Map();
+function splitDfa(split) {
+  if (!splitCache.has(split)) splitCache.set(split, minimize(compile(parse(split))));
+  return splitCache.get(split);
+}
 
 export function compile(ast) {
   const b = new Builder();
@@ -43,6 +80,11 @@ function build(b, node, from) {
     }
     case "not":
       return embed(b, complement(compile(node.node)), from);
+    case "spatial": {
+      const { construct, split } = spatialOp(node.op);
+      const nfa = construct(removeEpsilons(compile(node.left)), removeEpsilons(compile(node.right)), splitDfa(split));
+      return embed(b, nfa, from);
+    }
     default:
       throw new Error(`Unknown node type ${node.type}`);
   }

@@ -76,13 +76,15 @@
   .help { margin-top: 32px; font-size: 0.9rem; color: #444; }
   .help table { border-collapse: collapse; }
   .help td { padding: 2px 16px 2px 0; vertical-align: top; }
+  .help td:first-child { white-space: nowrap; }
+  .help td:first-child code + code, .help .ops code + code { margin-left: 0.5em; }
   .help code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
 </style>
 </head>
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <b>Patterns</b> &nbsp;|&nbsp; <a href="anniversaries.html">Anniversaries</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Explore regular expressions as finite automata, including conjunction and negation.</p>
+  <p class="intro">Explore regular expressions as finite automata, with extra operators for wordplay such as containment, interleaving and subtraction.</p>
 
   <div class="editor">
     <div class="backdrop" id="pattern-backdrop" aria-hidden="true"></div>
@@ -115,15 +117,22 @@
       <tr><td><code>a</code> <code>\*</code> <code>\n</code> <code>\u{e9}</code></td><td>a character</td></tr>
       <tr><td><code>.</code></td><td>any character</td></tr>
       <tr><td><code>[abc]</code> <code>[a-z]</code> <code>[^a-z]</code></td><td>character classes (<code>[]</code> matches nothing)</td></tr>
-      <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more, 1 or more, 0 or 1</td></tr>
-      <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n, n or more, m to n</td></tr>
+      <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
+      <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
       <tr><td><code>PQ</code></td><td>P followed by Q</td></tr>
+      <tr><td><code>P&lt;Q</code> <code>P&gt;Q</code></td><td>P inside Q; P outside Q (<code>o+&lt;l+</code> matches <i>loool</i>)</td></tr>
+      <tr><td><code>P&lt;&lt;Q</code> <code>P&gt;&gt;Q</code></td><td>strictly inside or outside, with the outer part on both sides</td></tr>
+      <tr><td><code>P^Q</code></td><td>P interleaved with Q (<code>the^A+</code> matches <i>tAAhAe</i>)</td></tr>
+      <tr><td><code>P&lt;^Q</code> <code>P&gt;^Q</code></td><td>interleaved strictly inside or outside, with the outer part at both ends</td></tr>
+      <tr><td><code>P#Q</code> <code>P##Q</code></td><td>P alternating with Q, in either order; with P first (<code>U+##w+</code> matches <i>UwUwU</i>)</td></tr>
+      <tr><td><code>P-Q</code> <code>P_-Q</code></td><td>P with Q removed from the end or the start (<code>(the|a)-.</code> matches <i>th</i>)</td></tr>
+      <tr><td><code>P-</code><i>op</i><code>Q</code></td><td>P with Q removed according to any operator above: <span class="ops"><code>-&lt;</code> <code>-&gt;</code> <code>-&lt;&lt;</code> <code>-&gt;&gt;</code> <code>-^</code> <code>-&lt;^</code> <code>-&gt;^</code> <code>-#</code> <code>-##</code> <code>_-##</code></span> (<code>Madrid-^..</code> matches <i>Mdrd</i>)</td></tr>
       <tr><td><code>!P</code></td><td>anything P doesn't match</td></tr>
       <tr><td><code>P&amp;Q</code></td><td>both P and Q</td></tr>
       <tr><td><code>P|Q</code></td><td>either P or Q</td></tr>
       <tr><td><code>(P)</code></td><td>grouping</td></tr>
     </table>
-    <p>Operators are listed from tightest to loosest binding, so <code>!ab|c</code> means <code>(!(ab))|c</code>.</p>
+    <p>Operators are listed from tightest to loosest binding, so <code>!ab&lt;c|d</code> means <code>(!((ab)&lt;c))|d</code>. One of the operators from <code>&lt;</code> to <code>-</code><i>op</i> can be repeated, as in <code>a-b-c</code>, but different ones need parentheses, as in <code>(a&lt;b)^c</code>.</p>
   </div>
 </main>
 <!-- @inline page.js -->

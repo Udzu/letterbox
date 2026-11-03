@@ -4,8 +4,8 @@
 //   alternation    A|B
 //   conjunction    A&B
 //   negation       !A
-//   (spatial and subtraction operators will go here, e.g. A<B; mixing different ones
-//    without parentheses will be an error)
+//   spatial        A<B A^B A##B A-B A->B ... (see SPATIAL_OPS); one operator can be chained,
+//                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
 //   postfix        A* A+ A? A{m} A{m,} A{m,n}
 //   atoms          a \* . [a-z] [^a-z] (A)
@@ -24,6 +24,7 @@
 //   { type: "alt", items }                           2+ items
 //   { type: "and", items }                           2+ items
 //   { type: "not", node }
+//   { type: "spatial", op, left, right }             op is one of SPATIAL_OPS
 
 export class PatternError extends Error {
   constructor(message, start, end = start + 1) {
@@ -37,6 +38,16 @@ export class PatternError extends Error {
 // words. Reserved characters that don't (yet) mean anything are an error, not a literal,
 // so new syntax can't change the meaning of an existing pattern. Escape them with \.
 export const RESERVED = new Set("!\"#$%&()*+,-./:;<=>?@[\\]^_`{|}~");
+
+// Separating operators (A<B: A inside B, etc) and the matching subtraction operators
+// (A-<B: A with B removed from outside, etc). See compile.js for their meanings.
+export const SPATIAL_OPS = [
+  "<", ">", "<<", ">>", "^", "<^", ">^", "#", "##",
+  "-", "_-", "-<", "->", "-<<", "->>", "-^", "-<^", "->^", "-#", "-##", "_-##",
+];
+// longest first, so that matching the first one that fits gives the longest match; none of
+// these characters can start an operand, so the longest match is always the right one
+const SPATIAL_BY_LENGTH = [...SPATIAL_OPS].sort((x, y) => y.length - x.length);
 
 const NAMED_ESCAPES = { n: 0x0a, r: 0x0d, t: 0x09 };
 const MAX_REPEAT = 1000;
@@ -125,12 +136,38 @@ class Parser {
   }
 
   parseNot() {
-    if (this.peek() !== "!") return this.parseConcat();
+    if (this.peek() !== "!") return this.parseSpatial();
     const start = this.pos;
     this.next();
     const node = this.parseNot();
     if (node === null) throw this.error("Missing operand after !", start);
     return { type: "not", node, span: [start, this.pos] };
+  }
+
+  peekSpatial() {
+    return SPATIAL_BY_LENGTH.find((op) => this.src.startsWith(op, this.pos)) ?? null;
+  }
+
+  parseSpatial() {
+    const start = this.pos;
+    let left = this.parseConcat();
+    const first = this.peekSpatial();
+    if (first === null) return left;
+    if (left === null) throw this.error(`Missing operand before ${first}`, this.pos, this.pos + first.length);
+    for (let op = first; op !== null; op = this.peekSpatial()) {
+      const opPos = this.pos;
+      if (op !== first) {
+        throw this.error(`Parenthesise to mix ${first} and ${op}, as in (a${first}b)${op}c`, opPos, opPos + op.length);
+      }
+      this.pos += op.length;
+      const right = this.parseConcat();
+      if (right === null) {
+        if (this.peek() === "!") throw this.error(`Parenthesise ! after ${op}, as in a${op}(!b)`);
+        throw this.error(`Missing operand after ${op}`, opPos, opPos + op.length);
+      }
+      left = { type: "spatial", op, left, right, span: [start, this.pos] };
+    }
+    return left;
   }
 
   parseConcat() {
@@ -199,7 +236,7 @@ class Parser {
   parseAtom() {
     const start = this.pos;
     const c = this.peek();
-    if (c === undefined) return null;
+    if (c === undefined || this.peekSpatial() !== null) return null;
     switch (c) {
       case "|": case ")": case "&": case "!":
         return null;
@@ -298,7 +335,7 @@ function combine(type, items, start, end) {
 // Format an AST back into a pattern, adding only the parentheses that are needed.
 // parse(format(ast)) gives back the same AST (ignoring spans).
 
-const LEVEL = { alt: 0, and: 1, not: 2, concat: 4, repeat: 5 };
+const LEVEL = { alt: 0, and: 1, not: 2, spatial: 3, concat: 4, repeat: 5 };
 const ATOM = 6;
 
 export function format(node) {
@@ -320,6 +357,12 @@ function fmt(node, minLevel) {
     case "alt": s = node.items.map((n) => (n.type === "empty" ? "" : fmt(n, LEVEL.and))).join("|"); break;
     case "and": s = node.items.map((n) => fmt(n, LEVEL.not)).join("&"); break;
     case "not": s = "!" + fmt(node.node, LEVEL.not); break;
+    case "spatial": {
+      // chains of the same operator group to the left without parentheses
+      const sameLeft = node.left.type === "spatial" && node.left.op === node.op;
+      s = fmt(node.left, sameLeft ? LEVEL.spatial : LEVEL.concat) + node.op + fmt(node.right, LEVEL.concat);
+      break;
+    }
     default: throw new Error(`Unknown node type ${node.type}`);
   }
   return level < minLevel ? `(${s})` : s;
