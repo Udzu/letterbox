@@ -11,6 +11,8 @@
 //            rotation that changes where the string starts (see rotate.js)
 //   (?[m:n:s]:A)  slices of strings in A, as in Python but strict: a string too short for
 //            the slice gives nothing (see sliceError in parser.js)
+//   (?z:A/B/C)  A with one substring matching B replaced by one matching C; (?Z:A/B/C)
+//            doesn't replace at either end (see replace.js)
 //
 // build(node, from) adds the node's fragment starting at the existing state `from` and
 // returns its end state. Two invariants keep this sound while sharing states:
@@ -21,6 +23,7 @@ import { CharSet } from "./charset.js";
 import { caseClose, shiftSet } from "./letters.js";
 import { Builder, complement, intersect, mapLabels, minimize, removeEpsilons, reverse, trim } from "./nfa.js";
 import { parse } from "./parser.js";
+import { replace } from "./replace.js";
 import { atLeast, exactly, rotate } from "./rotate.js";
 import { unweave, weave } from "./weave.js";
 
@@ -103,6 +106,10 @@ function build(b, node, from, options) {
       return modifier(b, node, from, options);
     case "slice":
       return embed(b, slice(compile(node.node, options), node), from);
+    case "replace": {
+      const [a, find, insert] = [node.node, node.find, node.insert].map((n) => removeEpsilons(compile(n, options)));
+      return embed(b, replace(a, find, insert, node.strict), from);
+    }
     default:
       throw new Error(`Unknown node type ${node.type}`);
   }

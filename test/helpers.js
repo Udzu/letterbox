@@ -52,10 +52,11 @@ export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, sp
     ...(logic ? [() => ({ type: "not", node: sub() }), () => items("and")] : []),
     ...(spatial ? [() => ({ type: "spatial", op: pick(SPATIAL_OPS), left: sub(), right: sub() })] : []),
     ...(modifiers ? [() => {
-      const flag = pick(Object.keys(MODIFIERS));
+      const flag = pick(Object.keys(MODIFIERS).filter((f) => !MODIFIERS[f].parts));
       const count = MODIFIERS[flag].count === "none" ? null : pick([null, 1, 2, -1, ...(flag === "c" ? [0, 13, 30] : [])]);
       return { type: "modifier", flag, count, node: sub() };
     }] : []),
+    ...(modifiers ? [() => ({ type: "replace", strict: rand() < 0.5, node: sub(), find: sub(), insert: sub() })] : []),
     ...(modifiers ? [() => {
       for (;;) {
         const [start, stop, step] = [[null, 0, 1, 2, -1, -2], [null, 0, 1, 3, -1], [null, 1, 2, 3]].map(pick);

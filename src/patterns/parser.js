@@ -8,7 +8,7 @@
 //                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
 //   postfix        A* A+ A? A{m} A{m,} A{m,n}
-//   atoms          a \* . [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A)
+//   atoms          a \* . [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C)
 //
 // Every node has a `span` of [start, end) UTF-16 offsets into the pattern, for error
 // reporting and highlighting. Parentheses aren't kept as nodes; `format` adds back the ones
@@ -29,6 +29,8 @@
 //                                                    omitted (see MODIFIERS)
 //   { type: "slice", start, stop, step, node }       (?[start:stop:step]:node); each is null
 //                                                    if omitted (see sliceError)
+//   { type: "replace", strict, node, find, insert }  (?z:node/find/insert), or (?Z:...) if
+//                                                    strict
 
 export class PatternError extends Error {
   constructor(message, start, end = start + 1) {
@@ -60,6 +62,8 @@ export const MODIFIERS = {
   r: { count: "none" }, //     reversed
   c: { count: "optional" }, // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25
   R: { count: "optional" }, // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
+  z: { count: "none", parts: 3 }, // replacement: (?z:A/B/C) is A with a B replaced by a C
+  Z: { count: "none", parts: 3 }, // the same, but not at either end
 };
 // PCRE's inline flags, which mean something different here (or nothing), so they're an
 // error rather than a surprise
@@ -128,11 +132,16 @@ class Parser {
   parsePattern() {
     const node = this.parseAlt();
     if (this.pos < this.src.length) {
-      // parseAlt only stops early at a ")" or a character it couldn't use
+      // parseAlt only stops early at a ")", a "/" or a character it couldn't use
       if (this.peek() === ")") throw this.error("Unmatched )");
+      if (this.peek() === "/") throw this.slashError();
       throw this.error(`Unexpected ${this.peek()}`);
     }
     return node;
+  }
+
+  slashError() {
+    return this.error("/ is reserved: write \\/ to match it literally (it separates the parts of (?z:A/B/C))");
   }
 
   // alternation branches may be empty, as in "a|" or "()"
@@ -270,7 +279,7 @@ class Parser {
     const c = this.peek();
     if (c === undefined || this.peekSpatial() !== null) return null;
     switch (c) {
-      case "|": case ")": case "&": case "!":
+      case "|": case ")": case "&": case "!": case "/":
         return null;
       case "*": case "+": case "?": case "{":
         return null; // parsePostfix reports these
@@ -292,12 +301,36 @@ class Parser {
     const start = this.pos;
     this.next();
     const modifier = this.peek() === "?" ? this.parseModifier(start) : null;
+    if (modifier?.type === "replace") return this.parseReplace(start, modifier);
     const node = this.parseAlt();
-    if (!this.eat(")")) {
-      if (this.pos < this.src.length) throw this.error(`Unexpected ${this.peek()}`);
-      throw this.error("Missing ) to close (", start);
-    }
+    this.closeGroup(start);
     return modifier ? { ...modifier, node, span: [start, this.pos] } : node;
+  }
+
+  closeGroup(start) {
+    if (this.eat(")")) return;
+    if (this.peek() === "/") throw this.slashError();
+    if (this.pos < this.src.length) throw this.error(`Unexpected ${this.peek()}`);
+    throw this.error("Missing ) to close (", start);
+  }
+
+  // the "A/B/C)" of a replacement, whose parts are separated by / at the top level
+  parseReplace(start, { strict }) {
+    const flag = strict ? "Z" : "z";
+    const parts = [this.parseAlt()];
+    while (this.peek() === "/") {
+      if (parts.length === 3) {
+        throw this.error(`(?${flag}:...) has three parts: write \\/ to match / literally`);
+      }
+      this.next();
+      parts.push(this.parseAlt());
+    }
+    if (parts.length < 3 && this.peek() === ")") {
+      throw this.error(`(?${flag}:...) needs three parts, as in (?${flag}:London/o/u)`, start, this.pos + 1);
+    }
+    this.closeGroup(start);
+    const [node, find, insert] = parts;
+    return { type: "replace", strict, node, find, insert, span: [start, this.pos] };
   }
 
   // the "?flag count:" or "?[slice]:" after the "(" at groupStart, returning the node's
@@ -331,6 +364,7 @@ class Parser {
       const example = MODIFIERS[flag].count === "none" ? `(?${flag}:abc)` : `(?${flag}2:abc)`;
       throw this.error(`Expected : after (?${flag}${count ?? ""}, as in ${example}`, ...here());
     }
+    if (MODIFIERS[flag].parts) return { type: "replace", strict: flag === "Z" };
     return { type: "modifier", flag, count };
   }
 
@@ -453,6 +487,11 @@ function fmt(node, minLevel) {
     case "modifier":
       s = `(?${node.flag}${node.count ?? ""}:${fmt(node.node, 0)})`;
       break;
+    case "replace": {
+      const parts = [node.node, node.find, node.insert].map((n) => fmt(n, 0));
+      s = `(?${node.strict ? "Z" : "z"}:${parts.join("/")})`;
+      break;
+    }
     case "slice": {
       const step = node.step === null ? "" : `:${node.step}`;
       s = `(?[${node.start ?? ""}:${node.stop ?? ""}${step}]:${fmt(node.node, 0)})`;

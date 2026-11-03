@@ -4,9 +4,11 @@ import { compile, matches } from "../src/patterns/index.js";
 import { compile as compileAst } from "../src/patterns/compile.js";
 import { CharSet } from "../src/patterns/charset.js";
 import { caseClass, caseClose, shiftSet } from "../src/patterns/letters.js";
-import { equivalent, minimize } from "../src/patterns/nfa.js";
-import { randomAst, seededRandom, toRegExp } from "./helpers.js";
+import { equivalent, minimize, trim } from "../src/patterns/nfa.js";
 import { format } from "../src/patterns/parser.js";
+import { randomAst, seededRandom, toRegExp } from "./helpers.js";
+
+const isEmpty = (nfa) => trim(nfa).accepting.size === 0;
 
 const EXAMPLES = [
   // [pattern, matching, not matching]
@@ -51,6 +53,13 @@ const EXAMPLES = [
   ["(?[1:6:2]:abcdefg)", ["bdf"], []],
   ["(?[1:6:2]:abcde)", [], ["bd"]],
   ["(?[2:-2]:abc)", [], [""]],
+  ["(?z:London/o/u)", ["Lundon", "Londun"], ["London", "Lundun", "Lndon"]],
+  ["(?z:cat/a/[aeiou]+)", ["cot", "cuit", "cat"], ["ct"]],
+  ["(?z:abc/a/x)", ["xbc"], []],
+  ["(?Z:abc/a/x)", [], ["xbc"]],
+  ["(?Z:abc/b/x)", ["axc"], ["abc", "ac"]],
+  ["(?z:abc/b|c/)", ["ac", "ab"], ["abc", "bc"]],
+  ["(?z:abc//x)", ["xabc", "axbc", "abcx"], ["abc"]],
 ];
 
 for (const [pattern, yes, no] of EXAMPLES) {
@@ -184,6 +193,45 @@ test("identities between modifiers", () => {
   same("(?r:(?R1:abcd))", "(?R-1:(?r:abcd))");
   same("(?R1:[a-z]*)", "[a-z]{2,}");
   same("(?R:abcd)", "(?R1:abcd)|(?R2:abcd)|(?R3:abcd)");
+  same("(?[1:-1]:spam)", "pa");
+  same("(?[::2]:[a-z]*)", "[a-z]*");
+});
+
+test("replacement agrees with its definition", () => {
+  // s matches (?z:A/B/C) if s = xcy with c in C and xby in A for some b in B: that is,
+  // if A shares a string with the pattern x(B)y
+  const rand = seededRandom(17);
+  const literal = (s) => chars(s).map((c) => ({ type: "char", cp: c.codePointAt(0) }));
+  for (let i = 0; i < 200; i++) {
+    const [a, b, c] = [0, 1, 2].map(() => randomAst(rand, 2, { chars: ["a", "b"] }));
+    const strict = rand() < 0.5;
+    const nfa = compileAst({ type: "replace", strict, node: a, find: b, insert: c });
+    const inC = compileAst(c);
+    for (const s of randomStrings(rand, 10).map((t) => t.replace(/[^ab]/gu, ""))) {
+      const cs = chars(s);
+      let expected = false;
+      for (let i = strict ? 1 : 0; i <= cs.length && !expected; i++) {
+        for (let j = i; j <= cs.length - (strict ? 1 : 0) && !expected; j++) {
+          if (!matches(inC, cs.slice(i, j).join(""))) continue;
+          const around = { type: "concat", items: [...literal(cs.slice(0, i).join("")), b, ...literal(cs.slice(j).join(""))] };
+          expected = !isEmpty(compileAst({ type: "and", items: [a, around] }));
+        }
+      }
+      assert.equal(matches(nfa, s), expected, `(?${strict ? "Z" : "z"}:${format(a)}/${format(b)}/${format(c)}) on ${JSON.stringify(s)}`);
+    }
+  }
+});
+
+test("replacement with an empty part matches insertion or removal", () => {
+  const rand = seededRandom(19);
+  for (let i = 0; i < 60; i++) {
+    const [a, b] = [0, 1].map(() => format(randomAst(rand, 2, { chars: ["a", "b"] })));
+    const same = (p, q) => assert.ok(equivalent(compile(p), compile(q)), `${p} ≡ ${q}`);
+    same(`(?z:${a}/${b}/)`, `(${a})->(${b})`);
+    same(`(?Z:${a}/${b}/)`, `(${a})->>(${b})`);
+    same(`(?z:${a}//${b})`, `(${b})<(${a})`);
+    same(`(?Z:${a}//${b})`, `(${b})<<(${a})`);
+  }
 });
 
 test("the case table agrees with JavaScript's iu flags", () => {

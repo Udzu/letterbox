@@ -18,6 +18,7 @@ function show(node) {
     case "not": return `(not ${show(node.node)})`;
     case "spatial": return `(${node.op} ${show(node.left)} ${show(node.right)})`;
     case "modifier": return `(?${node.flag}${node.count ?? ""} ${show(node.node)})`;
+    case "replace": return `(${node.strict ? "Z" : "z"} ${show(node.node)} ${show(node.find)} ${show(node.insert)})`;
     case "slice": return `([${[node.start, node.stop, node.step].map((n) => n ?? "_").join(" ")}] ${show(node.node)})`;
     default: return `(${node.type} ${node.items.map(show).join(" ")})`;
   }
@@ -132,6 +133,12 @@ const PARSES = [
   ["(?[-3:-1:2]:a)", "([-3 -1 2] a)"],
   ["(?[2:2]:a)", "([2 2 _] a)"],
   ["(?[1:-5]:a)", "([1 -5 _] a)"],
+  ["(?z:London/o/u)", "(z (concat L o n d o n) o u)"],
+  ["(?Z:a/b/c)", "(Z a b c)"],
+  ["(?z://)", "(z ε ε ε)"],
+  ["(?z:a|b/c&d/!e)", "(z (alt a b) (and c d) (not e))"],
+  ["(?z:a\\/b/c/d)", "(z (concat a / b) c d)"],
+  ["(?z:(?z:a/b/c)/d/e)", "(z (z a b c) d e)"],
 ];
 
 for (const [pattern, expected] of PARSES) {
@@ -210,6 +217,14 @@ const ERRORS = [
   ["(?[-1:-2]:a)", "start is after its stop", [0, 9]],
   ["(?[-:]:a)", "Expected a number in slice", [3, 4]],
   ["(?[1001:]:a)", "at most 1000", [3, 7]],
+  ["a/b", "/ is reserved: write \\/", [1, 2]],
+  ["(a/b)", "/ is reserved", [2, 3]],
+  ["(?z:(a/b)/c/d)", "/ is reserved", [6, 7]],
+  ["(?z:a)", "needs three parts", [0, 6]],
+  ["(?z:a/b)", "needs three parts", [0, 8]],
+  ["(?Z:a/b/c/d)", "(?Z:...) has three parts", [9, 10]],
+  ["(?z:a/b/c", "Missing ) to close (", [0, 1]],
+  ["(?z2:a/b/c)", "doesn't take a number", [3, 4]],
   ["&a", "Missing operand before &", [0, 1]],
   ["a&", "Missing operand after &", [1, 2]],
   ["a&|b", "Missing operand after &", [1, 2]],
@@ -281,6 +296,8 @@ const FORMATS = [
   ["(?R-1:a)*", "(?R-1:a)*"],
   ["(?[1::]:a)", "(?[1:]:a)"],
   ["(?[::1]:a|b)", "(?[::1]:a|b)"],
+  ["(?z:(a|b)/(c)/(d|))", "(?z:a|b/c/d|)"],
+  ["(?z:a/()/(d))", "(?z:a//d)"],
 ];
 
 for (const [pattern, canonical] of FORMATS) {
