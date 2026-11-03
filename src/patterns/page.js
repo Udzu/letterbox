@@ -1,6 +1,7 @@
 // UI for patterns.html.
 
 import { instance } from "@viz-js/viz";
+import { examples } from "./examples.js";
 import {
   compile, determinize, minimize, removeEpsilons, run, toDot, trim, PatternError, TooManyStatesError,
 } from "./index.js";
@@ -23,6 +24,7 @@ const viewSelect = $("view");
 
 const vizReady = instance();
 let nfa = null; // the NFA currently drawn, if any
+let compiled = null; // the compiled pattern, if it's valid
 let drawLarge = false;
 
 function load() {
@@ -61,9 +63,12 @@ async function update() {
   $("pattern-backdrop").innerHTML = escapeHtml(pattern) + "\n";
 
   nfa = null;
+  compiled = null;
+  $("examples-note").textContent = "";
   let message = null;
   try {
-    nfa = VIEWS[viewSelect.value](compile(pattern));
+    compiled = compile(pattern);
+    nfa = VIEWS[viewSelect.value](compiled);
   } catch (e) {
     if (e instanceof PatternError) {
       const [start, end] = e.span;
@@ -79,6 +84,7 @@ async function update() {
     }
   }
 
+  $("add-examples").disabled = compiled === null;
   updateTests();
   // while the pattern is invalid, keep showing the last diagram, dimmed
   $("diagram").classList.toggle("stale", nfa === null && message === null);
@@ -148,6 +154,43 @@ function highlightCurrent() {
   }
 }
 
+// replace a textarea's selection via editing commands where possible, so Ctrl+Z can undo it
+function edit(box, text) {
+  const value = box.value.slice(0, box.selectionStart) + text + box.value.slice(box.selectionEnd);
+  if (!document.execCommand(text ? "insertText" : "delete", false, text) || box.value !== value) box.value = value;
+}
+
+function clearTests() {
+  testsInput.focus();
+  testsInput.select();
+  edit(testsInput, "");
+  $("examples-note").textContent = "";
+  save();
+  onCursor();
+}
+
+// append a few new matching strings to the test strings
+function addExamples() {
+  if (compiled === null) return;
+  const lines = testsInput.value.split("\n");
+  const result = examples(compiled, { exclude: new Set(lines) });
+  const existing = testsInput.value.replace(/\n+$/, "");
+  if (result.examples.length) {
+    // insert at the end, after any trailing blank lines are removed
+    testsInput.focus();
+    testsInput.setSelectionRange(existing.length, testsInput.value.length);
+    edit(testsInput, (existing ? "\n" : "") + result.examples.join("\n"));
+  }
+  const notes = [];
+  if (result.examples.length === 0) {
+    notes.push(lines.some((line) => line !== "" && isMatch(line)) ? "No more examples found." : "No strings can be shown that match.");
+  }
+  if (result.matchesEmpty) notes.push("The empty string also matches.");
+  $("examples-note").textContent = notes.join(" ");
+  save();
+  onCursor();
+}
+
 let pending = false;
 function schedule() {
   if (pending) return;
@@ -178,6 +221,8 @@ patternInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") e.preventDefault();
 });
 viewSelect.addEventListener("change", schedule);
+$("add-examples").addEventListener("click", addExamples);
+$("clear-tests").addEventListener("click", clearTests);
 testsInput.addEventListener("input", () => {
   save();
   onCursor();

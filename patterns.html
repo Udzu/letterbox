@@ -19,6 +19,9 @@
   nav a { color: #06c; }
   nav b { color: #000; }
   h2 { font-size: 1rem; margin: 24px 0 8px; }
+  #tests-header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 24px 0 8px; }
+  #tests-header h2 { margin: 0; }
+  #tests-header button { font: inherit; font-size: 0.9rem; }
 
   /* Each textarea's text is transparent; an identical copy with highlights is
      drawn behind it. Both must share exactly the same text metrics. */
@@ -85,7 +88,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <b>Patterns</b> &nbsp;|&nbsp; <a href="anniversaries.html">Anniversaries</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Explore regular expressions as finite automata, with extra operators for wordplay such as containment, interleaving and subtraction.</p>
+  <p class="intro">Explore regular expressions as finite automata, with extra operators for wordplay such as containment and subtraction.</p>
 
   <div class="editor">
     <div class="backdrop" id="pattern-backdrop" aria-hidden="true"></div>
@@ -105,7 +108,12 @@
   </div>
   <div id="diagram"><p class="note">Loading…</p></div>
 
-  <h2>Test strings</h2>
+  <div id="tests-header">
+    <h2>Test strings</h2>
+    <button id="add-examples">Add examples</button>
+    <button id="clear-tests">Clear</button>
+    <span id="examples-note" class="note"></span>
+  </div>
   <div class="editor">
     <div class="backdrop" id="tests-backdrop" aria-hidden="true"></div>
     <textarea id="tests" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Test strings, one per line"></textarea>
@@ -3152,6 +3160,461 @@
     return Module().then((m) => new Viz(m));
   }
 
+  // src/patterns/charset.js
+  var MAX_CP = 1114111;
+  var CharSet = class _CharSet {
+    // ranges must already be normalised: use CharSet.from for arbitrary ranges
+    constructor(ranges) {
+      this.ranges = ranges;
+      Object.freeze(ranges);
+      Object.freeze(this);
+    }
+    static from(ranges) {
+      const sorted = ranges.filter(([lo, hi]) => lo <= hi).sort((x, y) => x[0] - y[0]);
+      const out = [];
+      for (const [lo, hi] of sorted) {
+        const last = out[out.length - 1];
+        if (last && lo <= last[1] + 1) last[1] = Math.max(last[1], hi);
+        else out.push([lo, hi]);
+      }
+      return new _CharSet(out.map((r) => Object.freeze(r)));
+    }
+    static of(...cps) {
+      return _CharSet.from(cps.map((cp) => [cp, cp]));
+    }
+    isEmpty() {
+      return this.ranges.length === 0;
+    }
+    isAll() {
+      return this.ranges.length === 1 && this.ranges[0][0] === 0 && this.ranges[0][1] === MAX_CP;
+    }
+    has(cp) {
+      const r = this.ranges;
+      let lo = 0;
+      let hi = r.length - 1;
+      while (lo <= hi) {
+        const mid = lo + hi >> 1;
+        if (cp < r[mid][0]) hi = mid - 1;
+        else if (cp > r[mid][1]) lo = mid + 1;
+        else return true;
+      }
+      return false;
+    }
+    // number of code points in the set
+    size() {
+      return this.ranges.reduce((n, [lo, hi]) => n + hi - lo + 1, 0);
+    }
+    union(other) {
+      return _CharSet.from([...this.ranges, ...other.ranges].map(([lo, hi]) => [lo, hi]));
+    }
+    intersect(other) {
+      const a = this.ranges;
+      const b = other.ranges;
+      const out = [];
+      let i = 0;
+      let j = 0;
+      while (i < a.length && j < b.length) {
+        const lo = Math.max(a[i][0], b[j][0]);
+        const hi = Math.min(a[i][1], b[j][1]);
+        if (lo <= hi) out.push(Object.freeze([lo, hi]));
+        if (a[i][1] < b[j][1]) i++;
+        else j++;
+      }
+      return new _CharSet(out);
+    }
+    complement() {
+      const out = [];
+      let next = 0;
+      for (const [lo, hi] of this.ranges) {
+        if (lo > next) out.push(Object.freeze([next, lo - 1]));
+        next = hi + 1;
+      }
+      if (next <= MAX_CP) out.push(Object.freeze([next, MAX_CP]));
+      return new _CharSet(out);
+    }
+    minus(other) {
+      return this.intersect(other.complement());
+    }
+    equals(other) {
+      return this.ranges.length === other.ranges.length && this.ranges.every(([lo, hi], i) => lo === other.ranges[i][0] && hi === other.ranges[i][1]);
+    }
+    isSubsetOf(other) {
+      return this.minus(other).isEmpty();
+    }
+    toString() {
+      const fmt = (cp) => cp >= 33 && cp <= 126 ? String.fromCodePoint(cp) : `U+${cp.toString(16).toUpperCase()}`;
+      return `{${this.ranges.map(([lo, hi]) => lo === hi ? fmt(lo) : `${fmt(lo)}-${fmt(hi)}`).join(",")}}`;
+    }
+  };
+  CharSet.EMPTY = new CharSet([]);
+  CharSet.ALL = new CharSet([Object.freeze([0, MAX_CP])]);
+  function partition(sets) {
+    const points = /* @__PURE__ */ new Set();
+    for (const s of sets) {
+      for (const [lo, hi] of s.ranges) {
+        points.add(lo);
+        points.add(hi + 1);
+      }
+    }
+    const bounds = [...points].sort((x, y) => x - y);
+    const members = bounds.map(() => []);
+    sets.forEach((s, i) => {
+      for (const [lo, hi] of s.ranges) {
+        for (let k = lowerBound(bounds, lo); bounds[k] <= hi; k++) members[k].push(i);
+      }
+    });
+    const pieces = /* @__PURE__ */ new Map();
+    for (let k = 0; k < bounds.length - 1; k++) {
+      if (members[k].length === 0) continue;
+      const key = members[k].join(",");
+      if (!pieces.has(key)) pieces.set(key, { ranges: [], members: members[k] });
+      pieces.get(key).ranges.push([bounds[k], bounds[k + 1] - 1]);
+    }
+    return [...pieces.values()].map(({ ranges, members: members2 }) => ({ set: CharSet.from(ranges), members: members2 }));
+  }
+  function lowerBound(xs, x) {
+    let lo = 0;
+    let hi = xs.length;
+    while (lo < hi) {
+      const mid = lo + hi >> 1;
+      if (xs[mid] < x) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo;
+  }
+
+  // src/patterns/nfa.js
+  var MAX_STATES = 5e4;
+  var TooManyStatesError = class extends Error {
+    constructor() {
+      super(`The automaton needs more than ${MAX_STATES} states`);
+      this.name = "TooManyStatesError";
+    }
+  };
+  var NFA = class {
+    constructor(start, accepting, edges) {
+      this.start = start;
+      this.accepting = accepting;
+      this.edges = edges;
+    }
+    get size() {
+      return this.edges.length;
+    }
+    // true if there are no ε-moves and the edges leaving each state have disjoint labels
+    isDeterministic() {
+      return this.edges.every(
+        (es) => es.every((e, i) => e.label !== null && es.slice(i + 1).every((f) => f.label.intersect(e.label).isEmpty()))
+      );
+    }
+  };
+  var Builder = class {
+    constructor() {
+      this.edges = [];
+    }
+    state() {
+      if (this.edges.length >= MAX_STATES) throw new TooManyStatesError();
+      this.edges.push([]);
+      return this.edges.length - 1;
+    }
+    // label is a CharSet, or null for ε; edges with empty labels are dropped
+    edge(from, label, to) {
+      if (label !== null && label.isEmpty()) return;
+      this.edges[from].push({ label, to });
+    }
+    // copy an NFA in, returning the new numbers of its start and accepting states
+    embed(nfa2) {
+      const offset = this.edges.length;
+      for (let i = 0; i < nfa2.size; i++) this.state();
+      nfa2.edges.forEach((es, s) => {
+        for (const { label, to } of es) this.edge(s + offset, label, to + offset);
+      });
+      return { start: nfa2.start + offset, accepting: [...nfa2.accepting].map((s) => s + offset) };
+    }
+    // parallel edges to the same state are merged into one, and duplicate ε-moves dropped
+    build(start, accepting) {
+      const edges = this.edges.map((es, s) => {
+        const merged = /* @__PURE__ */ new Map();
+        for (const { label, to } of es) {
+          if (label === null && to === s) continue;
+          const key = label === null ? `\u03B5${to}` : `${to}`;
+          const existing = merged.get(key);
+          if (!existing) merged.set(key, { label, to });
+          else if (label !== null) existing.label = existing.label.union(label);
+        }
+        return [...merged.values()].map((e) => Object.freeze(e));
+      });
+      return new NFA(start, new Set(accepting), edges);
+    }
+  };
+  function closure(nfa2, states) {
+    const seen = new Set(states);
+    const stack = [...seen];
+    while (stack.length) {
+      const s = stack.pop();
+      for (const { label, to } of nfa2.edges[s]) {
+        if (label === null && !seen.has(to)) {
+          seen.add(to);
+          stack.push(to);
+        }
+      }
+    }
+    return seen;
+  }
+  function run(nfa2, string) {
+    let current = closure(nfa2, [nfa2.start]);
+    for (const ch of string) {
+      const cp = ch.codePointAt(0);
+      const next = [];
+      for (const s of current) {
+        for (const { label, to } of nfa2.edges[s]) if (label !== null && label.has(cp)) next.push(to);
+      }
+      if (next.length === 0) return /* @__PURE__ */ new Set();
+      current = closure(nfa2, next);
+    }
+    return current;
+  }
+  function matches(nfa2, string) {
+    for (const s of run(nfa2, string)) if (nfa2.accepting.has(s)) return true;
+    return false;
+  }
+  function trim(nfa2) {
+    const reverse2 = nfa2.edges.map(() => []);
+    nfa2.edges.forEach((es, s) => {
+      for (const { to } of es) reverse2[to].push(s);
+    });
+    const live = new Set(nfa2.accepting);
+    const stack = [...live];
+    while (stack.length) {
+      for (const s of reverse2[stack.pop()]) {
+        if (!live.has(s)) {
+          live.add(s);
+          stack.push(s);
+        }
+      }
+    }
+    const order = /* @__PURE__ */ new Map([[nfa2.start, 0]]);
+    const queue = [nfa2.start];
+    for (let i = 0; i < queue.length; i++) {
+      for (const { to } of nfa2.edges[queue[i]]) {
+        if (live.has(to) && !order.has(to)) {
+          order.set(to, order.size);
+          queue.push(to);
+        }
+      }
+    }
+    const b = new Builder();
+    for (let i = 0; i < queue.length; i++) b.state();
+    for (const s of queue) {
+      for (const { label, to } of nfa2.edges[s]) if (order.has(to)) b.edge(order.get(s), label, order.get(to));
+    }
+    return b.build(0, queue.filter((s) => nfa2.accepting.has(s)).map((s) => order.get(s)));
+  }
+  function removeEpsilons(nfa2) {
+    const b = new Builder();
+    for (let i = 0; i < nfa2.size; i++) b.state();
+    const accepting = [];
+    for (let s = 0; s < nfa2.size; s++) {
+      const reach = closure(nfa2, [s]);
+      for (const t of reach) {
+        if (nfa2.accepting.has(t)) accepting.push(s);
+        for (const { label, to } of nfa2.edges[t]) if (label !== null) b.edge(s, label, to);
+      }
+    }
+    return trim(b.build(nfa2.start, accepting));
+  }
+  function determinize(nfa2, { complete = false } = {}) {
+    const b = new Builder();
+    const ids = /* @__PURE__ */ new Map();
+    const sets = [];
+    const matters = nfa2.edges.map((es, s) => nfa2.accepting.has(s) || es.some((e) => e.label !== null));
+    const id = (closed) => {
+      const states = new Set([...closed].filter((s) => matters[s]));
+      const key = [...states].sort((x, y) => x - y).join(",");
+      if (!ids.has(key)) {
+        ids.set(key, b.state());
+        sets.push(states);
+      }
+      return ids.get(key);
+    };
+    let dead = null;
+    const deadState = () => {
+      if (dead === null) {
+        dead = b.state();
+        sets.push(/* @__PURE__ */ new Set());
+        b.edge(dead, CharSet.ALL, dead);
+      }
+      return dead;
+    };
+    const start = id(closure(nfa2, [nfa2.start]));
+    for (let i = 0; i < sets.length; i++) {
+      if (i === dead) continue;
+      const edges = [...sets[i]].flatMap((s) => nfa2.edges[s].filter((e) => e.label !== null));
+      let covered = CharSet.EMPTY;
+      for (const { set, members } of partition(edges.map((e) => e.label))) {
+        b.edge(i, set, id(closure(nfa2, members.map((m) => edges[m].to))));
+        if (complete) covered = covered.union(set);
+      }
+      if (complete && !covered.isAll()) b.edge(i, covered.complement(), deadState());
+    }
+    const accepting = [];
+    sets.forEach((states, i) => {
+      for (const s of states) {
+        if (nfa2.accepting.has(s)) {
+          accepting.push(i);
+          break;
+        }
+      }
+    });
+    return b.build(start, accepting);
+  }
+  function complement(nfa2) {
+    const dfa = determinize(nfa2, { complete: true });
+    const accepting = [];
+    for (let s = 0; s < dfa.size; s++) if (!dfa.accepting.has(s)) accepting.push(s);
+    return trim(new NFA(dfa.start, new Set(accepting), dfa.edges));
+  }
+  function intersect(a, c) {
+    const b = new Builder();
+    const ids = /* @__PURE__ */ new Map();
+    const pairs = [];
+    const id = (p, q) => {
+      const key = p * c.size + q;
+      if (!ids.has(key)) {
+        ids.set(key, b.state());
+        pairs.push([p, q]);
+      }
+      return ids.get(key);
+    };
+    const start = id(a.start, c.start);
+    for (let i = 0; i < pairs.length; i++) {
+      const [p, q] = pairs[i];
+      for (const e of a.edges[p]) {
+        if (e.label === null) {
+          b.edge(i, null, id(e.to, q));
+          continue;
+        }
+        for (const f of c.edges[q]) {
+          if (f.label !== null) b.edge(i, e.label.intersect(f.label), id(e.to, f.to));
+        }
+      }
+      for (const f of c.edges[q]) if (f.label === null) b.edge(i, null, id(p, f.to));
+    }
+    const accepting = [];
+    pairs.forEach(([p, q], i) => {
+      if (a.accepting.has(p) && c.accepting.has(q)) accepting.push(i);
+    });
+    return trim(b.build(start, accepting));
+  }
+  function reverse(nfa2) {
+    const b = new Builder();
+    for (let i = 0; i < nfa2.size; i++) b.state();
+    nfa2.edges.forEach((es, s) => {
+      for (const { label, to } of es) b.edge(to, label, s);
+    });
+    const start = b.state();
+    for (const s of nfa2.accepting) b.edge(start, null, s);
+    return b.build(start, [nfa2.start]);
+  }
+  function minimize(nfa2) {
+    return trim(determinize(reverse(determinize(reverse(nfa2)))));
+  }
+
+  // src/patterns/examples.js
+  var FORBIDDEN = CharSet.from([[10, 10], [13, 13], [55296, 57343]]);
+  var range = (lo, hi) => [lo.codePointAt(0), hi.codePointAt(0)];
+  var POOLS = [
+    CharSet.from([range("a", "z")]),
+    CharSet.from([range("A", "Z"), range("0", "9"), range(" ", " ")]),
+    CharSet.from([range("!", "~")]),
+    CharSet.from([range("\xC0", "\xFF")]).minus(CharSet.of(215, 247))
+    // Latin-1 letters, not × ÷
+  ];
+  var PRINTABLE = /^[\p{L}\p{N}\p{P}\p{S}]$/u;
+  var SMALL_LABEL = 64;
+  var LENGTH_SPREAD = 10;
+  function examples(nfa2, { count = 5, random = Math.random, exclude = /* @__PURE__ */ new Set(), attempts = count * 20 } = {}) {
+    const g = removeEpsilons(nfa2);
+    const matchesEmpty = g.accepting.has(g.start);
+    const usable = g.edges.map((es) => es.map((e) => e.label.minus(FORBIDDEN)));
+    const preferred = g.edges.flat().filter((e) => e.label.size() <= SMALL_LABEL).reduce((set, e) => set.union(e.label), CharSet.EMPTY).minus(FORBIDDEN);
+    const dist = distances(g, usable);
+    const found = [];
+    const seen = new Set(exclude);
+    const add = (s) => {
+      const normalized = s.normalize("NFC");
+      if (normalized !== "" && !seen.has(normalized) && matches(g, normalized)) {
+        seen.add(normalized);
+        found.push(normalized);
+      }
+    };
+    if (dist[g.start] === Infinity) return { examples: found, matchesEmpty };
+    add(walk(g, usable, dist, dist[g.start], random, preferred, true));
+    for (let i = 0; i < attempts && found.length < count; i++) {
+      const target = dist[g.start] + Math.floor(random() * (LENGTH_SPREAD + 1));
+      const s = walk(g, usable, dist, target, random, preferred, false);
+      if (s !== null) add(s);
+    }
+    return { examples: found, matchesEmpty };
+  }
+  function distances(g, usable) {
+    const reverse2 = g.edges.map(() => []);
+    usable.forEach((es, s) => es.forEach((label, i) => {
+      if (!label.isEmpty()) reverse2[g.edges[s][i].to].push(s);
+    }));
+    const dist = g.edges.map((_, s) => g.accepting.has(s) ? 0 : Infinity);
+    const queue = [...g.accepting];
+    for (let i = 0; i < queue.length; i++) {
+      for (const s of reverse2[queue[i]]) {
+        if (dist[s] === Infinity) {
+          dist[s] = dist[queue[i]] + 1;
+          queue.push(s);
+        }
+      }
+    }
+    return dist;
+  }
+  function walk(g, usable, dist, target, random, preferred, shortest) {
+    const chars = [];
+    let s = g.start;
+    for (; ; ) {
+      const done = chars.length >= target;
+      if (done && g.accepting.has(s)) return chars.join("");
+      const options = [];
+      g.edges[s].forEach((e, i) => {
+        const label2 = usable[s][i];
+        if (label2.isEmpty() || dist[e.to] === Infinity) return;
+        if ((done || shortest) && dist[e.to] !== dist[s] - 1) return;
+        options.push([label2, e.to]);
+      });
+      if (options.length === 0) return g.accepting.has(s) ? chars.join("") : null;
+      const [label, to] = shortest ? options[0] : options[Math.floor(random() * options.length)];
+      chars.push(String.fromCodePoint(pickChar(label, shortest ? () => 0 : random, preferred)));
+      s = to;
+    }
+  }
+  function pickChar(set, random = Math.random, preferred = CharSet.EMPTY) {
+    const fromPreferred = set.intersect(preferred);
+    if (!fromPreferred.isEmpty() && random() < 0.5) return member(fromPreferred, random);
+    for (const pool of POOLS) {
+      const available = set.intersect(pool);
+      if (!available.isEmpty()) return member(available, random);
+    }
+    if (!fromPreferred.isEmpty()) return member(fromPreferred, random);
+    for (let i = 0; i < 20; i++) {
+      const cp = member(set, random);
+      if (PRINTABLE.test(String.fromCodePoint(cp))) return cp;
+    }
+    return member(set, random);
+  }
+  function member(set, random) {
+    let index = Math.floor(random() * set.size());
+    for (const [lo, hi] of set.ranges) {
+      if (index <= hi - lo) return lo + index;
+      index -= hi - lo + 1;
+    }
+    return Math.min(set.ranges[0][0], MAX_CP);
+  }
+
   // src/patterns/parser.js
   var PatternError = class extends Error {
     constructor(message, start, end = start + 1) {
@@ -3445,13 +3908,13 @@
     if (items.length === 1) return items[0];
     return { type, items: items.flatMap((n) => n.type === type ? n.items : [n]), span: [start, end] };
   }
-  var PRINTABLE = /^[\p{L}\p{N}\p{P}\p{S} ]$/u;
+  var PRINTABLE2 = /^[\p{L}\p{N}\p{P}\p{S} ]$/u;
   function formatChar(cp, inClass = false) {
     const c = String.fromCodePoint(cp);
     if (cp === 10) return "\\n";
     if (cp === 13) return "\\r";
     if (cp === 9) return "\\t";
-    if (!PRINTABLE.test(c)) return `\\u{${cp.toString(16)}}`;
+    if (!PRINTABLE2.test(c)) return `\\u{${cp.toString(16)}}`;
     if (inClass ? "\\]^-[".includes(c) : RESERVED.has(c)) return "\\" + c;
     return c;
   }
@@ -3460,361 +3923,6 @@
       ([lo, hi]) => lo === hi ? formatChar(lo, true) : `${formatChar(lo, true)}-${formatChar(hi, true)}`
     );
     return `[${negated ? "^" : ""}${parts.join("")}]`;
-  }
-
-  // src/patterns/charset.js
-  var MAX_CP = 1114111;
-  var CharSet = class _CharSet {
-    // ranges must already be normalised: use CharSet.from for arbitrary ranges
-    constructor(ranges) {
-      this.ranges = ranges;
-      Object.freeze(ranges);
-      Object.freeze(this);
-    }
-    static from(ranges) {
-      const sorted = ranges.filter(([lo, hi]) => lo <= hi).sort((x, y) => x[0] - y[0]);
-      const out = [];
-      for (const [lo, hi] of sorted) {
-        const last = out[out.length - 1];
-        if (last && lo <= last[1] + 1) last[1] = Math.max(last[1], hi);
-        else out.push([lo, hi]);
-      }
-      return new _CharSet(out.map((r) => Object.freeze(r)));
-    }
-    static of(...cps) {
-      return _CharSet.from(cps.map((cp) => [cp, cp]));
-    }
-    isEmpty() {
-      return this.ranges.length === 0;
-    }
-    isAll() {
-      return this.ranges.length === 1 && this.ranges[0][0] === 0 && this.ranges[0][1] === MAX_CP;
-    }
-    has(cp) {
-      const r = this.ranges;
-      let lo = 0;
-      let hi = r.length - 1;
-      while (lo <= hi) {
-        const mid = lo + hi >> 1;
-        if (cp < r[mid][0]) hi = mid - 1;
-        else if (cp > r[mid][1]) lo = mid + 1;
-        else return true;
-      }
-      return false;
-    }
-    // number of code points in the set
-    size() {
-      return this.ranges.reduce((n, [lo, hi]) => n + hi - lo + 1, 0);
-    }
-    union(other) {
-      return _CharSet.from([...this.ranges, ...other.ranges].map(([lo, hi]) => [lo, hi]));
-    }
-    intersect(other) {
-      const a = this.ranges;
-      const b = other.ranges;
-      const out = [];
-      let i = 0;
-      let j = 0;
-      while (i < a.length && j < b.length) {
-        const lo = Math.max(a[i][0], b[j][0]);
-        const hi = Math.min(a[i][1], b[j][1]);
-        if (lo <= hi) out.push(Object.freeze([lo, hi]));
-        if (a[i][1] < b[j][1]) i++;
-        else j++;
-      }
-      return new _CharSet(out);
-    }
-    complement() {
-      const out = [];
-      let next = 0;
-      for (const [lo, hi] of this.ranges) {
-        if (lo > next) out.push(Object.freeze([next, lo - 1]));
-        next = hi + 1;
-      }
-      if (next <= MAX_CP) out.push(Object.freeze([next, MAX_CP]));
-      return new _CharSet(out);
-    }
-    minus(other) {
-      return this.intersect(other.complement());
-    }
-    equals(other) {
-      return this.ranges.length === other.ranges.length && this.ranges.every(([lo, hi], i) => lo === other.ranges[i][0] && hi === other.ranges[i][1]);
-    }
-    isSubsetOf(other) {
-      return this.minus(other).isEmpty();
-    }
-    toString() {
-      const fmt = (cp) => cp >= 33 && cp <= 126 ? String.fromCodePoint(cp) : `U+${cp.toString(16).toUpperCase()}`;
-      return `{${this.ranges.map(([lo, hi]) => lo === hi ? fmt(lo) : `${fmt(lo)}-${fmt(hi)}`).join(",")}}`;
-    }
-  };
-  CharSet.EMPTY = new CharSet([]);
-  CharSet.ALL = new CharSet([Object.freeze([0, MAX_CP])]);
-  function partition(sets) {
-    const points = /* @__PURE__ */ new Set();
-    for (const s of sets) {
-      for (const [lo, hi] of s.ranges) {
-        points.add(lo);
-        points.add(hi + 1);
-      }
-    }
-    const bounds = [...points].sort((x, y) => x - y);
-    const members = bounds.map(() => []);
-    sets.forEach((s, i) => {
-      for (const [lo, hi] of s.ranges) {
-        for (let k = lowerBound(bounds, lo); bounds[k] <= hi; k++) members[k].push(i);
-      }
-    });
-    const pieces = /* @__PURE__ */ new Map();
-    for (let k = 0; k < bounds.length - 1; k++) {
-      if (members[k].length === 0) continue;
-      const key = members[k].join(",");
-      if (!pieces.has(key)) pieces.set(key, { ranges: [], members: members[k] });
-      pieces.get(key).ranges.push([bounds[k], bounds[k + 1] - 1]);
-    }
-    return [...pieces.values()].map(({ ranges, members: members2 }) => ({ set: CharSet.from(ranges), members: members2 }));
-  }
-  function lowerBound(xs, x) {
-    let lo = 0;
-    let hi = xs.length;
-    while (lo < hi) {
-      const mid = lo + hi >> 1;
-      if (xs[mid] < x) lo = mid + 1;
-      else hi = mid;
-    }
-    return lo;
-  }
-
-  // src/patterns/nfa.js
-  var MAX_STATES = 5e4;
-  var TooManyStatesError = class extends Error {
-    constructor() {
-      super(`The automaton needs more than ${MAX_STATES} states`);
-      this.name = "TooManyStatesError";
-    }
-  };
-  var NFA = class {
-    constructor(start, accepting, edges) {
-      this.start = start;
-      this.accepting = accepting;
-      this.edges = edges;
-    }
-    get size() {
-      return this.edges.length;
-    }
-    // true if there are no ε-moves and the edges leaving each state have disjoint labels
-    isDeterministic() {
-      return this.edges.every(
-        (es) => es.every((e, i) => e.label !== null && es.slice(i + 1).every((f) => f.label.intersect(e.label).isEmpty()))
-      );
-    }
-  };
-  var Builder = class {
-    constructor() {
-      this.edges = [];
-    }
-    state() {
-      if (this.edges.length >= MAX_STATES) throw new TooManyStatesError();
-      this.edges.push([]);
-      return this.edges.length - 1;
-    }
-    // label is a CharSet, or null for ε; edges with empty labels are dropped
-    edge(from, label, to) {
-      if (label !== null && label.isEmpty()) return;
-      this.edges[from].push({ label, to });
-    }
-    // copy an NFA in, returning the new numbers of its start and accepting states
-    embed(nfa2) {
-      const offset = this.edges.length;
-      for (let i = 0; i < nfa2.size; i++) this.state();
-      nfa2.edges.forEach((es, s) => {
-        for (const { label, to } of es) this.edge(s + offset, label, to + offset);
-      });
-      return { start: nfa2.start + offset, accepting: [...nfa2.accepting].map((s) => s + offset) };
-    }
-    // parallel edges to the same state are merged into one, and duplicate ε-moves dropped
-    build(start, accepting) {
-      const edges = this.edges.map((es, s) => {
-        const merged = /* @__PURE__ */ new Map();
-        for (const { label, to } of es) {
-          if (label === null && to === s) continue;
-          const key = label === null ? `\u03B5${to}` : `${to}`;
-          const existing = merged.get(key);
-          if (!existing) merged.set(key, { label, to });
-          else if (label !== null) existing.label = existing.label.union(label);
-        }
-        return [...merged.values()].map((e) => Object.freeze(e));
-      });
-      return new NFA(start, new Set(accepting), edges);
-    }
-  };
-  function closure(nfa2, states) {
-    const seen = new Set(states);
-    const stack = [...seen];
-    while (stack.length) {
-      const s = stack.pop();
-      for (const { label, to } of nfa2.edges[s]) {
-        if (label === null && !seen.has(to)) {
-          seen.add(to);
-          stack.push(to);
-        }
-      }
-    }
-    return seen;
-  }
-  function run(nfa2, string) {
-    let current = closure(nfa2, [nfa2.start]);
-    for (const ch of string) {
-      const cp = ch.codePointAt(0);
-      const next = [];
-      for (const s of current) {
-        for (const { label, to } of nfa2.edges[s]) if (label !== null && label.has(cp)) next.push(to);
-      }
-      if (next.length === 0) return /* @__PURE__ */ new Set();
-      current = closure(nfa2, next);
-    }
-    return current;
-  }
-  function trim(nfa2) {
-    const reverse2 = nfa2.edges.map(() => []);
-    nfa2.edges.forEach((es, s) => {
-      for (const { to } of es) reverse2[to].push(s);
-    });
-    const live = new Set(nfa2.accepting);
-    const stack = [...live];
-    while (stack.length) {
-      for (const s of reverse2[stack.pop()]) {
-        if (!live.has(s)) {
-          live.add(s);
-          stack.push(s);
-        }
-      }
-    }
-    const order = /* @__PURE__ */ new Map([[nfa2.start, 0]]);
-    const queue = [nfa2.start];
-    for (let i = 0; i < queue.length; i++) {
-      for (const { to } of nfa2.edges[queue[i]]) {
-        if (live.has(to) && !order.has(to)) {
-          order.set(to, order.size);
-          queue.push(to);
-        }
-      }
-    }
-    const b = new Builder();
-    for (let i = 0; i < queue.length; i++) b.state();
-    for (const s of queue) {
-      for (const { label, to } of nfa2.edges[s]) if (order.has(to)) b.edge(order.get(s), label, order.get(to));
-    }
-    return b.build(0, queue.filter((s) => nfa2.accepting.has(s)).map((s) => order.get(s)));
-  }
-  function removeEpsilons(nfa2) {
-    const b = new Builder();
-    for (let i = 0; i < nfa2.size; i++) b.state();
-    const accepting = [];
-    for (let s = 0; s < nfa2.size; s++) {
-      const reach = closure(nfa2, [s]);
-      for (const t of reach) {
-        if (nfa2.accepting.has(t)) accepting.push(s);
-        for (const { label, to } of nfa2.edges[t]) if (label !== null) b.edge(s, label, to);
-      }
-    }
-    return trim(b.build(nfa2.start, accepting));
-  }
-  function determinize(nfa2, { complete = false } = {}) {
-    const b = new Builder();
-    const ids = /* @__PURE__ */ new Map();
-    const sets = [];
-    const matters = nfa2.edges.map((es, s) => nfa2.accepting.has(s) || es.some((e) => e.label !== null));
-    const id = (closed) => {
-      const states = new Set([...closed].filter((s) => matters[s]));
-      const key = [...states].sort((x, y) => x - y).join(",");
-      if (!ids.has(key)) {
-        ids.set(key, b.state());
-        sets.push(states);
-      }
-      return ids.get(key);
-    };
-    let dead = null;
-    const deadState = () => {
-      if (dead === null) {
-        dead = b.state();
-        sets.push(/* @__PURE__ */ new Set());
-        b.edge(dead, CharSet.ALL, dead);
-      }
-      return dead;
-    };
-    const start = id(closure(nfa2, [nfa2.start]));
-    for (let i = 0; i < sets.length; i++) {
-      if (i === dead) continue;
-      const edges = [...sets[i]].flatMap((s) => nfa2.edges[s].filter((e) => e.label !== null));
-      let covered = CharSet.EMPTY;
-      for (const { set, members } of partition(edges.map((e) => e.label))) {
-        b.edge(i, set, id(closure(nfa2, members.map((m) => edges[m].to))));
-        if (complete) covered = covered.union(set);
-      }
-      if (complete && !covered.isAll()) b.edge(i, covered.complement(), deadState());
-    }
-    const accepting = [];
-    sets.forEach((states, i) => {
-      for (const s of states) {
-        if (nfa2.accepting.has(s)) {
-          accepting.push(i);
-          break;
-        }
-      }
-    });
-    return b.build(start, accepting);
-  }
-  function complement(nfa2) {
-    const dfa = determinize(nfa2, { complete: true });
-    const accepting = [];
-    for (let s = 0; s < dfa.size; s++) if (!dfa.accepting.has(s)) accepting.push(s);
-    return trim(new NFA(dfa.start, new Set(accepting), dfa.edges));
-  }
-  function intersect(a, c) {
-    const b = new Builder();
-    const ids = /* @__PURE__ */ new Map();
-    const pairs = [];
-    const id = (p, q) => {
-      const key = p * c.size + q;
-      if (!ids.has(key)) {
-        ids.set(key, b.state());
-        pairs.push([p, q]);
-      }
-      return ids.get(key);
-    };
-    const start = id(a.start, c.start);
-    for (let i = 0; i < pairs.length; i++) {
-      const [p, q] = pairs[i];
-      for (const e of a.edges[p]) {
-        if (e.label === null) {
-          b.edge(i, null, id(e.to, q));
-          continue;
-        }
-        for (const f of c.edges[q]) {
-          if (f.label !== null) b.edge(i, e.label.intersect(f.label), id(e.to, f.to));
-        }
-      }
-      for (const f of c.edges[q]) if (f.label === null) b.edge(i, null, id(p, f.to));
-    }
-    const accepting = [];
-    pairs.forEach(([p, q], i) => {
-      if (a.accepting.has(p) && c.accepting.has(q)) accepting.push(i);
-    });
-    return trim(b.build(start, accepting));
-  }
-  function reverse(nfa2) {
-    const b = new Builder();
-    for (let i = 0; i < nfa2.size; i++) b.state();
-    nfa2.edges.forEach((es, s) => {
-      for (const { label, to } of es) b.edge(to, label, s);
-    });
-    const start = b.state();
-    for (const s of nfa2.accepting) b.edge(start, null, s);
-    return b.build(start, [nfa2.start]);
-  }
-  function minimize(nfa2) {
-    return trim(determinize(reverse(determinize(reverse(nfa2)))));
   }
 
   // src/patterns/weave.js
@@ -4061,6 +4169,7 @@
   var viewSelect = $("view");
   var vizReady = instance();
   var nfa = null;
+  var compiled = null;
   var drawLarge = false;
   function load() {
     try {
@@ -4093,9 +4202,12 @@
     $("error").textContent = "";
     $("pattern-backdrop").innerHTML = escapeHtml(pattern) + "\n";
     nfa = null;
+    compiled = null;
+    $("examples-note").textContent = "";
     let message = null;
     try {
-      nfa = VIEWS[viewSelect.value](compile2(pattern));
+      compiled = compile2(pattern);
+      nfa = VIEWS[viewSelect.value](compiled);
     } catch (e) {
       if (e instanceof PatternError) {
         const [start, end] = e.span;
@@ -4107,6 +4219,7 @@
         throw e;
       }
     }
+    $("add-examples").disabled = compiled === null;
     updateTests();
     $("diagram").classList.toggle("stale", nfa === null && message === null);
     if (nfa === null) {
@@ -4166,6 +4279,37 @@
       g.classList.toggle("active", states.has(Number(g.dataset.state)));
     }
   }
+  function edit(box, text) {
+    const value = box.value.slice(0, box.selectionStart) + text + box.value.slice(box.selectionEnd);
+    if (!document.execCommand(text ? "insertText" : "delete", false, text) || box.value !== value) box.value = value;
+  }
+  function clearTests() {
+    testsInput.focus();
+    testsInput.select();
+    edit(testsInput, "");
+    $("examples-note").textContent = "";
+    save();
+    onCursor();
+  }
+  function addExamples() {
+    if (compiled === null) return;
+    const lines = testsInput.value.split("\n");
+    const result = examples(compiled, { exclude: new Set(lines) });
+    const existing = testsInput.value.replace(/\n+$/, "");
+    if (result.examples.length) {
+      testsInput.focus();
+      testsInput.setSelectionRange(existing.length, testsInput.value.length);
+      edit(testsInput, (existing ? "\n" : "") + result.examples.join("\n"));
+    }
+    const notes = [];
+    if (result.examples.length === 0) {
+      notes.push(lines.some((line) => line !== "" && isMatch(line)) ? "No more examples found." : "No strings can be shown that match.");
+    }
+    if (result.matchesEmpty) notes.push("The empty string also matches.");
+    $("examples-note").textContent = notes.join(" ");
+    save();
+    onCursor();
+  }
   var pending = false;
   function schedule() {
     if (pending) return;
@@ -4192,6 +4336,8 @@
     if (e.key === "Enter") e.preventDefault();
   });
   viewSelect.addEventListener("change", schedule);
+  $("add-examples").addEventListener("click", addExamples);
+  $("clear-tests").addEventListener("click", clearTests);
   testsInput.addEventListener("input", () => {
     save();
     onCursor();
