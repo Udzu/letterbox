@@ -63,6 +63,7 @@
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
   #info { color: #666; }
+  #view-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
   #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
   #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
   #regex-line .label { color: #666; }
@@ -112,6 +113,7 @@
     </select>
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
   </div>
+  <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
   <div id="regex-line">
     <span class="label">PCRE-compatible equivalent:</span>

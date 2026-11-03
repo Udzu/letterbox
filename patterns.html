@@ -64,6 +64,7 @@
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
   #info { color: #666; }
+  #view-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
   #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
   #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
   #regex-line .label { color: #666; }
@@ -113,6 +114,7 @@
     </select>
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
   </div>
+  <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
   <div id="regex-line">
     <span class="label">PCRE-compatible equivalent:</span>
@@ -4731,6 +4733,13 @@
     dfa: (nfa2) => trim(determinize(nfa2)),
     min: minimize
   };
+  var VIEW_HELP = {
+    raw: "The automaton built directly from the pattern, with \u03B5-moves (dashed) that consume no characters.",
+    trimmed: "The Thompson NFA without the states that can't lead to a match.",
+    epsfree: "The trimmed NFA with its \u03B5-moves replaced by the character moves they lead to.",
+    dfa: "A deterministic automaton: each character has at most one move from each state, and a missing move means no match.",
+    min: "The DFA with the fewest states that matches the same strings."
+  };
   var MAX_DRAWN_STATES = 300;
   var REGEX_DELAY = 300;
   var STORAGE_KEY = "patterns";
@@ -4956,7 +4965,14 @@
   patternInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") e.preventDefault();
   });
-  viewSelect.addEventListener("change", schedule);
+  function showViewHelp() {
+    $("view-help").textContent = VIEW_HELP[viewSelect.value];
+  }
+  showViewHelp();
+  viewSelect.addEventListener("change", () => {
+    showViewHelp();
+    schedule();
+  });
   $("add-examples").addEventListener("click", addExamples);
   $("clear-tests").addEventListener("click", clearTests);
   $("copy-regex").addEventListener("click", copyRegex);
