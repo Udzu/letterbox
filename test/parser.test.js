@@ -1,0 +1,254 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { parse, format, PatternError } from "../src/patterns/parser.js";
+
+// compact s-expression view of an AST, ignoring spans
+function show(node) {
+  switch (node.type) {
+    case "empty": return "ε";
+    case "char": return String.fromCodePoint(node.cp);
+    case "any": return ".";
+    case "class": {
+      const ranges = node.ranges.map(([lo, hi]) =>
+        lo === hi ? String.fromCodePoint(lo) : `${String.fromCodePoint(lo)}-${String.fromCodePoint(hi)}`);
+      return `[${node.negated ? "^" : ""}${ranges.join(" ")}]`;
+    }
+    case "repeat": return `(repeat ${node.min} ${node.max ?? "∞"} ${show(node.node)})`;
+    case "not": return `(not ${show(node.node)})`;
+    default: return `(${node.type} ${node.items.map(show).join(" ")})`;
+  }
+}
+
+function stripSpans(node) {
+  if (Array.isArray(node)) return node.map(stripSpans);
+  if (node === null || typeof node !== "object") return node;
+  return Object.fromEntries(Object.entries(node).filter(([k]) => k !== "span").map(([k, v]) => [k, stripSpans(v)]));
+}
+
+const PARSES = [
+  // atoms
+  ["", "ε"],
+  ["a", "a"],
+  ["é", "é"],
+  ["😀", "😀"],
+  [" ", " "],
+  ["'", "'"],
+  [".", "."],
+  ["()", "ε"],
+  ["((a))", "a"],
+  // escapes
+  ["\\*", "*"],
+  ["\\\\", "\\"],
+  ["\\'", "'"],
+  ["\\n", "\n"],
+  ["\\u{e9}", "é"],
+  ["\\u{1F600}", "😀"],
+  // classes
+  ["[abc]", "[a b c]"],
+  ["[a-z]", "[a-z]"],
+  ["[^a-z0-9]", "[^a-z 0-9]"],
+  ["[-a]", "[- a]"],
+  ["[a-]", "[a -]"],
+  ["[^-]", "[^-]"],
+  ["[]", "[]"],
+  ["[^]", "[^]"],
+  ["[\\]\\\\]", "[] \\]"],
+  ["[\\^a]", "[^ a]"],
+  ["[a^]", "[a ^]"],
+  ["[.*+]", "[. * +]"],
+  ["[\\u{e0}-\\u{ff}]", "[à-ÿ]"],
+  ["[😀-😂]", "[😀-😂]"],
+  // repetition
+  ["a*", "(repeat 0 ∞ a)"],
+  ["a+", "(repeat 1 ∞ a)"],
+  ["a?", "(repeat 0 1 a)"],
+  ["a{3}", "(repeat 3 3 a)"],
+  ["a{3,}", "(repeat 3 ∞ a)"],
+  ["a{3,5}", "(repeat 3 5 a)"],
+  ["a{0}", "(repeat 0 0 a)"],
+  ["ab*", "(concat a (repeat 0 ∞ b))"],
+  ["(ab)*", "(repeat 0 ∞ (concat a b))"],
+  ["(a*)?", "(repeat 0 1 (repeat 0 ∞ a))"],
+  // concatenation and alternation
+  ["abc", "(concat a b c)"],
+  ["a|b|c", "(alt a b c)"],
+  ["ab|cd", "(alt (concat a b) (concat c d))"],
+  ["a|", "(alt a ε)"],
+  ["|a", "(alt ε a)"],
+  ["a||b", "(alt a ε b)"],
+  ["a()b", "(concat a ε b)"],
+  // conjunction and negation
+  ["a&b&c", "(and a b c)"],
+  ["ab&c|d", "(alt (and (concat a b) c) d)"],
+  ["a|b&c", "(alt a (and b c))"],
+  ["!a", "(not a)"],
+  ["!ab", "(not (concat a b))"],
+  ["!a*", "(not (repeat 0 ∞ a))"],
+  ["!a&b", "(and (not a) b)"],
+  ["a&!b", "(and a (not b))"],
+  ["!a|b", "(alt (not a) b)"],
+  ["!!a", "(not (not a))"],
+  ["!(a|b)", "(not (alt a b))"],
+  ["a(!b)", "(concat a (not b))"],
+  ["!()", "(not ε)"],
+];
+
+for (const [pattern, expected] of PARSES) {
+  test(`parse ${JSON.stringify(pattern)}`, () => {
+    assert.equal(show(parse(pattern)), expected);
+  });
+}
+
+const ERRORS = [
+  // [pattern, message fragment, span]
+  ["*", "Nothing to repeat", [0, 1]],
+  ["a|+", "Nothing to repeat", [2, 3]],
+  ["a**", "Parenthesise a repetition", [2, 3]],
+  ["a*?", "Parenthesise a repetition", [2, 3]],
+  ["a{2}{3}", "Parenthesise a repetition", [4, 5]],
+  ["a{", "Expected a number", [1, 3]],
+  ["a{x}", "Expected a number", [1, 3]],
+  ["a{,3}", "Expected a number", [1, 3]],
+  ["a{2", "Expected }", [1, 3]],
+  ["a{2,1}", "larger than maximum", [1, 6]],
+  ["a{1001}", "at most 1000", [2, 6]],
+  ["(a", "Missing )", [0, 1]],
+  ["a)", "Unmatched )", [1, 2]],
+  ["[ab", "Missing ]", [0, 1]],
+  ["[z-a]", "out of order", [1, 4]],
+  ["[[]", "[ is reserved", [1, 2]],
+  ["\\", "can't end with", [0, 1]],
+  ["\\d", "Unknown escape", [0, 2]],
+  ["\\ ", "Unknown escape", [0, 2]],
+  ["\\u", "Expected {", [0, 2]],
+  ["\\u{}", "Invalid code point", [0, 4]],
+  ["\\u{110000}", "Invalid code point", [0, 10]],
+  ["\\u{d800}", "Invalid code point", [0, 8]],
+  ["\\u{12", "Missing }", [0, 5]],
+  ["a-b", "- is reserved", [1, 2]],
+  ["a<b", "< is reserved", [1, 2]],
+  ["$", "$ is reserved", [0, 1]],
+  ["😀,", ", is reserved", [2, 3]],
+  ["(?i:a)", "Group modifiers", [1, 2]],
+  ["&a", "Missing operand before &", [0, 1]],
+  ["a&", "Missing operand after &", [1, 2]],
+  ["a&|b", "Missing operand after &", [1, 2]],
+  ["!", "Missing operand after !", [0, 1]],
+  ["!|a", "Missing operand after !", [0, 1]],
+  ["a!b", "Parenthesise !", [1, 2]],
+];
+
+for (const [pattern, fragment, span] of ERRORS) {
+  test(`error ${JSON.stringify(pattern)}`, () => {
+    assert.throws(() => parse(pattern), (e) => {
+      assert.ok(e instanceof PatternError, `expected PatternError, got ${e}`);
+      assert.match(e.message, new RegExp(fragment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+      assert.deepEqual(e.span, span);
+      return true;
+    });
+  });
+}
+
+test("spans", () => {
+  const ast = parse("ab|(cd)*");
+  assert.deepEqual(ast.span, [0, 8]);
+  assert.deepEqual(ast.items[0].span, [0, 2]);
+  assert.deepEqual(ast.items[0].items[1].span, [1, 2]);
+  assert.deepEqual(ast.items[1].span, [3, 8]); // repeat includes the parentheses
+  assert.deepEqual(ast.items[1].node.span, [4, 6]); // the group's contents don't
+  assert.deepEqual(parse("😀a").items[1].span, [2, 3]); // UTF-16 offsets
+});
+
+const FORMATS = [
+  // [pattern, canonical form]
+  ["((a))", "a"],
+  ["(ab)c", "abc"],
+  ["a(b|c)", "a(b|c)"],
+  ["(a|b)|c", "a|b|c"],
+  ["a(b*)", "ab*"],
+  ["(ab)*", "(ab)*"],
+  ["(a*)*", "(a*)*"],
+  ["a{0,}", "a*"],
+  ["a{1,}", "a+"],
+  ["a{0,1}", "a?"],
+  ["a{2,2}", "a{2}"],
+  ["a()b", "a()b"],
+  ["()*", "()*"],
+  ["a|()", "a|"],
+  ["(a&b)c", "(a&b)c"],
+  ["(a|b)&c", "(a|b)&c"],
+  ["(!a)&b", "!a&b"],
+  ["!(a&b)", "!(a&b)"],
+  ["a(!b)", "a(!b)"],
+  ["(!a)*", "(!a)*"],
+  ["\\*\\'", "\\*'"],
+  ["\\u{41}\\u{0}", "A\\u{0}"],
+  ["\\t", "\\t"],
+  ["[\\]\\\\\\^\\-\\[]", "[\\]\\\\\\^\\-\\[]"],
+  ["[a-z.]", "[a-z.]"],
+];
+
+for (const [pattern, canonical] of FORMATS) {
+  test(`format ${JSON.stringify(pattern)}`, () => {
+    const ast = parse(pattern);
+    assert.equal(format(ast), canonical);
+    assert.deepEqual(stripSpans(parse(canonical)), stripSpans(ast));
+  });
+}
+
+test("format round-trips every parsed pattern", () => {
+  for (const [pattern] of PARSES) {
+    const ast = parse(pattern);
+    assert.deepEqual(stripSpans(parse(format(ast))), stripSpans(ast), pattern);
+  }
+});
+
+// random ASTs in normal form: associative nodes are flattened and have 2+ items
+function randomAst(rand, depth) {
+  const pick = (xs) => xs[Math.floor(rand() * xs.length)];
+  const CHARS = ["a", "b", "é", "😀", " ", "'", "*", "\\", "-", "]", "^", "[", "|", "\n", "\x00", "!"];
+  const cp = () => pick(CHARS).codePointAt(0);
+  const leaf = () => pick([
+    () => ({ type: "empty" }),
+    () => ({ type: "char", cp: cp() }),
+    () => ({ type: "any" }),
+    () => {
+      const ranges = Array.from({ length: Math.floor(rand() * 3) }, () => {
+        const [x, y] = [cp(), cp()].sort((p, q) => p - q);
+        return rand() < 0.5 ? [x, x] : [x, y];
+      });
+      return { type: "class", negated: rand() < 0.5, ranges };
+    },
+  ])();
+  if (depth === 0) return leaf();
+  const sub = () => randomAst(rand, depth - 1);
+  const items = (type) => {
+    const out = [];
+    for (let i = 0, n = 2 + Math.floor(rand() * 2); i < n; i++) {
+      const item = sub();
+      out.push(...(item.type === type ? item.items : [item]));
+    }
+    return { type, items: out };
+  };
+  return pick([
+    leaf,
+    () => {
+      const min = Math.floor(rand() * 3);
+      return { type: "repeat", node: sub(), min, max: pick([null, min, min + 2]) };
+    },
+    () => ({ type: "not", node: sub() }),
+    () => items("concat"),
+    () => items("alt"),
+    () => items("and"),
+  ])();
+}
+
+test("format round-trips random ASTs", () => {
+  let seed = 1;
+  const rand = () => ((seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31);
+  for (let i = 0; i < 2000; i++) {
+    const ast = randomAst(rand, 4);
+    const pattern = format(ast);
+    assert.deepEqual(stripSpans(parse(pattern)), ast, pattern);
+  }
+});
