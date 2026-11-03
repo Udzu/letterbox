@@ -77,7 +77,7 @@ test("random patterns give matching examples quickly", () => {
   const rand = seededRandom(31);
   const start = performance.now();
   for (let i = 0; i < 300; i++) {
-    const nfa = compileAst(randomAst(rand, 3, { chars: ["a", "b", "😀"] }));
+    const nfa = compileAst(randomAst(rand, 3, { chars: ["a", "b", "😀"], modifiers: true }));
     for (const s of examples(nfa, { random: rand }).examples) assert.ok(matches(nfa, s));
   }
   assert.ok(performance.now() - start < 5000, "too slow");

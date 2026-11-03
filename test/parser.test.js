@@ -17,6 +17,7 @@ function show(node) {
     case "repeat": return `(repeat ${node.min} ${node.max ?? "∞"} ${show(node.node)})`;
     case "not": return `(not ${show(node.node)})`;
     case "spatial": return `(${node.op} ${show(node.left)} ${show(node.right)})`;
+    case "modifier": return `(?${node.flag}${node.count ?? ""} ${show(node.node)})`;
     default: return `(${node.type} ${node.items.map(show).join(" ")})`;
   }
 }
@@ -109,6 +110,20 @@ const PARSES = [
   ["()<a", "(< ε a)"],
   ["a\\-b", "(concat a - b)"],
   ["[a-z]-[a-c]", "(- [a-z] [a-c])"],
+  // modifiers
+  ["(?i:ab)", "(?i (concat a b))"],
+  ["(?r:a|b)", "(?r (alt a b))"],
+  ["(?c3:a)", "(?c3 a)"],
+  ["(?c-3:a)", "(?c-3 a)"],
+  ["(?c0:a)", "(?c0 a)"],
+  ["(?c:a)", "(?c a)"],
+  ["(?R2:abc)", "(?R2 (concat a b c))"],
+  ["(?R-2:abc)", "(?R-2 (concat a b c))"],
+  ["(?R:abc)", "(?R (concat a b c))"],
+  ["(?i:)", "(?i ε)"],
+  ["(?i:a)*", "(repeat 0 ∞ (?i a))"],
+  ["x(?i:(?r:a))", "(concat x (?i (?r a)))"],
+  ["(?i:a)<b", "(< (?i a) b)"],
 ];
 
 for (const [pattern, expected] of PARSES) {
@@ -158,7 +173,23 @@ const ERRORS = [
   ["a<b!c", "Parenthesise ! inside a sequence", [3, 4]],
   ["$", "$ is reserved", [0, 1]],
   ["😀,", ", is reserved", [2, 3]],
-  ["(?i:a)", "Group modifiers", [1, 2]],
+  ["(?", "Missing modifier", [0, 2]],
+  ["(?s:a)", "PCRE flag, which isn't supported: for a cipher shift", [0, 3]],
+  ["(?m:a)", "(?m is a PCRE flag", [0, 3]],
+  ["(?-i:a)", "(?- is a PCRE flag", [0, 3]],
+  ["(?:a)", "not (?:...)", [0, 3]],
+  ["(?=a)", "Unknown modifier (?=", [0, 3]],
+  ["(?é:a)", "Unknown modifier (?é", [0, 3]],
+  ["(?i)", "Expected : after (?i, as in (?i:abc)", [0, 3]],
+  ["(?ia:b)", "Expected : after (?i", [0, 3]],
+  ["(?R)", "Expected : after (?R, as in (?R2:abc)", [0, 3]],
+  ["(?c3)", "Expected : after (?c3", [0, 4]],
+  ["(?i2:a)", "(?i:...) doesn't take a number", [3, 4]],
+  ["(?c-:a)", "Expected a number after (?c", [3, 4]],
+  ["(?c1001:a)", "at most 1000", [3, 7]],
+  ["(?R0:a)", "can't be 0", [3, 4]],
+  ["(?R-0:a)", "can't be 0", [3, 5]],
+  ["(?i:a", "Missing ) to close (", [0, 1]],
   ["&a", "Missing operand before &", [0, 1]],
   ["a&", "Missing operand after &", [1, 2]],
   ["a&|b", "Missing operand after &", [1, 2]],
@@ -224,6 +255,10 @@ const FORMATS = [
   ["!(a<b)", "!a<b"],
   ["(!a)<b", "(!a)<b"],
   ["a<(b|c)", "a<(b|c)"],
+  ["((?i:a))", "(?i:a)"],
+  ["(?i:(a))", "(?i:a)"],
+  ["(?i:a|b)c", "(?i:a|b)c"],
+  ["(?R-1:a)*", "(?R-1:a)*"],
 ];
 
 for (const [pattern, canonical] of FORMATS) {
@@ -244,7 +279,7 @@ test("format round-trips every parsed pattern", () => {
 test("format round-trips random ASTs", () => {
   const rand = seededRandom(1);
   for (let i = 0; i < 2000; i++) {
-    const ast = randomAst(rand, 4);
+    const ast = randomAst(rand, 4, { modifiers: true });
     const pattern = format(ast);
     assert.deepEqual(stripSpans(parse(pattern)), ast, pattern);
   }

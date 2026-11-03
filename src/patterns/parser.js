@@ -8,7 +8,7 @@
 //                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
 //   postfix        A* A+ A? A{m} A{m,} A{m,n}
-//   atoms          a \* . [a-z] [^a-z] (A)
+//   atoms          a \* . [a-z] [^a-z] (A) (?i:A)
 //
 // Every node has a `span` of [start, end) UTF-16 offsets into the pattern, for error
 // reporting and highlighting. Parentheses aren't kept as nodes; `format` adds back the ones
@@ -25,6 +25,8 @@
 //   { type: "and", items }                           2+ items
 //   { type: "not", node }
 //   { type: "spatial", op, left, right }             op is one of SPATIAL_OPS
+//   { type: "modifier", flag, count, node }          (?flag count:node); count is null if
+//                                                    omitted (see MODIFIERS)
 
 export class PatternError extends Error {
   constructor(message, start, end = start + 1) {
@@ -48,6 +50,19 @@ export const SPATIAL_OPS = [
 // longest first, so that matching the first one that fits gives the longest match; none of
 // these characters can start an operand, so the longest match is always the right one
 const SPATIAL_BY_LENGTH = [...SPATIAL_OPS].sort((x, y) => y.length - x.length);
+
+// Group modifiers, (?i:A) etc, and whether they take a count. See compile.js for their
+// meanings.
+export const MODIFIERS = {
+  i: { count: "none" }, //     case-insensitive
+  r: { count: "none" }, //     reversed
+  c: { count: "optional" }, // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25
+  R: { count: "optional" }, // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
+};
+// PCRE's inline flags, which mean something different here (or nothing), so they're an
+// error rather than a surprise
+const PCRE_FLAGS = new Set("msxnUJ-^");
+const MAX_MODIFIER_COUNT = 1000;
 
 const NAMED_ESCAPES = { n: 0x0a, r: 0x0d, t: 0x09 };
 const MAX_REPEAT = 1000;
@@ -259,13 +274,51 @@ class Parser {
   parseGroup() {
     const start = this.pos;
     this.next();
-    if (this.peek() === "?") throw this.error("Group modifiers like (?...) aren't supported yet");
+    const modifier = this.peek() === "?" ? this.parseModifier(start) : null;
     const node = this.parseAlt();
     if (!this.eat(")")) {
       if (this.pos < this.src.length) throw this.error(`Unexpected ${this.peek()}`);
       throw this.error("Missing ) to close (", start);
     }
-    return node;
+    return modifier ? { type: "modifier", ...modifier, node, span: [start, this.pos] } : node;
+  }
+
+  // the "?flag count:" after the "(" at groupStart, returning { flag, count }
+  parseModifier(groupStart) {
+    this.next();
+    const flag = this.peek();
+    const here = () => [groupStart, this.pos];
+    if (flag === undefined) throw this.error("Missing modifier after (?", ...here());
+    if (PCRE_FLAGS.has(flag)) {
+      const hint = flag === "s" ? ": for a cipher shift, write (?c:...)" : "";
+      throw this.error(`(?${flag} is a PCRE flag, which isn't supported${hint}`, groupStart, this.pos + 1);
+    }
+    if (!(flag in MODIFIERS)) {
+      if (flag === ":") throw this.error("Write (...) for grouping, not (?:...)", groupStart, this.pos + 1);
+      throw this.error(`Unknown modifier (?${flag}`, groupStart, this.pos + this.width(this.pos));
+    }
+    this.next();
+    let count = null;
+    if (/[-0-9]/.test(this.peek() ?? "")) {
+      const countStart = this.pos;
+      this.eat("-");
+      while (/[0-9]/.test(this.peek() ?? "")) this.next();
+      const text = this.src.slice(countStart, this.pos);
+      if (MODIFIERS[flag].count === "none") {
+        throw this.error(`(?${flag}:...) doesn't take a number`, countStart, this.pos);
+      }
+      if (!/^-?[0-9]+$/.test(text)) throw this.error(`Expected a number after (?${flag}`, countStart, this.pos);
+      count = Number(text);
+      if (Math.abs(count) > MAX_MODIFIER_COUNT) {
+        throw this.error(`Modifier count can be at most ${MAX_MODIFIER_COUNT}`, countStart, this.pos);
+      }
+      if (flag === "R" && count === 0) throw this.error("Rotation count can't be 0", countStart, this.pos);
+    }
+    if (!this.eat(":")) {
+      const example = MODIFIERS[flag].count === "none" ? `(?${flag}:abc)` : `(?${flag}2:abc)`;
+      throw this.error(`Expected : after (?${flag}${count ?? ""}, as in ${example}`, ...here());
+    }
+    return { flag, count };
   }
 
   // returns the escaped code point
@@ -357,6 +410,9 @@ function fmt(node, minLevel) {
     case "alt": s = node.items.map((n) => (n.type === "empty" ? "" : fmt(n, LEVEL.and))).join("|"); break;
     case "and": s = node.items.map((n) => fmt(n, LEVEL.not)).join("&"); break;
     case "not": s = "!" + fmt(node.node, LEVEL.not); break;
+    case "modifier":
+      s = `(?${node.flag}${node.count ?? ""}:${fmt(node.node, 0)})`;
+      break;
     case "spatial": {
       // chains of the same operator group to the left without parentheses
       const sameLeft = node.left.type === "spatial" && node.left.op === node.op;

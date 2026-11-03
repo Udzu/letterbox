@@ -5,7 +5,7 @@ import { compile as compileAst } from "../src/patterns/compile.js";
 import {
   closure, complement, determinize, intersect, matches as nfaMatches, minimize, removeEpsilons, reverse, trim,
 } from "../src/patterns/nfa.js";
-import { randomAst, seededRandom } from "./helpers.js";
+import { randomAst, seededRandom, toRegExp } from "./helpers.js";
 
 const CASES = [
   // [pattern, accepted, rejected]
@@ -66,22 +66,6 @@ test("oversized patterns are rejected", () => {
   assert.throws(() => compile("(a{1000}){1000}"), (e) => e instanceof PatternError && /too complex/.test(e.message));
 });
 
-// conversion of an AST without & or ! into an equivalent JS RegExp
-function toRegExp(node) {
-  const ch = (cp) => `\\u{${cp.toString(16)}}`;
-  switch (node.type) {
-    case "empty": return "(?:)";
-    case "char": return ch(node.cp);
-    case "any": return "[^]";
-    case "class":
-      return `[${node.negated ? "^" : ""}${node.ranges.map(([lo, hi]) => `${ch(lo)}-${ch(hi)}`).join("")}]`;
-    case "repeat": return `(?:${toRegExp(node.node)}){${node.min},${node.max ?? ""}}`;
-    case "concat": return node.items.map((n) => `(?:${toRegExp(n)})`).join("");
-    case "alt": return `(?:${node.items.map(toRegExp).join("|")})`;
-    default: throw new Error(node.type);
-  }
-}
-
 const ALPHABET = ["a", "b", "é", "😀"];
 const AST_CHARS = ["a", "b", "😀"];
 
@@ -106,8 +90,8 @@ test("operations preserve or transform the language as expected", () => {
   const rand = seededRandom(5);
   const reversed = (s) => [...s].reverse().join("");
   for (let i = 0; i < 300; i++) {
-    const a = compileAst(randomAst(rand, 3, { chars: AST_CHARS }));
-    const b = compileAst(randomAst(rand, 3, { chars: AST_CHARS }));
+    const a = compileAst(randomAst(rand, 3, { chars: AST_CHARS, modifiers: true }));
+    const b = compileAst(randomAst(rand, 3, { chars: AST_CHARS, modifiers: true }));
     const variants = {
       trim: trim(a),
       removeEpsilons: removeEpsilons(a),

@@ -262,6 +262,16 @@ export function intersect(a, c) {
 }
 
 // accepts the reverse of every string the NFA accepts
+// the same NFA with every character label transformed by f
+export function mapLabels(nfa, f) {
+  const b = new Builder();
+  for (let i = 0; i < nfa.size; i++) b.state();
+  nfa.edges.forEach((es, s) => {
+    for (const { label, to } of es) b.edge(s, label === null ? null : f(label), to);
+  });
+  return b.build(nfa.start, nfa.accepting);
+}
+
 export function reverse(nfa) {
   const b = new Builder();
   for (let i = 0; i < nfa.size; i++) b.state();

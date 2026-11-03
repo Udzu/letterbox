@@ -1,6 +1,6 @@
 // shared test helpers
 
-import { SPATIAL_OPS } from "../src/patterns/parser.js";
+import { MODIFIERS, SPATIAL_OPS } from "../src/patterns/parser.js";
 
 export const DEFAULT_CHARS = ["a", "b", "é", "😀", " ", "'", "*", "\\", "-", "]", "^", "[", "|", "\n", "\x00", "!"];
 
@@ -16,7 +16,7 @@ export function stripSpans(node) {
 }
 
 // random ASTs in normal form: associative nodes are flattened and have 2+ items
-export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, spatial = logic } = {}) {
+export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, spatial = logic, modifiers = false } = {}) {
   const pick = (xs) => xs[Math.floor(rand() * xs.length)];
   const cp = () => pick(chars).codePointAt(0);
   const leaf = () => pick([
@@ -32,7 +32,7 @@ export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, sp
     },
   ])();
   if (depth === 0) return leaf();
-  const sub = () => randomAst(rand, depth - 1, { chars, logic, spatial });
+  const sub = () => randomAst(rand, depth - 1, { chars, logic, spatial, modifiers });
   const items = (type) => {
     const out = [];
     for (let i = 0, n = 2 + Math.floor(rand() * 2); i < n; i++) {
@@ -51,6 +51,26 @@ export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, sp
     () => items("alt"),
     ...(logic ? [() => ({ type: "not", node: sub() }), () => items("and")] : []),
     ...(spatial ? [() => ({ type: "spatial", op: pick(SPATIAL_OPS), left: sub(), right: sub() })] : []),
+    ...(modifiers ? [() => {
+      const flag = pick(Object.keys(MODIFIERS));
+      const count = MODIFIERS[flag].count === "none" ? null : pick([null, 1, 2, -1, ...(flag === "c" ? [0, 13, 30] : [])]);
+      return { type: "modifier", flag, count, node: sub() };
+    }] : []),
   ])();
 }
 
+// conversion of an AST without & or ! into an equivalent JS RegExp
+export function toRegExp(node) {
+  const ch = (cp) => `\\u{${cp.toString(16)}}`;
+  switch (node.type) {
+    case "empty": return "(?:)";
+    case "char": return ch(node.cp);
+    case "any": return "[^]";
+    case "class":
+      return `[${node.negated ? "^" : ""}${node.ranges.map(([lo, hi]) => `${ch(lo)}-${ch(hi)}`).join("")}]`;
+    case "repeat": return `(?:${toRegExp(node.node)}){${node.min},${node.max ?? ""}}`;
+    case "concat": return node.items.map((n) => `(?:${toRegExp(n)})`).join("");
+    case "alt": return `(?:${node.items.map(toRegExp).join("|")})`;
+    default: throw new Error(node.type);
+  }
+}

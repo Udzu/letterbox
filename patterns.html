@@ -153,6 +153,10 @@
       <tr><td><code>P&amp;Q</code></td><td>both P and Q</td></tr>
       <tr><td><code>P|Q</code></td><td>either P or Q</td></tr>
       <tr><td><code>(P)</code></td><td>grouping</td></tr>
+      <tr><td><code>(?i:P)</code></td><td>P ignoring case (<code>(?i:the)</code> matches <i>The</i> and <i>THE</i>)</td></tr>
+      <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
+      <tr><td><code>(?cn:P)</code> <code>(?c:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25 (<code>(?c1:hal)</code> matches <i>ibm</i>)</td></tr>
+      <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
     </table>
     <p>Operators are listed from tightest to loosest binding, so <code>!ab&lt;c|d</code> means <code>(!((ab)&lt;c))|d</code>. One of the operators from <code>&lt;</code> to <code>-</code><i>op</i> can be repeated, as in <code>a-b-c</code>, but different ones need parentheses, as in <code>(a&lt;b)^c</code>.</p>
   </div>
@@ -3519,6 +3523,14 @@
     });
     return trim(b.build(start, accepting));
   }
+  function mapLabels(nfa2, f) {
+    const b = new Builder();
+    for (let i = 0; i < nfa2.size; i++) b.state();
+    nfa2.edges.forEach((es, s) => {
+      for (const { label, to } of es) b.edge(s, label === null ? null : f(label), to);
+    });
+    return b.build(nfa2.start, nfa2.accepting);
+  }
   function reverse(nfa2) {
     const b = new Builder();
     for (let i = 0; i < nfa2.size; i++) b.state();
@@ -4013,6 +4025,18 @@
     "_-##"
   ];
   var SPATIAL_BY_LENGTH = [...SPATIAL_OPS].sort((x, y) => y.length - x.length);
+  var MODIFIERS = {
+    i: { count: "none" },
+    //     case-insensitive
+    r: { count: "none" },
+    //     reversed
+    c: { count: "optional" },
+    // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25
+    R: { count: "optional" }
+    // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
+  };
+  var PCRE_FLAGS = new Set("msxnUJ-^");
+  var MAX_MODIFIER_COUNT = 1e3;
   var NAMED_ESCAPES = { n: 10, r: 13, t: 9 };
   var MAX_REPEAT = 1e3;
   var HEX = /^[0-9a-fA-F]{1,6}$/;
@@ -4207,13 +4231,50 @@
     parseGroup() {
       const start = this.pos;
       this.next();
-      if (this.peek() === "?") throw this.error("Group modifiers like (?...) aren't supported yet");
+      const modifier2 = this.peek() === "?" ? this.parseModifier(start) : null;
       const node2 = this.parseAlt();
       if (!this.eat(")")) {
         if (this.pos < this.src.length) throw this.error(`Unexpected ${this.peek()}`);
         throw this.error("Missing ) to close (", start);
       }
-      return node2;
+      return modifier2 ? { type: "modifier", ...modifier2, node: node2, span: [start, this.pos] } : node2;
+    }
+    // the "?flag count:" after the "(" at groupStart, returning { flag, count }
+    parseModifier(groupStart) {
+      this.next();
+      const flag = this.peek();
+      const here = () => [groupStart, this.pos];
+      if (flag === void 0) throw this.error("Missing modifier after (?", ...here());
+      if (PCRE_FLAGS.has(flag)) {
+        const hint = flag === "s" ? ": for a cipher shift, write (?c:...)" : "";
+        throw this.error(`(?${flag} is a PCRE flag, which isn't supported${hint}`, groupStart, this.pos + 1);
+      }
+      if (!(flag in MODIFIERS)) {
+        if (flag === ":") throw this.error("Write (...) for grouping, not (?:...)", groupStart, this.pos + 1);
+        throw this.error(`Unknown modifier (?${flag}`, groupStart, this.pos + this.width(this.pos));
+      }
+      this.next();
+      let count = null;
+      if (/[-0-9]/.test(this.peek() ?? "")) {
+        const countStart = this.pos;
+        this.eat("-");
+        while (/[0-9]/.test(this.peek() ?? "")) this.next();
+        const text = this.src.slice(countStart, this.pos);
+        if (MODIFIERS[flag].count === "none") {
+          throw this.error(`(?${flag}:...) doesn't take a number`, countStart, this.pos);
+        }
+        if (!/^-?[0-9]+$/.test(text)) throw this.error(`Expected a number after (?${flag}`, countStart, this.pos);
+        count = Number(text);
+        if (Math.abs(count) > MAX_MODIFIER_COUNT) {
+          throw this.error(`Modifier count can be at most ${MAX_MODIFIER_COUNT}`, countStart, this.pos);
+        }
+        if (flag === "R" && count === 0) throw this.error("Rotation count can't be 0", countStart, this.pos);
+      }
+      if (!this.eat(":")) {
+        const example = MODIFIERS[flag].count === "none" ? `(?${flag}:abc)` : `(?${flag}2:abc)`;
+        throw this.error(`Expected : after (?${flag}${count ?? ""}, as in ${example}`, ...here());
+      }
+      return { flag, count };
     }
     // returns the escaped code point
     parseEscape() {
@@ -4288,6 +4349,125 @@
       ([lo, hi]) => lo === hi ? formatChar(lo, true) : `${formatChar(lo, true)}-${formatChar(hi, true)}`
     );
     return `[${negated ? "^" : ""}${parts2.join("")}]`;
+  }
+
+  // src/patterns/letters.js
+  var CASED_LIMIT = 131072;
+  var BLOCK = 128;
+  var HAS_CASE = /\p{Changes_When_Casemapped}/u;
+  var caseTable = null;
+  function buildCaseTable() {
+    const parent = /* @__PURE__ */ new Map();
+    const find = (x) => {
+      while (parent.has(x) && parent.get(x) !== x) x = parent.get(x);
+      return x;
+    };
+    const link = (x, y) => {
+      if (!parent.has(x)) parent.set(x, x);
+      if (!parent.has(y)) parent.set(y, y);
+      const [rx, ry] = [find(x), find(y)];
+      if (rx !== ry) parent.set(Math.max(rx, ry), Math.min(rx, ry));
+    };
+    for (let lo = 0; lo < CASED_LIMIT; lo += BLOCK) {
+      const cps = [];
+      for (let cp = lo; cp < lo + BLOCK; cp++) if (cp < 55296 || cp > 57343) cps.push(cp);
+      if (cps.length === 0 || !HAS_CASE.test(String.fromCodePoint(...cps))) continue;
+      for (const cp of cps) {
+        const c = String.fromCodePoint(cp);
+        for (const other of [c.toLowerCase(), c.toUpperCase()]) {
+          const ocp = other.codePointAt(0);
+          if (other !== c && other.length === String.fromCodePoint(ocp).length) link(cp, ocp);
+        }
+      }
+    }
+    const groups = /* @__PURE__ */ new Map();
+    for (const cp of parent.keys()) {
+      const root = find(cp);
+      if (!groups.has(root)) groups.set(root, []);
+      groups.get(root).push(cp);
+    }
+    const classOf = /* @__PURE__ */ new Map();
+    for (let members of groups.values()) {
+      while (members.length) {
+        const re = new RegExp(`^\\u{${members[0].toString(16)}}$`, "iu");
+        const same = members.filter((cp) => re.test(String.fromCodePoint(cp)));
+        members = members.filter((cp) => !re.test(String.fromCodePoint(cp)));
+        if (same.length > 1) for (const cp of same) classOf.set(cp, same);
+      }
+    }
+    return { cased: [...classOf.keys()].sort((x, y) => x - y), classOf };
+  }
+  function caseClose(set2) {
+    caseTable ??= buildCaseTable();
+    const { cased, classOf } = caseTable;
+    const extra = [];
+    for (const [lo, hi] of set2.ranges) {
+      for (let i = lowerBound2(cased, lo); i < cased.length && cased[i] <= hi; i++) {
+        for (const cp of classOf.get(cased[i])) extra.push([cp, cp]);
+      }
+    }
+    return extra.length ? set2.union(CharSet.from(extra)) : set2;
+  }
+  var ALPHABETS = ["a", "A"].map((c) => c.codePointAt(0));
+  function shiftSet(set2, n) {
+    const shift = (n % 26 + 26) % 26;
+    if (shift === 0) return set2;
+    let out = set2;
+    for (const base of ALPHABETS) {
+      const letters = CharSet.from([[base, base + 25]]);
+      const shifted = [];
+      for (const [lo, hi] of set2.intersect(letters).ranges) {
+        const [a, b] = [lo - base + shift, hi - base + shift];
+        if (b < 26) shifted.push([base + a, base + b]);
+        else if (a >= 26) shifted.push([base + a - 26, base + b - 26]);
+        else shifted.push([base + a, base + 25], [base, base + b - 26]);
+      }
+      out = out.minus(letters).union(CharSet.from(shifted));
+    }
+    return out;
+  }
+  function lowerBound2(xs, x) {
+    let lo = 0;
+    let hi = xs.length;
+    while (lo < hi) {
+      const mid = lo + hi >> 1;
+      if (xs[mid] < x) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo;
+  }
+
+  // src/patterns/rotate.js
+  var exactly = (n) => ({ n, exact: true });
+  var atLeast = (n) => ({ n, exact: false });
+  function rotate(a, vLength, uLength) {
+    const builder = new Builder();
+    const ids = /* @__PURE__ */ new Map();
+    const states = [];
+    const id = (m, q, phase, k) => {
+      const key = `${m},${q},${phase},${k}`;
+      if (!ids.has(key)) {
+        ids.set(key, builder.state());
+        states.push([m, q, phase, k]);
+      }
+      return ids.get(key);
+    };
+    const start = builder.state();
+    for (let m = 0; m < a.size; m++) builder.edge(start, null, id(m, m, 0, 0));
+    const accepting = [];
+    for (let i = 0; i < states.length; i++) {
+      const [m, q, phase, k] = states[i];
+      const length = phase === 0 ? vLength : uLength;
+      const next = k < length.n ? k + 1 : length.exact ? null : k;
+      if (next !== null) {
+        for (const e of a.edges[q]) builder.edge(i + 1, e.label, id(m, e.to, phase, next));
+      }
+      if (k === length.n) {
+        if (phase === 0 && a.accepting.has(q)) builder.edge(i + 1, null, id(m, a.start, 1, 0));
+        if (phase === 1 && q === m) accepting.push(i + 1);
+      }
+    }
+    return builder.build(start, accepting);
   }
 
   // src/patterns/weave.js
@@ -4384,44 +4564,47 @@
     if (!splitCache.has(split)) splitCache.set(split, minimize(compile(parse(split))));
     return splitCache.get(split);
   }
-  function compile(ast) {
+  function compile(ast, options = {}) {
     const b = new Builder();
     const start = b.state();
-    const end = build(b, ast, start);
+    const end = build(b, ast, start, options);
     return b.build(start, [end]);
   }
-  function build(b, node2, from) {
+  function build(b, node2, from, options) {
+    const chars = (set2) => options.caseless ? caseClose(set2) : set2;
     switch (node2.type) {
       case "empty":
         return from;
       case "char":
-        return step(b, from, CharSet.of(node2.cp));
+        return step(b, from, chars(CharSet.of(node2.cp)));
       case "any":
         return step(b, from, CharSet.ALL);
       case "class": {
-        const set2 = CharSet.from(node2.ranges.map(([lo, hi]) => [lo, hi]));
+        const set2 = chars(CharSet.from(node2.ranges.map(([lo, hi]) => [lo, hi])));
         return step(b, from, node2.negated ? set2.complement() : set2);
       }
       case "concat":
-        return node2.items.reduce((at, item) => build(b, item, at), from);
+        return node2.items.reduce((at, item) => build(b, item, at, options), from);
       case "alt": {
         const end = b.state();
-        for (const item of node2.items) b.edge(build(b, item, from), null, end);
+        for (const item of node2.items) b.edge(build(b, item, from, options), null, end);
         return end;
       }
       case "repeat":
-        return repeat(b, node2.node, node2.min, node2.max, from);
+        return repeat(b, node2.node, node2.min, node2.max, from, options);
       case "and": {
-        const nfa2 = node2.items.map(compile).reduce(intersect);
+        const nfa2 = node2.items.map((n) => compile(n, options)).reduce(intersect);
         return embed(b, nfa2, from);
       }
       case "not":
-        return embed(b, complement(compile(node2.node)), from);
+        return embed(b, complement(compile(node2.node, options)), from);
       case "spatial": {
         const { construct, split } = spatialOp(node2.op);
-        const nfa2 = construct(removeEpsilons(compile(node2.left)), removeEpsilons(compile(node2.right)), splitDfa(split));
+        const nfa2 = construct(removeEpsilons(compile(node2.left, options)), removeEpsilons(compile(node2.right, options)), splitDfa(split));
         return embed(b, nfa2, from);
       }
+      case "modifier":
+        return modifier(b, node2, from, options);
       default:
         throw new Error(`Unknown node type ${node2.type}`);
     }
@@ -4431,30 +4614,53 @@
     b.edge(from, label, end);
     return end;
   }
-  function repeat(b, node2, min, max, from) {
+  function modifier(b, node2, from, options) {
+    const { flag, count } = node2;
+    switch (flag) {
+      case "i":
+        return build(b, node2.node, from, { ...options, caseless: true });
+      case "r":
+        return embed(b, reverse(compile(node2.node, options)), from);
+      case "c": {
+        const inner = compile(node2.node, options);
+        const shifts = count === null ? Array.from({ length: 25 }, (_, i) => i + 1) : [count];
+        const end = b.state();
+        for (const n of shifts) b.edge(embed(b, mapLabels(inner, (set2) => shiftSet(set2, n)), from), null, end);
+        return end;
+      }
+      case "R": {
+        const inner = trim(removeEpsilons(compile(node2.node, options)));
+        const [v, u] = count === null ? [atLeast(1), atLeast(1)] : count > 0 ? [exactly(count), atLeast(1)] : [atLeast(1), exactly(-count)];
+        return embed(b, rotate(inner, v, u), from);
+      }
+      default:
+        throw new Error(`Unknown modifier ${flag}`);
+    }
+  }
+  function repeat(b, node2, min, max, from, options) {
     let at = from;
     const required = max === null && min > 0 ? min - 1 : min;
-    for (let i = 0; i < required; i++) at = build(b, node2, at);
-    if (max === null) return min > 0 ? plus(b, node2, at) : star(b, node2, at);
+    for (let i = 0; i < required; i++) at = build(b, node2, at, options);
+    if (max === null) return min > 0 ? plus(b, node2, at, options) : star(b, node2, at, options);
     for (let i = min; i < max; i++) {
-      const end = build(b, node2, at);
+      const end = build(b, node2, at, options);
       b.edge(at, null, end);
       at = end;
     }
     return at;
   }
-  function star(b, node2, from) {
+  function star(b, node2, from, options) {
     const loop = b.state();
     b.edge(from, null, loop);
-    b.edge(build(b, node2, loop), null, loop);
+    b.edge(build(b, node2, loop, options), null, loop);
     const end = b.state();
     b.edge(loop, null, end);
     return end;
   }
-  function plus(b, node2, from) {
+  function plus(b, node2, from, options) {
     const loop = b.state();
     b.edge(from, null, loop);
-    const last = build(b, node2, loop);
+    const last = build(b, node2, loop, options);
     b.edge(last, null, loop);
     const end = b.state();
     b.edge(last, null, end);
