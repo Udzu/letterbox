@@ -17,6 +17,9 @@ function show(node) {
     case "repeat": return `(repeat ${node.min} ${node.max ?? "∞"} ${show(node.node)})`;
     case "not": return `(not ${show(node.node)})`;
     case "spatial": return `(${node.op} ${show(node.left)} ${show(node.right)})`;
+    case "modifier": return `(?${node.flag}${node.count ?? ""} ${show(node.node)})`;
+    case "replace": return `(${node.strict ? "Z" : "z"} ${show(node.node)} ${show(node.find)} ${show(node.insert)})`;
+    case "slice": return `([${[node.start, node.stop, node.step].map((n) => n ?? "_").join(" ")}] ${show(node.node)})`;
     default: return `(${node.type} ${node.items.map(show).join(" ")})`;
   }
 }
@@ -109,6 +112,33 @@ const PARSES = [
   ["()<a", "(< ε a)"],
   ["a\\-b", "(concat a - b)"],
   ["[a-z]-[a-c]", "(- [a-z] [a-c])"],
+  // modifiers
+  ["(?i:ab)", "(?i (concat a b))"],
+  ["(?r:a|b)", "(?r (alt a b))"],
+  ["(?c3:a)", "(?c3 a)"],
+  ["(?c-3:a)", "(?c-3 a)"],
+  ["(?c0:a)", "(?c0 a)"],
+  ["(?c:a)", "(?c a)"],
+  ["(?R2:abc)", "(?R2 (concat a b c))"],
+  ["(?R-2:abc)", "(?R-2 (concat a b c))"],
+  ["(?R:abc)", "(?R (concat a b c))"],
+  ["(?i:)", "(?i ε)"],
+  ["(?i:a)*", "(repeat 0 ∞ (?i a))"],
+  ["x(?i:(?r:a))", "(concat x (?i (?r a)))"],
+  ["(?i:a)<b", "(< (?i a) b)"],
+  ["(?[1:-1]:abc)", "([1 -1 _] (concat a b c))"],
+  ["(?[:]:a)", "([_ _ _] a)"],
+  ["(?[::2]:a)", "([_ _ 2] a)"],
+  ["(?[1::]:a)", "([1 _ _] a)"],
+  ["(?[-3:-1:2]:a)", "([-3 -1 2] a)"],
+  ["(?[2:2]:a)", "([2 2 _] a)"],
+  ["(?[1:-5]:a)", "([1 -5 _] a)"],
+  ["(?z:London/o/u)", "(z (concat L o n d o n) o u)"],
+  ["(?Z:a/b/c)", "(Z a b c)"],
+  ["(?z://)", "(z ε ε ε)"],
+  ["(?z:a|b/c&d/!e)", "(z (alt a b) (and c d) (not e))"],
+  ["(?z:a\\/b/c/d)", "(z (concat a / b) c d)"],
+  ["(?z:(?z:a/b/c)/d/e)", "(z (z a b c) d e)"],
 ];
 
 for (const [pattern, expected] of PARSES) {
@@ -158,7 +188,43 @@ const ERRORS = [
   ["a<b!c", "Parenthesise ! inside a sequence", [3, 4]],
   ["$", "$ is reserved", [0, 1]],
   ["😀,", ", is reserved", [2, 3]],
-  ["(?i:a)", "Group modifiers", [1, 2]],
+  ["(?", "Missing modifier", [0, 2]],
+  ["(?s:a)", "PCRE flag, which isn't supported: for a cipher shift", [0, 3]],
+  ["(?m:a)", "(?m is a PCRE flag", [0, 3]],
+  ["(?-i:a)", "(?- is a PCRE flag", [0, 3]],
+  ["(?:a)", "not (?:...)", [0, 3]],
+  ["(?=a)", "Unknown modifier (?=", [0, 3]],
+  ["(?é:a)", "Unknown modifier (?é", [0, 3]],
+  ["(?i)", "Expected : after (?i, as in (?i:abc)", [0, 3]],
+  ["(?ia:b)", "Expected : after (?i", [0, 3]],
+  ["(?R)", "Expected : after (?R, as in (?R2:abc)", [0, 3]],
+  ["(?c3)", "Expected : after (?c3", [0, 4]],
+  ["(?i2:a)", "(?i:...) doesn't take a number", [3, 4]],
+  ["(?c-:a)", "Expected a number after (?c", [3, 4]],
+  ["(?c1001:a)", "at most 1000", [3, 7]],
+  ["(?R0:a)", "can't be 0", [3, 4]],
+  ["(?R-0:a)", "can't be 0", [3, 5]],
+  ["(?i:a", "Missing ) to close (", [0, 1]],
+  ["(?[]:a)", "Expected : in slice", [0, 3]],
+  ["(?[1]:a)", "Expected : in slice", [0, 4]],
+  ["(?[x:]:a)", "Expected : in slice", [0, 3]],
+  ["(?[1:2:3:4]:a)", "Expected ] to close slice", [0, 8]],
+  ["(?[1:2]a)", "Expected : after slice", [0, 7]],
+  ["(?[::0]:a)", "step can't be 0", [0, 7]],
+  ["(?[::-1]:a)", "can't be negative: use (?r:...)", [0, 8]],
+  ["(?[-2:3]:a)", "negative start and a non-negative stop", [0, 8]],
+  ["(?[3:2]:a)", "start is after its stop", [0, 7]],
+  ["(?[-1:-2]:a)", "start is after its stop", [0, 9]],
+  ["(?[-:]:a)", "Expected a number in slice", [3, 4]],
+  ["(?[1001:]:a)", "at most 1000", [3, 7]],
+  ["a/b", "/ is reserved: write \\/", [1, 2]],
+  ["(a/b)", "/ is reserved", [2, 3]],
+  ["(?z:(a/b)/c/d)", "/ is reserved", [6, 7]],
+  ["(?z:a)", "needs three parts", [0, 6]],
+  ["(?z:a/b)", "needs three parts", [0, 8]],
+  ["(?Z:a/b/c/d)", "(?Z:...) has three parts", [9, 10]],
+  ["(?z:a/b/c", "Missing ) to close (", [0, 1]],
+  ["(?z2:a/b/c)", "doesn't take a number", [3, 4]],
   ["&a", "Missing operand before &", [0, 1]],
   ["a&", "Missing operand after &", [1, 2]],
   ["a&|b", "Missing operand after &", [1, 2]],
@@ -224,6 +290,14 @@ const FORMATS = [
   ["!(a<b)", "!a<b"],
   ["(!a)<b", "(!a)<b"],
   ["a<(b|c)", "a<(b|c)"],
+  ["((?i:a))", "(?i:a)"],
+  ["(?i:(a))", "(?i:a)"],
+  ["(?i:a|b)c", "(?i:a|b)c"],
+  ["(?R-1:a)*", "(?R-1:a)*"],
+  ["(?[1::]:a)", "(?[1:]:a)"],
+  ["(?[::1]:a|b)", "(?[::1]:a|b)"],
+  ["(?z:(a|b)/(c)/(d|))", "(?z:a|b/c/d|)"],
+  ["(?z:a/()/(d))", "(?z:a//d)"],
 ];
 
 for (const [pattern, canonical] of FORMATS) {
@@ -244,7 +318,7 @@ test("format round-trips every parsed pattern", () => {
 test("format round-trips random ASTs", () => {
   const rand = seededRandom(1);
   for (let i = 0; i < 2000; i++) {
-    const ast = randomAst(rand, 4);
+    const ast = randomAst(rand, 4, { modifiers: true });
     const pattern = format(ast);
     assert.deepEqual(stripSpans(parse(pattern)), ast, pattern);
   }

@@ -15,6 +15,13 @@ const VIEWS = {
   dfa: (nfa) => trim(determinize(nfa)),
   min: minimize,
 };
+const VIEW_HELP = {
+  raw: "The automaton built directly from the pattern, with ε-moves (dashed) that consume no characters.",
+  trimmed: "The Thompson NFA without the states that can't lead to a match.",
+  epsfree: "The trimmed NFA with its ε-moves replaced by the character moves they lead to.",
+  dfa: "A deterministic automaton: each character has at most one move from each state, and a missing move means no match.",
+  min: "The DFA with the fewest states that matches the same strings.",
+};
 const MAX_DRAWN_STATES = 300;
 const REGEX_DELAY = 300; // ms without typing before converting the pattern to a regex
 const STORAGE_KEY = "patterns";
@@ -281,7 +288,14 @@ patternInput.addEventListener("input", () => {
 patternInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") e.preventDefault();
 });
-viewSelect.addEventListener("change", schedule);
+function showViewHelp() {
+  $("view-help").textContent = VIEW_HELP[viewSelect.value];
+}
+showViewHelp();
+viewSelect.addEventListener("change", () => {
+  showViewHelp();
+  schedule();
+});
 $("add-examples").addEventListener("click", addExamples);
 $("clear-tests").addEventListener("click", clearTests);
 $("copy-regex").addEventListener("click", copyRegex);

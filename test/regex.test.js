@@ -72,7 +72,7 @@ test("regexes agree with the patterns, as real JavaScript regexes", () => {
   const rand = seededRandom(51);
   let converted = 0;
   for (let i = 0; i < 400; i++) {
-    const nfa = compileAst(randomAst(rand, 3, { chars: ["a", "b", "😀", "-", "]", "^", "\\", "/"] }));
+    const nfa = compileAst(randomAst(rand, 3, { chars: ["a", "b", "😀", "-", "]", "^", "\\", "/"], modifiers: true }));
     const result = toRegex(nfa);
     if (!result.regex) continue;
     converted++;

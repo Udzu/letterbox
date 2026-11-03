@@ -64,6 +64,7 @@
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
   #info { color: #666; }
+  #view-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
   #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
   #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
   #regex-line .label { color: #666; }
@@ -88,6 +89,7 @@
   .help table { border-collapse: collapse; }
   .help td { padding: 2px 16px 2px 0; vertical-align: top; }
   .help td:first-child { white-space: nowrap; }
+  .help tr.gap td { padding-top: 12px; }
   .help td:first-child code + code, .help .ops code + code { margin-left: 0.5em; }
   .help code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
 </style>
@@ -113,6 +115,7 @@
     </select>
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
   </div>
+  <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
   <div id="regex-line">
     <span class="label">PCRE-compatible equivalent:</span>
@@ -142,17 +145,23 @@
       <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
       <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
       <tr><td><code>PQ</code></td><td>P followed by Q</td></tr>
-      <tr><td><code>P&lt;Q</code> <code>P&gt;Q</code></td><td>P inside Q; P outside Q (<code>o+&lt;l+</code> matches <i>loool</i>)</td></tr>
+      <tr class="gap"><td><code>P&lt;Q</code> <code>P&gt;Q</code></td><td>P inside Q; P outside Q (<code>o+&lt;l+</code> matches <i>loool</i>)</td></tr>
       <tr><td><code>P&lt;&lt;Q</code> <code>P&gt;&gt;Q</code></td><td>strictly inside or outside, with the outer part on both sides</td></tr>
       <tr><td><code>P^Q</code></td><td>P interleaved with Q (<code>the^A+</code> matches <i>tAAhAe</i>)</td></tr>
       <tr><td><code>P&lt;^Q</code> <code>P&gt;^Q</code></td><td>interleaved strictly inside or outside, with the outer part at both ends</td></tr>
       <tr><td><code>P#Q</code> <code>P##Q</code></td><td>P alternating with Q, in either order; with P first (<code>U+##w+</code> matches <i>UwUwU</i>)</td></tr>
       <tr><td><code>P-Q</code> <code>P_-Q</code></td><td>P with Q removed from the end or the start (<code>(the|a)-.</code> matches <i>th</i>)</td></tr>
       <tr><td><code>P-</code><i>op</i><code>Q</code></td><td>P with Q removed according to any operator above: <span class="ops"><code>-&lt;</code> <code>-&gt;</code> <code>-&lt;&lt;</code> <code>-&gt;&gt;</code> <code>-^</code> <code>-&lt;^</code> <code>-&gt;^</code> <code>-#</code> <code>-##</code> <code>_-##</code></span> (<code>Madrid-^..</code> matches <i>Mdrd</i>)</td></tr>
-      <tr><td><code>!P</code></td><td>anything P doesn't match</td></tr>
+      <tr class="gap"><td><code>!P</code></td><td>anything P doesn't match</td></tr>
       <tr><td><code>P&amp;Q</code></td><td>both P and Q</td></tr>
       <tr><td><code>P|Q</code></td><td>either P or Q</td></tr>
       <tr><td><code>(P)</code></td><td>grouping</td></tr>
+      <tr class="gap"><td><code>(?i:P)</code></td><td>P ignoring case (<code>(?i:the)</code> matches <i>The</i> and <i>THE</i>)</td></tr>
+      <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
+      <tr><td><code>(?cn:P)</code> <code>(?c:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25 (<code>(?c1:hal)</code> matches <i>ibm</i>)</td></tr>
+      <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
+      <tr><td><code>(?[m:n]:P)</code> <code>(?[m:n:s]:P)</code></td><td>P sliced as in Python: characters m up to but not including n, counting from 0 (from the end if negative); every s-th one. Strings too short for the slice are skipped (<code>(?[1:-1]:spam)</code> matches <i>pa</i>)</td></tr>
+      <tr><td><code>(?z:P/Q/R)</code> <code>(?Z:P/Q/R)</code></td><td>P with a Q replaced by an R; but not at either end (<code>(?z:London/o/u)</code> matches <i>Lundon</i>). To replace at the end or start, write <code>(P-Q)R</code> or <code>R(P_-Q)</code></td></tr>
     </table>
     <p>Operators are listed from tightest to loosest binding, so <code>!ab&lt;c|d</code> means <code>(!((ab)&lt;c))|d</code>. One of the operators from <code>&lt;</code> to <code>-</code><i>op</i> can be repeated, as in <code>a-b-c</code>, but different ones need parentheses, as in <code>(a&lt;b)^c</code>.</p>
   </div>
@@ -3519,6 +3528,14 @@
     });
     return trim(b.build(start, accepting));
   }
+  function mapLabels(nfa2, f) {
+    const b = new Builder();
+    for (let i = 0; i < nfa2.size; i++) b.state();
+    nfa2.edges.forEach((es, s) => {
+      for (const { label, to } of es) b.edge(s, label === null ? null : f(label), to);
+    });
+    return b.build(nfa2.start, nfa2.accepting);
+  }
   function reverse(nfa2) {
     const b = new Builder();
     for (let i = 0; i < nfa2.size; i++) b.state();
@@ -3780,25 +3797,25 @@
   function mergeTail(out) {
     const counts = (n) => n.t === "rep" ? [n.node, n.min, n.max] : [n, 1, 1];
     const same = (seq, from) => seq.every((m, i) => out[from + i]?.key === m.key);
-    const replace = (from, count, r) => out.splice(from, count, ...parts(r));
+    const replace2 = (from, count, r) => out.splice(from, count, ...parts(r));
     for (; ; ) {
       const end = out.length - 1;
       if (end < 1) return;
       const [base, min, max] = counts(out[end]);
       const [prevBase, prevMin, prevMax] = counts(out[end - 1]);
       if (base.key === prevBase.key) {
-        replace(end - 1, 2, rep(base, prevMin + min, prevMax + max));
+        replace2(end - 1, 2, rep(base, prevMin + min, prevMax + max));
         continue;
       }
       const seq = parts(base);
       if (out[end].t === "rep" && seq.length > 1 && end >= seq.length && same(seq, end - seq.length)) {
-        replace(end - seq.length, seq.length + 1, rep(base, min + 1, max + 1));
+        replace2(end - seq.length, seq.length + 1, rep(base, min + 1, max + 1));
         continue;
       }
       const found = out.findIndex((n, i) => n.t === "rep" && parts(n.node).length > 1 && i + parts(n.node).length === end);
       if (found >= 0 && same(parts(out[found].node), found + 1)) {
         const r = out[found];
-        replace(found, parts(r.node).length + 1, rep(r.node, r.min + 1, r.max + 1));
+        replace2(found, parts(r.node).length + 1, rep(r.node, r.min + 1, r.max + 1));
         continue;
       }
       return;
@@ -4013,6 +4030,33 @@
     "_-##"
   ];
   var SPATIAL_BY_LENGTH = [...SPATIAL_OPS].sort((x, y) => y.length - x.length);
+  var MODIFIERS = {
+    i: { count: "none" },
+    //     case-insensitive
+    r: { count: "none" },
+    //     reversed
+    c: { count: "optional" },
+    // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25
+    R: { count: "optional" },
+    // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
+    z: { count: "none", parts: 3 },
+    // replacement: (?z:A/B/C) is A with a B replaced by a C
+    Z: { count: "none", parts: 3 }
+    // the same, but not at either end
+  };
+  var PCRE_FLAGS = new Set("msxnUJ-^");
+  var MAX_MODIFIER_COUNT = 1e3;
+  function sliceError(start, stop, step2) {
+    if (step2 === 0) return "Slice step can't be 0";
+    if (step2 !== null && step2 < 0) return "Slice step can't be negative: use (?r:...) to reverse";
+    if (start !== null && start < 0 && stop !== null && stop >= 0) {
+      return "A slice can't have a negative start and a non-negative stop";
+    }
+    if (start !== null && stop !== null && start < 0 === stop < 0 && start > stop) {
+      return "Slice start is after its stop";
+    }
+    return null;
+  }
   var NAMED_ESCAPES = { n: 10, r: 13, t: 9 };
   var MAX_REPEAT = 1e3;
   var HEX = /^[0-9a-fA-F]{1,6}$/;
@@ -4052,9 +4096,13 @@
       const node2 = this.parseAlt();
       if (this.pos < this.src.length) {
         if (this.peek() === ")") throw this.error("Unmatched )");
+        if (this.peek() === "/") throw this.slashError();
         throw this.error(`Unexpected ${this.peek()}`);
       }
       return node2;
+    }
+    slashError() {
+      return this.error("/ is reserved: write \\/ to match it literally (it separates the parts of (?z:A/B/C))");
     }
     // alternation branches may be empty, as in "a|" or "()"
     parseAlt() {
@@ -4182,6 +4230,7 @@
         case ")":
         case "&":
         case "!":
+        case "/":
           return null;
         case "*":
         case "+":
@@ -4207,13 +4256,94 @@
     parseGroup() {
       const start = this.pos;
       this.next();
-      if (this.peek() === "?") throw this.error("Group modifiers like (?...) aren't supported yet");
+      const modifier2 = this.peek() === "?" ? this.parseModifier(start) : null;
+      if (modifier2?.type === "replace") return this.parseReplace(start, modifier2);
       const node2 = this.parseAlt();
-      if (!this.eat(")")) {
-        if (this.pos < this.src.length) throw this.error(`Unexpected ${this.peek()}`);
-        throw this.error("Missing ) to close (", start);
+      this.closeGroup(start);
+      return modifier2 ? { ...modifier2, node: node2, span: [start, this.pos] } : node2;
+    }
+    closeGroup(start) {
+      if (this.eat(")")) return;
+      if (this.peek() === "/") throw this.slashError();
+      if (this.pos < this.src.length) throw this.error(`Unexpected ${this.peek()}`);
+      throw this.error("Missing ) to close (", start);
+    }
+    // the "A/B/C)" of a replacement, whose parts are separated by / at the top level
+    parseReplace(start, { strict }) {
+      const flag = strict ? "Z" : "z";
+      const parts2 = [this.parseAlt()];
+      while (this.peek() === "/") {
+        if (parts2.length === 3) {
+          throw this.error(`(?${flag}:...) has three parts: write \\/ to match / literally`);
+        }
+        this.next();
+        parts2.push(this.parseAlt());
       }
-      return node2;
+      if (parts2.length < 3 && this.peek() === ")") {
+        throw this.error(`(?${flag}:...) needs three parts, as in (?${flag}:London/o/u)`, start, this.pos + 1);
+      }
+      this.closeGroup(start);
+      const [node2, find, insert] = parts2;
+      return { type: "replace", strict, node: node2, find, insert, span: [start, this.pos] };
+    }
+    // the "?flag count:" or "?[slice]:" after the "(" at groupStart, returning the node's
+    // fields other than its contents
+    parseModifier(groupStart) {
+      this.next();
+      const flag = this.peek();
+      const here = () => [groupStart, this.pos];
+      if (flag === void 0) throw this.error("Missing modifier after (?", ...here());
+      if (flag === "[") return this.parseSlice(groupStart);
+      if (PCRE_FLAGS.has(flag)) {
+        const hint = flag === "s" ? ": for a cipher shift, write (?c:...)" : "";
+        throw this.error(`(?${flag} is a PCRE flag, which isn't supported${hint}`, groupStart, this.pos + 1);
+      }
+      if (!(flag in MODIFIERS)) {
+        if (flag === ":") throw this.error("Write (...) for grouping, not (?:...)", groupStart, this.pos + 1);
+        throw this.error(`Unknown modifier (?${flag}`, groupStart, this.pos + this.width(this.pos));
+      }
+      this.next();
+      let count = null;
+      if (/[-0-9]/.test(this.peek() ?? "")) {
+        const countStart = this.pos;
+        if (MODIFIERS[flag].count === "none") {
+          this.parseSignedNumber(`after (?${flag}`);
+          throw this.error(`(?${flag}:...) doesn't take a number`, countStart, this.pos);
+        }
+        count = this.parseSignedNumber(`after (?${flag}`);
+        if (flag === "R" && count === 0) throw this.error("Rotation count can't be 0", countStart, this.pos);
+      }
+      if (!this.eat(":")) {
+        const example = MODIFIERS[flag].count === "none" ? `(?${flag}:abc)` : `(?${flag}2:abc)`;
+        throw this.error(`Expected : after (?${flag}${count ?? ""}, as in ${example}`, ...here());
+      }
+      if (MODIFIERS[flag].parts) return { type: "replace", strict: flag === "Z" };
+      return { type: "modifier", flag, count };
+    }
+    // an optionally negative number, as in a modifier count or slice index
+    parseSignedNumber(where) {
+      const start = this.pos;
+      this.eat("-");
+      while (/[0-9]/.test(this.peek() ?? "")) this.next();
+      const text = this.src.slice(start, this.pos);
+      if (!/^-?[0-9]+$/.test(text)) throw this.error(`Expected a number ${where}`, start, this.pos);
+      const n = Number(text);
+      if (Math.abs(n) > MAX_MODIFIER_COUNT) throw this.error(`Number can be at most ${MAX_MODIFIER_COUNT}`, start, this.pos);
+      return n;
+    }
+    // "[start:stop:step]:" after the "(?", where every part is optional, as is the second ":"
+    parseSlice(groupStart) {
+      this.next();
+      const part = () => /[-0-9]/.test(this.peek() ?? "") ? this.parseSignedNumber("in slice") : null;
+      const start = part();
+      if (!this.eat(":")) throw this.error("Expected : in slice, as in (?[1:-1]:abc)", groupStart, this.pos);
+      const stop = part();
+      const step2 = this.eat(":") ? part() : null;
+      if (!this.eat("]")) throw this.error("Expected ] to close slice", groupStart, this.pos);
+      const problem = sliceError(start, stop, step2);
+      if (problem) throw this.error(problem, groupStart, this.pos);
+      if (!this.eat(":")) throw this.error("Expected : after slice, as in (?[1:-1]:abc)", groupStart, this.pos);
+      return { type: "slice", start, stop, step: step2 };
     }
     // returns the escaped code point
     parseEscape() {
@@ -4288,6 +4418,168 @@
       ([lo, hi]) => lo === hi ? formatChar(lo, true) : `${formatChar(lo, true)}-${formatChar(hi, true)}`
     );
     return `[${negated ? "^" : ""}${parts2.join("")}]`;
+  }
+
+  // src/patterns/letters.js
+  var CASED_LIMIT = 131072;
+  var BLOCK = 128;
+  var HAS_CASE = /\p{Changes_When_Casemapped}/u;
+  var caseTable = null;
+  function buildCaseTable() {
+    const parent = /* @__PURE__ */ new Map();
+    const find = (x) => {
+      while (parent.has(x) && parent.get(x) !== x) x = parent.get(x);
+      return x;
+    };
+    const link = (x, y) => {
+      if (!parent.has(x)) parent.set(x, x);
+      if (!parent.has(y)) parent.set(y, y);
+      const [rx, ry] = [find(x), find(y)];
+      if (rx !== ry) parent.set(Math.max(rx, ry), Math.min(rx, ry));
+    };
+    for (let lo = 0; lo < CASED_LIMIT; lo += BLOCK) {
+      const cps = [];
+      for (let cp = lo; cp < lo + BLOCK; cp++) if (cp < 55296 || cp > 57343) cps.push(cp);
+      if (cps.length === 0 || !HAS_CASE.test(String.fromCodePoint(...cps))) continue;
+      for (const cp of cps) {
+        const c = String.fromCodePoint(cp);
+        for (const other of [c.toLowerCase(), c.toUpperCase()]) {
+          const ocp = other.codePointAt(0);
+          if (other !== c && other.length === String.fromCodePoint(ocp).length) link(cp, ocp);
+        }
+      }
+    }
+    const groups = /* @__PURE__ */ new Map();
+    for (const cp of parent.keys()) {
+      const root = find(cp);
+      if (!groups.has(root)) groups.set(root, []);
+      groups.get(root).push(cp);
+    }
+    const classOf = /* @__PURE__ */ new Map();
+    for (let members of groups.values()) {
+      while (members.length) {
+        const re = new RegExp(`^\\u{${members[0].toString(16)}}$`, "iu");
+        const same = members.filter((cp) => re.test(String.fromCodePoint(cp)));
+        members = members.filter((cp) => !re.test(String.fromCodePoint(cp)));
+        if (same.length > 1) for (const cp of same) classOf.set(cp, same);
+      }
+    }
+    return { cased: [...classOf.keys()].sort((x, y) => x - y), classOf };
+  }
+  function caseClose(set2) {
+    caseTable ??= buildCaseTable();
+    const { cased, classOf } = caseTable;
+    const extra = [];
+    for (const [lo, hi] of set2.ranges) {
+      for (let i = lowerBound2(cased, lo); i < cased.length && cased[i] <= hi; i++) {
+        for (const cp of classOf.get(cased[i])) extra.push([cp, cp]);
+      }
+    }
+    return extra.length ? set2.union(CharSet.from(extra)) : set2;
+  }
+  var ALPHABETS = ["a", "A"].map((c) => c.codePointAt(0));
+  function shiftSet(set2, n) {
+    const shift = (n % 26 + 26) % 26;
+    if (shift === 0) return set2;
+    let out = set2;
+    for (const base of ALPHABETS) {
+      const letters = CharSet.from([[base, base + 25]]);
+      const shifted = [];
+      for (const [lo, hi] of set2.intersect(letters).ranges) {
+        const [a, b] = [lo - base + shift, hi - base + shift];
+        if (b < 26) shifted.push([base + a, base + b]);
+        else if (a >= 26) shifted.push([base + a - 26, base + b - 26]);
+        else shifted.push([base + a, base + 25], [base, base + b - 26]);
+      }
+      out = out.minus(letters).union(CharSet.from(shifted));
+    }
+    return out;
+  }
+  function lowerBound2(xs, x) {
+    let lo = 0;
+    let hi = xs.length;
+    while (lo < hi) {
+      const mid = lo + hi >> 1;
+      if (xs[mid] < x) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo;
+  }
+
+  // src/patterns/replace.js
+  function replace(a, b, c, strict) {
+    const builder = new Builder();
+    const ids = /* @__PURE__ */ new Map();
+    const states = [];
+    const id = (phase, p, other) => {
+      const key = `${phase},${p},${other}`;
+      if (!ids.has(key)) {
+        ids.set(key, builder.state());
+        states.push([phase, p, other]);
+      }
+      return ids.get(key);
+    };
+    const start = id("x", a.start, 0);
+    const accepting = [];
+    for (let i = 0; i < states.length; i++) {
+      const [phase, p, other] = states[i];
+      switch (phase) {
+        case "x":
+          for (const e of a.edges[p]) builder.edge(i, e.label, id("x", e.to, 1));
+          if (!strict || other) builder.edge(i, null, id("c", p, c.start));
+          break;
+        case "c":
+          for (const e of c.edges[other]) builder.edge(i, e.label, id("c", p, e.to));
+          if (c.accepting.has(other)) builder.edge(i, null, id("b", p, b.start));
+          break;
+        case "b":
+          for (const e of a.edges[p]) {
+            for (const f of b.edges[other]) {
+              if (!e.label.intersect(f.label).isEmpty()) builder.edge(i, null, id("b", e.to, f.to));
+            }
+          }
+          if (b.accepting.has(other)) builder.edge(i, null, id("y", p, 0));
+          break;
+        case "y":
+          for (const e of a.edges[p]) builder.edge(i, e.label, id("y", e.to, 1));
+          if (a.accepting.has(p) && (!strict || other)) accepting.push(i);
+          break;
+      }
+    }
+    return builder.build(start, accepting);
+  }
+
+  // src/patterns/rotate.js
+  var exactly = (n) => ({ n, exact: true });
+  var atLeast = (n) => ({ n, exact: false });
+  function rotate(a, vLength, uLength) {
+    const builder = new Builder();
+    const ids = /* @__PURE__ */ new Map();
+    const states = [];
+    const id = (m, q, phase, k) => {
+      const key = `${m},${q},${phase},${k}`;
+      if (!ids.has(key)) {
+        ids.set(key, builder.state());
+        states.push([m, q, phase, k]);
+      }
+      return ids.get(key);
+    };
+    const start = builder.state();
+    for (let m = 0; m < a.size; m++) builder.edge(start, null, id(m, m, 0, 0));
+    const accepting = [];
+    for (let i = 0; i < states.length; i++) {
+      const [m, q, phase, k] = states[i];
+      const length = phase === 0 ? vLength : uLength;
+      const next = k < length.n ? k + 1 : length.exact ? null : k;
+      if (next !== null) {
+        for (const e of a.edges[q]) builder.edge(i + 1, e.label, id(m, e.to, phase, next));
+      }
+      if (k === length.n) {
+        if (phase === 0 && a.accepting.has(q)) builder.edge(i + 1, null, id(m, a.start, 1, 0));
+        if (phase === 1 && q === m) accepting.push(i + 1);
+      }
+    }
+    return builder.build(start, accepting);
   }
 
   // src/patterns/weave.js
@@ -4384,43 +4676,50 @@
     if (!splitCache.has(split)) splitCache.set(split, minimize(compile(parse(split))));
     return splitCache.get(split);
   }
-  function compile(ast) {
+  function compile(ast, options = {}) {
     const b = new Builder();
     const start = b.state();
-    const end = build(b, ast, start);
+    const end = build(b, ast, start, options);
     return b.build(start, [end]);
   }
-  function build(b, node2, from) {
+  function build(b, node2, from, options) {
+    const chars = (set2) => options.caseless ? caseClose(set2) : set2;
     switch (node2.type) {
       case "empty":
         return from;
       case "char":
-        return step(b, from, CharSet.of(node2.cp));
+        return step(b, from, chars(CharSet.of(node2.cp)));
       case "any":
         return step(b, from, CharSet.ALL);
       case "class": {
-        const set2 = CharSet.from(node2.ranges.map(([lo, hi]) => [lo, hi]));
+        const set2 = chars(CharSet.from(node2.ranges.map(([lo, hi]) => [lo, hi])));
         return step(b, from, node2.negated ? set2.complement() : set2);
       }
       case "concat":
-        return node2.items.reduce((at, item) => build(b, item, at), from);
+        return node2.items.reduce((at, item) => build(b, item, at, options), from);
       case "alt": {
         const end = b.state();
-        for (const item of node2.items) b.edge(build(b, item, from), null, end);
+        for (const item of node2.items) b.edge(build(b, item, from, options), null, end);
         return end;
       }
       case "repeat":
-        return repeat(b, node2.node, node2.min, node2.max, from);
+        return repeat(b, node2.node, node2.min, node2.max, from, options);
       case "and": {
-        const nfa2 = node2.items.map(compile).reduce(intersect);
+        const nfa2 = node2.items.map((n) => compile(n, options)).reduce(intersect);
         return embed(b, nfa2, from);
       }
       case "not":
-        return embed(b, complement(compile(node2.node)), from);
+        return embed(b, complement(compile(node2.node, options)), from);
       case "spatial": {
-        const { construct, split } = spatialOp(node2.op);
-        const nfa2 = construct(removeEpsilons(compile(node2.left)), removeEpsilons(compile(node2.right)), splitDfa(split));
-        return embed(b, nfa2, from);
+        return embed(b, subtract(node2.op, compile(node2.left, options), compile(node2.right, options)), from);
+      }
+      case "modifier":
+        return modifier(b, node2, from, options);
+      case "slice":
+        return embed(b, slice(compile(node2.node, options), node2), from);
+      case "replace": {
+        const [a, find, insert] = [node2.node, node2.find, node2.insert].map((n) => removeEpsilons(compile(n, options)));
+        return embed(b, replace(a, find, insert, node2.strict), from);
       }
       default:
         throw new Error(`Unknown node type ${node2.type}`);
@@ -4431,30 +4730,76 @@
     b.edge(from, label, end);
     return end;
   }
-  function repeat(b, node2, min, max, from) {
+  function modifier(b, node2, from, options) {
+    const { flag, count } = node2;
+    switch (flag) {
+      case "i":
+        return build(b, node2.node, from, { ...options, caseless: true });
+      case "r":
+        return embed(b, reverse(compile(node2.node, options)), from);
+      case "c": {
+        const inner = compile(node2.node, options);
+        const shifts = count === null ? Array.from({ length: 25 }, (_, i) => i + 1) : [count];
+        const end = b.state();
+        for (const n of shifts) b.edge(embed(b, mapLabels(inner, (set2) => shiftSet(set2, n)), from), null, end);
+        return end;
+      }
+      case "R": {
+        const inner = trim(removeEpsilons(compile(node2.node, options)));
+        const [v, u] = count === null ? [atLeast(1), atLeast(1)] : count > 0 ? [exactly(count), atLeast(1)] : [atLeast(1), exactly(-count)];
+        return embed(b, rotate(inner, v, u), from);
+      }
+      default:
+        throw new Error(`Unknown modifier ${flag}`);
+    }
+  }
+  function slice(a, { start, stop, step: step2 }) {
+    const length = (n) => compile(parse(`.{${n}}`));
+    const anything = compile(parse(".*"));
+    const fromEnd = (x, y) => subtract("-", x, y);
+    const fromStart = (x, y) => subtract("_-", x, y);
+    let middle;
+    if (start === null || start >= 0) {
+      const rest = fromStart(a, length(start ?? 0));
+      if (stop === null) middle = rest;
+      else if (stop >= 0) middle = intersect(fromEnd(rest, anything), length(stop - (start ?? 0)));
+      else middle = fromEnd(rest, length(-stop));
+    } else {
+      const rest = stop === null ? a : fromEnd(a, length(-stop));
+      middle = intersect(fromStart(rest, anything), length(-start + (stop ?? 0)));
+    }
+    if (step2 === null || step2 === 1) return middle;
+    const split = `(LR{${step2 - 1}})*(LR{0,${step2 - 2}})?`;
+    return unweave(removeEpsilons(middle), removeEpsilons(anything), splitDfa(split));
+  }
+  function subtract(op, x, y) {
+    const { construct, split } = spatialOp(op);
+    return construct(removeEpsilons(x), removeEpsilons(y), splitDfa(split));
+  }
+  function repeat(b, node2, min, max, from, options) {
     let at = from;
     const required = max === null && min > 0 ? min - 1 : min;
-    for (let i = 0; i < required; i++) at = build(b, node2, at);
-    if (max === null) return min > 0 ? plus(b, node2, at) : star(b, node2, at);
+    for (let i = 0; i < required; i++) at = build(b, node2, at, options);
+    if (max === null) return min > 0 ? plus(b, node2, at, options) : star(b, node2, at, options);
     for (let i = min; i < max; i++) {
-      const end = build(b, node2, at);
+      const end = build(b, node2, at, options);
       b.edge(at, null, end);
       at = end;
     }
     return at;
   }
-  function star(b, node2, from) {
+  function star(b, node2, from, options) {
     const loop = b.state();
     b.edge(from, null, loop);
-    b.edge(build(b, node2, loop), null, loop);
+    b.edge(build(b, node2, loop, options), null, loop);
     const end = b.state();
     b.edge(loop, null, end);
     return end;
   }
-  function plus(b, node2, from) {
+  function plus(b, node2, from, options) {
     const loop = b.state();
     b.edge(from, null, loop);
-    const last = build(b, node2, loop);
+    const last = build(b, node2, loop, options);
     b.edge(last, null, loop);
     const end = b.state();
     b.edge(last, null, end);
@@ -4524,6 +4869,13 @@
     epsfree: removeEpsilons,
     dfa: (nfa2) => trim(determinize(nfa2)),
     min: minimize
+  };
+  var VIEW_HELP = {
+    raw: "The automaton built directly from the pattern, with \u03B5-moves (dashed) that consume no characters.",
+    trimmed: "The Thompson NFA without the states that can't lead to a match.",
+    epsfree: "The trimmed NFA with its \u03B5-moves replaced by the character moves they lead to.",
+    dfa: "A deterministic automaton: each character has at most one move from each state, and a missing move means no match.",
+    min: "The DFA with the fewest states that matches the same strings."
   };
   var MAX_DRAWN_STATES = 300;
   var REGEX_DELAY = 300;
@@ -4750,7 +5102,14 @@
   patternInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") e.preventDefault();
   });
-  viewSelect.addEventListener("change", schedule);
+  function showViewHelp() {
+    $("view-help").textContent = VIEW_HELP[viewSelect.value];
+  }
+  showViewHelp();
+  viewSelect.addEventListener("change", () => {
+    showViewHelp();
+    schedule();
+  });
   $("add-examples").addEventListener("click", addExamples);
   $("clear-tests").addEventListener("click", clearTests);
   $("copy-regex").addEventListener("click", copyRegex);

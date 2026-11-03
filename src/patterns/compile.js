@@ -1,14 +1,30 @@
 // Compile a pattern AST into an NFA, using Thompson's construction for the regular
 // expression basics and NFA operations for & and !.
 //
+// Modifiers:
+//   (?i:A)   case-insensitive: every character comparison inside A ignores case, so (?i:!a)
+//            matches neither a nor A (see letters.js)
+//   (?r:A)   A reversed
+//   (?cn:A)  A with its ASCII letters shifted n places along the alphabet, as in a Caesar
+//            cipher; (?c:A) is any of the shifts from 1 to 25
+//   (?Rn:A)  A rotated n characters right (or left if n is negative); (?R:A) is any
+//            rotation that changes where the string starts (see rotate.js)
+//   (?[m:n:s]:A)  slices of strings in A, as in Python but strict: a string too short for
+//            the slice gives nothing (see sliceError in parser.js)
+//   (?z:A/B/C)  A with one substring matching B replaced by one matching C; (?Z:A/B/C)
+//            doesn't replace at either end (see replace.js)
+//
 // build(node, from) adds the node's fragment starting at the existing state `from` and
 // returns its end state. Two invariants keep this sound while sharing states:
 // - no fragment adds edges *into* `from` (loops always go back to a fresh state), and
 // - the returned end state has no outgoing edges yet, unless it is `from` itself.
 
 import { CharSet } from "./charset.js";
-import { Builder, complement, intersect, minimize, removeEpsilons } from "./nfa.js";
+import { caseClose, shiftSet } from "./letters.js";
+import { Builder, complement, intersect, mapLabels, minimize, removeEpsilons, reverse, trim } from "./nfa.js";
 import { parse } from "./parser.js";
+import { replace } from "./replace.js";
+import { atLeast, exactly, rotate } from "./rotate.js";
 import { unweave, weave } from "./weave.js";
 
 // Split patterns for the separating operators: which positions of a combined string come
@@ -46,44 +62,53 @@ function splitDfa(split) {
   return splitCache.get(split);
 }
 
-export function compile(ast) {
+// options: { caseless } makes every character comparison case-insensitive
+export function compile(ast, options = {}) {
   const b = new Builder();
   const start = b.state();
-  const end = build(b, ast, start);
+  const end = build(b, ast, start, options);
   return b.build(start, [end]);
 }
 
-function build(b, node, from) {
+function build(b, node, from, options) {
+  // a character or class's set, before any negation
+  const chars = (set) => (options.caseless ? caseClose(set) : set);
   switch (node.type) {
     case "empty":
       return from;
     case "char":
-      return step(b, from, CharSet.of(node.cp));
+      return step(b, from, chars(CharSet.of(node.cp)));
     case "any":
       return step(b, from, CharSet.ALL);
     case "class": {
-      const set = CharSet.from(node.ranges.map(([lo, hi]) => [lo, hi]));
+      const set = chars(CharSet.from(node.ranges.map(([lo, hi]) => [lo, hi])));
       return step(b, from, node.negated ? set.complement() : set);
     }
     case "concat":
-      return node.items.reduce((at, item) => build(b, item, at), from);
+      return node.items.reduce((at, item) => build(b, item, at, options), from);
     case "alt": {
       const end = b.state();
-      for (const item of node.items) b.edge(build(b, item, from), null, end);
+      for (const item of node.items) b.edge(build(b, item, from, options), null, end);
       return end;
     }
     case "repeat":
-      return repeat(b, node.node, node.min, node.max, from);
+      return repeat(b, node.node, node.min, node.max, from, options);
     case "and": {
-      const nfa = node.items.map(compile).reduce(intersect);
+      const nfa = node.items.map((n) => compile(n, options)).reduce(intersect);
       return embed(b, nfa, from);
     }
     case "not":
-      return embed(b, complement(compile(node.node)), from);
+      return embed(b, complement(compile(node.node, options)), from);
     case "spatial": {
-      const { construct, split } = spatialOp(node.op);
-      const nfa = construct(removeEpsilons(compile(node.left)), removeEpsilons(compile(node.right)), splitDfa(split));
-      return embed(b, nfa, from);
+      return embed(b, subtract(node.op, compile(node.left, options), compile(node.right, options)), from);
+    }
+    case "modifier":
+      return modifier(b, node, from, options);
+    case "slice":
+      return embed(b, slice(compile(node.node, options), node), from);
+    case "replace": {
+      const [a, find, insert] = [node.node, node.find, node.insert].map((n) => removeEpsilons(compile(n, options)));
+      return embed(b, replace(a, find, insert, node.strict), from);
     }
     default:
       throw new Error(`Unknown node type ${node.type}`);
@@ -96,13 +121,67 @@ function step(b, from, label) {
   return end;
 }
 
-function repeat(b, node, min, max, from) {
+function modifier(b, node, from, options) {
+  const { flag, count } = node;
+  switch (flag) {
+    case "i":
+      return build(b, node.node, from, { ...options, caseless: true });
+    case "r":
+      return embed(b, reverse(compile(node.node, options)), from);
+    case "c": {
+      const inner = compile(node.node, options);
+      const shifts = count === null ? Array.from({ length: 25 }, (_, i) => i + 1) : [count];
+      const end = b.state();
+      for (const n of shifts) b.edge(embed(b, mapLabels(inner, (set) => shiftSet(set, n)), from), null, end);
+      return end;
+    }
+    case "R": {
+      const inner = trim(removeEpsilons(compile(node.node, options)));
+      const [v, u] = count === null ? [atLeast(1), atLeast(1)] : count > 0 ? [exactly(count), atLeast(1)] : [atLeast(1), exactly(-count)];
+      return embed(b, rotate(inner, v, u), from);
+    }
+    default:
+      throw new Error(`Unknown modifier ${flag}`);
+  }
+}
+
+// A slice is the middle part y of strings xyz in A, with conditions on the lengths of x, y
+// and z, then (with a step) every s-th character of y. Each case is built from subtraction
+// and intersection.
+function slice(a, { start, stop, step }) {
+  const length = (n) => compile(parse(`.{${n}}`));
+  const anything = compile(parse(".*"));
+  const fromEnd = (x, y) => subtract("-", x, y); //   x with y removed from the end
+  const fromStart = (x, y) => subtract("_-", x, y); // x with y removed from the start
+  let middle;
+  if (start === null || start >= 0) {
+    const rest = fromStart(a, length(start ?? 0));
+    if (stop === null) middle = rest;
+    else if (stop >= 0) middle = intersect(fromEnd(rest, anything), length(stop - (start ?? 0)));
+    else middle = fromEnd(rest, length(-stop));
+  } else {
+    // a negative start: y's length is fixed, and the rest of the string is before it
+    const rest = stop === null ? a : fromEnd(a, length(-stop));
+    middle = intersect(fromStart(rest, anything), length(-start + (stop ?? 0)));
+  }
+  if (step === null || step === 1) return middle;
+  // keep the first of every `step` characters: the others are removed, wherever they are
+  const split = `(LR{${step - 1}})*(LR{0,${step - 2}})?`;
+  return unweave(removeEpsilons(middle), removeEpsilons(anything), splitDfa(split));
+}
+
+function subtract(op, x, y) {
+  const { construct, split } = spatialOp(op);
+  return construct(removeEpsilons(x), removeEpsilons(y), splitDfa(split));
+}
+
+function repeat(b, node, min, max, from, options) {
   let at = from;
   const required = max === null && min > 0 ? min - 1 : min;
-  for (let i = 0; i < required; i++) at = build(b, node, at);
-  if (max === null) return min > 0 ? plus(b, node, at) : star(b, node, at);
+  for (let i = 0; i < required; i++) at = build(b, node, at, options);
+  if (max === null) return min > 0 ? plus(b, node, at, options) : star(b, node, at, options);
   for (let i = min; i < max; i++) {
-    const end = build(b, node, at);
+    const end = build(b, node, at, options);
     b.edge(at, null, end); // skip this copy
     at = end;
   }
@@ -110,20 +189,20 @@ function repeat(b, node, min, max, from) {
 }
 
 // from → loop ⟲ node, loop → end
-function star(b, node, from) {
+function star(b, node, from, options) {
   const loop = b.state();
   b.edge(from, null, loop);
-  b.edge(build(b, node, loop), null, loop);
+  b.edge(build(b, node, loop, options), null, loop);
   const end = b.state();
   b.edge(loop, null, end);
   return end;
 }
 
 // from → loop → node, back to loop or on to end
-function plus(b, node, from) {
+function plus(b, node, from, options) {
   const loop = b.state();
   b.edge(from, null, loop);
-  const last = build(b, node, loop);
+  const last = build(b, node, loop, options);
   b.edge(last, null, loop);
   const end = b.state();
   b.edge(last, null, end);
