@@ -334,17 +334,21 @@ function formatQuantifier(min, max) {
   return `{${min},${max}}`;
 }
 
-function formatChar(cp, inClass) {
+// characters shown as themselves when formatting; anything else (controls, format characters,
+// lone combining marks, unassigned code points, etc) is written as \u{...}
+const PRINTABLE = /^[\p{L}\p{N}\p{P}\p{S} ]$/u;
+
+export function formatChar(cp, inClass = false) {
   const c = String.fromCodePoint(cp);
   if (cp === 0x0a) return "\\n";
   if (cp === 0x0d) return "\\r";
   if (cp === 0x09) return "\\t";
-  if (cp < 0x20 || cp === 0x7f || (cp >= 0xd800 && cp <= 0xdfff)) return `\\u{${cp.toString(16)}}`;
+  if (!PRINTABLE.test(c)) return `\\u{${cp.toString(16)}}`;
   if (inClass ? "\\]^-[".includes(c) : RESERVED.has(c)) return "\\" + c;
   return c;
 }
 
-function formatClass({ negated, ranges }) {
+export function formatClass({ negated, ranges }) {
   const parts = ranges.map(([lo, hi]) =>
     lo === hi ? formatChar(lo, true) : `${formatChar(lo, true)}-${formatChar(hi, true)}`,
   );

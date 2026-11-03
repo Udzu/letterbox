@@ -162,3 +162,11 @@ test("closure follows ε-moves only", () => {
   assert.ok([...start].some((s) => nfa.accepting.has(s)));
   assert.equal(closure(nfa, []).size, 0);
 });
+
+test("run returns the reachable states", async () => {
+  const { run } = await import("../src/patterns/nfa.js");
+  const nfa = minimize(compile("ab|ac"));
+  assert.equal(run(nfa, "a").size, 1);
+  assert.equal(run(nfa, "x").size, 0);
+  assert.ok(nfa.accepting.has([...run(nfa, "ab")][0]));
+});

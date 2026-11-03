@@ -6,11 +6,12 @@
 
 import { parse, PatternError } from "./parser.js";
 import { compile as compileAst } from "./compile.js";
-import { TooManyStatesError, matches as nfaMatches } from "./nfa.js";
+import { TooManyStatesError, matches as nfaMatches, run as nfaRun } from "./nfa.js";
 
 export { parse, format, PatternError } from "./parser.js";
 export { CharSet } from "./charset.js";
-export { NFA, closure, trim, removeEpsilons, determinize, complement, intersect, reverse, minimize } from "./nfa.js";
+export { formatLabel, toDot } from "./display.js";
+export { NFA, TooManyStatesError, closure, trim, removeEpsilons, determinize, complement, intersect, reverse, minimize } from "./nfa.js";
 
 // pattern string → NFA (throws PatternError)
 export function compile(pattern) {
@@ -26,4 +27,8 @@ export function compile(pattern) {
 
 export function matches(nfa, string) {
   return nfaMatches(nfa, string.normalize("NFC"));
+}
+
+export function run(nfa, string) {
+  return nfaRun(nfa, string.normalize("NFC"));
 }

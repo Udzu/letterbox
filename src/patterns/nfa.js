@@ -95,8 +95,9 @@ export function closure(nfa, states) {
   return seen;
 }
 
-// does the NFA accept the whole string? (strings are read by code point)
-export function matches(nfa, string) {
+// the states the NFA can be in after reading the string (by code point), including
+// ε-moves; empty if it gets stuck
+export function run(nfa, string) {
   let current = closure(nfa, [nfa.start]);
   for (const ch of string) {
     const cp = ch.codePointAt(0);
@@ -104,10 +105,15 @@ export function matches(nfa, string) {
     for (const s of current) {
       for (const { label, to } of nfa.edges[s]) if (label !== null && label.has(cp)) next.push(to);
     }
-    if (next.length === 0) return false;
+    if (next.length === 0) return new Set();
     current = closure(nfa, next);
   }
-  for (const s of current) if (nfa.accepting.has(s)) return true;
+  return current;
+}
+
+// does the NFA accept the whole string?
+export function matches(nfa, string) {
+  for (const s of run(nfa, string)) if (nfa.accepting.has(s)) return true;
   return false;
 }
 
