@@ -158,6 +158,7 @@
       <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
       <tr><td><code>(?cn:P)</code> <code>(?c:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25 (<code>(?c1:hal)</code> matches <i>ibm</i>)</td></tr>
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
+      <tr><td><code>(?[m:n]:P)</code> <code>(?[m:n:s]:P)</code></td><td>P sliced as in Python: characters m up to but not including n, counting from 0 (from the end if negative); every s-th one. Strings too short for the slice are skipped (<code>(?[1:-1]:spam)</code> matches <i>pa</i>)</td></tr>
     </table>
     <p>Operators are listed from tightest to loosest binding, so <code>!ab&lt;c|d</code> means <code>(!((ab)&lt;c))|d</code>. One of the operators from <code>&lt;</code> to <code>-</code><i>op</i> can be repeated, as in <code>a-b-c</code>, but different ones need parentheses, as in <code>(a&lt;b)^c</code>.</p>
   </div>

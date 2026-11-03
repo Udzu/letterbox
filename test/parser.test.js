@@ -18,6 +18,7 @@ function show(node) {
     case "not": return `(not ${show(node.node)})`;
     case "spatial": return `(${node.op} ${show(node.left)} ${show(node.right)})`;
     case "modifier": return `(?${node.flag}${node.count ?? ""} ${show(node.node)})`;
+    case "slice": return `([${[node.start, node.stop, node.step].map((n) => n ?? "_").join(" ")}] ${show(node.node)})`;
     default: return `(${node.type} ${node.items.map(show).join(" ")})`;
   }
 }
@@ -124,6 +125,13 @@ const PARSES = [
   ["(?i:a)*", "(repeat 0 ∞ (?i a))"],
   ["x(?i:(?r:a))", "(concat x (?i (?r a)))"],
   ["(?i:a)<b", "(< (?i a) b)"],
+  ["(?[1:-1]:abc)", "([1 -1 _] (concat a b c))"],
+  ["(?[:]:a)", "([_ _ _] a)"],
+  ["(?[::2]:a)", "([_ _ 2] a)"],
+  ["(?[1::]:a)", "([1 _ _] a)"],
+  ["(?[-3:-1:2]:a)", "([-3 -1 2] a)"],
+  ["(?[2:2]:a)", "([2 2 _] a)"],
+  ["(?[1:-5]:a)", "([1 -5 _] a)"],
 ];
 
 for (const [pattern, expected] of PARSES) {
@@ -190,6 +198,18 @@ const ERRORS = [
   ["(?R0:a)", "can't be 0", [3, 4]],
   ["(?R-0:a)", "can't be 0", [3, 5]],
   ["(?i:a", "Missing ) to close (", [0, 1]],
+  ["(?[]:a)", "Expected : in slice", [0, 3]],
+  ["(?[1]:a)", "Expected : in slice", [0, 4]],
+  ["(?[x:]:a)", "Expected : in slice", [0, 3]],
+  ["(?[1:2:3:4]:a)", "Expected ] to close slice", [0, 8]],
+  ["(?[1:2]a)", "Expected : after slice", [0, 7]],
+  ["(?[::0]:a)", "step can't be 0", [0, 7]],
+  ["(?[::-1]:a)", "can't be negative: use (?r:...)", [0, 8]],
+  ["(?[-2:3]:a)", "negative start and a non-negative stop", [0, 8]],
+  ["(?[3:2]:a)", "start is after its stop", [0, 7]],
+  ["(?[-1:-2]:a)", "start is after its stop", [0, 9]],
+  ["(?[-:]:a)", "Expected a number in slice", [3, 4]],
+  ["(?[1001:]:a)", "at most 1000", [3, 7]],
   ["&a", "Missing operand before &", [0, 1]],
   ["a&", "Missing operand after &", [1, 2]],
   ["a&|b", "Missing operand after &", [1, 2]],
@@ -259,6 +279,8 @@ const FORMATS = [
   ["(?i:(a))", "(?i:a)"],
   ["(?i:a|b)c", "(?i:a|b)c"],
   ["(?R-1:a)*", "(?R-1:a)*"],
+  ["(?[1::]:a)", "(?[1:]:a)"],
+  ["(?[::1]:a|b)", "(?[::1]:a|b)"],
 ];
 
 for (const [pattern, canonical] of FORMATS) {

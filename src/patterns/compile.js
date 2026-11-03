@@ -9,6 +9,8 @@
 //            cipher; (?c:A) is any of the shifts from 1 to 25
 //   (?Rn:A)  A rotated n characters right (or left if n is negative); (?R:A) is any
 //            rotation that changes where the string starts (see rotate.js)
+//   (?[m:n:s]:A)  slices of strings in A, as in Python but strict: a string too short for
+//            the slice gives nothing (see sliceError in parser.js)
 //
 // build(node, from) adds the node's fragment starting at the existing state `from` and
 // returns its end state. Two invariants keep this sound while sharing states:
@@ -95,12 +97,12 @@ function build(b, node, from, options) {
     case "not":
       return embed(b, complement(compile(node.node, options)), from);
     case "spatial": {
-      const { construct, split } = spatialOp(node.op);
-      const nfa = construct(removeEpsilons(compile(node.left, options)), removeEpsilons(compile(node.right, options)), splitDfa(split));
-      return embed(b, nfa, from);
+      return embed(b, subtract(node.op, compile(node.left, options), compile(node.right, options)), from);
     }
     case "modifier":
       return modifier(b, node, from, options);
+    case "slice":
+      return embed(b, slice(compile(node.node, options), node), from);
     default:
       throw new Error(`Unknown node type ${node.type}`);
   }
@@ -134,6 +136,36 @@ function modifier(b, node, from, options) {
     default:
       throw new Error(`Unknown modifier ${flag}`);
   }
+}
+
+// A slice is the middle part y of strings xyz in A, with conditions on the lengths of x, y
+// and z, then (with a step) every s-th character of y. Each case is built from subtraction
+// and intersection.
+function slice(a, { start, stop, step }) {
+  const length = (n) => compile(parse(`.{${n}}`));
+  const anything = compile(parse(".*"));
+  const fromEnd = (x, y) => subtract("-", x, y); //   x with y removed from the end
+  const fromStart = (x, y) => subtract("_-", x, y); // x with y removed from the start
+  let middle;
+  if (start === null || start >= 0) {
+    const rest = fromStart(a, length(start ?? 0));
+    if (stop === null) middle = rest;
+    else if (stop >= 0) middle = intersect(fromEnd(rest, anything), length(stop - (start ?? 0)));
+    else middle = fromEnd(rest, length(-stop));
+  } else {
+    // a negative start: y's length is fixed, and the rest of the string is before it
+    const rest = stop === null ? a : fromEnd(a, length(-stop));
+    middle = intersect(fromStart(rest, anything), length(-start + (stop ?? 0)));
+  }
+  if (step === null || step === 1) return middle;
+  // keep the first of every `step` characters: the others are removed, wherever they are
+  const split = `(LR{${step - 1}})*(LR{0,${step - 2}})?`;
+  return unweave(removeEpsilons(middle), removeEpsilons(anything), splitDfa(split));
+}
+
+function subtract(op, x, y) {
+  const { construct, split } = spatialOp(op);
+  return construct(removeEpsilons(x), removeEpsilons(y), splitDfa(split));
 }
 
 function repeat(b, node, min, max, from, options) {

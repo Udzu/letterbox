@@ -1,6 +1,6 @@
 // shared test helpers
 
-import { MODIFIERS, SPATIAL_OPS } from "../src/patterns/parser.js";
+import { MODIFIERS, SPATIAL_OPS, sliceError } from "../src/patterns/parser.js";
 
 export const DEFAULT_CHARS = ["a", "b", "é", "😀", " ", "'", "*", "\\", "-", "]", "^", "[", "|", "\n", "\x00", "!"];
 
@@ -55,6 +55,12 @@ export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, sp
       const flag = pick(Object.keys(MODIFIERS));
       const count = MODIFIERS[flag].count === "none" ? null : pick([null, 1, 2, -1, ...(flag === "c" ? [0, 13, 30] : [])]);
       return { type: "modifier", flag, count, node: sub() };
+    }] : []),
+    ...(modifiers ? [() => {
+      for (;;) {
+        const [start, stop, step] = [[null, 0, 1, 2, -1, -2], [null, 0, 1, 3, -1], [null, 1, 2, 3]].map(pick);
+        if (!sliceError(start, stop, step)) return { type: "slice", start, stop, step, node: sub() };
+      }
     }] : []),
   ])();
 }

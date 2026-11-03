@@ -8,7 +8,7 @@
 //                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
 //   postfix        A* A+ A? A{m} A{m,} A{m,n}
-//   atoms          a \* . [a-z] [^a-z] (A) (?i:A)
+//   atoms          a \* . [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A)
 //
 // Every node has a `span` of [start, end) UTF-16 offsets into the pattern, for error
 // reporting and highlighting. Parentheses aren't kept as nodes; `format` adds back the ones
@@ -27,6 +27,8 @@
 //   { type: "spatial", op, left, right }             op is one of SPATIAL_OPS
 //   { type: "modifier", flag, count, node }          (?flag count:node); count is null if
 //                                                    omitted (see MODIFIERS)
+//   { type: "slice", start, stop, step, node }       (?[start:stop:step]:node); each is null
+//                                                    if omitted (see sliceError)
 
 export class PatternError extends Error {
   constructor(message, start, end = start + 1) {
@@ -63,6 +65,21 @@ export const MODIFIERS = {
 // error rather than a surprise
 const PCRE_FLAGS = new Set("msxnUJ-^");
 const MAX_MODIFIER_COUNT = 1000;
+
+// Slices are strict, unlike Python's: a string too short for the slice gives nothing, so
+// (?[:3]:A) is the first 3 characters of strings in A with at least 3. Returns why a slice
+// isn't allowed, or null if it's fine.
+export function sliceError(start, stop, step) {
+  if (step === 0) return "Slice step can't be 0";
+  if (step !== null && step < 0) return "Slice step can't be negative: use (?r:...) to reverse";
+  if (start !== null && start < 0 && stop !== null && stop >= 0) {
+    return "A slice can't have a negative start and a non-negative stop";
+  }
+  if (start !== null && stop !== null && (start < 0) === (stop < 0) && start > stop) {
+    return "Slice start is after its stop";
+  }
+  return null;
+}
 
 const NAMED_ESCAPES = { n: 0x0a, r: 0x0d, t: 0x09 };
 const MAX_REPEAT = 1000;
@@ -280,15 +297,17 @@ class Parser {
       if (this.pos < this.src.length) throw this.error(`Unexpected ${this.peek()}`);
       throw this.error("Missing ) to close (", start);
     }
-    return modifier ? { type: "modifier", ...modifier, node, span: [start, this.pos] } : node;
+    return modifier ? { ...modifier, node, span: [start, this.pos] } : node;
   }
 
-  // the "?flag count:" after the "(" at groupStart, returning { flag, count }
+  // the "?flag count:" or "?[slice]:" after the "(" at groupStart, returning the node's
+  // fields other than its contents
   parseModifier(groupStart) {
     this.next();
     const flag = this.peek();
     const here = () => [groupStart, this.pos];
     if (flag === undefined) throw this.error("Missing modifier after (?", ...here());
+    if (flag === "[") return this.parseSlice(groupStart);
     if (PCRE_FLAGS.has(flag)) {
       const hint = flag === "s" ? ": for a cipher shift, write (?c:...)" : "";
       throw this.error(`(?${flag} is a PCRE flag, which isn't supported${hint}`, groupStart, this.pos + 1);
@@ -301,24 +320,45 @@ class Parser {
     let count = null;
     if (/[-0-9]/.test(this.peek() ?? "")) {
       const countStart = this.pos;
-      this.eat("-");
-      while (/[0-9]/.test(this.peek() ?? "")) this.next();
-      const text = this.src.slice(countStart, this.pos);
       if (MODIFIERS[flag].count === "none") {
+        this.parseSignedNumber(`after (?${flag}`);
         throw this.error(`(?${flag}:...) doesn't take a number`, countStart, this.pos);
       }
-      if (!/^-?[0-9]+$/.test(text)) throw this.error(`Expected a number after (?${flag}`, countStart, this.pos);
-      count = Number(text);
-      if (Math.abs(count) > MAX_MODIFIER_COUNT) {
-        throw this.error(`Modifier count can be at most ${MAX_MODIFIER_COUNT}`, countStart, this.pos);
-      }
+      count = this.parseSignedNumber(`after (?${flag}`);
       if (flag === "R" && count === 0) throw this.error("Rotation count can't be 0", countStart, this.pos);
     }
     if (!this.eat(":")) {
       const example = MODIFIERS[flag].count === "none" ? `(?${flag}:abc)` : `(?${flag}2:abc)`;
       throw this.error(`Expected : after (?${flag}${count ?? ""}, as in ${example}`, ...here());
     }
-    return { flag, count };
+    return { type: "modifier", flag, count };
+  }
+
+  // an optionally negative number, as in a modifier count or slice index
+  parseSignedNumber(where) {
+    const start = this.pos;
+    this.eat("-");
+    while (/[0-9]/.test(this.peek() ?? "")) this.next();
+    const text = this.src.slice(start, this.pos);
+    if (!/^-?[0-9]+$/.test(text)) throw this.error(`Expected a number ${where}`, start, this.pos);
+    const n = Number(text);
+    if (Math.abs(n) > MAX_MODIFIER_COUNT) throw this.error(`Number can be at most ${MAX_MODIFIER_COUNT}`, start, this.pos);
+    return n;
+  }
+
+  // "[start:stop:step]:" after the "(?", where every part is optional, as is the second ":"
+  parseSlice(groupStart) {
+    this.next();
+    const part = () => (/[-0-9]/.test(this.peek() ?? "") ? this.parseSignedNumber("in slice") : null);
+    const start = part();
+    if (!this.eat(":")) throw this.error("Expected : in slice, as in (?[1:-1]:abc)", groupStart, this.pos);
+    const stop = part();
+    const step = this.eat(":") ? part() : null;
+    if (!this.eat("]")) throw this.error("Expected ] to close slice", groupStart, this.pos);
+    const problem = sliceError(start, stop, step);
+    if (problem) throw this.error(problem, groupStart, this.pos);
+    if (!this.eat(":")) throw this.error("Expected : after slice, as in (?[1:-1]:abc)", groupStart, this.pos);
+    return { type: "slice", start, stop, step };
   }
 
   // returns the escaped code point
@@ -413,6 +453,11 @@ function fmt(node, minLevel) {
     case "modifier":
       s = `(?${node.flag}${node.count ?? ""}:${fmt(node.node, 0)})`;
       break;
+    case "slice": {
+      const step = node.step === null ? "" : `:${node.step}`;
+      s = `(?[${node.start ?? ""}:${node.stop ?? ""}${step}]:${fmt(node.node, 0)})`;
+      break;
+    }
     case "spatial": {
       // chains of the same operator group to the left without parentheses
       const sameLeft = node.left.type === "spatial" && node.left.op === node.op;

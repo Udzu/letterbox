@@ -159,6 +159,7 @@
       <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
       <tr><td><code>(?cn:P)</code> <code>(?c:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25 (<code>(?c1:hal)</code> matches <i>ibm</i>)</td></tr>
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
+      <tr><td><code>(?[m:n]:P)</code> <code>(?[m:n:s]:P)</code></td><td>P sliced as in Python: characters m up to but not including n, counting from 0 (from the end if negative); every s-th one. Strings too short for the slice are skipped (<code>(?[1:-1]:spam)</code> matches <i>pa</i>)</td></tr>
     </table>
     <p>Operators are listed from tightest to loosest binding, so <code>!ab&lt;c|d</code> means <code>(!((ab)&lt;c))|d</code>. One of the operators from <code>&lt;</code> to <code>-</code><i>op</i> can be repeated, as in <code>a-b-c</code>, but different ones need parentheses, as in <code>(a&lt;b)^c</code>.</p>
   </div>
@@ -4039,6 +4040,17 @@
   };
   var PCRE_FLAGS = new Set("msxnUJ-^");
   var MAX_MODIFIER_COUNT = 1e3;
+  function sliceError(start, stop, step2) {
+    if (step2 === 0) return "Slice step can't be 0";
+    if (step2 !== null && step2 < 0) return "Slice step can't be negative: use (?r:...) to reverse";
+    if (start !== null && start < 0 && stop !== null && stop >= 0) {
+      return "A slice can't have a negative start and a non-negative stop";
+    }
+    if (start !== null && stop !== null && start < 0 === stop < 0 && start > stop) {
+      return "Slice start is after its stop";
+    }
+    return null;
+  }
   var NAMED_ESCAPES = { n: 10, r: 13, t: 9 };
   var MAX_REPEAT = 1e3;
   var HEX = /^[0-9a-fA-F]{1,6}$/;
@@ -4239,14 +4251,16 @@
         if (this.pos < this.src.length) throw this.error(`Unexpected ${this.peek()}`);
         throw this.error("Missing ) to close (", start);
       }
-      return modifier2 ? { type: "modifier", ...modifier2, node: node2, span: [start, this.pos] } : node2;
+      return modifier2 ? { ...modifier2, node: node2, span: [start, this.pos] } : node2;
     }
-    // the "?flag count:" after the "(" at groupStart, returning { flag, count }
+    // the "?flag count:" or "?[slice]:" after the "(" at groupStart, returning the node's
+    // fields other than its contents
     parseModifier(groupStart) {
       this.next();
       const flag = this.peek();
       const here = () => [groupStart, this.pos];
       if (flag === void 0) throw this.error("Missing modifier after (?", ...here());
+      if (flag === "[") return this.parseSlice(groupStart);
       if (PCRE_FLAGS.has(flag)) {
         const hint = flag === "s" ? ": for a cipher shift, write (?c:...)" : "";
         throw this.error(`(?${flag} is a PCRE flag, which isn't supported${hint}`, groupStart, this.pos + 1);
@@ -4259,24 +4273,43 @@
       let count = null;
       if (/[-0-9]/.test(this.peek() ?? "")) {
         const countStart = this.pos;
-        this.eat("-");
-        while (/[0-9]/.test(this.peek() ?? "")) this.next();
-        const text = this.src.slice(countStart, this.pos);
         if (MODIFIERS[flag].count === "none") {
+          this.parseSignedNumber(`after (?${flag}`);
           throw this.error(`(?${flag}:...) doesn't take a number`, countStart, this.pos);
         }
-        if (!/^-?[0-9]+$/.test(text)) throw this.error(`Expected a number after (?${flag}`, countStart, this.pos);
-        count = Number(text);
-        if (Math.abs(count) > MAX_MODIFIER_COUNT) {
-          throw this.error(`Modifier count can be at most ${MAX_MODIFIER_COUNT}`, countStart, this.pos);
-        }
+        count = this.parseSignedNumber(`after (?${flag}`);
         if (flag === "R" && count === 0) throw this.error("Rotation count can't be 0", countStart, this.pos);
       }
       if (!this.eat(":")) {
         const example = MODIFIERS[flag].count === "none" ? `(?${flag}:abc)` : `(?${flag}2:abc)`;
         throw this.error(`Expected : after (?${flag}${count ?? ""}, as in ${example}`, ...here());
       }
-      return { flag, count };
+      return { type: "modifier", flag, count };
+    }
+    // an optionally negative number, as in a modifier count or slice index
+    parseSignedNumber(where) {
+      const start = this.pos;
+      this.eat("-");
+      while (/[0-9]/.test(this.peek() ?? "")) this.next();
+      const text = this.src.slice(start, this.pos);
+      if (!/^-?[0-9]+$/.test(text)) throw this.error(`Expected a number ${where}`, start, this.pos);
+      const n = Number(text);
+      if (Math.abs(n) > MAX_MODIFIER_COUNT) throw this.error(`Number can be at most ${MAX_MODIFIER_COUNT}`, start, this.pos);
+      return n;
+    }
+    // "[start:stop:step]:" after the "(?", where every part is optional, as is the second ":"
+    parseSlice(groupStart) {
+      this.next();
+      const part = () => /[-0-9]/.test(this.peek() ?? "") ? this.parseSignedNumber("in slice") : null;
+      const start = part();
+      if (!this.eat(":")) throw this.error("Expected : in slice, as in (?[1:-1]:abc)", groupStart, this.pos);
+      const stop = part();
+      const step2 = this.eat(":") ? part() : null;
+      if (!this.eat("]")) throw this.error("Expected ] to close slice", groupStart, this.pos);
+      const problem = sliceError(start, stop, step2);
+      if (problem) throw this.error(problem, groupStart, this.pos);
+      if (!this.eat(":")) throw this.error("Expected : after slice, as in (?[1:-1]:abc)", groupStart, this.pos);
+      return { type: "slice", start, stop, step: step2 };
     }
     // returns the escaped code point
     parseEscape() {
@@ -4601,12 +4634,12 @@
       case "not":
         return embed(b, complement(compile(node2.node, options)), from);
       case "spatial": {
-        const { construct, split } = spatialOp(node2.op);
-        const nfa2 = construct(removeEpsilons(compile(node2.left, options)), removeEpsilons(compile(node2.right, options)), splitDfa(split));
-        return embed(b, nfa2, from);
+        return embed(b, subtract(node2.op, compile(node2.left, options), compile(node2.right, options)), from);
       }
       case "modifier":
         return modifier(b, node2, from, options);
+      case "slice":
+        return embed(b, slice(compile(node2.node, options), node2), from);
       default:
         throw new Error(`Unknown node type ${node2.type}`);
     }
@@ -4638,6 +4671,29 @@
       default:
         throw new Error(`Unknown modifier ${flag}`);
     }
+  }
+  function slice(a, { start, stop, step: step2 }) {
+    const length = (n) => compile(parse(`.{${n}}`));
+    const anything = compile(parse(".*"));
+    const fromEnd = (x, y) => subtract("-", x, y);
+    const fromStart = (x, y) => subtract("_-", x, y);
+    let middle;
+    if (start === null || start >= 0) {
+      const rest = fromStart(a, length(start ?? 0));
+      if (stop === null) middle = rest;
+      else if (stop >= 0) middle = intersect(fromEnd(rest, anything), length(stop - (start ?? 0)));
+      else middle = fromEnd(rest, length(-stop));
+    } else {
+      const rest = stop === null ? a : fromEnd(a, length(-stop));
+      middle = intersect(fromStart(rest, anything), length(-start + (stop ?? 0)));
+    }
+    if (step2 === null || step2 === 1) return middle;
+    const split = `(LR{${step2 - 1}})*(LR{0,${step2 - 2}})?`;
+    return unweave(removeEpsilons(middle), removeEpsilons(anything), splitDfa(split));
+  }
+  function subtract(op, x, y) {
+    const { construct, split } = spatialOp(op);
+    return construct(removeEpsilons(x), removeEpsilons(y), splitDfa(split));
   }
   function repeat(b, node2, min, max, from, options) {
     let at = from;

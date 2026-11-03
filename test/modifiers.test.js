@@ -4,8 +4,9 @@ import { compile, matches } from "../src/patterns/index.js";
 import { compile as compileAst } from "../src/patterns/compile.js";
 import { CharSet } from "../src/patterns/charset.js";
 import { caseClass, caseClose, shiftSet } from "../src/patterns/letters.js";
-import { equivalent } from "../src/patterns/nfa.js";
+import { equivalent, minimize } from "../src/patterns/nfa.js";
 import { randomAst, seededRandom, toRegExp } from "./helpers.js";
+import { format } from "../src/patterns/parser.js";
 
 const EXAMPLES = [
   // [pattern, matching, not matching]
@@ -38,6 +39,18 @@ const EXAMPLES = [
   ["(?R:cat|dog)", ["atc", "tca", "ogd", "gdo"], ["cat", "dog", "act"]],
   ["(?R:[a-z]+ing)", ["ingest", "ingsink", "ngsinki"], ["sing"]],
   ["(?i:(?R1:abc))", ["CAB"], []],
+  ["(?[1:-1]:spam)", ["pa"], ["spam", "spa", "am"]],
+  ["(?[:3]:[a-z]+)", ["abc"], ["ab", "abcd"]],
+  ["(?[:3]:ab)", [], ["ab", ""]],
+  ["(?[5:]:ab)", [], [""]],
+  ["(?[3:3]:abc|ab)", [""], []],
+  ["(?[-2:]:hello|a)", ["lo"], ["a"]],
+  ["(?[-3:-1]:hello)", ["ll"], ["llo"]],
+  ["(?[::2]:hello)", ["hlo"], ["el"]],
+  ["(?[1::2]:(me)+)", ["e", "eee"], ["", "m"]],
+  ["(?[1:6:2]:abcdefg)", ["bdf"], []],
+  ["(?[1:6:2]:abcde)", [], ["bd"]],
+  ["(?[2:-2]:abc)", [], [""]],
 ];
 
 for (const [pattern, yes, no] of EXAMPLES) {
@@ -63,6 +76,16 @@ const rotations = (s, count) => {
   const splits = count === null ? cs.slice(1).map((_, i) => i + 1) : count > 0 ? [count] : [cs.length + count];
   return splits.filter((k) => k >= 1 && k < cs.length).map((k) => [...cs.slice(k), ...cs.slice(0, k)].join(""));
 };
+
+// the strict slice of a string, or null if it's too short
+function sliceOf(s, start, stop, step) {
+  const cs = chars(s);
+  const resolve = (n) => (n < 0 ? cs.length + n : n);
+  const i = start === null ? 0 : resolve(start);
+  const j = stop === null ? cs.length : resolve(stop);
+  if (i < 0 || i > j || j > cs.length) return null;
+  return cs.slice(i, j).filter((_, k) => k % (step ?? 1) === 0).join("");
+}
 
 function oracle(flag, count, inner, s) {
   switch (flag) {
@@ -92,6 +115,30 @@ test("r, c and R agree with their definitions", () => {
       const nfa = compileAst({ type: "modifier", flag, count, node: ast });
       for (const s of randomStrings(rand, 15)) {
         assert.equal(matches(nfa, s), oracle(flag, count, inner, s), `(?${flag}${count ?? ""}:…) on ${JSON.stringify(s)}`);
+      }
+    }
+  }
+});
+
+test("slices agree with their definition", () => {
+  // patterns use a and b, so c stands for every other character. Each slice below of at
+  // most 2 characters comes from a string of at most 8, so checking all of those is exact.
+  const rand = seededRandom(13);
+  const levels = [[""]];
+  for (let n = 1; n <= 8; n++) levels.push(levels[n - 1].flatMap((s) => ["a", "b", "c"].map((c) => s + c)));
+  const all = levels.flat();
+  const short = levels.slice(0, 3).flat();
+  const SLICES = [[1, -1, null], [null, 2, null], [2, null, null], [-2, null, null], [-3, -1, null], [null, null, 2],
+    [1, null, 3], [0, 4, 2], [1, 1, null], [-1, -1, null], [2, -2, 2], [null, -3, null]];
+  for (let i = 0; i < 40; i++) {
+    const ast = randomAst(rand, 3, { chars: ["a", "b"] });
+    const dfa = minimize(compileAst(ast));
+    const members = all.filter((s) => matches(dfa, s));
+    for (const [start, stop, step] of SLICES) {
+      const nfa = compileAst({ type: "slice", start, stop, step, node: ast });
+      const expected = new Set(members.map((s) => sliceOf(s, start, stop, step)));
+      for (const s of short) {
+        assert.equal(matches(nfa, s), expected.has(s), `(?[${start ?? ""}:${stop ?? ""}:${step ?? ""}]:${format(ast)}) on ${JSON.stringify(s)}`);
       }
     }
   }
