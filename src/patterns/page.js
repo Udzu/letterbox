@@ -3,6 +3,7 @@
 import { instance } from "@viz-js/viz";
 import { examples } from "./examples.js";
 import { describeLengths, matchLengths } from "./lengths.js";
+import { LIMITS, UNLIMITED, toRegex } from "./regex.js";
 import {
   compile, determinize, minimize, removeEpsilons, run, toDot, trim, PatternError, TooManyStatesError,
 } from "./index.js";
@@ -15,6 +16,7 @@ const VIEWS = {
   min: minimize,
 };
 const MAX_DRAWN_STATES = 300;
+const REGEX_DELAY = 300; // ms without typing before converting the pattern to a regex
 const STORAGE_KEY = "patterns";
 const DEFAULTS = { pattern: "their|her|his|xyr", tests: "their\nher\nhis\nxyr\nhim", view: "epsfree" };
 
@@ -88,6 +90,7 @@ async function update() {
   }
 
   $("add-examples").disabled = compiled === null;
+  scheduleRegex();
   updateTests();
   // while the pattern is invalid, keep showing the last diagram, dimmed
   $("diagram").classList.toggle("stale", nfa === null && message === null);
@@ -155,6 +158,61 @@ function highlightCurrent() {
   for (const g of $("diagram").querySelectorAll("g.node[data-state]")) {
     g.classList.toggle("active", states.has(Number(g.dataset.state)));
   }
+}
+
+// The equivalent regex can be slow to find, so it waits for a pause in typing, and is
+// dimmed while it's out of date. While the pattern is invalid, the last one stays dimmed.
+let regexTimer = null;
+let firstRegex = true;
+function scheduleRegex() {
+  clearTimeout(regexTimer);
+  $("regex-line").classList.add("stale");
+  if (compiled === null) return;
+  const target = compiled;
+  regexTimer = setTimeout(() => showRegex(target, LIMITS), firstRegex ? 0 : REGEX_DELAY);
+  firstRegex = false;
+}
+
+function showRegex(target, limits) {
+  if (target !== compiled) return; // superseded
+  const result = toRegex(target, limits);
+  $("regex-line").classList.remove("stale");
+  $("regex").textContent = result.regex ?? "";
+  $("copy-regex").textContent = "Copy";
+  if (result.regex) {
+    $("regex-note").textContent = "";
+    return;
+  }
+  $("regex-note").innerHTML = `Too complex to convert quickly: ${escapeHtml(result.tooComplex)}. <button id="convert-anyway">Convert anyway</button>`;
+  $("convert-anyway").addEventListener("click", () => {
+    $("regex-note").textContent = "Converting…";
+    // let the note appear before the page is busy
+    setTimeout(() => showRegex(target, UNLIMITED), 20);
+  });
+}
+
+// Copying by selecting the text works synchronously during a click, even for local files;
+// the clipboard API is the fallback, since it can wait indefinitely for a permission.
+function copyRegex() {
+  const button = $("copy-regex");
+  const done = (label) => {
+    button.textContent = label;
+    setTimeout(() => (button.textContent = "Copy"), 1500);
+  };
+  const range = document.createRange();
+  range.selectNodeContents($("regex"));
+  getSelection().removeAllRanges();
+  getSelection().addRange(range);
+  let copied = false;
+  try {
+    copied = document.execCommand("copy");
+  } catch {
+    // not supported
+  }
+  getSelection().removeAllRanges();
+  if (copied) done("Copied");
+  else if (navigator.clipboard) navigator.clipboard.writeText($("regex").textContent).then(() => done("Copied"), () => done("Couldn't copy"));
+  else done("Couldn't copy");
 }
 
 // replace a textarea's selection via editing commands where possible, so Ctrl+Z can undo it
@@ -226,6 +284,7 @@ patternInput.addEventListener("keydown", (e) => {
 viewSelect.addEventListener("change", schedule);
 $("add-examples").addEventListener("click", addExamples);
 $("clear-tests").addEventListener("click", clearTests);
+$("copy-regex").addEventListener("click", copyRegex);
 testsInput.addEventListener("input", () => {
   save();
   onCursor();

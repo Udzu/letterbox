@@ -10,8 +10,8 @@ import { CharSet, partition } from "./charset.js";
 export const MAX_STATES = 50000;
 
 export class TooManyStatesError extends Error {
-  constructor() {
-    super(`The automaton needs more than ${MAX_STATES} states`);
+  constructor(limit = MAX_STATES) {
+    super(`The automaton needs more than ${limit} states`);
     this.name = "TooManyStatesError";
   }
 }
@@ -36,12 +36,13 @@ export class NFA {
 }
 
 export class Builder {
-  constructor() {
+  constructor(limit = MAX_STATES) {
     this.edges = [];
+    this.limit = limit;
   }
 
   state() {
-    if (this.edges.length >= MAX_STATES) throw new TooManyStatesError();
+    if (this.edges.length >= this.limit) throw new TooManyStatesError(this.limit);
     this.edges.push([]);
     return this.edges.length - 1;
   }
@@ -169,8 +170,9 @@ export function removeEpsilons(nfa) {
 
 // Subset construction. With complete, every state has an edge for every character,
 // adding a non-accepting "dead" state if needed (which complementing relies on).
-export function determinize(nfa, { complete = false } = {}) {
-  const b = new Builder();
+// maxStates limits the DFA's size, throwing TooManyStatesError if it's exceeded
+export function determinize(nfa, { complete = false, maxStates = MAX_STATES } = {}) {
+  const b = new Builder(maxStates);
   const ids = new Map();
   const sets = [];
   // states with only ε-moves contribute nothing beyond their closure, so leave them out of
@@ -272,6 +274,43 @@ export function reverse(nfa) {
 }
 
 // minimal DFA (Brzozowski: reverse and determinize twice), with no dead state
-export function minimize(nfa) {
-  return trim(determinize(reverse(determinize(reverse(nfa)))));
+export function minimize(nfa, { maxStates = MAX_STATES } = {}) {
+  return trim(determinize(reverse(determinize(reverse(nfa), { maxStates })), { maxStates }));
+}
+
+// do the NFAs accept exactly the same strings?
+export function equivalent(a, b) {
+  return intersect(a, complement(b)).accepting.size === 0 && intersect(b, complement(a)).accepting.size === 0;
+}
+
+// Merge states that behave the same way: same acceptance, and edges with the same labels to
+// states that behave the same way (a forward bisimulation, found by partition refinement).
+// Cheaper than minimising, and keeps the NFA no larger than before, but doesn't always find
+// the smallest NFA. Expects an NFA without ε-moves.
+export function mergeEquivalent(nfa) {
+  let block = nfa.edges.map((_, s) => (nfa.accepting.has(s) ? 1 : 0));
+  for (let count = new Set(block).size; ;) {
+    const signatures = new Map();
+    const next = nfa.edges.map((es, s) => {
+      // the labels leading to each block, merged, in a canonical order
+      const byBlock = new Map();
+      for (const { label, to } of es) {
+        const b = block[to];
+        byBlock.set(b, byBlock.has(b) ? byBlock.get(b).union(label) : label);
+      }
+      const key = `${block[s]}|${[...byBlock].sort((x, y) => x[0] - y[0]).map(([b, l]) => `${b}:${l.ranges.join(";")}`).join(" ")}`;
+      if (!signatures.has(key)) signatures.set(key, signatures.size);
+      return signatures.get(key);
+    });
+    block = next;
+    if (signatures.size === count) break;
+    count = signatures.size;
+  }
+  const b = new Builder();
+  const size = Math.max(...block) + 1;
+  for (let i = 0; i < size; i++) b.state();
+  nfa.edges.forEach((es, s) => {
+    for (const { label, to } of es) b.edge(block[s], label, block[to]);
+  });
+  return trim(b.build(block[nfa.start], [...nfa.accepting].map((s) => block[s])));
 }

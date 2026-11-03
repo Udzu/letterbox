@@ -64,6 +64,12 @@
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
   #info { color: #666; }
   #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
+  #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+  #regex-line .label { color: #666; }
+  #regex { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: break-all; }
+  #regex:empty, #regex:empty + #copy-regex { display: none; }
+  #regex-line.stale { opacity: 0.3; }
+  #copy-regex, #regex-note button { font: inherit; font-size: 0.9rem; }
   #diagram { margin-top: 12px; overflow-x: auto; min-height: 60px; }
   #diagram.stale { opacity: 0.3; }
   #diagram svg { max-width: 100%; height: auto; display: block; }
@@ -107,6 +113,12 @@
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
   </div>
   <div id="diagram"><p class="note">Loading…</p></div>
+  <div id="regex-line">
+    <span class="label">PCRE-compatible equivalent:</span>
+    <code id="regex"></code>
+    <button id="copy-regex">Copy</button>
+    <span id="regex-note" class="note"></span>
+  </div>
 
   <div id="tests-header">
     <h2>Test strings</h2>
