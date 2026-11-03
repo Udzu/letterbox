@@ -63,7 +63,8 @@
 
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
-  #stats { color: #666; }
+  #info { color: #666; }
+  #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
   #diagram { margin-top: 12px; overflow-x: auto; min-height: 60px; }
   #diagram.stale { opacity: 0.3; }
   #diagram svg { max-width: 100%; height: auto; display: block; }
@@ -104,7 +105,7 @@
       <option value="dfa">DFA</option>
       <option value="min">Minimal DFA</option>
     </select>
-    <span id="stats"></span>
+    <span id="info"><span id="stats"></span><span id="lengths"></span></span>
   </div>
   <div id="diagram"><p class="note">Loading…</p></div>
 
@@ -3573,7 +3574,7 @@
     }
     return dist;
   }
-  function walk(g, usable, dist, target, random, preferred, shortest) {
+  function walk(g, usable, dist, target, random, preferred, shortest2) {
     const chars = [];
     let s = g.start;
     for (; ; ) {
@@ -3583,12 +3584,12 @@
       g.edges[s].forEach((e, i) => {
         const label2 = usable[s][i];
         if (label2.isEmpty() || dist[e.to] === Infinity) return;
-        if ((done || shortest) && dist[e.to] !== dist[s] - 1) return;
+        if ((done || shortest2) && dist[e.to] !== dist[s] - 1) return;
         options.push([label2, e.to]);
       });
       if (options.length === 0) return g.accepting.has(s) ? chars.join("") : null;
-      const [label, to] = shortest ? options[0] : options[Math.floor(random() * options.length)];
-      chars.push(String.fromCodePoint(pickChar(label, shortest ? () => 0 : random, preferred)));
+      const [label, to] = shortest2 ? options[0] : options[Math.floor(random() * options.length)];
+      chars.push(String.fromCodePoint(pickChar(label, shortest2 ? () => 0 : random, preferred)));
       s = to;
     }
   }
@@ -3613,6 +3614,65 @@
       index -= hi - lo + 1;
     }
     return Math.min(set.ranges[0][0], MAX_CP);
+  }
+
+  // src/patterns/lengths.js
+  function matchLengths(nfa2) {
+    const g = removeEpsilons(nfa2);
+    if (g.accepting.size === 0) return { min: null, max: null };
+    return { min: shortest(g), max: longest(g) };
+  }
+  function shortest(g) {
+    const depth = /* @__PURE__ */ new Map([[g.start, 0]]);
+    const queue = [g.start];
+    for (let i = 0; i < queue.length; i++) {
+      const s = queue[i];
+      if (g.accepting.has(s)) return depth.get(s);
+      for (const { to } of g.edges[s]) {
+        if (!depth.has(to)) {
+          depth.set(to, depth.get(s) + 1);
+          queue.push(to);
+        }
+      }
+    }
+    return null;
+  }
+  function longest(g) {
+    const UNSEEN = 0, ACTIVE = 1, DONE = 2;
+    const state = new Array(g.size).fill(UNSEEN);
+    const order = [];
+    const stack = [[g.start, 0]];
+    state[g.start] = ACTIVE;
+    while (stack.length) {
+      const top = stack[stack.length - 1];
+      const [s, i] = top;
+      if (i === g.edges[s].length) {
+        state[s] = DONE;
+        order.push(s);
+        stack.pop();
+        continue;
+      }
+      top[1]++;
+      const to = g.edges[s][i].to;
+      if (state[to] === ACTIVE) return Infinity;
+      if (state[to] === UNSEEN) {
+        state[to] = ACTIVE;
+        stack.push([to, 0]);
+      }
+    }
+    const best = new Array(g.size).fill(-Infinity);
+    for (const s of order) {
+      if (g.accepting.has(s)) best[s] = 0;
+      for (const { to } of g.edges[s]) best[s] = Math.max(best[s], best[to] + 1);
+    }
+    return best[g.start];
+  }
+  function describeLengths({ min, max }) {
+    if (min === null) return "Nothing matches";
+    if (max === 0) return "Only the empty string matches";
+    if (min === max) return `Match length: ${min}`;
+    if (max === Infinity) return `Match lengths: ${min} or more`;
+    return `Match lengths: ${min} to ${max}`;
   }
 
   // src/patterns/parser.js
@@ -4204,9 +4264,11 @@
     nfa = null;
     compiled = null;
     $("examples-note").textContent = "";
+    $("lengths").textContent = "";
     let message = null;
     try {
       compiled = compile2(pattern);
+      $("lengths").textContent = describeLengths(matchLengths(compiled));
       nfa = VIEWS[viewSelect.value](compiled);
     } catch (e) {
       if (e instanceof PatternError) {

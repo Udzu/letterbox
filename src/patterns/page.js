@@ -2,6 +2,7 @@
 
 import { instance } from "@viz-js/viz";
 import { examples } from "./examples.js";
+import { describeLengths, matchLengths } from "./lengths.js";
 import {
   compile, determinize, minimize, removeEpsilons, run, toDot, trim, PatternError, TooManyStatesError,
 } from "./index.js";
@@ -65,9 +66,11 @@ async function update() {
   nfa = null;
   compiled = null;
   $("examples-note").textContent = "";
+  $("lengths").textContent = "";
   let message = null;
   try {
     compiled = compile(pattern);
+    $("lengths").textContent = describeLengths(matchLengths(compiled));
     nfa = VIEWS[viewSelect.value](compiled);
   } catch (e) {
     if (e instanceof PatternError) {

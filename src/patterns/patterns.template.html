@@ -62,7 +62,8 @@
 
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
-  #stats { color: #666; }
+  #info { color: #666; }
+  #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
   #diagram { margin-top: 12px; overflow-x: auto; min-height: 60px; }
   #diagram.stale { opacity: 0.3; }
   #diagram svg { max-width: 100%; height: auto; display: block; }
@@ -103,7 +104,7 @@
       <option value="dfa">DFA</option>
       <option value="min">Minimal DFA</option>
     </select>
-    <span id="stats"></span>
+    <span id="info"><span id="stats"></span><span id="lengths"></span></span>
   </div>
   <div id="diagram"><p class="note">Loading…</p></div>
 
