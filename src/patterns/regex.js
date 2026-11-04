@@ -283,8 +283,22 @@ function js(n, level) {
     case "set": return jsSet(n.cs);
     case "cat": return group(n.items.map((m) => js(m, CAT)).join(""), level > CAT);
     case "alt": return group(n.items.map((m) => js(m, ALT)).join("|"), level > ALT);
-    case "rep": return group(js(n.node, ATOM) + quantifier(n.min, n.max), level > REP);
+    case "rep": {
+      const atom = js(n.node, ATOM);
+      const quantified = group(atom + quantifier(n.min, n.max), level > REP);
+      const written = writtenOut(atom, n.min, n.max);
+      if (written === null) return quantified;
+      const expanded = group(written, level > CAT);
+      return expanded.length < quantified.length ? expanded : quantified;
+    }
   }
+}
+
+// A repeat written out without a count: X{3} as XXX, and X{2,} as XX+. A range like X{1,3}
+// stays as it is, since XX?X? is harder to read.
+function writtenOut(atom, min, max) {
+  if (max === Infinity) return min >= 1 ? atom.repeat(min - 1) + atom + "+" : null;
+  return min === max ? atom.repeat(min) : null;
 }
 
 function group(s, needed) {
