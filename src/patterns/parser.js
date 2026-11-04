@@ -31,6 +31,8 @@
 //                                                    if omitted (see sliceError)
 //   { type: "replace", strict, node, find, insert }  (?z:node/find/insert), or (?Z:...) if
 //                                                    strict
+//   { type: "split", unweave, split, left, right }   (?w:split/left/right), or (?u:...) if
+//                                                    unweave; split only uses L and R
 
 export class PatternError extends Error {
   constructor(message, start, end = start + 1) {
@@ -64,7 +66,11 @@ export const MODIFIERS = {
   R: { count: "optional" }, // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
   z: { count: "none", parts: 3 }, // replacement: (?z:A/B/C) is A with a B replaced by a C
   Z: { count: "none", parts: 3 }, // the same, but not at either end
+  w: { count: "none", parts: 3 }, // custom weave: (?w:S/A/B) is A and B combined by split S
+  u: { count: "none", parts: 3 }, // custom unweave: (?u:S/A/B) is A with B removed by S
 };
+const PARTS_EXAMPLE = { z: "London/o/u", Z: "London/o/u", w: "L+R+L+/the/[a-z]+", u: "(LLR)*/abcdef/.*" };
+const SPLIT_CHARS = new Set(["L", "R"].map((c) => c.codePointAt(0)));
 // PCRE's inline flags, which mean something different here (or nothing), so they're an
 // error rather than a surprise
 const PCRE_FLAGS = new Set("msxnUJ-^");
@@ -141,7 +147,7 @@ class Parser {
   }
 
   slashError() {
-    return this.error("/ is reserved: write \\/ to match it literally (it separates the parts of (?z:A/B/C))");
+    return this.error("/ is reserved: write \\/ to match it literally (it separates the parts of groups like (?z:A/B/C))");
   }
 
   // alternation branches may be empty, as in "a|" or "()"
@@ -301,7 +307,7 @@ class Parser {
     const start = this.pos;
     this.next();
     const modifier = this.peek() === "?" ? this.parseModifier(start) : null;
-    if (modifier?.type === "replace") return this.parseReplace(start, modifier);
+    if (modifier?.type === "parts") return this.parseParts(start, modifier.flag);
     const node = this.parseAlt();
     this.closeGroup(start);
     return modifier ? { ...modifier, node, span: [start, this.pos] } : node;
@@ -314,9 +320,9 @@ class Parser {
     throw this.error("Missing ) to close (", start);
   }
 
-  // the "A/B/C)" of a replacement, whose parts are separated by / at the top level
-  parseReplace(start, { strict }) {
-    const flag = strict ? "Z" : "z";
+  // the "A/B/C)" of a replacement or custom split, whose parts are separated by / at the top
+  // level
+  parseParts(start, flag) {
     const parts = [this.parseAlt()];
     while (this.peek() === "/") {
       if (parts.length === 3) {
@@ -326,11 +332,30 @@ class Parser {
       parts.push(this.parseAlt());
     }
     if (parts.length < 3 && this.peek() === ")") {
-      throw this.error(`(?${flag}:...) needs three parts, as in (?${flag}:London/o/u)`, start, this.pos + 1);
+      throw this.error(`(?${flag}:...) needs three parts, as in (?${flag}:${PARTS_EXAMPLE[flag]})`, start, this.pos + 1);
     }
     this.closeGroup(start);
-    const [node, find, insert] = parts;
-    return { type: "replace", strict, node, find, insert, span: [start, this.pos] };
+    const span = [start, this.pos];
+    if (flag === "z" || flag === "Z") {
+      const [node, find, insert] = parts;
+      return { type: "replace", strict: flag === "Z", node, find, insert, span };
+    }
+    const [split, left, right] = parts;
+    this.checkSplit(split);
+    return { type: "split", unweave: flag === "u", split, left, right, span };
+  }
+
+  // split patterns are over L (the left operand's characters) and R (the right one's)
+  checkSplit(node) {
+    const bad = (n) => {
+      throw new PatternError("Split patterns can only use the characters L and R", ...n.span);
+    };
+    const visit = (n) => {
+      if (n.type === "char" && !SPLIT_CHARS.has(n.cp)) bad(n);
+      if (n.type === "class" && !n.ranges.every(([lo, hi]) => lo === hi && SPLIT_CHARS.has(lo))) bad(n);
+      for (const child of [n.node, n.left, n.right, n.find, n.insert, n.split, ...(n.items ?? [])]) if (child) visit(child);
+    };
+    visit(node);
   }
 
   // the "?flag count:" or "?[slice]:" after the "(" at groupStart, returning the node's
@@ -364,7 +389,7 @@ class Parser {
       const example = MODIFIERS[flag].count === "none" ? `(?${flag}:abc)` : `(?${flag}2:abc)`;
       throw this.error(`Expected : after (?${flag}${count ?? ""}, as in ${example}`, ...here());
     }
-    if (MODIFIERS[flag].parts) return { type: "replace", strict: flag === "Z" };
+    if (MODIFIERS[flag].parts) return { type: "parts", flag };
     return { type: "modifier", flag, count };
   }
 
@@ -490,6 +515,11 @@ function fmt(node, minLevel) {
     case "replace": {
       const parts = [node.node, node.find, node.insert].map((n) => fmt(n, 0));
       s = `(?${node.strict ? "Z" : "z"}:${parts.join("/")})`;
+      break;
+    }
+    case "split": {
+      const parts = [node.split, node.left, node.right].map((n) => fmt(n, 0));
+      s = `(?${node.unweave ? "u" : "w"}:${parts.join("/")})`;
       break;
     }
     case "slice": {

@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { compile, matches } from "../src/patterns/index.js";
 import { SPLITS } from "../src/patterns/compile.js";
+import { equivalent } from "../src/patterns/nfa.js";
 import { format, SPATIAL_OPS } from "../src/patterns/parser.js";
 import { randomAst, seededRandom } from "./helpers.js";
 
@@ -149,3 +150,37 @@ test("identities between operators", () => {
     }
   }
 });
+
+test("custom splits generalise the separating and subtraction operators", () => {
+  const rand = seededRandom(23);
+  for (let i = 0; i < 40; i++) {
+    const A = format(randomAst(rand, 2, { chars: ["a", "b"], logic: false }));
+    const B = format(randomAst(rand, 2, { chars: ["a", "b"], logic: false }));
+    for (const op of SPATIAL_OPS) {
+      const mirrored = op.startsWith("_-");
+      const base = op.slice(mirrored ? 2 : op.startsWith("-") ? 1 : 0);
+      let split = SPLITS[base];
+      if (mirrored) split = split.replace(/[LR]/g, (c) => (c === "L" ? "R" : "L"));
+      const custom = `(?${op === base ? "w" : "u"}:${split}/${A}/${B})`;
+      assert.ok(equivalent(compile(`(${A})${op}(${B})`), compile(custom)), `(${A})${op}(${B}) ≡ ${custom}`);
+    }
+  }
+});
+
+test("custom splits", () => {
+  const same = (p, q) => assert.ok(equivalent(compile(p), compile(q)), `${p} ≡ ${q}`);
+  same("(?u:(LRR)*(LR?)?/[a-z]*/.*)", "(?[::3]:[a-z]*)");
+  same("(?w:.*/a/b)", "a^b");
+  same("(?w:[]/a/b)", "[]");
+  same("(?w:L*|R*/a*/b*)", "a*|b*");
+  same("(?w:L*&R*/a*/b*)", "");
+  same("(?i:(?w:L*R*/a/b))", "(?i:ab)");
+  const yes = (p, s) => assert.ok(matches(compile(p), s), `${p} should match ${s}`);
+  const no = (p, s) => assert.ok(!matches(compile(p), s), `${p} shouldn't match ${s}`);
+  yes("(?w:L+R+L+/the/[a-z]+)", "tithe");
+  no("(?w:L+R+L+/the/[a-z]+)", "the");
+  yes("(?w:(LR+)*L/cat/[a-z]+)", "cxxaxt");
+  no("(?w:(LR+)*L/cat/[a-z]+)", "caxt");
+  yes("(?u:(LLR)*/abcdef/.*)", "abde");
+});
+

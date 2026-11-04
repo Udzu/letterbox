@@ -19,6 +19,7 @@ function show(node) {
     case "spatial": return `(${node.op} ${show(node.left)} ${show(node.right)})`;
     case "modifier": return `(?${node.flag}${node.count ?? ""} ${show(node.node)})`;
     case "replace": return `(${node.strict ? "Z" : "z"} ${show(node.node)} ${show(node.find)} ${show(node.insert)})`;
+    case "split": return `(${node.unweave ? "u" : "w"} ${show(node.split)} ${show(node.left)} ${show(node.right)})`;
     case "slice": return `([${[node.start, node.stop, node.step].map((n) => n ?? "_").join(" ")}] ${show(node.node)})`;
     default: return `(${node.type} ${node.items.map(show).join(" ")})`;
   }
@@ -139,6 +140,10 @@ const PARSES = [
   ["(?z:a|b/c&d/!e)", "(z (alt a b) (and c d) (not e))"],
   ["(?z:a\\/b/c/d)", "(z (concat a / b) c d)"],
   ["(?z:(?z:a/b/c)/d/e)", "(z (z a b c) d e)"],
+  ["(?w:L*R*/a/b)", "(w (concat (repeat 0 ∞ L) (repeat 0 ∞ R)) a b)"],
+  ["(?u:[LR]|!L/a/b)", "(u (alt [L R] (not L)) a b)"],
+  ["(?w:./a/b)", "(w . a b)"],
+  ["(?w:[^L]//)", "(w [^L] ε ε)"],
 ];
 
 for (const [pattern, expected] of PARSES) {
@@ -225,6 +230,12 @@ const ERRORS = [
   ["(?Z:a/b/c/d)", "(?Z:...) has three parts", [9, 10]],
   ["(?z:a/b/c", "Missing ) to close (", [0, 1]],
   ["(?z2:a/b/c)", "doesn't take a number", [3, 4]],
+  ["(?w:l/a/b)", "only use the characters L and R", [4, 5]],
+  ["(?u:LR*a/a/b)", "only use the characters L and R", [7, 8]],
+  ["(?w:[L-R]/a/b)", "only use the characters L and R", [4, 9]],
+  ["(?w:(?i:x)/a/b)", "only use the characters L and R", [8, 9]],
+  ["(?w:L/a)", "needs three parts, as in (?w:L+R+L+/the/[a-z]+)", [0, 8]],
+  ["(?u:L)", "needs three parts, as in (?u:(LLR)*/abcdef/.*)", [0, 6]],
   ["&a", "Missing operand before &", [0, 1]],
   ["a&", "Missing operand after &", [1, 2]],
   ["a&|b", "Missing operand after &", [1, 2]],
@@ -298,6 +309,7 @@ const FORMATS = [
   ["(?[::1]:a|b)", "(?[::1]:a|b)"],
   ["(?z:(a|b)/(c)/(d|))", "(?z:a|b/c/d|)"],
   ["(?z:a/()/(d))", "(?z:a//d)"],
+  ["(?w:(L|R)/(a)/b*)", "(?w:L|R/a/b*)"],
 ];
 
 for (const [pattern, canonical] of FORMATS) {
