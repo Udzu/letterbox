@@ -6,8 +6,8 @@ import { describeLengths, matchLengths } from "./lengths.js";
 import { LIMITS, UNLIMITED, toRegex } from "./regex.js";
 import { matcher, parseWords, wordsAutomaton } from "./wordlist.js";
 import {
-  compile, determinize, limitFor, minimize, removeEpsilons, run, toDot, trim, withStateLimit, PatternError,
-  TooManyStatesError,
+  compile, determinize, explainer, limitFor, minimize, removeEpsilons, run, toDot, trim, withStateLimit, PatternError,
+  TooComplexToExplain, TooManyStatesError,
 } from "./index.js";
 
 const VIEWS = {
@@ -113,6 +113,7 @@ async function update() {
   scheduleRegex();
   scheduleMatches();
   updateTests();
+  showExplanation();
   // while the pattern is invalid, keep showing the last diagram, dimmed
   $("diagram").classList.toggle("stale", nfa === null && message === null && !askToBuild);
   if (nfa === null) {
@@ -187,6 +188,89 @@ function isMatch(line) {
 function currentLine() {
   if (document.activeElement !== testsInput) return -1;
   return testsInput.value.slice(0, testsInput.selectionStart).split("\n").length - 1;
+}
+
+// The explanation is of the line the cursor was last on, kept while the cursor is elsewhere.
+let explainedLine = -1;
+let explainFor = null; // { compiled, explain } for the current pattern
+let explained = null; // { compiled, line, html } last shown
+
+function showExplanation() {
+  const line = currentLine();
+  if (line >= 0) explainedLine = line;
+  const text = explainedLine >= 0 ? testsInput.value.split("\n")[explainedLine] : undefined;
+  if (compiled === null) {
+    $("explain").classList.toggle("stale", text !== undefined);
+    return;
+  }
+  $("explain").classList.remove("stale");
+  if (explained && explained.compiled === compiled && explained.line === text) return;
+  explained = { compiled, line: text, html: explanationHtml(text) };
+  $("explain").innerHTML = explained.html;
+}
+
+function explanationHtml(text) {
+  const note = (message) => `<p class="note">${escapeHtml(message)}</p>`;
+  if (text === undefined) return note("Put the cursor on a test string to see which part of the pattern matched each character.");
+  if (explainFor?.compiled !== compiled) {
+    explainFor = { compiled, explain: explainer(patternInput.value, { words: wordList?.automaton, nfa: compiled }) };
+  }
+  let result;
+  try {
+    result = explainFor.explain(text);
+  } catch (e) {
+    if (e instanceof TooComplexToExplain || e instanceof TooManyStatesError) return note("Too complex to explain.");
+    throw e;
+  }
+  if (result === null) return note(text === "" ? "The empty string doesn't match." : "This string doesn't match.");
+  if (text === "") return note("The empty string matches.");
+  const { columns, rows, truncated } = result;
+  // the top row is coloured by the first row of the top level that has each character
+  const groupOf = new Map();
+  for (const row of rows) {
+    if (row.depth === 1) for (const i of row.chars.keys()) if (!groupOf.has(i)) groupOf.set(i, row.group);
+  }
+  const groupClass = (group) => (group === null || group === undefined ? "" : `g${group % 6}`);
+  const html = rows.map((row) => {
+    const cells = columns.map((col, i) => {
+      const ch = row.depth === 0 ? col.ch : row.chars.get(i) ?? "";
+      const classes = [groupClass(row.depth === 0 ? groupOf.get(i) : row.group)];
+      if (col.synthetic) {
+        classes.push("synthetic");
+        if (!columns[i - 1]?.synthetic) classes.push("first");
+        if (!columns[i + 1]?.synthetic) classes.push("last");
+      }
+      return `<td class="${classes.join(" ").trim()}">${escapeHtml(ch)}</td>`;
+    }).join("");
+    const title = row.title === null ? "" : ` title="${escapeHtml(row.title)}"`;
+    // an alternation's other alternatives are faded
+    const text = row.highlight === null ? escapeHtml(row.label) : [
+      `<span class="other">${escapeHtml(row.label.slice(0, row.highlight[0]))}</span>`,
+      escapeHtml(row.label.slice(...row.highlight)),
+      `<span class="other">${escapeHtml(row.label.slice(row.highlight[1]))}</span>`,
+    ].join("");
+    const label = `<td class="label" style="padding-left: ${1.5 + row.depth}em"${title}>${text}</td>`;
+    return `<tr>${cells}${label}</tr>`;
+  }).join("");
+  const more = truncated ? note("Only the first rows are shown.") : "";
+  return `<table>${html}</table>${more}`;
+}
+
+// add a string to the test strings if it isn't there already, and put the cursor on it
+function showTestString(s) {
+  testsInput.focus();
+  let lines = testsInput.value.split("\n");
+  if (!lines.includes(s)) {
+    const existing = testsInput.value.replace(/\n+$/, "");
+    testsInput.setSelectionRange(existing.length, testsInput.value.length);
+    edit(testsInput, (existing ? "\n" : "") + s);
+    lines = testsInput.value.split("\n");
+  }
+  const start = lines.slice(0, lines.indexOf(s)).reduce((n, line) => n + line.length + 1, 0);
+  testsInput.setSelectionRange(start, start);
+  save();
+  onCursor();
+  $("tests-row").scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 
 // highlight the states reached by the test string on the cursor's line
@@ -404,7 +488,12 @@ async function findMatches(target, list) {
 function showMatches(found) {
   for (const id of ["matches", "matches-info"]) $(id).classList.remove("stale");
   const shown = showAllMatches ? found : found.slice(0, SHOWN_MATCHES);
-  $("matches").textContent = shown.join("\n");
+  $("matches").replaceChildren(...shown.map((word) => {
+    const span = document.createElement("span");
+    span.className = "word";
+    span.textContent = word;
+    return span;
+  }));
   $("matches").scrollTop = 0;
   if (found.length === 0) {
     $("matches-info").textContent = "No words match.";
@@ -458,6 +547,7 @@ function schedule() {
 function onCursor() {
   updateTests();
   highlightCurrent();
+  showExplanation();
 }
 
 const saved = load();
@@ -491,6 +581,9 @@ $("copy-regex").addEventListener("click", copyRegex);
 $("load-words").addEventListener("click", () => $("words-file").click());
 $("words-file").addEventListener("change", loadWordFile);
 $("clear-words").addEventListener("click", clearWordList);
+$("matches").addEventListener("click", (e) => {
+  if (e.target.classList.contains("word")) showTestString(e.target.textContent);
+});
 testsInput.addEventListener("input", () => {
   save();
   onCursor();

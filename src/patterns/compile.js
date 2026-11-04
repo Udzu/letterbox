@@ -149,7 +149,7 @@ function shorthand(sh, chars) {
 // defined, as in PCRE, so a name always means the same thing. This finds each definition
 // and whether it's inside (?i:...); names are checked to be unique and not to refer to
 // themselves when parsing.
-function definitions(ast) {
+export function definitions(ast) {
   const names = new Map();
   const visit = (node, caseless) => {
     if (node.type === "define") names.set(node.name, { node: node.node, caseless, nfa: null });
