@@ -5,10 +5,10 @@
 // { node, cells, children, name? }, where cells are the characters the node matched, each
 // { col, ch }: col is the string's column it's shown in and ch the character the node
 // matched there. That differs from the string's own character under (?c:...), and under
-// (?r:...), (?R:...) and (?a:...), whose inner strings are shown in their own order. Some operators
-// match characters that aren't in the string, such as the B that (?z:A/B/C) cuts out of A, or
-// the part of a word that a slice skips; these get extra "synthetic" columns, placed next
-// to the characters around them.
+// (?r:...), (?R:...), (?t:...) and (?a:...), whose inner strings are shown in their own
+// order. Some operators match characters that aren't in the string, such as the B that
+// (?z:A/B/C) cuts out of A, or the part of a word that a slice skips; these get extra
+// "synthetic" columns, placed next to the characters around them.
 //
 // Each node's explanation is found from its own automaton (compiled on first use) by
 // trying the ways the node's operator could divide its characters between its operands,
@@ -178,6 +178,20 @@ function modifier(ctx, node, cells, caseless) {
         if (k < 1 || k > n - 1) continue;
         const rotated = reorder(cells, [...cells.slice(k), ...cells.slice(0, k)]);
         if (matches(ctx, inner, rotated, caseless)) return sub(rotated);
+      }
+      break;
+    }
+    case "t": {
+      // the string is x b m a y, and the inner pattern matched x a m b y
+      const n = cells.length;
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+          if (node.count !== null && j - i !== node.count) continue;
+          const swapped = [...cells];
+          [swapped[i], swapped[j]] = [cells[j], cells[i]];
+          const moved = reorder(cells, swapped);
+          if (matches(ctx, inner, moved, caseless)) return sub(moved);
+        }
       }
       break;
     }

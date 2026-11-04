@@ -228,6 +228,7 @@
       <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
       <tr><td><code>(?cn:P)</code> <code>(?c:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25 (<code>(?c1:hal)</code> matches <i>ibm</i>)</td></tr>
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
+      <tr><td><code>(?tn:P)</code> <code>(?t:P)</code></td><td>P with two characters n apart swapped (<code>(?t1:the)</code> matches <i>teh</i> and <i>hte</i>); any two</td></tr>
       <tr><td><code>(?a:P)</code></td><td>anagrams of P, which must have finitely many strings, since anagrams of infinite ones may not be regular (<code>(?a:listen)</code> matches <i>silent</i>). <code>(?a:P-^.*)</code> gives sub-anagrams</td></tr>
       <tr><td><code>(?[m:n]:P)</code> <code>(?[m:n:s]:P)</code></td><td>P sliced as in Python: characters m up to but not including n, counting from 0 (from the end if negative); every s-th one. Too-short strings are skipped (<code>(?[1:-1]:spam)</code> matches <i>pa</i>)</td></tr>
       <tr><td><code>(?z:P/Q/R)</code> <code>(?Z:P/Q/R)</code></td><td>P with a Q replaced by an R; but not at either end (<code>(?z:London/o/u)</code> matches <i>Lundon</i>). To replace at the end or start, write <code>(P-Q)R</code> or <code>R(P_-Q)</code></td></tr>
@@ -4293,6 +4294,8 @@
     // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
     a: { count: "none" },
     //     anagrams (of a finite pattern)
+    t: { count: "optional" },
+    // transposition: (?t1:A) swaps two adjacent characters, (?t:A) any two
     z: { count: "none", parts: 3 },
     // replacement: (?z:A/B/C) is A with a B replaced by a C
     Z: { count: "none", parts: 3 },
@@ -4600,6 +4603,7 @@
         }
         count2 = this.parseSignedNumber(`after (?${flag}`);
         if (flag === "R" && count2 === 0) throw this.error("Rotation count can't be 0", countStart, this.pos);
+        if (flag === "t" && count2 < 1) throw this.error("Transposition distance must be at least 1", countStart, this.pos);
       }
       if (!this.eat(":")) {
         const example = MODIFIERS[flag].count === "none" ? `(?${flag}:abc)` : `(?${flag}2:abc)`;
@@ -5062,6 +5066,74 @@
     return builder.build(start2, accepting);
   }
 
+  // src/patterns/transpose.js
+  function transpose(a, distance) {
+    const labels = [...new Set(a.edges.flat().map((e) => e.label))];
+    const groups = partition(labels);
+    const groupsOf = new Map(labels.map((label) => [label, []]));
+    groups.forEach(({ members }, k) => {
+      for (const i of members) groupsOf.get(labels[i]).push(k);
+    });
+    const next = a.edges.map((es) => new Set(es.flatMap((e) => groupsOf.get(e.label))));
+    const owed = distance === 1 ? next : later(a, next);
+    const builder = new Builder();
+    const ids = /* @__PURE__ */ new Map();
+    const states = [];
+    const id = (...state) => {
+      const key = state.join(",");
+      if (!ids.has(key)) {
+        ids.set(key, builder.state());
+        states.push(state);
+      }
+      return ids.get(key);
+    };
+    const start2 = id("x", a.start);
+    const accepting = [];
+    for (let i = 0; i < states.length; i++) {
+      const [phase, p, ga, gb, k] = states[i];
+      switch (phase) {
+        case "x":
+          for (const { label, to } of a.edges[p]) {
+            builder.edge(i, label, id("x", to));
+            for (const g of groupsOf.get(label)) {
+              for (const h of owed[to]) builder.edge(i, groups[h].set, id("m", to, g, h, 0));
+            }
+          }
+          break;
+        case "m": {
+          const end = distance === null || k === distance - 1;
+          for (const { label, to } of a.edges[p]) {
+            if (distance === null || k < distance - 1) builder.edge(i, label, id("m", to, ga, gb, distance === null ? 0 : k + 1));
+            if (end && groupsOf.get(label).includes(gb)) builder.edge(i, groups[ga].set, id("y", to));
+          }
+          break;
+        }
+        case "y":
+          for (const { label, to } of a.edges[p]) builder.edge(i, label, id("y", to));
+          if (a.accepting.has(p)) accepting.push(i);
+          break;
+      }
+    }
+    return trim(builder.build(start2, accepting));
+  }
+  function later(a, next) {
+    const out = next.map((s) => new Set(s));
+    for (let changed = true; changed; ) {
+      changed = false;
+      for (let s = a.size - 1; s >= 0; s--) {
+        for (const { to } of a.edges[s]) {
+          for (const g of out[to]) {
+            if (!out[s].has(g)) {
+              out[s].add(g);
+              changed = true;
+            }
+          }
+        }
+      }
+    }
+    return out;
+  }
+
   // src/patterns/weave.js
   var L = "L".codePointAt(0);
   var R = "R".codePointAt(0);
@@ -5268,6 +5340,8 @@
         const [v, u] = count2 === null ? [atLeast(1), atLeast(1)] : count2 > 0 ? [exactly(count2), atLeast(1)] : [atLeast(1), exactly(-count2)];
         return embed(b, rotate(inner, v, u), from);
       }
+      case "t":
+        return embed(b, transpose(removeEpsilons(compile(node2.node, options)), count2), from);
       case "a": {
         const anagrams = anagram(compile(node2.node, options));
         if (!anagrams) throw new PatternError("Anagrams need a pattern with finitely many strings", ...node2.span);
@@ -5478,6 +5552,19 @@
           if (k < 1 || k > n - 1) continue;
           const rotated = reorder(cells, [...cells.slice(k), ...cells.slice(0, k)]);
           if (matches2(ctx, inner, rotated, caseless)) return sub(rotated);
+        }
+        break;
+      }
+      case "t": {
+        const n = cells.length;
+        for (let i = 0; i < n; i++) {
+          for (let j = i + 1; j < n; j++) {
+            if (node2.count !== null && j - i !== node2.count) continue;
+            const swapped = [...cells];
+            [swapped[i], swapped[j]] = [cells[j], cells[i]];
+            const moved = reorder(cells, swapped);
+            if (matches2(ctx, inner, moved, caseless)) return sub(moved);
+          }
         }
         break;
       }

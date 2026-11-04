@@ -9,6 +9,8 @@
 //            cipher; (?c:A) is any of the shifts from 1 to 25
 //   (?Rn:A)  A rotated n characters right (or left if n is negative); (?R:A) is any
 //            rotation that changes where the string starts (see rotate.js)
+//   (?tn:A)  A with two characters n apart swapped, so (?t1:A) swaps adjacent ones; (?t:A)
+//            swaps any two (see transpose.js)
 //   (?a:A)   anagrams of strings in A, which must be finite (see anagram.js)
 //   (?[m:n:s]:A)  slices of strings in A, as in Python but strict: a string too short for
 //            the slice gives nothing (see sliceError in parser.js)
@@ -31,6 +33,7 @@ import { parse, PatternError } from "./parser.js";
 import { replace } from "./replace.js";
 import { atLeast, exactly, rotate } from "./rotate.js";
 import { shorthandSet } from "./shorthands.js";
+import { transpose } from "./transpose.js";
 import { unweave, weave } from "./weave.js";
 
 // Split patterns for the separating operators: which positions of a combined string come
@@ -197,6 +200,8 @@ function modifier(b, node, from, options) {
       const [v, u] = count === null ? [atLeast(1), atLeast(1)] : count > 0 ? [exactly(count), atLeast(1)] : [atLeast(1), exactly(-count)];
       return embed(b, rotate(inner, v, u), from);
     }
+    case "t":
+      return embed(b, transpose(removeEpsilons(compile(node.node, options)), count), from);
     case "a": {
       const anagrams = anagram(compile(node.node, options));
       if (!anagrams) throw new PatternError("Anagrams need a pattern with finitely many strings", ...node.span);
