@@ -79,6 +79,7 @@ export const MODIFIERS = {
   c: { count: "optional" }, // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25
   R: { count: "optional" }, // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
   a: { count: "none" }, //     anagrams (of a finite pattern)
+  t: { count: "optional" }, // transposition: (?t1:A) swaps two adjacent characters, (?t:A) any two
   z: { count: "none", parts: 3 }, // replacement: (?z:A/B/C) is A with a B replaced by a C
   Z: { count: "none", parts: 3 }, // the same, but not at either end
   w: { count: "none", parts: 3 }, // custom weave: (?w:S/A/B) is A and B combined by split S
@@ -410,6 +411,7 @@ class Parser {
       }
       count = this.parseSignedNumber(`after (?${flag}`);
       if (flag === "R" && count === 0) throw this.error("Rotation count can't be 0", countStart, this.pos);
+      if (flag === "t" && count < 1) throw this.error("Transposition distance must be at least 1", countStart, this.pos);
     }
     if (!this.eat(":")) {
       const example = MODIFIERS[flag].count === "none" ? `(?${flag}:abc)` : `(?${flag}2:abc)`;
