@@ -59,6 +59,7 @@
   .error-span { background: #fdd; text-decoration: underline wavy #d00; text-decoration-skip-ink: none; }
   .error-span:empty::after { content: " "; }
   #error { color: #d00; margin: 6px 0 0; min-height: 1.4em; }
+  #restore { margin: 0 0 6px; }
 
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
@@ -151,6 +152,7 @@
     <textarea id="pattern" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Pattern"></textarea>
   </div>
   <div id="error" role="status"></div>
+  <p id="restore" class="note" hidden></p>
 
   <div id="toolbar">
     <select id="view" aria-label="Diagram">
