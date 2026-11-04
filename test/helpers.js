@@ -24,7 +24,12 @@ const splitAst = (split) => stripSpans(parse(split));
 export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, spatial = logic, modifiers = false, shorthands = false } = {}) {
   const pick = (xs) => xs[Math.floor(rand() * xs.length)];
   const cp = () => pick(chars).codePointAt(0);
-  const shorthand = () => ({ name: pick(["d", "w", "s"]), negated: rand() < 0.5 });
+  // a few cheap properties, so tests stay fast
+  const shorthand = () => {
+    const name = pick(["d", "w", "s", "p"]);
+    const property = name === "p" ? { property: pick(["L", "Lu", "Script=Latin"]) } : {};
+    return { name, negated: rand() < 0.5, ...property };
+  };
   const leaf = () => pick([
     () => ({ type: "empty" }),
     () => ({ type: "char", cp: cp() }),

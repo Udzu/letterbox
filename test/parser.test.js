@@ -154,6 +154,8 @@ const PARSES = [
   ["\\d\\D\\w\\W\\s\\S", "(concat \\d \\D \\w \\W \\s \\S)"],
   ["[\\d_]", "[_ \\d]"],
   ["[^\\s,\\W]", "[^, \\s \\W]"],
+  ["\\p{L}\\P{Script=Greek}", "(concat \\p{L} \\P{Script=Greek})"],
+  ["[^\\s,\\p{Lu}]", "[^, \\s \\p{Lu}]"],
   ["[\\d-]", "[- \\d]"],
   ["\\d+", "(repeat 1 ∞ \\d)"],
 ];
@@ -253,8 +255,12 @@ const ERRORS = [
   ["(?w:[L\\d]/a/b)", "only use the characters L and R", [4, 9]],
   ["\\b", "Word boundaries (\\b) aren't supported", [0, 2]],
   ["a\\B", "Word boundaries (\\B)", [1, 3]],
-  ["\\p{L}", "Unicode properties (\\p{...}) aren't supported", [0, 2]],
-  ["[\\P{L}]", "Unicode properties (\\P{...})", [1, 3]],
+  ["\\p", "Expected { after \\p, as in \\p{L}", [0, 2]],
+  ["\\PL", "Expected { after \\P", [0, 2]],
+  ["\\p{L", "Missing } to close \\p{", [0, 4]],
+  ["\\p{}", "Unknown Unicode property \\p{}", [0, 4]],
+  ["[\\p{Foo}]", "Unknown Unicode property \\p{Foo}", [1, 8]],
+  ["[\\p{L}-z]", "can't be one end of a range", [1, 6]],
   ["[\\d-z]", "can't be one end of a range", [1, 3]],
   ["[a-\\d]", "can't be one end of a range", [1, 5]],
   ["&a", "Missing operand before &", [0, 1]],
@@ -334,6 +340,7 @@ const FORMATS = [
   ["(@)+\\@", "@+\\@"],
   ["[\\da]", "[a\\d]"],
   ["(\\S)*", "\\S*"],
+  ["(\\p{L})*", "\\p{L}*"],
 ];
 
 for (const [pattern, canonical] of FORMATS) {

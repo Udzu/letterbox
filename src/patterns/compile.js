@@ -137,7 +137,7 @@ function build(b, node, from, options) {
 
 // with (?i:...), \W is everything that doesn't match \w case-insensitively, as in JavaScript
 function shorthand(sh, chars) {
-  const set = chars(shorthandSet({ name: sh.name, negated: false }));
+  const set = chars(shorthandSet({ ...sh, negated: false }));
   return sh.negated ? set.complement() : set;
 }
 

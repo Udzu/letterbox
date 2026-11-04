@@ -8,7 +8,7 @@
 //                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
 //   postfix        A* A+ A? A{m} A{m,} A{m,n}
-//   atoms          a \* . @ \d [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C)
+//   atoms          a \* . @ \d \p{L} [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C)
 //
 // Every node has a `span` of [start, end) UTF-16 offsets into the pattern, for error
 // reporting and highlighting. Parentheses aren't kept as nodes; `format` adds back the ones
@@ -22,7 +22,8 @@
 //   { type: "class", negated, ranges: [[lo, hi]] }   ranges as written, inclusive, plus
 //                                                    shorthands: [...] if it has any
 //   { type: "shorthand", name, negated }             \d \w \s, or their complements \D \W \S
-//                                                    if negated (see shorthands.js)
+//                                                    if negated (see shorthands.js), or with
+//                                                    name "p" and a property, \p{property}
 //   { type: "repeat", node, min, max }               max is null if unbounded
 //   { type: "concat", items }                        2+ items
 //   { type: "alt", items }                           2+ items
@@ -38,7 +39,7 @@
 //   { type: "split", unweave, split, left, right }   (?w:split/left/right), or (?u:...) if
 //                                                    unweave; split only uses L and R
 
-import { formatShorthand } from "./shorthands.js";
+import { formatShorthand, isProperty } from "./shorthands.js";
 
 export class PatternError extends Error {
   constructor(message, start, end = start + 1) {
@@ -82,7 +83,7 @@ const SPLIT_CHARS = new Set(["L", "R"].map((c) => c.codePointAt(0)));
 const PCRE_FLAGS = new Set("msxnUJ-^");
 const MAX_MODIFIER_COUNT = 1000;
 // escapes for sets of characters, and the uppercase ones for their complements
-const SHORTHANDS = new Set("dDwWsS");
+const SHORTHANDS = new Set("dDwWsSpP");
 
 // Slices are strict, unlike Python's: a string too short for the slice gives nothing, so
 // (?[:3]:A) is the first 3 characters of strings in A with at least 3. Returns why a slice
@@ -453,19 +454,27 @@ class Parser {
       }
       return cp;
     }
-    if (c === "p" || c === "P") throw this.error(`Unicode properties (\\${c}{...}) aren't supported`, start, this.pos);
     if (c === "b" || c === "B") {
       throw this.error(`Word boundaries (\\${c}) aren't supported, since patterns match whole strings`, start, this.pos);
     }
     throw this.error(`Unknown escape \\${c}`, start, this.pos);
   }
 
-  // \d \D \w \W \s \S, returning { name, negated }
+  // \d \D \w \W \s \S, returning { name, negated }, or \p{...} \P{...}, also with a property
   parseShorthand() {
+    const start = this.pos;
     this.next();
     const c = this.next();
     const name = c.toLowerCase();
-    return { name, negated: c !== name };
+    const negated = c !== name;
+    if (name !== "p") return { name, negated };
+    if (!this.eat("{")) throw this.error(`Expected { after \\${c}, as in \\${c}{L}`, start, this.pos);
+    const nameStart = this.pos;
+    while (this.peek() !== undefined && this.peek() !== "}") this.next();
+    const property = this.src.slice(nameStart, this.pos);
+    if (!this.eat("}")) throw this.error(`Missing } to close \\${c}{`, start, this.pos);
+    if (!isProperty(property)) throw this.error(`Unknown Unicode property \\${c}{${property}}`, start, this.pos);
+    return { name, negated, property };
   }
 
   isShorthandStart() {

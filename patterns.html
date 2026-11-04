@@ -168,6 +168,7 @@
       <tr><td><code>@</code></td><td>any word in the word list, if one is loaded</td></tr>
       <tr><td><code>[abc]</code> <code>[a-z]</code> <code>[^a-z]</code></td><td>character classes (<code>[]</code> matches nothing)</td></tr>
       <tr><td><code>\d</code> <code>\w</code> <code>\s</code></td><td>an ASCII digit; an ASCII letter or digit, or <code>_</code>; ASCII whitespace. <code>\D</code>, <code>\W</code> and <code>\S</code> are the opposites, and all of these work inside classes too, as in <code>[\d_]</code></td></tr>
+      <tr><td><code>\p{L}</code> <code>\P{L}</code></td><td>a character with or without a Unicode property, as in JavaScript (<code>\p{Lu}</code> is an uppercase letter, <code>\p{Script=Greek}</code> a Greek character)</td></tr>
       <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
       <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
       <tr><td><code>PQ</code></td><td>P followed by Q</td></tr>
@@ -1970,7 +1971,7 @@
         parent = current;
       }
       return current;
-    }, createFile(parent, name, properties, canRead, canWrite) {
+    }, createFile(parent, name, properties2, canRead, canWrite) {
       var path = PATH.join2(typeof parent == "string" ? parent : FS.getPath(parent), name);
       var mode = FS_getMode(canRead, canWrite);
       return FS.create(path, mode);
@@ -2126,16 +2127,16 @@
       if (globalThis.XMLHttpRequest) {
         abort("Cannot do synchronous binary XHRs outside webworkers in modern browsers. Use --embed-file or --preload-file in emcc");
         var lazyArray = new LazyUint8Array();
-        var properties = { isDevice: false, contents: lazyArray };
+        var properties2 = { isDevice: false, contents: lazyArray };
       } else {
-        var properties = { isDevice: false, url };
+        var properties2 = { isDevice: false, url };
       }
-      var node2 = FS.createFile(parent, name, properties, canRead, canWrite);
-      if (properties.contents) {
-        node2.contents = properties.contents;
-      } else if (properties.url) {
+      var node2 = FS.createFile(parent, name, properties2, canRead, canWrite);
+      if (properties2.contents) {
+        node2.contents = properties2.contents;
+      } else if (properties2.url) {
         node2.contents = null;
-        node2.url = properties.url;
+        node2.url = properties2.url;
       }
       Object.defineProperties(node2, { usedBytes: { get: function() {
         return this.contents.length;
@@ -4145,10 +4146,40 @@
     w: CharSet.from([range2("a", "z"), range2("A", "Z"), range2("0", "9"), range2("_", "_")]),
     s: CharSet.from([[9, 13], range2(" ", " ")])
   };
-  function shorthandSet({ name, negated }) {
-    return negated ? SETS[name].complement() : SETS[name];
+  function isProperty(name) {
+    try {
+      new RegExp(`\\p{${name}}`, "u");
+      return true;
+    } catch {
+      return false;
+    }
   }
-  function formatShorthand({ name, negated }) {
+  var properties = /* @__PURE__ */ new Map();
+  function shorthandSet({ name, negated, property }) {
+    let set2 = SETS[name];
+    if (name === "p") {
+      if (!properties.has(property)) properties.set(property, setFromRegex(new RegExp(`\\p{${property}}`, "u")));
+      set2 = properties.get(property);
+    }
+    return negated ? set2.complement() : set2;
+  }
+  var BLOCK = 256;
+  function setFromRegex(re) {
+    const all = new RegExp(`^(?:${re.source})+$`, "u");
+    const ranges = [];
+    for (let lo = 0; lo <= MAX_CP; lo += BLOCK) {
+      const cps = [];
+      for (let cp = lo; cp < lo + BLOCK && cp <= MAX_CP; cp++) if (cp < 55296 || cp > 57343) cps.push(cp);
+      if (cps.length === 0) continue;
+      const block = String.fromCodePoint(...cps);
+      if (!re.test(block)) continue;
+      if (all.test(block)) ranges.push([lo, Math.min(lo + BLOCK - 1, MAX_CP)]);
+      else for (const cp of cps) if (re.test(String.fromCodePoint(cp))) ranges.push([cp, cp]);
+    }
+    return CharSet.from(ranges);
+  }
+  function formatShorthand({ name, negated, property }) {
+    if (name === "p") return `\\${negated ? "P" : "p"}{${property}}`;
     return `\\${negated ? name.toUpperCase() : name}`;
   }
 
@@ -4207,7 +4238,7 @@
   var SPLIT_CHARS = new Set(["L", "R"].map((c) => c.codePointAt(0)));
   var PCRE_FLAGS = new Set("msxnUJ-^");
   var MAX_MODIFIER_COUNT = 1e3;
-  var SHORTHANDS = new Set("dDwWsS");
+  var SHORTHANDS = new Set("dDwWsSpP");
   function sliceError(start2, stop, step2) {
     if (step2 === 0) return "Slice step can't be 0";
     if (step2 !== null && step2 < 0) return "Slice step can't be negative: use (?r:...) to reverse";
@@ -4550,18 +4581,26 @@
         }
         return cp;
       }
-      if (c === "p" || c === "P") throw this.error(`Unicode properties (\\${c}{...}) aren't supported`, start2, this.pos);
       if (c === "b" || c === "B") {
         throw this.error(`Word boundaries (\\${c}) aren't supported, since patterns match whole strings`, start2, this.pos);
       }
       throw this.error(`Unknown escape \\${c}`, start2, this.pos);
     }
-    // \d \D \w \W \s \S, returning { name, negated }
+    // \d \D \w \W \s \S, returning { name, negated }, or \p{...} \P{...}, also with a property
     parseShorthand() {
+      const start2 = this.pos;
       this.next();
       const c = this.next();
       const name = c.toLowerCase();
-      return { name, negated: c !== name };
+      const negated = c !== name;
+      if (name !== "p") return { name, negated };
+      if (!this.eat("{")) throw this.error(`Expected { after \\${c}, as in \\${c}{L}`, start2, this.pos);
+      const nameStart = this.pos;
+      while (this.peek() !== void 0 && this.peek() !== "}") this.next();
+      const property = this.src.slice(nameStart, this.pos);
+      if (!this.eat("}")) throw this.error(`Missing } to close \\${c}{`, start2, this.pos);
+      if (!isProperty(property)) throw this.error(`Unknown Unicode property \\${c}{${property}}`, start2, this.pos);
+      return { name, negated, property };
     }
     isShorthandStart() {
       return this.peek() === "\\" && SHORTHANDS.has(this.peek(1) ?? "");
@@ -4632,7 +4671,7 @@
 
   // src/patterns/letters.js
   var CASED_LIMIT = 131072;
-  var BLOCK = 128;
+  var BLOCK2 = 128;
   var HAS_CASE = /\p{Changes_When_Casemapped}/u;
   var caseTable = null;
   function buildCaseTable() {
@@ -4647,9 +4686,9 @@
       const [rx, ry] = [find(x), find(y)];
       if (rx !== ry) parent.set(Math.max(rx, ry), Math.min(rx, ry));
     };
-    for (let lo = 0; lo < CASED_LIMIT; lo += BLOCK) {
+    for (let lo = 0; lo < CASED_LIMIT; lo += BLOCK2) {
       const cps = [];
-      for (let cp = lo; cp < lo + BLOCK; cp++) if (cp < 55296 || cp > 57343) cps.push(cp);
+      for (let cp = lo; cp < lo + BLOCK2; cp++) if (cp < 55296 || cp > 57343) cps.push(cp);
       if (cps.length === 0 || !HAS_CASE.test(String.fromCodePoint(...cps))) continue;
       for (const cp of cps) {
         const c = String.fromCodePoint(cp);
@@ -4949,7 +4988,7 @@
     }
   }
   function shorthand(sh, chars) {
-    const set2 = chars(shorthandSet({ name: sh.name, negated: false }));
+    const set2 = chars(shorthandSet({ ...sh, negated: false }));
     return sh.negated ? set2.complement() : set2;
   }
   function step(b, from, label) {
@@ -5054,6 +5093,17 @@
   function classRanges(set2) {
     return set2.ranges.flatMap(([lo, hi]) => hi === lo + 1 ? [[lo, lo], [hi, hi]] : [[lo, hi]]);
   }
+  var MAX_LABEL = 24;
+  function shortLabel(label) {
+    if ([...label].length <= MAX_LABEL) return label;
+    const tokens = label.match(/\\u\{[0-9a-f]+\}|\\.|./gsu);
+    let head = "";
+    for (const token of tokens) {
+      if ([...head].length + [...token].length > MAX_LABEL - 2) break;
+      head += token;
+    }
+    return `${head}\u2026${label.endsWith("]") ? "]" : ""}`;
+  }
   function toDot(nfa2, { dark = false } = {}) {
     const fg = dark ? "#ddd" : "#222";
     const quote = (s) => `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
@@ -5070,7 +5120,12 @@
     }
     nfa2.edges.forEach((es, s) => {
       for (const { label, to } of es) {
-        const attrs = label === null ? `label="\u03B5", style=dashed` : `label=${quote(formatLabel(label))}`;
+        let attrs = `label="\u03B5", style=dashed`;
+        if (label !== null) {
+          const full = formatLabel(label);
+          const short = shortLabel(full);
+          attrs = `label=${quote(short)}${short === full ? "" : `, tooltip=${quote(full)}`}`;
+        }
         lines.push(`  ${s} -> ${to} [${attrs}];`);
       }
     });
@@ -5231,6 +5286,13 @@
         g.dataset.state = state;
         if (drawn.accepting.has(state)) g.classList.add("accepting");
       }
+    }
+    for (const a of svg.querySelectorAll("a")) {
+      const text = a.getAttributeNS("http://www.w3.org/1999/xlink", "title");
+      if (!text) continue;
+      const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+      title.textContent = text;
+      a.prepend(title);
     }
     $("diagram").replaceChildren(svg);
     highlightCurrent();

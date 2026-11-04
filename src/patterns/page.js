@@ -156,6 +156,15 @@ async function draw(drawn) {
       if (drawn.accepting.has(state)) g.classList.add("accepting");
     }
   }
+  // Graphviz puts the full text of shortened labels in xlink:title, which browsers don't all
+  // show, so copy it into a <title>, which they do
+  for (const a of svg.querySelectorAll("a")) {
+    const text = a.getAttributeNS("http://www.w3.org/1999/xlink", "title");
+    if (!text) continue;
+    const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+    title.textContent = text;
+    a.prepend(title);
+  }
   $("diagram").replaceChildren(svg);
   highlightCurrent();
 }
