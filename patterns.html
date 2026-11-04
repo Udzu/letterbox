@@ -3646,9 +3646,14 @@
     CharSet.from([range("a", "z")]),
     CharSet.from([range("A", "Z"), range("0", "9"), range(" ", " ")]),
     CharSet.from([range("!", "~")]),
-    CharSet.from([range("\xC0", "\xFF")]).minus(CharSet.of(215, 247))
+    CharSet.from([range("\xC0", "\xFF")]).minus(CharSet.of(215, 247)),
     // Latin-1 letters, not × ÷
+    CharSet.from([[256, 591]]),
+    // Latin Extended-A and B
+    CharSet.from([[880, 1279]])
+    // Greek and Cyrillic
   ];
+  var BEYOND_POOLS = CharSet.from([[1280, MAX_CP]]);
   var PRINTABLE = /^[\p{L}\p{N}\p{P}\p{S}]$/u;
   var SMALL_LABEL = 64;
   var LENGTH_SPREAD = 10;
@@ -3715,16 +3720,26 @@
   function pickChar(set2, random = Math.random, preferred = CharSet.EMPTY) {
     const fromPreferred = set2.intersect(preferred);
     if (!fromPreferred.isEmpty() && random() < 0.5) return member(fromPreferred, random);
-    for (const pool of POOLS) {
-      const available = set2.intersect(pool);
-      if (!available.isEmpty()) return member(available, random);
+    const options = POOLS.map((pool) => set2.intersect(pool)).filter((s) => !s.isEmpty());
+    const anything = set2.size() > MAX_CP / 2;
+    if (options.length && anything) return member(options[0], random);
+    if (options.length) {
+      const rest = set2.intersect(BEYOND_POOLS);
+      const choice = Math.floor(random() * (options.length + (rest.isEmpty() ? 0 : 1)));
+      if (choice < options.length) return member(options[choice], random);
+      const cp = printableMember(rest, random);
+      if (cp !== null) return cp;
+      return member(options[0], random);
     }
     if (!fromPreferred.isEmpty()) return member(fromPreferred, random);
+    return printableMember(set2, random) ?? member(set2, random);
+  }
+  function printableMember(set2, random) {
     for (let i = 0; i < 20; i++) {
       const cp = member(set2, random);
       if (PRINTABLE.test(String.fromCodePoint(cp))) return cp;
     }
-    return member(set2, random);
+    return null;
   }
   function member(set2, random) {
     let index = Math.floor(random() * set2.size());
