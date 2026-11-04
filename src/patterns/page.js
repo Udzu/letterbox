@@ -57,11 +57,62 @@ function load() {
 function save() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value,
+      // a pattern that wasn't restored stays saved until another is typed (see guarded)
+      pattern: unrestored ?? patternInput.value, tests: testsInput.value, view: viewSelect.value,
     }));
   } catch {
     // storage may be unavailable, e.g. in private windows
   }
+}
+
+// Slow work is marked in storage while it runs. If the page freezes or crashes during it,
+// the mark is still there when the page is next loaded, which then starts with the default
+// pattern instead of the saved one, and offers to restore it.
+const BUSY_KEY = "patterns-busy";
+let busy = 0;
+let unrestored = null; // the saved pattern, if it wasn't restored
+
+function guarded(f) {
+  if (busy++ === 0) setBusy(true);
+  try {
+    return f();
+  } finally {
+    if (--busy === 0) setBusy(false);
+  }
+}
+
+function setBusy(value) {
+  try {
+    if (value) localStorage.setItem(BUSY_KEY, "1");
+    else localStorage.removeItem(BUSY_KEY);
+  } catch {
+    // storage may be unavailable
+  }
+}
+
+// whether the page stopped during slow work last time
+function stoppedLastTime() {
+  try {
+    return localStorage.getItem(BUSY_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+function offerRestore(pattern) {
+  unrestored = pattern;
+  $("restore").hidden = false;
+  $("restore").innerHTML = "The last pattern wasn't restored, because the page stopped responding while working on it. <button id=\"restore-anyway\">Restore anyway</button>";
+  $("restore-anyway").addEventListener("click", () => {
+    patternInput.value = pattern;
+    dismissRestore();
+    schedule();
+  });
+}
+
+function dismissRestore() {
+  unrestored = null;
+  $("restore").hidden = true;
 }
 
 function escapeHtml(s) {
@@ -88,11 +139,13 @@ async function update() {
   let message = null;
   let askToBuild = false;
   try {
-    compiled = compile(pattern, { words: wordList?.automaton });
-    withStateLimit(limitFor(compiled), () => {
-      $("lengths").textContent = describeLengths(matchLengths(compiled));
-      if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
-      else nfa = VIEWS[viewSelect.value](compiled);
+    guarded(() => {
+      compiled = compile(pattern, { words: wordList?.automaton });
+      withStateLimit(limitFor(compiled), () => {
+        $("lengths").textContent = describeLengths(matchLengths(compiled));
+        if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
+        else nfa = VIEWS[viewSelect.value](compiled);
+      });
     });
   } catch (e) {
     if (e instanceof PatternError) {
@@ -148,7 +201,7 @@ async function draw(drawn) {
   }
   const viz = await vizReady;
   if (drawn !== nfa) return; // superseded while Viz.js was loading
-  const svg = viz.renderSVGElement(toDot(drawn));
+  const svg = guarded(() => viz.renderSVGElement(toDot(drawn)));
   // Graphviz gives each node a <title> holding its name, which is the state number
   for (const g of svg.querySelectorAll("g.node")) {
     const state = Number(g.querySelector("title")?.textContent);
@@ -217,7 +270,7 @@ function explanationHtml(text) {
   }
   let result;
   try {
-    result = explainFor.explain(text);
+    result = guarded(() => explainFor.explain(text));
   } catch (e) {
     if (e instanceof TooComplexToExplain || e instanceof TooManyStatesError) return note("Too complex to explain.");
     throw e;
@@ -297,7 +350,7 @@ function scheduleRegex() {
 
 function showRegex(target, limits) {
   if (target !== compiled) return; // superseded
-  const result = toRegex(target, limits);
+  const result = guarded(() => toRegex(target, limits));
   $("regex-line").classList.remove("stale");
   $("regex").textContent = result.regex ?? "";
   $("copy-regex").textContent = "Copy";
@@ -356,7 +409,7 @@ function clearTests() {
 function addExamples() {
   if (compiled === null) return;
   const lines = testsInput.value.split("\n");
-  const result = withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) }));
+  const result = guarded(() => withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) })));
   const existing = testsInput.value.replace(/\n+$/, "");
   if (result.examples.length) {
     // insert at the end, after any trailing blank lines are removed
@@ -480,7 +533,9 @@ async function findMatches(target, list) {
   for (let i = 0; i < list.words.length; i += MATCH_CHUNK) {
     if (i > 0) await new Promise((resolve) => setTimeout(resolve));
     if (target !== compiled || list !== wordList) return; // superseded
-    for (let j = i; j < Math.min(i + MATCH_CHUNK, list.words.length); j++) if (test(list.words[j])) found.push(list.words[j]);
+    guarded(() => {
+      for (let j = i; j < Math.min(i + MATCH_CHUNK, list.words.length); j++) if (test(list.words[j])) found.push(list.words[j]);
+    });
   }
   showMatches(found);
 }
@@ -551,12 +606,19 @@ function onCursor() {
 }
 
 const saved = load();
-patternInput.value = saved.pattern;
+if (stoppedLastTime() && saved.pattern !== DEFAULTS.pattern) {
+  patternInput.value = DEFAULTS.pattern;
+  offerRestore(saved.pattern);
+} else {
+  patternInput.value = saved.pattern;
+}
+setBusy(false);
 testsInput.value = saved.tests;
 viewSelect.value = saved.view in VIEWS ? saved.view : DEFAULTS.view;
 
 patternInput.addEventListener("input", () => {
   if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
+  dismissRestore();
   drawLarge = false;
   buildLarge = false;
   showAllMatches = false;
