@@ -100,6 +100,18 @@ export function shiftSet(set, n) {
   return out;
 }
 
+// Atbash: ASCII letters reflected in the alphabet, keeping their case, so a and z swap, b
+// and y, and so on. Other characters are unchanged.
+export function mirrorSet(set) {
+  let out = set;
+  for (const base of ALPHABETS) {
+    const letters = CharSet.from([[base, base + 25]]);
+    const mirrored = set.intersect(letters).ranges.map(([lo, hi]) => [2 * base + 25 - hi, 2 * base + 25 - lo]);
+    out = out.minus(letters).union(CharSet.from(mirrored));
+  }
+  return out;
+}
+
 function lowerBound(xs, x) {
   let lo = 0;
   let hi = xs.length;

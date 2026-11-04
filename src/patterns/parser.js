@@ -31,7 +31,8 @@
 //   { type: "not", node }
 //   { type: "spatial", op, left, right }             op is one of SPATIAL_OPS
 //   { type: "modifier", flag, count, node }          (?flag count:node); count is null if
-//                                                    omitted (see MODIFIERS)
+//                                                    omitted (see MODIFIERS), and "-" for
+//                                                    Atbash, (?c-:node)
 //   { type: "slice", start, stop, step, node }       (?[start:stop:step]:node); each is null
 //                                                    if omitted (see sliceError)
 //   { type: "replace", strict, node, find, insert }  (?z:node/find/insert), or (?Z:...) if
@@ -76,7 +77,7 @@ const SPATIAL_BY_LENGTH = [...SPATIAL_OPS].sort((x, y) => y.length - x.length);
 export const MODIFIERS = {
   i: { count: "none" }, //     case-insensitive
   r: { count: "none" }, //     reversed
-  c: { count: "optional" }, // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25
+  c: { count: "optional" }, // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25, (?c-:A) Atbash
   R: { count: "optional" }, // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
   a: { count: "none" }, //     anagrams (of a finite pattern)
   t: { count: "optional" }, // transposition: (?t1:A) swaps two adjacent characters, (?t:A) any two
@@ -403,7 +404,10 @@ class Parser {
     }
     this.next();
     let count = null;
-    if (/[-0-9]/.test(this.peek() ?? "")) {
+    if (flag === "c" && this.peek() === "-" && this.src[this.pos + 1] === ":") {
+      this.next(); // (?c-:...) is Atbash, which has "-" as its count
+      count = "-";
+    } else if (/[-0-9]/.test(this.peek() ?? "")) {
       const countStart = this.pos;
       if (MODIFIERS[flag].count === "none") {
         this.parseSignedNumber(`after (?${flag}`);

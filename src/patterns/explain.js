@@ -21,7 +21,7 @@
 
 import { CharSet } from "./charset.js";
 import { compile, definitions, SPLITS } from "./compile.js";
-import { shiftSet } from "./letters.js";
+import { mirrorSet, shiftSet } from "./letters.js";
 import { parse } from "./parser.js";
 import { lazyDfa } from "./wordlist.js";
 
@@ -161,6 +161,7 @@ function modifier(ctx, node, cells, caseless) {
     case "r":
       return sub(reorder(cells, [...cells].reverse()));
     case "c": {
+      if (node.count === "-") return sub(cells.map(({ col, ch }) => ({ col, ch: mirrorSet(CharSet.of(ch)).ranges[0][0] })));
       // the string's letters shifted back are what the inner pattern matched
       const shifts = node.count === null ? Array.from({ length: 25 }, (_, i) => i + 1) : [node.count];
       for (const n of shifts) {

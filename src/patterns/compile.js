@@ -6,7 +6,8 @@
 //            matches neither a nor A (see letters.js)
 //   (?r:A)   A reversed
 //   (?cn:A)  A with its ASCII letters shifted n places along the alphabet, as in a Caesar
-//            cipher; (?c:A) is any of the shifts from 1 to 25
+//            cipher; (?c:A) is any of the shifts from 1 to 25, and (?c-:A) is Atbash, with the
+//            alphabet reversed (a and z swap, b and y, and so on)
 //   (?Rn:A)  A rotated n characters right (or left if n is negative); (?R:A) is any
 //            rotation that changes where the string starts (see rotate.js)
 //   (?tn:A)  A with two characters n apart swapped, so (?t1:A) swaps adjacent ones; (?t:A)
@@ -27,7 +28,7 @@
 
 import { anagram } from "./anagram.js";
 import { CharSet } from "./charset.js";
-import { caseClose, shiftSet } from "./letters.js";
+import { caseClose, mirrorSet, shiftSet } from "./letters.js";
 import { Builder, complement, intersect, mapLabels, minimize, removeEpsilons, reverse, trim } from "./nfa.js";
 import { parse, PatternError } from "./parser.js";
 import { replace } from "./replace.js";
@@ -190,6 +191,7 @@ function modifier(b, node, from, options) {
       return embed(b, reverse(compile(node.node, options)), from);
     case "c": {
       const inner = compile(node.node, options);
+      if (count === "-") return embed(b, mapLabels(inner, mirrorSet), from);
       const shifts = count === null ? Array.from({ length: 25 }, (_, i) => i + 1) : [count];
       const end = b.state();
       for (const n of shifts) b.edge(embed(b, mapLabels(inner, (set) => shiftSet(set, n)), from), null, end);
