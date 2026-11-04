@@ -9,6 +9,7 @@
 //            cipher; (?c:A) is any of the shifts from 1 to 25
 //   (?Rn:A)  A rotated n characters right (or left if n is negative); (?R:A) is any
 //            rotation that changes where the string starts (see rotate.js)
+//   (?a:A)   anagrams of strings in A, which must be finite (see anagram.js)
 //   (?[m:n:s]:A)  slices of strings in A, as in Python but strict: a string too short for
 //            the slice gives nothing (see sliceError in parser.js)
 //   (?z:A/B/C)  A with one substring matching B replaced by one matching C; (?Z:A/B/C)
@@ -22,6 +23,7 @@
 // - no fragment adds edges *into* `from` (loops always go back to a fresh state), and
 // - the returned end state has no outgoing edges yet, unless it is `from` itself.
 
+import { anagram } from "./anagram.js";
 import { CharSet } from "./charset.js";
 import { caseClose, shiftSet } from "./letters.js";
 import { Builder, complement, intersect, mapLabels, minimize, removeEpsilons, reverse, trim } from "./nfa.js";
@@ -194,6 +196,11 @@ function modifier(b, node, from, options) {
       const inner = trim(removeEpsilons(compile(node.node, options)));
       const [v, u] = count === null ? [atLeast(1), atLeast(1)] : count > 0 ? [exactly(count), atLeast(1)] : [atLeast(1), exactly(-count)];
       return embed(b, rotate(inner, v, u), from);
+    }
+    case "a": {
+      const anagrams = anagram(compile(node.node, options));
+      if (!anagrams) throw new PatternError("Anagrams need a pattern with finitely many strings", ...node.span);
+      return embed(b, anagrams, from);
     }
     default:
       throw new Error(`Unknown modifier ${flag}`);

@@ -5,7 +5,7 @@
 // { node, cells, children, name? }, where cells are the characters the node matched, each
 // { col, ch }: col is the string's column it's shown in and ch the character the node
 // matched there. That differs from the string's own character under (?c:...), and under
-// (?r:...) and (?R:...), whose inner strings are shown in their own order. Some operators
+// (?r:...), (?R:...) and (?a:...), whose inner strings are shown in their own order. Some operators
 // match characters that aren't in the string, such as the B that (?z:A/B/C) cuts out of A, or
 // the part of a word that a slice skips; these get extra "synthetic" columns, placed next
 // to the characters around them.
@@ -181,6 +181,8 @@ function modifier(ctx, node, cells, caseless) {
       }
       break;
     }
+    case "a":
+      return sub(anagramSearch(ctx, inner, cells, caseless));
   }
   throw new Error(`No explanation for modifier ${node.flag}`);
 }
@@ -189,6 +191,29 @@ function modifier(ctx, node, cells, caseless) {
 // with the characters moved, so it reads as the inner pattern matched it.
 function reorder(cells, moved) {
   return cells.map(({ col }, i) => ({ col, ch: moved[i].ch }));
+}
+
+// (?a:A): an order of the cells that A matches, found by choosing one character at a time.
+// Cells with the same character are interchangeable, so the search tracks how many of each
+// are left, and the cells are then used in their original order.
+function anagramSearch(ctx, node, cells, caseless) {
+  const dfa = automaton(ctx, node, caseless);
+  const chars = [...new Set(cells.map((c) => c.ch))];
+  const left = chars.map((ch) => cells.filter((c) => c.ch === ch).length);
+  const path = search(
+    ctx,
+    [dfa.start, ...left],
+    (state) => state.join(","),
+    ([d, ...counts]) => chars.flatMap((ch, i) => {
+      if (counts[i] === 0) return [];
+      const next = dfa.step(d, ch);
+      return next === dfa.dead ? [] : [[ch, [next, ...counts.map((n, j) => (j === i ? n - 1 : n))]]];
+    }),
+    ([d, ...counts]) => counts.every((n) => n === 0) && dfa.accepts(d),
+  );
+  if (!path) throw new Error("No anagram found");
+  const unused = new Map(chars.map((ch) => [ch, cells.filter((c) => c.ch === ch)]));
+  return reorder(cells, path.map((ch) => unused.get(ch).shift()));
 }
 
 // Divide cells between concatenated items, giving each item as much as possible in turn.

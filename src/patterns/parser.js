@@ -78,6 +78,7 @@ export const MODIFIERS = {
   r: { count: "none" }, //     reversed
   c: { count: "optional" }, // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25
   R: { count: "optional" }, // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
+  a: { count: "none" }, //     anagrams (of a finite pattern)
   z: { count: "none", parts: 3 }, // replacement: (?z:A/B/C) is A with a B replaced by a C
   Z: { count: "none", parts: 3 }, // the same, but not at either end
   w: { count: "none", parts: 3 }, // custom weave: (?w:S/A/B) is A and B combined by split S
