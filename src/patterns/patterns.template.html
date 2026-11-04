@@ -97,7 +97,15 @@
   #matches:not(:empty) { border: 1px solid #ccc; padding: 8px; }
   #matches.stale, #matches-info.stale { opacity: 0.3; }
 
-  .help { margin-top: 32px; font-size: 0.9rem; color: #444; }
+  .help {
+    margin-top: 32px;
+    padding: 4px 20px;
+    font-size: 0.9rem;
+    color: #444;
+    background: #f7f7f7;
+    border: 1px solid #e3e3e3;
+    border-radius: 6px;
+  }
   .help table { border-collapse: collapse; }
   .help td { padding: 2px 16px 2px 0; vertical-align: top; }
   .help td:first-child { white-space: nowrap; }
@@ -164,11 +172,11 @@
     <table>
       <tr><td><code>a</code> <code>\*</code> <code>\n</code> <code>\u{e9}</code></td><td>a character</td></tr>
       <tr><td><code>.</code></td><td>any character</td></tr>
-      <tr><td><code>@</code></td><td>any word in the word list, if one is loaded</td></tr>
       <tr><td><code>[abc]</code> <code>[a-z]</code> <code>[^a-z]</code></td><td>character classes (<code>[]</code> matches nothing)</td></tr>
       <tr><td><code>\d</code> <code>\w</code> <code>\s</code></td><td>an ASCII digit; an ASCII letter or digit, or <code>_</code>; ASCII whitespace. <code>\D</code>, <code>\W</code> and <code>\S</code> are the opposites, and all of these work inside classes too, as in <code>[\d_]</code></td></tr>
       <tr><td><code>\p{L}</code> <code>\P{L}</code></td><td>a character with or without a Unicode property, as in JavaScript (<code>\p{Lu}</code> is an uppercase letter, <code>\p{Script=Greek}</code> a Greek character)</td></tr>
-      <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
+      <tr><td><code>@</code></td><td>any word in the word list, if one is loaded</td></tr>
+      <tr class="gap"><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
       <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
       <tr><td><code>PQ</code></td><td>P followed by Q</td></tr>
       <tr class="gap"><td><code>P&lt;Q</code> <code>P&gt;Q</code></td><td>P inside Q; P outside Q (<code>o+&lt;l+</code> matches <i>loool</i>)</td></tr>
@@ -186,7 +194,7 @@
       <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
       <tr><td><code>(?cn:P)</code> <code>(?c:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25 (<code>(?c1:hal)</code> matches <i>ibm</i>)</td></tr>
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
-      <tr><td><code>(?[m:n]:P)</code> <code>(?[m:n:s]:P)</code></td><td>P sliced as in Python: characters m up to but not including n, counting from 0 (from the end if negative); every s-th one. Strings too short for the slice are skipped (<code>(?[1:-1]:spam)</code> matches <i>pa</i>)</td></tr>
+      <tr><td><code>(?[m:n]:P)</code> <code>(?[m:n:s]:P)</code></td><td>P sliced as in Python: characters m up to but not including n, counting from 0 (from the end if negative); every s-th one. Too-short strings are skipped (<code>(?[1:-1]:spam)</code> matches <i>pa</i>)</td></tr>
       <tr><td><code>(?z:P/Q/R)</code> <code>(?Z:P/Q/R)</code></td><td>P with a Q replaced by an R; but not at either end (<code>(?z:London/o/u)</code> matches <i>Lundon</i>). To replace at the end or start, write <code>(P-Q)R</code> or <code>R(P_-Q)</code></td></tr>
       <tr><td><code>(?w:S/P/Q)</code> <code>(?u:S/P/Q)</code></td><td>P and Q combined by a custom split S, a pattern over L (for P's characters) and R (for Q's), as in the operators above; P with Q removed by S (<code>(?w:L+R+L+/the/[a-z]+)</code> matches <i>tithe</i>)</td></tr>
     </table>
