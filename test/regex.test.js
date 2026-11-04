@@ -32,6 +32,13 @@ const TARGETS = [
   ["lo+l->o+", "^lo*l$"],
   ["(the|a)-.", "^(?:th)?$"],
   ["U+##w+", "^(?:Uw)+U?$"],
+  // the NFA can read better than the DFA, even with as many states
+  ["the<[a-z]*", "^[a-z]*the[a-z]*$"],
+  ["the^[a-z]*", "^[a-z]*t[a-z]*h[a-z]*e[a-z]*$"],
+  // a repeat merged with a repeat of itself
+  ["[a-z]+&(..)+", "^(?:[a-z]{2})+$"],
+  ["(abc){2}(abc)*", "^(?:abc){2,}$"],
+  ["x(ab)*ab", "^x(?:ab)+$"],
   // special cases and escaping
   ["", "^$"],
   ["[]", "^(?!)$"],

@@ -25,9 +25,10 @@ export function toRegex(nfa, limits = LIMITS) {
   } catch (e) {
     if (!(e instanceof TooManyStatesError)) throw e;
   }
-  // the NFA can be much smaller than the DFA, as for (a|b)*a(a|b){10}
-  const g = mergeEquivalent(removeEpsilons(nfa));
-  if (!candidates.length || g.size < candidates[0].size) candidates.push(g);
+  // The NFA can be much smaller than the DFA, as for (a|b)*a(a|b){10}, and even when it isn't
+  // it often reads better, since the DFA tracks things a regex needn't say: the DFA for
+  // the<[a-z]* tracks the first "the", giving a long regex rather than [a-z]*the[a-z]*
+  candidates.push(mergeEquivalent(removeEpsilons(nfa)));
 
   let best = null;
   let reason = "the automaton is too large";
@@ -90,20 +91,26 @@ export function cat(items) {
 
 // Merge the end of a sequence into what comes before it where possible:
 // X{a,b}X{c,d} → X{a+c,b+d} (so XX* → X+ and XX → X{2}), and the same for a repeated
-// sequence written out next to it, as in (ab)*ab → (ab)+ and ab(ab)* → (ab)+
+// sequence written out next to it, as in (ab)*ab → (ab)+ and ab(ab)* → (ab)+. A repeat can
+// itself be the X, as in X{2}(X{2})* → (X{2})+.
 function mergeTail(out) {
   const counts = (n) => (n.t === "rep" ? [n.node, n.min, n.max] : [n, 1, 1]);
+  // the ways to see an expression as something repeated: a repeat as its body or as a whole
+  const views = (n) => (n.t === "rep" ? [counts(n), [n, 1, 1]] : [counts(n)]);
   const same = (seq, from) => seq.every((m, i) => out[from + i]?.key === m.key);
   const replace = (from, count, r) => out.splice(from, count, ...parts(r));
-  for (;;) {
+  outer: for (;;) {
     const end = out.length - 1;
     if (end < 1) return;
-    const [base, min, max] = counts(out[end]);
-    const [prevBase, prevMin, prevMax] = counts(out[end - 1]);
-    if (base.key === prevBase.key) {
-      replace(end - 1, 2, rep(base, prevMin + min, prevMax + max));
-      continue;
+    for (const [prevBase, prevMin, prevMax] of views(out[end - 1])) {
+      for (const [base, min, max] of views(out[end])) {
+        if (base.key === prevBase.key) {
+          replace(end - 1, 2, rep(base, prevMin + min, prevMax + max));
+          continue outer;
+        }
+      }
     }
+    const [base, min, max] = counts(out[end]);
     // a repeated sequence, with the sequence written out just before it
     const seq = parts(base);
     if (out[end].t === "rep" && seq.length > 1 && end >= seq.length && same(seq, end - seq.length)) {
