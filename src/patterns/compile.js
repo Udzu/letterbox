@@ -25,7 +25,7 @@
 import { CharSet } from "./charset.js";
 import { caseClose, shiftSet } from "./letters.js";
 import { Builder, complement, intersect, mapLabels, minimize, removeEpsilons, reverse, trim } from "./nfa.js";
-import { parse } from "./parser.js";
+import { parse, PatternError } from "./parser.js";
 import { replace } from "./replace.js";
 import { atLeast, exactly, rotate } from "./rotate.js";
 import { unweave, weave } from "./weave.js";
@@ -65,7 +65,8 @@ function splitDfa(split) {
   return splitCache.get(split);
 }
 
-// options: { caseless } makes every character comparison case-insensitive
+// options: { caseless } makes every character comparison case-insensitive, and { words }
+// is the word list's automaton, which @ matches (see wordsAutomaton in wordlist.js)
 export function compile(ast, options = {}) {
   const b = new Builder();
   const start = b.state();
@@ -83,6 +84,10 @@ function build(b, node, from, options) {
       return step(b, from, chars(CharSet.of(node.cp)));
     case "any":
       return step(b, from, CharSet.ALL);
+    case "words": {
+      if (!options.words) throw new PatternError("No word list loaded: load one below to use @", ...node.span);
+      return embed(b, options.caseless ? mapLabels(options.words, caseClose) : options.words, from);
+    }
     case "class": {
       const set = chars(CharSet.from(node.ranges.map(([lo, hi]) => [lo, hi])));
       return step(b, from, node.negated ? set.complement() : set);

@@ -4,8 +4,10 @@ import { instance } from "@viz-js/viz";
 import { examples } from "./examples.js";
 import { describeLengths, matchLengths } from "./lengths.js";
 import { LIMITS, UNLIMITED, toRegex } from "./regex.js";
+import { matcher, parseWords, wordsAutomaton } from "./wordlist.js";
 import {
-  compile, determinize, minimize, removeEpsilons, run, toDot, trim, PatternError, TooManyStatesError,
+  compile, determinize, limitFor, minimize, removeEpsilons, run, toDot, trim, withStateLimit, PatternError,
+  TooManyStatesError,
 } from "./index.js";
 
 const VIEWS = {
@@ -23,8 +25,14 @@ const VIEW_HELP = {
   min: "The DFA with the fewest states that matches the same strings.",
 };
 const MAX_DRAWN_STATES = 300;
+// the DFA views of automata larger than this can take seconds, so they wait to be asked for
+const MAX_QUICK_DFA_SOURCE = 5000;
+const SLOW_VIEWS = new Set(["dfa", "min"]);
 const REGEX_DELAY = 300; // ms without typing before converting the pattern to a regex
 const STORAGE_KEY = "patterns";
+const MATCH_CHUNK = 5000; // words checked between pauses that keep the page responsive
+const SHOWN_MATCHES = 1000;
+const LARGE_WORD_LIST = 20000; // above this, patterns using @ take a second or more
 const DEFAULTS = { pattern: "their|her|his|xyr", tests: "their\nher\nhis\nxyr\nhim", view: "epsfree" };
 
 const $ = (id) => document.getElementById(id);
@@ -36,6 +44,7 @@ const vizReady = instance();
 let nfa = null; // the NFA currently drawn, if any
 let compiled = null; // the compiled pattern, if it's valid
 let drawLarge = false;
+let buildLarge = false;
 
 function load() {
   try {
@@ -77,10 +86,14 @@ async function update() {
   $("examples-note").textContent = "";
   $("lengths").textContent = "";
   let message = null;
+  let askToBuild = false;
   try {
-    compiled = compile(pattern);
-    $("lengths").textContent = describeLengths(matchLengths(compiled));
-    nfa = VIEWS[viewSelect.value](compiled);
+    compiled = compile(pattern, { words: wordList?.automaton });
+    withStateLimit(limitFor(compiled), () => {
+      $("lengths").textContent = describeLengths(matchLengths(compiled));
+      if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
+      else nfa = VIEWS[viewSelect.value](compiled);
+    });
   } catch (e) {
     if (e instanceof PatternError) {
       const [start, end] = e.span;
@@ -98,12 +111,21 @@ async function update() {
 
   $("add-examples").disabled = compiled === null;
   scheduleRegex();
+  scheduleMatches();
   updateTests();
   // while the pattern is invalid, keep showing the last diagram, dimmed
-  $("diagram").classList.toggle("stale", nfa === null && message === null);
+  $("diagram").classList.toggle("stale", nfa === null && message === null && !askToBuild);
   if (nfa === null) {
     $("stats").textContent = "";
-    if (message) $("diagram").innerHTML = `<p class="note">${escapeHtml(message)}</p>`;
+    if (askToBuild) {
+      $("diagram").innerHTML = `<p class="note">This automaton is large, so this view may take a while to build. <button id="build-anyway">Build anyway</button></p>`;
+      $("build-anyway").addEventListener("click", () => {
+        $("diagram").innerHTML = `<p class="note">Building…</p>`;
+        buildLarge = true;
+        // let the note appear before the page is busy
+        setTimeout(update, 20);
+      });
+    } else if (message) $("diagram").innerHTML = `<p class="note">${escapeHtml(message)}</p>`;
     else if (!$("diagram").querySelector("svg")) $("diagram").replaceChildren();
     highlightCurrent();
     return;
@@ -241,7 +263,7 @@ function clearTests() {
 function addExamples() {
   if (compiled === null) return;
   const lines = testsInput.value.split("\n");
-  const result = examples(compiled, { exclude: new Set(lines) });
+  const result = withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) }));
   const existing = testsInput.value.replace(/\n+$/, "");
   if (result.examples.length) {
     // insert at the end, after any trailing blank lines are removed
@@ -259,8 +281,163 @@ function addExamples() {
   onCursor();
 }
 
+// The word list is kept in IndexedDB, since lists are too large for localStorage. If storage
+// is unavailable, the list just lasts until the page is closed.
+const DB = { name: "patterns", store: "wordlist", key: "list" };
+let wordList = null; // { name, words }
+
+function openDb() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB.name, 1);
+    request.onupgradeneeded = () => request.result.createObjectStore(DB.store);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function storeWordList(value) {
+  try {
+    const db = await openDb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(DB.store, "readwrite");
+      if (value === null) tx.objectStore(DB.store).delete(DB.key);
+      else tx.objectStore(DB.store).put(value, DB.key);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch {
+    // storage unavailable
+  }
+}
+
+async function fetchWordList() {
+  try {
+    const db = await openDb();
+    return await new Promise((resolve, reject) => {
+      const request = db.transaction(DB.store).objectStore(DB.store).get(DB.key);
+      request.onsuccess = () => resolve(request.result ?? null);
+      request.onerror = () => reject(request.error);
+    });
+  } catch {
+    return null;
+  }
+}
+
+function setWordList(list) {
+  wordList = list;
+  showAllMatches = false;
+  $("clear-words").disabled = list === null;
+  $("words-info").textContent = list === null ? "None loaded" : `${list.name}: ${count(list.words.length, "word")}`;
+  if (list !== null && list.words.length > LARGE_WORD_LIST) {
+    $("words-info").textContent += `. Patterns using @ may be slow with this many.`;
+  }
+  if (list === null) {
+    $("matches-info").replaceChildren();
+    $("matches").replaceChildren();
+  }
+  // @ means something different now
+  schedule();
+}
+
+// a list from its words, including the automaton that @ uses
+function makeWordList(name, words) {
+  return { name, words, automaton: wordsAutomaton(words) };
+}
+
+async function loadWordFile() {
+  const file = $("words-file").files[0];
+  if (!file) return;
+  $("words-info").textContent = "Loading…";
+  const text = await file.text();
+  $("words-file").value = "";
+  setWordList(makeWordList(file.name, parseWords(text)));
+  storeWordList({ name: file.name, text });
+}
+
+function clearWordList() {
+  setWordList(null);
+  storeWordList(null);
+}
+
+const count = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
+
+// Like the regex, matches wait for a pause in typing and are dimmed while out of date. The
+// search works through the list in chunks, giving up if the pattern or list changes.
+let matchTimer = null;
+let firstMatches = true;
+let showAllMatches = false;
+function scheduleMatches() {
+  clearTimeout(matchTimer);
+  markMatchesStale();
+  if (compiled === null || wordList === null) return;
+  const [target, list] = [compiled, wordList];
+  matchTimer = setTimeout(() => findMatches(target, list), firstMatches ? 0 : REGEX_DELAY);
+  firstMatches = false;
+}
+
+function markMatchesStale() {
+  for (const id of ["matches", "matches-info"]) $(id).classList.add("stale");
+  // so a download always matches the pattern shown
+  if ($("download-matches")) $("download-matches").disabled = true;
+}
+
+async function findMatches(target, list) {
+  const test = matcher(target);
+  const found = [];
+  for (let i = 0; i < list.words.length; i += MATCH_CHUNK) {
+    if (i > 0) await new Promise((resolve) => setTimeout(resolve));
+    if (target !== compiled || list !== wordList) return; // superseded
+    for (let j = i; j < Math.min(i + MATCH_CHUNK, list.words.length); j++) if (test(list.words[j])) found.push(list.words[j]);
+  }
+  showMatches(found);
+}
+
+function showMatches(found) {
+  for (const id of ["matches", "matches-info"]) $(id).classList.remove("stale");
+  const shown = showAllMatches ? found : found.slice(0, SHOWN_MATCHES);
+  $("matches").textContent = shown.join("\n");
+  $("matches").scrollTop = 0;
+  if (found.length === 0) {
+    $("matches-info").textContent = "No words match.";
+    return;
+  }
+  const download = `<button id="download-matches">Download</button>`;
+  if (shown.length === found.length) {
+    $("matches-info").innerHTML = `${count(found.length, "matching word")}: ${download}`;
+  } else {
+    $("matches-info").innerHTML = `${count(found.length, "matching word")}, showing the first ${shown.length.toLocaleString()}: <button id="show-all-matches">Show all</button> ${download}`;
+    $("show-all-matches").addEventListener("click", () => {
+      showAllMatches = true;
+      showMatches(found);
+    });
+  }
+  $("download-matches").addEventListener("click", () => downloadMatches(found));
+}
+
+// save the matches as a text file, one per line, named after the pattern where possible
+function downloadMatches(found) {
+  const safe = patternInput.value.replace(/[<>:"/\\|?*\p{Cc}]/gu, "_").slice(0, 50);
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(new Blob([found.join("\n") + "\n"], { type: "text/plain;charset=utf-8" }));
+  link.download = safe.trim() ? `matches ${safe}.txt` : "matches.txt";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
+// Patterns using the word list can take a while to compile, so they wait for a pause in
+// typing; others update on the next frame.
 let pending = false;
+let slowTimer = null;
 function schedule() {
+  clearTimeout(slowTimer);
+  if (wordList !== null && patternInput.value.includes("@")) {
+    $("diagram").classList.add("stale");
+    markMatchesStale();
+    slowTimer = setTimeout(update, REGEX_DELAY);
+    return;
+  }
   if (pending) return;
   pending = true;
   requestAnimationFrame(() => {
@@ -282,6 +459,8 @@ viewSelect.value = saved.view in VIEWS ? saved.view : DEFAULTS.view;
 patternInput.addEventListener("input", () => {
   if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
   drawLarge = false;
+  buildLarge = false;
+  showAllMatches = false;
   schedule();
 });
 // the pattern is a single line, even though it wraps
@@ -294,11 +473,15 @@ function showViewHelp() {
 showViewHelp();
 viewSelect.addEventListener("change", () => {
   showViewHelp();
+  buildLarge = false;
   schedule();
 });
 $("add-examples").addEventListener("click", addExamples);
 $("clear-tests").addEventListener("click", clearTests);
 $("copy-regex").addEventListener("click", copyRegex);
+$("load-words").addEventListener("click", () => $("words-file").click());
+$("words-file").addEventListener("change", loadWordFile);
+$("clear-words").addEventListener("click", clearWordList);
 testsInput.addEventListener("input", () => {
   save();
   onCursor();
@@ -311,4 +494,10 @@ window.addEventListener("resize", () => {
   autosize(patternInput);
   autosize(testsInput);
 });
-update();
+// wait for any stored word list before the first update, since the pattern may use it
+$("clear-words").disabled = true;
+$("words-info").textContent = "None loaded";
+fetchWordList().then((stored) => {
+  if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));
+  else update();
+});

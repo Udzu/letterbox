@@ -8,7 +8,7 @@
 //                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
 //   postfix        A* A+ A? A{m} A{m,} A{m,n}
-//   atoms          a \* . [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C)
+//   atoms          a \* . @ [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C)
 //
 // Every node has a `span` of [start, end) UTF-16 offsets into the pattern, for error
 // reporting and highlighting. Parentheses aren't kept as nodes; `format` adds back the ones
@@ -18,6 +18,7 @@
 //   { type: "empty" }                                matches the empty string
 //   { type: "char", cp }                             a single code point
 //   { type: "any" }                                  any single character (.)
+//   { type: "words" }                                any word in the word list (@)
 //   { type: "class", negated, ranges: [[lo, hi]] }   ranges as written, inclusive
 //   { type: "repeat", node, min, max }               max is null if unbounded
 //   { type: "concat", items }                        2+ items
@@ -294,6 +295,9 @@ class Parser {
       case ".":
         this.next();
         return { type: "any", span: [start, this.pos] };
+      case "@":
+        this.next();
+        return { type: "words", span: [start, this.pos] };
       case "\\":
         return { type: "char", cp: this.parseEscape(), span: [start, this.pos] };
       default:
@@ -351,7 +355,7 @@ class Parser {
       throw new PatternError("Split patterns can only use the characters L and R", ...n.span);
     };
     const visit = (n) => {
-      if (n.type === "char" && !SPLIT_CHARS.has(n.cp)) bad(n);
+      if ((n.type === "char" && !SPLIT_CHARS.has(n.cp)) || n.type === "words") bad(n);
       if (n.type === "class" && !n.ranges.every(([lo, hi]) => lo === hi && SPLIT_CHARS.has(lo))) bad(n);
       for (const child of [n.node, n.left, n.right, n.find, n.insert, n.split, ...(n.items ?? [])]) if (child) visit(child);
     };
@@ -503,6 +507,7 @@ function fmt(node, minLevel) {
       return minLevel <= LEVEL.alt ? "" : "()";
     case "char": s = formatChar(node.cp, false); break;
     case "any": s = "."; break;
+    case "words": s = "@"; break;
     case "class": s = formatClass(node); break;
     case "repeat": s = fmt(node.node, ATOM) + formatQuantifier(node.min, node.max); break;
     case "concat": s = node.items.map((n) => fmt(n, LEVEL.repeat)).join(""); break;

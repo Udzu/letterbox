@@ -9,8 +9,26 @@ import { CharSet, partition } from "./charset.js";
 
 export const MAX_STATES = 50000;
 
+// The limit that new automata use unless given one. It's raised while compiling a pattern
+// that uses a word list, whose automaton alone can have tens of thousands of states.
+let stateLimit = MAX_STATES;
+// a limit for working with an existing automaton, allowing for its size
+export function limitFor(nfa) {
+  return Math.max(MAX_STATES, 4 * nfa.size);
+}
+
+export function withStateLimit(limit, f) {
+  const previous = stateLimit;
+  stateLimit = limit;
+  try {
+    return f();
+  } finally {
+    stateLimit = previous;
+  }
+}
+
 export class TooManyStatesError extends Error {
-  constructor(limit = MAX_STATES) {
+  constructor(limit = stateLimit) {
     super(`The automaton needs more than ${limit} states`);
     this.name = "TooManyStatesError";
   }
@@ -36,7 +54,7 @@ export class NFA {
 }
 
 export class Builder {
-  constructor(limit = MAX_STATES) {
+  constructor(limit = stateLimit) {
     this.edges = [];
     this.limit = limit;
   }
@@ -171,7 +189,7 @@ export function removeEpsilons(nfa) {
 // Subset construction. With complete, every state has an edge for every character,
 // adding a non-accepting "dead" state if needed (which complementing relies on).
 // maxStates limits the DFA's size, throwing TooManyStatesError if it's exceeded
-export function determinize(nfa, { complete = false, maxStates = MAX_STATES } = {}) {
+export function determinize(nfa, { complete = false, maxStates = stateLimit } = {}) {
   const b = new Builder(maxStates);
   const ids = new Map();
   const sets = [];
@@ -228,7 +246,24 @@ export function complement(nfa) {
 }
 
 // accepts the strings both NFAs accept (product construction)
-export function intersect(a, c) {
+// The product only has the pairs of states reachable together, so it's much smaller when
+// the operands are deterministic: each string then reaches one pair, rather than every
+// combination of the states each operand could be in. So operands are determinised first,
+// unless that would make them much larger.
+export function intersect(x, y) {
+  return product(cheaplyDeterministic(x), cheaplyDeterministic(y));
+}
+
+function cheaplyDeterministic(nfa) {
+  try {
+    return trim(determinize(nfa, { maxStates: Math.max(1000, 2 * nfa.size) }));
+  } catch (e) {
+    if (e instanceof TooManyStatesError) return nfa;
+    throw e;
+  }
+}
+
+function product(a, c) {
   const b = new Builder();
   const ids = new Map();
   const pairs = [];
@@ -249,7 +284,10 @@ export function intersect(a, c) {
         continue;
       }
       for (const f of c.edges[q]) {
-        if (f.label !== null) b.edge(i, e.label.intersect(f.label), id(e.to, f.to));
+        if (f.label === null) continue;
+        // only pairs with a shared character are reachable together
+        const label = e.label.intersect(f.label);
+        if (!label.isEmpty()) b.edge(i, label, id(e.to, f.to));
       }
     }
     for (const f of c.edges[q]) if (f.label === null) b.edge(i, null, id(p, f.to));
@@ -284,7 +322,7 @@ export function reverse(nfa) {
 }
 
 // minimal DFA (Brzozowski: reverse and determinize twice), with no dead state
-export function minimize(nfa, { maxStates = MAX_STATES } = {}) {
+export function minimize(nfa, { maxStates = stateLimit } = {}) {
   return trim(determinize(reverse(determinize(reverse(nfa), { maxStates })), { maxStates }));
 }
 

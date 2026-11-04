@@ -9,6 +9,7 @@ function show(node) {
     case "empty": return "ε";
     case "char": return String.fromCodePoint(node.cp);
     case "any": return ".";
+    case "words": return "@";
     case "class": {
       const ranges = node.ranges.map(([lo, hi]) =>
         lo === hi ? String.fromCodePoint(lo) : `${String.fromCodePoint(lo)}-${String.fromCodePoint(hi)}`);
@@ -144,6 +145,10 @@ const PARSES = [
   ["(?u:[LR]|!L/a/b)", "(u (alt [L R] (not L)) a b)"],
   ["(?w:./a/b)", "(w . a b)"],
   ["(?w:[^L]//)", "(w [^L] ε ε)"],
+  ["@", "@"],
+  ["@ @", "(concat @   @)"],
+  ["@&(?r:@)", "(and @ (?r @))"],
+  ["\\@", "@"],
 ];
 
 for (const [pattern, expected] of PARSES) {
@@ -236,6 +241,7 @@ const ERRORS = [
   ["(?w:(?i:x)/a/b)", "only use the characters L and R", [8, 9]],
   ["(?w:L/a)", "needs three parts, as in (?w:L+R+L+/the/[a-z]+)", [0, 8]],
   ["(?u:L)", "needs three parts, as in (?u:(LLR)*/abcdef/.*)", [0, 6]],
+  ["(?w:L@/a/b)", "only use the characters L and R", [5, 6]],
   ["&a", "Missing operand before &", [0, 1]],
   ["a&", "Missing operand after &", [1, 2]],
   ["a&|b", "Missing operand after &", [1, 2]],
@@ -310,6 +316,7 @@ const FORMATS = [
   ["(?z:(a|b)/(c)/(d|))", "(?z:a|b/c/d|)"],
   ["(?z:a/()/(d))", "(?z:a//d)"],
   ["(?w:(L|R)/(a)/b*)", "(?w:L|R/a/b*)"],
+  ["(@)+\\@", "@+\\@"],
 ];
 
 for (const [pattern, canonical] of FORMATS) {
