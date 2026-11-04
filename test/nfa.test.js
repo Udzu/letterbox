@@ -66,7 +66,7 @@ test("oversized patterns are rejected", () => {
   assert.throws(() => compile("(a{1000}){1000}"), (e) => e instanceof PatternError && /too complex/.test(e.message));
 });
 
-const ALPHABET = ["a", "b", "é", "😀"];
+const ALPHABET = ["a", "b", "é", "😀", "B", "_", "1", " ", "\t", "\u00a0", "α"];
 const AST_CHARS = ["a", "b", "😀"];
 
 function randomStrings(rand, n) {
@@ -77,9 +77,9 @@ function randomStrings(rand, n) {
 test("matching agrees with RegExp", () => {
   const rand = seededRandom(3);
   for (let i = 0; i < 500; i++) {
-    const ast = randomAst(rand, 4, { chars: AST_CHARS, logic: false });
+    const ast = randomAst(rand, 4, { chars: AST_CHARS, logic: false, shorthands: true });
     const nfa = compileAst(ast);
-    const re = new RegExp(`^(?:${toRegExp(ast)})$`, "u");
+    const re = new RegExp(`^(?:${toRegExp(ast)})$`, "v");
     for (const s of randomStrings(rand, 30)) {
       assert.equal(nfaMatches(nfa, s), re.test(s), `${re} on ${JSON.stringify(s)}`);
     }

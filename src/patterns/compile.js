@@ -28,6 +28,7 @@ import { Builder, complement, intersect, mapLabels, minimize, removeEpsilons, re
 import { parse, PatternError } from "./parser.js";
 import { replace } from "./replace.js";
 import { atLeast, exactly, rotate } from "./rotate.js";
+import { shorthandSet } from "./shorthands.js";
 import { unweave, weave } from "./weave.js";
 
 // Split patterns for the separating operators: which positions of a combined string come
@@ -89,9 +90,13 @@ function build(b, node, from, options) {
       return embed(b, options.caseless ? mapLabels(options.words, caseClose) : options.words, from);
     }
     case "class": {
-      const set = chars(CharSet.from(node.ranges.map(([lo, hi]) => [lo, hi])));
+      // a negated shorthand like \D inside a class is the complement of its (case-closed) set
+      const shorthands = (node.shorthands ?? []).map((sh) => shorthand(sh, chars));
+      const set = shorthands.reduce((x, y) => x.union(y), chars(CharSet.from(node.ranges.map(([lo, hi]) => [lo, hi]))));
       return step(b, from, node.negated ? set.complement() : set);
     }
+    case "shorthand":
+      return step(b, from, shorthand(node, chars));
     case "concat":
       return node.items.reduce((at, item) => build(b, item, at, options), from);
     case "alt": {
@@ -128,6 +133,12 @@ function build(b, node, from, options) {
     default:
       throw new Error(`Unknown node type ${node.type}`);
   }
+}
+
+// with (?i:...), \W is everything that doesn't match \w case-insensitively, as in JavaScript
+function shorthand(sh, chars) {
+  const set = chars(shorthandSet({ ...sh, negated: false }));
+  return sh.negated ? set.complement() : set;
 }
 
 function step(b, from, label) {

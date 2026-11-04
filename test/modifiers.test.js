@@ -157,9 +157,9 @@ test("(?i:…) agrees with JavaScript's i flag", () => {
   const rand = seededRandom(9);
   const strings = ["k", "K", "K", "s", "S", "ſ", "ı", "İ", "i", "I"];
   for (let i = 0; i < 300; i++) {
-    const ast = randomAst(rand, 3, { chars: [...AST_CHARS, "k", "ſ", "I"], logic: false });
+    const ast = randomAst(rand, 3, { chars: [...AST_CHARS, "k", "ſ", "I"], logic: false, shorthands: true });
     const nfa = compileAst({ type: "modifier", flag: "i", count: null, node: ast });
-    const re = new RegExp(`^(?:${toRegExp(ast)})$`, "iu");
+    const re = new RegExp(`^(?:${toRegExp(ast)})$`, "iv");
     for (const s of [...randomStrings(rand, 20), ...strings]) {
       assert.equal(matches(nfa, s), re.test(s), `${re} on ${JSON.stringify(s)}`);
     }

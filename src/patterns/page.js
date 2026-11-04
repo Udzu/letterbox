@@ -156,6 +156,15 @@ async function draw(drawn) {
       if (drawn.accepting.has(state)) g.classList.add("accepting");
     }
   }
+  // Graphviz puts the full text of shortened labels in xlink:title, which browsers don't all
+  // show, so copy it into a <title>, which they do
+  for (const a of svg.querySelectorAll("a")) {
+    const text = a.getAttributeNS("http://www.w3.org/1999/xlink", "title");
+    if (!text) continue;
+    const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+    title.textContent = text;
+    a.prepend(title);
+  }
   $("diagram").replaceChildren(svg);
   highlightCurrent();
 }
@@ -494,10 +503,21 @@ window.addEventListener("resize", () => {
   autosize(patternInput);
   autosize(testsInput);
 });
-// wait for any stored word list before the first update, since the pattern may use it
+// Wait for any stored word list before the first update, since the pattern may use it, but
+// not for long in case storage is slow or blocked: a list arriving later updates the page.
 $("clear-words").disabled = true;
 $("words-info").textContent = "None loaded";
+let started = false;
+const start = () => {
+  if (!started) update();
+  started = true;
+};
+setTimeout(start, 1000);
 fetchWordList().then((stored) => {
-  if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));
-  else update();
+  if (stored && wordList === null) {
+    started = true;
+    setWordList(makeWordList(stored.name, parseWords(stored.text)));
+  } else {
+    start();
+  }
 });

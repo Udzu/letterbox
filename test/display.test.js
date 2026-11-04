@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { CharSet, MAX_CP } from "../src/patterns/charset.js";
-import { formatLabel, toDot } from "../src/patterns/display.js";
+import { formatLabel, shortLabel, toDot } from "../src/patterns/display.js";
 import { compile } from "../src/patterns/index.js";
 
 const cp = (c) => c.codePointAt(0);
@@ -32,4 +32,19 @@ test("toDot", () => {
   assert.match(dot, /\d+ \[shape=doublecircle/);
   // the label \" quoted for DOT
   assert.ok(toDot(compile('\\"')).includes(String.raw`label="\\\""`));
+});
+
+test("shortLabel", () => {
+  assert.equal(shortLabel("[a-z]"), "[a-z]");
+  const long = formatLabel(compile("\\p{Lu}").edges.flat().find((e) => e.label).label);
+  assert.ok(long.length > 100);
+  const short = shortLabel(long);
+  assert.ok([...short].length <= 24 && short.startsWith("[A-Z") && short.endsWith("…]"), short);
+  // escapes are never split
+  assert.equal(shortLabel("[\\t-\\r \\xa0\\u{1680}\\u{2000}-\\u{200a}\\u{2028}]"), "[\\t-\\r \\xa0\\u{1680}…]");
+  assert.equal(shortLabel("[abcdefghijklmnopqrst\\\\uvwxyz]"), "[abcdefghijklmnopqrst…]");
+  // long labels are shortened in the diagram, with the full label as a tooltip
+  const dot = toDot(compile("\\p{Lu}"));
+  assert.ok(dot.includes(`label="${short}", tooltip="`), dot);
+  assert.ok(!toDot(compile("[a-z]")).includes("tooltip"));
 });

@@ -18,6 +18,21 @@ function classRanges(set) {
   return set.ranges.flatMap(([lo, hi]) => (hi === lo + 1 ? [[lo, lo], [hi, hi]] : [[lo, hi]]));
 }
 
+// Long labels (such as \p{L}, which has hundreds of ranges) are cut short so the diagram
+// stays readable, with the full label as a tooltip. A cut never splits an escape like \u{a0}.
+const MAX_LABEL = 24;
+export function shortLabel(label) {
+  if ([...label].length <= MAX_LABEL) return label;
+  // escapes and single characters, so whole ones can be kept
+  const tokens = label.match(/\\u\{[0-9a-f]+\}|\\.|./gsu);
+  let head = "";
+  for (const token of tokens) {
+    if ([...head].length + [...token].length > MAX_LABEL - 2) break;
+    head += token;
+  }
+  return `${head}…${label.endsWith("]") ? "]" : ""}`;
+}
+
 // Graphviz DOT source. ε-moves are dashed; accepting states are double circles.
 export function toDot(nfa, { dark = false } = {}) {
   const fg = dark ? "#ddd" : "#222";
@@ -35,7 +50,12 @@ export function toDot(nfa, { dark = false } = {}) {
   }
   nfa.edges.forEach((es, s) => {
     for (const { label, to } of es) {
-      const attrs = label === null ? `label="ε", style=dashed` : `label=${quote(formatLabel(label))}`;
+      let attrs = `label="ε", style=dashed`;
+      if (label !== null) {
+        const full = formatLabel(label);
+        const short = shortLabel(full);
+        attrs = `label=${quote(short)}${short === full ? "" : `, tooltip=${quote(full)}`}`;
+      }
       lines.push(`  ${s} -> ${to} [${attrs}];`);
     }
   });
