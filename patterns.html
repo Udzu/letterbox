@@ -3805,8 +3805,7 @@
     } catch (e) {
       if (!(e instanceof TooManyStatesError)) throw e;
     }
-    const g = mergeEquivalent(removeEpsilons(nfa2));
-    if (!candidates.length || g.size < candidates[0].size) candidates.push(g);
+    candidates.push(mergeEquivalent(removeEpsilons(nfa2)));
     let best = null;
     let reason = "the automaton is too large";
     for (const automaton of candidates) {
@@ -3860,17 +3859,21 @@
   }
   function mergeTail(out) {
     const counts = (n) => n.t === "rep" ? [n.node, n.min, n.max] : [n, 1, 1];
+    const views = (n) => n.t === "rep" ? [counts(n), [n, 1, 1]] : [counts(n)];
     const same = (seq, from) => seq.every((m, i) => out[from + i]?.key === m.key);
     const replace2 = (from, count2, r) => out.splice(from, count2, ...parts(r));
-    for (; ; ) {
+    outer: for (; ; ) {
       const end = out.length - 1;
       if (end < 1) return;
-      const [base, min, max] = counts(out[end]);
-      const [prevBase, prevMin, prevMax] = counts(out[end - 1]);
-      if (base.key === prevBase.key) {
-        replace2(end - 1, 2, rep(base, prevMin + min, prevMax + max));
-        continue;
+      for (const [prevBase, prevMin, prevMax] of views(out[end - 1])) {
+        for (const [base2, min2, max2] of views(out[end])) {
+          if (base2.key === prevBase.key) {
+            replace2(end - 1, 2, rep(base2, prevMin + min2, prevMax + max2));
+            continue outer;
+          }
+        }
       }
+      const [base, min, max] = counts(out[end]);
       const seq = parts(base);
       if (out[end].t === "rep" && seq.length > 1 && end >= seq.length && same(seq, end - seq.length)) {
         replace2(end - seq.length, seq.length + 1, rep(base, min + 1, max + 1));
