@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parse, format, PatternError } from "../src/patterns/parser.js";
 import { randomAst, seededRandom, stripSpans } from "./helpers.js";
+import { formatShorthand } from "../src/patterns/shorthands.js";
 
 // compact s-expression view of an AST, ignoring spans
 function show(node) {
@@ -10,10 +11,11 @@ function show(node) {
     case "char": return String.fromCodePoint(node.cp);
     case "any": return ".";
     case "words": return "@";
+    case "shorthand": return formatShorthand(node);
     case "class": {
       const ranges = node.ranges.map(([lo, hi]) =>
         lo === hi ? String.fromCodePoint(lo) : `${String.fromCodePoint(lo)}-${String.fromCodePoint(hi)}`);
-      return `[${node.negated ? "^" : ""}${ranges.join(" ")}]`;
+      return `[${node.negated ? "^" : ""}${[...ranges, ...(node.shorthands ?? []).map(formatShorthand)].join(" ")}]`;
     }
     case "repeat": return `(repeat ${node.min} ${node.max ?? "∞"} ${show(node.node)})`;
     case "not": return `(not ${show(node.node)})`;
@@ -149,6 +151,11 @@ const PARSES = [
   ["@ @", "(concat @   @)"],
   ["@&(?r:@)", "(and @ (?r @))"],
   ["\\@", "@"],
+  ["\\d\\D\\w\\W\\s\\S", "(concat \\d \\D \\w \\W \\s \\S)"],
+  ["[\\d_]", "[_ \\d]"],
+  ["[^\\s,\\W]", "[^, \\s \\W]"],
+  ["[\\d-]", "[- \\d]"],
+  ["\\d+", "(repeat 1 ∞ \\d)"],
 ];
 
 for (const [pattern, expected] of PARSES) {
@@ -176,7 +183,7 @@ const ERRORS = [
   ["[z-a]", "out of order", [1, 4]],
   ["[[]", "[ is reserved", [1, 2]],
   ["\\", "can't end with", [0, 1]],
-  ["\\d", "Unknown escape", [0, 2]],
+  ["\\q", "Unknown escape", [0, 2]],
   ["\\ ", "Unknown escape", [0, 2]],
   ["\\u", "Expected {", [0, 2]],
   ["\\u{}", "Invalid code point", [0, 4]],
@@ -242,6 +249,14 @@ const ERRORS = [
   ["(?w:L/a)", "needs three parts, as in (?w:L+R+L+/the/[a-z]+)", [0, 8]],
   ["(?u:L)", "needs three parts, as in (?u:(LLR)*/abcdef/.*)", [0, 6]],
   ["(?w:L@/a/b)", "only use the characters L and R", [5, 6]],
+  ["(?w:\\w/a/b)", "only use the characters L and R", [4, 6]],
+  ["(?w:[L\\d]/a/b)", "only use the characters L and R", [4, 9]],
+  ["\\b", "Word boundaries (\\b) aren't supported", [0, 2]],
+  ["a\\B", "Word boundaries (\\B)", [1, 3]],
+  ["\\p{L}", "Unicode properties (\\p{...}) aren't supported", [0, 2]],
+  ["[\\P{L}]", "Unicode properties (\\P{...})", [1, 3]],
+  ["[\\d-z]", "can't be one end of a range", [1, 3]],
+  ["[a-\\d]", "can't be one end of a range", [1, 5]],
   ["&a", "Missing operand before &", [0, 1]],
   ["a&", "Missing operand after &", [1, 2]],
   ["a&|b", "Missing operand after &", [1, 2]],
@@ -317,6 +332,8 @@ const FORMATS = [
   ["(?z:a/()/(d))", "(?z:a//d)"],
   ["(?w:(L|R)/(a)/b*)", "(?w:L|R/a/b*)"],
   ["(@)+\\@", "@+\\@"],
+  ["[\\da]", "[a\\d]"],
+  ["(\\S)*", "\\S*"],
 ];
 
 for (const [pattern, canonical] of FORMATS) {
@@ -337,7 +354,7 @@ test("format round-trips every parsed pattern", () => {
 test("format round-trips random ASTs", () => {
   const rand = seededRandom(1);
   for (let i = 0; i < 2000; i++) {
-    const ast = randomAst(rand, 4, { modifiers: true });
+    const ast = randomAst(rand, 4, { modifiers: true, shorthands: true });
     const pattern = format(ast);
     assert.deepEqual(stripSpans(parse(pattern)), ast, pattern);
   }

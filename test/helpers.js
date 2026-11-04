@@ -1,6 +1,7 @@
 // shared test helpers
 
 import { MODIFIERS, SPATIAL_OPS, parse, sliceError } from "../src/patterns/parser.js";
+import { formatShorthand } from "../src/patterns/shorthands.js";
 
 export const DEFAULT_CHARS = ["a", "b", "é", "😀", " ", "'", "*", "\\", "-", "]", "^", "[", "|", "\n", "\x00", "!"];
 
@@ -19,9 +20,11 @@ const RANDOM_SPLITS = ["L*R*", "R+L+R+L+R*", "(LLR)*", "(LR+)*L", "[LR]*", "!(L*
 const splitAst = (split) => stripSpans(parse(split));
 
 // random ASTs in normal form: associative nodes are flattened and have 2+ items
-export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, spatial = logic, modifiers = false } = {}) {
+
+export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, spatial = logic, modifiers = false, shorthands = false } = {}) {
   const pick = (xs) => xs[Math.floor(rand() * xs.length)];
   const cp = () => pick(chars).codePointAt(0);
+  const shorthand = () => ({ name: pick(["d", "w", "s"]), negated: rand() < 0.5 });
   const leaf = () => pick([
     () => ({ type: "empty" }),
     () => ({ type: "char", cp: cp() }),
@@ -31,11 +34,13 @@ export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, sp
         const [x, y] = [cp(), cp()].sort((p, q) => p - q);
         return rand() < 0.5 ? [x, x] : [x, y];
       });
-      return { type: "class", negated: rand() < 0.5, ranges };
+      const extra = shorthands && rand() < 0.3 ? { shorthands: [shorthand()] } : {};
+      return { type: "class", negated: rand() < 0.5, ranges, ...extra };
     },
+    ...(shorthands ? [() => ({ type: "shorthand", ...shorthand() })] : []),
   ])();
   if (depth === 0) return leaf();
-  const sub = () => randomAst(rand, depth - 1, { chars, logic, spatial, modifiers });
+  const sub = () => randomAst(rand, depth - 1, { chars, logic, spatial, modifiers, shorthands });
   const items = (type) => {
     const out = [];
     for (let i = 0, n = 2 + Math.floor(rand() * 2); i < n; i++) {
@@ -77,11 +82,21 @@ export function toRegExp(node) {
     case "empty": return "(?:)";
     case "char": return ch(node.cp);
     case "any": return "[^]";
-    case "class":
-      return `[${node.negated ? "^" : ""}${node.ranges.map(([lo, hi]) => `${ch(lo)}-${ch(hi)}`).join("")}]`;
+    case "class": {
+      const shorthands = (node.shorthands ?? []).map(jsShorthand).join("");
+      return `[${node.negated ? "^" : ""}${node.ranges.map(([lo, hi]) => `${ch(lo)}-${ch(hi)}`).join("")}${shorthands}]`;
+    }
+    case "shorthand": return node.name === "s" ? `[${jsShorthand(node)}]` : formatShorthand(node);
     case "repeat": return `(?:${toRegExp(node.node)}){${node.min},${node.max ?? ""}}`;
     case "concat": return node.items.map((n) => `(?:${toRegExp(n)})`).join("");
     case "alt": return `(?:${node.items.map(toRegExp).join("|")})`;
     default: throw new Error(node.type);
   }
+}
+
+// JavaScript's \s includes Unicode spaces, so ASCII whitespace is written out; there's no
+// way to write \S inside a class with the u flag, but the v flag allows a nested class
+function jsShorthand(sh) {
+  if (sh.name !== "s") return formatShorthand(sh);
+  return sh.negated ? "[^\\t-\\r ]" : "\\t-\\r ";
 }

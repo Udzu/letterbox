@@ -8,7 +8,7 @@
 //                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
 //   postfix        A* A+ A? A{m} A{m,} A{m,n}
-//   atoms          a \* . @ [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C)
+//   atoms          a \* . @ \d [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C)
 //
 // Every node has a `span` of [start, end) UTF-16 offsets into the pattern, for error
 // reporting and highlighting. Parentheses aren't kept as nodes; `format` adds back the ones
@@ -19,7 +19,10 @@
 //   { type: "char", cp }                             a single code point
 //   { type: "any" }                                  any single character (.)
 //   { type: "words" }                                any word in the word list (@)
-//   { type: "class", negated, ranges: [[lo, hi]] }   ranges as written, inclusive
+//   { type: "class", negated, ranges: [[lo, hi]] }   ranges as written, inclusive, plus
+//                                                    shorthands: [...] if it has any
+//   { type: "shorthand", name, negated }             \d \w \s, or their complements \D \W \S
+//                                                    if negated (see shorthands.js)
 //   { type: "repeat", node, min, max }               max is null if unbounded
 //   { type: "concat", items }                        2+ items
 //   { type: "alt", items }                           2+ items
@@ -34,6 +37,8 @@
 //                                                    strict
 //   { type: "split", unweave, split, left, right }   (?w:split/left/right), or (?u:...) if
 //                                                    unweave; split only uses L and R
+
+import { formatShorthand } from "./shorthands.js";
 
 export class PatternError extends Error {
   constructor(message, start, end = start + 1) {
@@ -76,6 +81,8 @@ const SPLIT_CHARS = new Set(["L", "R"].map((c) => c.codePointAt(0)));
 // error rather than a surprise
 const PCRE_FLAGS = new Set("msxnUJ-^");
 const MAX_MODIFIER_COUNT = 1000;
+// escapes for sets of characters, and the uppercase ones for their complements
+const SHORTHANDS = new Set("dDwWsS");
 
 // Slices are strict, unlike Python's: a string too short for the slice gives nothing, so
 // (?[:3]:A) is the first 3 characters of strings in A with at least 3. Returns why a slice
@@ -298,8 +305,10 @@ class Parser {
       case "@":
         this.next();
         return { type: "words", span: [start, this.pos] };
-      case "\\":
+      case "\\": {
+        if (SHORTHANDS.has(this.peek(1) ?? "")) return { type: "shorthand", ...this.parseShorthand(), span: [start, this.pos] };
         return { type: "char", cp: this.parseEscape(), span: [start, this.pos] };
+      }
       default:
         if (RESERVED.has(c)) throw this.error(`${c} is reserved: write \\${c} to match it literally`);
         this.next();
@@ -355,8 +364,8 @@ class Parser {
       throw new PatternError("Split patterns can only use the characters L and R", ...n.span);
     };
     const visit = (n) => {
-      if ((n.type === "char" && !SPLIT_CHARS.has(n.cp)) || n.type === "words") bad(n);
-      if (n.type === "class" && !n.ranges.every(([lo, hi]) => lo === hi && SPLIT_CHARS.has(lo))) bad(n);
+      if ((n.type === "char" && !SPLIT_CHARS.has(n.cp)) || n.type === "words" || n.type === "shorthand") bad(n);
+      if (n.type === "class" && (n.shorthands || !n.ranges.every(([lo, hi]) => lo === hi && SPLIT_CHARS.has(lo)))) bad(n);
       for (const child of [n.node, n.left, n.right, n.find, n.insert, n.split, ...(n.items ?? [])]) if (child) visit(child);
     };
     visit(node);
@@ -444,7 +453,23 @@ class Parser {
       }
       return cp;
     }
+    if (c === "p" || c === "P") throw this.error(`Unicode properties (\\${c}{...}) aren't supported`, start, this.pos);
+    if (c === "b" || c === "B") {
+      throw this.error(`Word boundaries (\\${c}) aren't supported, since patterns match whole strings`, start, this.pos);
+    }
     throw this.error(`Unknown escape \\${c}`, start, this.pos);
+  }
+
+  // \d \D \w \W \s \S, returning { name, negated }
+  parseShorthand() {
+    this.next();
+    const c = this.next();
+    const name = c.toLowerCase();
+    return { name, negated: c !== name };
+  }
+
+  isShorthandStart() {
+    return this.peek() === "\\" && SHORTHANDS.has(this.peek(1) ?? "");
   }
 
   // [abc], [a-z], [^a-z]; [] matches nothing and [^] matches anything
@@ -453,15 +478,26 @@ class Parser {
     this.next();
     const negated = this.eat("^");
     const ranges = [];
+    const shorthands = [];
+    const rangeError = (from) => this.error("A shorthand like \\d can't be one end of a range: write \\- for a literal -", from, this.pos);
     for (;;) {
       const c = this.peek();
       if (c === undefined) throw this.error("Missing ] to close [", start);
       if (c === "]") break;
       const loStart = this.pos;
+      if (this.isShorthandStart()) {
+        shorthands.push(this.parseShorthand());
+        if (this.peek() === "-" && this.peek(1) !== "]" && this.peek(1) !== undefined) throw rangeError(loStart);
+        continue;
+      }
       const lo = this.parseClassChar();
       // a - between two characters makes a range; at the start or end it's literal
       if (this.peek() === "-" && this.peek(1) !== "]" && this.peek(1) !== undefined) {
         this.next();
+        if (this.isShorthandStart()) {
+          this.parseShorthand();
+          throw rangeError(loStart);
+        }
         const hi = this.parseClassChar();
         if (hi < lo) throw this.error("Range is out of order", loStart, this.pos);
         ranges.push([lo, hi]);
@@ -470,7 +506,7 @@ class Parser {
       }
     }
     this.next();
-    return { type: "class", negated, ranges, span: [start, this.pos] };
+    return { type: "class", negated, ranges, ...(shorthands.length ? { shorthands } : {}), span: [start, this.pos] };
   }
 
   parseClassChar() {
@@ -508,6 +544,7 @@ function fmt(node, minLevel) {
     case "char": s = formatChar(node.cp, false); break;
     case "any": s = "."; break;
     case "words": s = "@"; break;
+    case "shorthand": s = formatShorthand(node); break;
     case "class": s = formatClass(node); break;
     case "repeat": s = fmt(node.node, ATOM) + formatQuantifier(node.min, node.max); break;
     case "concat": s = node.items.map((n) => fmt(n, LEVEL.repeat)).join(""); break;
@@ -566,9 +603,9 @@ export function formatChar(cp, inClass = false) {
   return c;
 }
 
-export function formatClass({ negated, ranges }) {
+export function formatClass({ negated, ranges, shorthands = [] }) {
   const parts = ranges.map(([lo, hi]) =>
     lo === hi ? formatChar(lo, true) : `${formatChar(lo, true)}-${formatChar(hi, true)}`,
   );
-  return `[${negated ? "^" : ""}${parts.join("")}]`;
+  return `[${negated ? "^" : ""}${parts.join("")}${shorthands.map(formatShorthand).join("")}]`;
 }

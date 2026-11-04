@@ -167,6 +167,7 @@
       <tr><td><code>.</code></td><td>any character</td></tr>
       <tr><td><code>@</code></td><td>any word in the word list, if one is loaded</td></tr>
       <tr><td><code>[abc]</code> <code>[a-z]</code> <code>[^a-z]</code></td><td>character classes (<code>[]</code> matches nothing)</td></tr>
+      <tr><td><code>\d</code> <code>\w</code> <code>\s</code></td><td>an ASCII digit; an ASCII letter or digit, or <code>_</code>; ASCII whitespace. <code>\D</code>, <code>\W</code> and <code>\S</code> are the opposites, and all of these work inside classes too, as in <code>[\d_]</code></td></tr>
       <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
       <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
       <tr><td><code>PQ</code></td><td>P followed by Q</td></tr>
@@ -452,16 +453,16 @@
       from = PATH_FS.resolve(from).slice(1);
       to = PATH_FS.resolve(to).slice(1);
       function trim2(arr) {
-        var start = 0;
-        for (; start < arr.length; start++) {
-          if (arr[start] !== "") break;
+        var start2 = 0;
+        for (; start2 < arr.length; start2++) {
+          if (arr[start2] !== "") break;
         }
         var end = arr.length - 1;
         for (; end >= 0; end--) {
           if (arr[end] !== "") break;
         }
-        if (start > end) return [];
-        return arr.slice(start, end - start + 1);
+        if (start2 > end) return [];
+        return arr.slice(start2, end - start2 + 1);
       }
       var fromParts = trim2(from.split("/"));
       var toParts = trim2(to.split("/"));
@@ -2090,11 +2091,11 @@
           };
           var lazyArray2 = this;
           lazyArray2.setDataGetter((chunkNum) => {
-            var start = chunkNum * chunkSize;
+            var start2 = chunkNum * chunkSize;
             var end = (chunkNum + 1) * chunkSize - 1;
             end = Math.min(end, datalength - 1);
             if (typeof lazyArray2.chunks[chunkNum] == "undefined") {
-              lazyArray2.chunks[chunkNum] = doXHR(start, end);
+              lazyArray2.chunks[chunkNum] = doXHR(start2, end);
             }
             if (typeof lazyArray2.chunks[chunkNum] == "undefined") abort("doXHR failed!");
             return lazyArray2.chunks[chunkNum];
@@ -2476,9 +2477,9 @@
       var yday = ydayFromDate(date) | 0;
       HEAP32[tmPtr + 28 >> 2] = yday;
       HEAP32[tmPtr + 36 >> 2] = -(date.getTimezoneOffset() * 60);
-      var start = new Date(date.getFullYear(), 0, 1);
+      var start2 = new Date(date.getFullYear(), 0, 1);
       var summerOffset = new Date(date.getFullYear(), 6, 1).getTimezoneOffset();
-      var winterOffset = start.getTimezoneOffset();
+      var winterOffset = start2.getTimezoneOffset();
       var dst = (summerOffset != winterOffset && date.getTimezoneOffset() == Math.min(winterOffset, summerOffset)) | 0;
       HEAP32[tmPtr + 32 >> 2] = dst;
       return 0;
@@ -3353,8 +3354,8 @@
     }
   };
   var NFA = class {
-    constructor(start, accepting, edges) {
-      this.start = start;
+    constructor(start2, accepting, edges) {
+      this.start = start2;
       this.accepting = accepting;
       this.edges = edges;
     }
@@ -3393,7 +3394,7 @@
       return { start: nfa2.start + offset, accepting: [...nfa2.accepting].map((s) => s + offset) };
     }
     // parallel edges to the same state are merged into one, and duplicate ε-moves dropped
-    build(start, accepting) {
+    build(start2, accepting) {
       const edges = this.edges.map((es, s) => {
         const merged = /* @__PURE__ */ new Map();
         for (const { label, to } of es) {
@@ -3405,7 +3406,7 @@
         }
         return [...merged.values()].map((e) => Object.freeze(e));
       });
-      return new NFA(start, new Set(accepting), edges);
+      return new NFA(start2, new Set(accepting), edges);
     }
   };
   function closure(nfa2, states) {
@@ -3507,7 +3508,7 @@
       }
       return dead;
     };
-    const start = id(closure(nfa2, [nfa2.start]));
+    const start2 = id(closure(nfa2, [nfa2.start]));
     for (let i = 0; i < sets.length; i++) {
       if (i === dead) continue;
       const edges = [...sets[i]].flatMap((s) => nfa2.edges[s].filter((e) => e.label !== null));
@@ -3527,7 +3528,7 @@
         }
       }
     });
-    return b.build(start, accepting);
+    return b.build(start2, accepting);
   }
   function complement(nfa2) {
     const dfa = determinize(nfa2, { complete: true });
@@ -3558,7 +3559,7 @@
       }
       return ids.get(key);
     };
-    const start = id(a.start, c.start);
+    const start2 = id(a.start, c.start);
     for (let i = 0; i < pairs.length; i++) {
       const [p, q] = pairs[i];
       for (const e of a.edges[p]) {
@@ -3578,7 +3579,7 @@
     pairs.forEach(([p, q], i) => {
       if (a.accepting.has(p) && c.accepting.has(q)) accepting.push(i);
     });
-    return trim(b.build(start, accepting));
+    return trim(b.build(start2, accepting));
   }
   function mapLabels(nfa2, f) {
     const b = new Builder();
@@ -3594,9 +3595,9 @@
     nfa2.edges.forEach((es, s) => {
       for (const { label, to } of es) b.edge(to, label, s);
     });
-    const start = b.state();
-    for (const s of nfa2.accepting) b.edge(start, null, s);
-    return b.build(start, [nfa2.start]);
+    const start2 = b.state();
+    for (const s of nfa2.accepting) b.edge(start2, null, s);
+    return b.build(start2, [nfa2.start]);
   }
   function minimize(nfa2, { maxStates = stateLimit } = {}) {
     return trim(determinize(reverse(determinize(reverse(nfa2), { maxStates })), { maxStates }));
@@ -4075,10 +4076,10 @@
       }
       return ids.get(key);
     };
-    const start = intern(closure(nfa2, [nfa2.start]));
+    const start2 = intern(closure(nfa2, [nfa2.start]));
     const dead = intern(/* @__PURE__ */ new Set());
     return (string) => {
-      let d = start;
+      let d = start2;
       for (const c of string) {
         const cp = c.codePointAt(0);
         let next = moves[d].get(cp);
@@ -4137,12 +4138,26 @@
     return b.build(idOf.get(root), accepting);
   }
 
+  // src/patterns/shorthands.js
+  var range2 = (lo, hi) => [lo.codePointAt(0), hi.codePointAt(0)];
+  var SETS = {
+    d: CharSet.from([range2("0", "9")]),
+    w: CharSet.from([range2("a", "z"), range2("A", "Z"), range2("0", "9"), range2("_", "_")]),
+    s: CharSet.from([[9, 13], range2(" ", " ")])
+  };
+  function shorthandSet({ name, negated }) {
+    return negated ? SETS[name].complement() : SETS[name];
+  }
+  function formatShorthand({ name, negated }) {
+    return `\\${negated ? name.toUpperCase() : name}`;
+  }
+
   // src/patterns/parser.js
   var PatternError = class extends Error {
-    constructor(message, start, end = start + 1) {
+    constructor(message, start2, end = start2 + 1) {
       super(message);
       this.name = "PatternError";
-      this.span = [start, end];
+      this.span = [start2, end];
     }
   };
   var RESERVED = new Set('!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~');
@@ -4192,13 +4207,14 @@
   var SPLIT_CHARS = new Set(["L", "R"].map((c) => c.codePointAt(0)));
   var PCRE_FLAGS = new Set("msxnUJ-^");
   var MAX_MODIFIER_COUNT = 1e3;
-  function sliceError(start, stop, step2) {
+  var SHORTHANDS = new Set("dDwWsS");
+  function sliceError(start2, stop, step2) {
     if (step2 === 0) return "Slice step can't be 0";
     if (step2 !== null && step2 < 0) return "Slice step can't be negative: use (?r:...) to reverse";
-    if (start !== null && start < 0 && stop !== null && stop >= 0) {
+    if (start2 !== null && start2 < 0 && stop !== null && stop >= 0) {
       return "A slice can't have a negative start and a non-negative stop";
     }
-    if (start !== null && stop !== null && start < 0 === stop < 0 && start > stop) {
+    if (start2 !== null && stop !== null && start2 < 0 === stop < 0 && start2 > stop) {
       return "Slice start is after its stop";
     }
     return null;
@@ -4234,9 +4250,9 @@
       this.pos += c.length;
       return true;
     }
-    error(message, start = this.pos, end) {
-      const here = this.src.codePointAt(start);
-      return new PatternError(message, start, end ?? start + (here === void 0 ? 0 : here > 65535 ? 2 : 1));
+    error(message, start2 = this.pos, end) {
+      const here = this.src.codePointAt(start2);
+      return new PatternError(message, start2, end ?? start2 + (here === void 0 ? 0 : here > 65535 ? 2 : 1));
     }
     parsePattern() {
       const node2 = this.parseAlt();
@@ -4252,20 +4268,20 @@
     }
     // alternation branches may be empty, as in "a|" or "()"
     parseAlt() {
-      const start = this.pos;
+      const start2 = this.pos;
       const items = [this.parseAnd() ?? this.emptyAt(this.pos)];
       while (this.peek() === "|") {
         this.next();
         items.push(this.parseAnd() ?? this.emptyAt(this.pos));
       }
-      return combine("alt", items, start, this.pos);
+      return combine("alt", items, start2, this.pos);
     }
     emptyAt(pos) {
       return { type: "empty", span: [pos, pos] };
     }
     // returns null if there's nothing to parse, so callers can decide whether that's allowed
     parseAnd() {
-      const start = this.pos;
+      const start2 = this.pos;
       const first = this.parseNot();
       if (this.peek() !== "&") return first;
       if (first === null) throw this.error("Missing operand before &");
@@ -4277,21 +4293,21 @@
         if (item === null) throw this.error("Missing operand after &", opPos);
         items.push(item);
       }
-      return combine("and", items, start, this.pos);
+      return combine("and", items, start2, this.pos);
     }
     parseNot() {
       if (this.peek() !== "!") return this.parseSpatial();
-      const start = this.pos;
+      const start2 = this.pos;
       this.next();
       const node2 = this.parseNot();
-      if (node2 === null) throw this.error("Missing operand after !", start);
-      return { type: "not", node: node2, span: [start, this.pos] };
+      if (node2 === null) throw this.error("Missing operand after !", start2);
+      return { type: "not", node: node2, span: [start2, this.pos] };
     }
     peekSpatial() {
       return SPATIAL_BY_LENGTH.find((op) => this.src.startsWith(op, this.pos)) ?? null;
     }
     parseSpatial() {
-      const start = this.pos;
+      const start2 = this.pos;
       let left = this.parseConcat();
       const first = this.peekSpatial();
       if (first === null) return left;
@@ -4307,12 +4323,12 @@
           if (this.peek() === "!") throw this.error(`Parenthesise ! after ${op}, as in a${op}(!b)`);
           throw this.error(`Missing operand after ${op}`, opPos, opPos + op.length);
         }
-        left = { type: "spatial", op, left, right, span: [start, this.pos] };
+        left = { type: "spatial", op, left, right, span: [start2, this.pos] };
       }
       return left;
     }
     parseConcat() {
-      const start = this.pos;
+      const start2 = this.pos;
       const items = [];
       for (; ; ) {
         const item = this.parsePostfix();
@@ -4321,10 +4337,10 @@
       }
       if (items.length === 0) return null;
       if (this.peek() === "!") throw this.error("Parenthesise ! inside a sequence, as in a(!b)");
-      return combine("concat", items, start, this.pos);
+      return combine("concat", items, start2, this.pos);
     }
     parsePostfix() {
-      const start = this.pos;
+      const start2 = this.pos;
       const atom = this.parseAtom();
       if (atom === null) {
         if (this.isQuantifierStart()) throw this.error("Nothing to repeat");
@@ -4335,40 +4351,40 @@
       if (this.isQuantifierStart()) {
         throw this.error("Parenthesise a repetition before repeating it again, as in (a*)?");
       }
-      return { type: "repeat", node: atom, min, max, span: [start, this.pos] };
+      return { type: "repeat", node: atom, min, max, span: [start2, this.pos] };
     }
     isQuantifierStart() {
       const c = this.peek();
       return c === "*" || c === "+" || c === "?" || c === "{";
     }
     parseQuantifier() {
-      const start = this.pos;
+      const start2 = this.pos;
       const c = this.next();
       if (c === "*") return [0, null];
       if (c === "+") return [1, null];
       if (c === "?") return [0, 1];
-      const min = this.parseCount(start);
+      const min = this.parseCount(start2);
       let max = min;
-      if (this.eat(",")) max = this.peek() === "}" ? null : this.parseCount(start);
-      if (!this.eat("}")) throw this.error("Expected } to close repetition", start, this.pos);
+      if (this.eat(",")) max = this.peek() === "}" ? null : this.parseCount(start2);
+      if (!this.eat("}")) throw this.error("Expected } to close repetition", start2, this.pos);
       if (max !== null && max < min) {
-        throw this.error(`Repetition minimum ${min} is larger than maximum ${max}`, start, this.pos);
+        throw this.error(`Repetition minimum ${min} is larger than maximum ${max}`, start2, this.pos);
       }
       return [min, max];
     }
     parseCount(braceStart) {
-      const start = this.pos;
+      const start2 = this.pos;
       while (/[0-9]/.test(this.peek() ?? "")) this.next();
-      if (start === this.pos) {
+      if (start2 === this.pos) {
         throw this.error("Expected a number in repetition, as in {2}, {2,} or {2,5}", braceStart, this.pos + 1);
       }
-      const n = Number(this.src.slice(start, this.pos));
-      if (n > MAX_REPEAT) throw this.error(`Repetition count can be at most ${MAX_REPEAT}`, start, this.pos);
+      const n = Number(this.src.slice(start2, this.pos));
+      if (n > MAX_REPEAT) throw this.error(`Repetition count can be at most ${MAX_REPEAT}`, start2, this.pos);
       return n;
     }
     // returns null at the end, or at a character that ends or separates sequences
     parseAtom() {
-      const start = this.pos;
+      const start2 = this.pos;
       const c = this.peek();
       if (c === void 0 || this.peekSpatial() !== null) return null;
       switch (c) {
@@ -4390,36 +4406,38 @@
           return this.parseClass();
         case ".":
           this.next();
-          return { type: "any", span: [start, this.pos] };
+          return { type: "any", span: [start2, this.pos] };
         case "@":
           this.next();
-          return { type: "words", span: [start, this.pos] };
-        case "\\":
-          return { type: "char", cp: this.parseEscape(), span: [start, this.pos] };
+          return { type: "words", span: [start2, this.pos] };
+        case "\\": {
+          if (SHORTHANDS.has(this.peek(1) ?? "")) return { type: "shorthand", ...this.parseShorthand(), span: [start2, this.pos] };
+          return { type: "char", cp: this.parseEscape(), span: [start2, this.pos] };
+        }
         default:
           if (RESERVED.has(c)) throw this.error(`${c} is reserved: write \\${c} to match it literally`);
           this.next();
-          return { type: "char", cp: c.codePointAt(0), span: [start, this.pos] };
+          return { type: "char", cp: c.codePointAt(0), span: [start2, this.pos] };
       }
     }
     parseGroup() {
-      const start = this.pos;
+      const start2 = this.pos;
       this.next();
-      const modifier2 = this.peek() === "?" ? this.parseModifier(start) : null;
-      if (modifier2?.type === "parts") return this.parseParts(start, modifier2.flag);
+      const modifier2 = this.peek() === "?" ? this.parseModifier(start2) : null;
+      if (modifier2?.type === "parts") return this.parseParts(start2, modifier2.flag);
       const node2 = this.parseAlt();
-      this.closeGroup(start);
-      return modifier2 ? { ...modifier2, node: node2, span: [start, this.pos] } : node2;
+      this.closeGroup(start2);
+      return modifier2 ? { ...modifier2, node: node2, span: [start2, this.pos] } : node2;
     }
-    closeGroup(start) {
+    closeGroup(start2) {
       if (this.eat(")")) return;
       if (this.peek() === "/") throw this.slashError();
       if (this.pos < this.src.length) throw this.error(`Unexpected ${this.peek()}`);
-      throw this.error("Missing ) to close (", start);
+      throw this.error("Missing ) to close (", start2);
     }
     // the "A/B/C)" of a replacement or custom split, whose parts are separated by / at the top
     // level
-    parseParts(start, flag) {
+    parseParts(start2, flag) {
       const parts2 = [this.parseAlt()];
       while (this.peek() === "/") {
         if (parts2.length === 3) {
@@ -4429,10 +4447,10 @@
         parts2.push(this.parseAlt());
       }
       if (parts2.length < 3 && this.peek() === ")") {
-        throw this.error(`(?${flag}:...) needs three parts, as in (?${flag}:${PARTS_EXAMPLE[flag]})`, start, this.pos + 1);
+        throw this.error(`(?${flag}:...) needs three parts, as in (?${flag}:${PARTS_EXAMPLE[flag]})`, start2, this.pos + 1);
       }
-      this.closeGroup(start);
-      const span = [start, this.pos];
+      this.closeGroup(start2);
+      const span = [start2, this.pos];
       if (flag === "z" || flag === "Z") {
         const [node2, find, insert] = parts2;
         return { type: "replace", strict: flag === "Z", node: node2, find, insert, span };
@@ -4447,8 +4465,8 @@
         throw new PatternError("Split patterns can only use the characters L and R", ...n.span);
       };
       const visit = (n) => {
-        if (n.type === "char" && !SPLIT_CHARS.has(n.cp) || n.type === "words") bad(n);
-        if (n.type === "class" && !n.ranges.every(([lo, hi]) => lo === hi && SPLIT_CHARS.has(lo))) bad(n);
+        if (n.type === "char" && !SPLIT_CHARS.has(n.cp) || n.type === "words" || n.type === "shorthand") bad(n);
+        if (n.type === "class" && (n.shorthands || !n.ranges.every(([lo, hi]) => lo === hi && SPLIT_CHARS.has(lo)))) bad(n);
         for (const child of [n.node, n.left, n.right, n.find, n.insert, n.split, ...n.items ?? []]) if (child) visit(child);
       };
       visit(node2);
@@ -4489,65 +4507,90 @@
     }
     // an optionally negative number, as in a modifier count or slice index
     parseSignedNumber(where) {
-      const start = this.pos;
+      const start2 = this.pos;
       this.eat("-");
       while (/[0-9]/.test(this.peek() ?? "")) this.next();
-      const text = this.src.slice(start, this.pos);
-      if (!/^-?[0-9]+$/.test(text)) throw this.error(`Expected a number ${where}`, start, this.pos);
+      const text = this.src.slice(start2, this.pos);
+      if (!/^-?[0-9]+$/.test(text)) throw this.error(`Expected a number ${where}`, start2, this.pos);
       const n = Number(text);
-      if (Math.abs(n) > MAX_MODIFIER_COUNT) throw this.error(`Number can be at most ${MAX_MODIFIER_COUNT}`, start, this.pos);
+      if (Math.abs(n) > MAX_MODIFIER_COUNT) throw this.error(`Number can be at most ${MAX_MODIFIER_COUNT}`, start2, this.pos);
       return n;
     }
     // "[start:stop:step]:" after the "(?", where every part is optional, as is the second ":"
     parseSlice(groupStart) {
       this.next();
       const part = () => /[-0-9]/.test(this.peek() ?? "") ? this.parseSignedNumber("in slice") : null;
-      const start = part();
+      const start2 = part();
       if (!this.eat(":")) throw this.error("Expected : in slice, as in (?[1:-1]:abc)", groupStart, this.pos);
       const stop = part();
       const step2 = this.eat(":") ? part() : null;
       if (!this.eat("]")) throw this.error("Expected ] to close slice", groupStart, this.pos);
-      const problem = sliceError(start, stop, step2);
+      const problem = sliceError(start2, stop, step2);
       if (problem) throw this.error(problem, groupStart, this.pos);
       if (!this.eat(":")) throw this.error("Expected : after slice, as in (?[1:-1]:abc)", groupStart, this.pos);
-      return { type: "slice", start, stop, step: step2 };
+      return { type: "slice", start: start2, stop, step: step2 };
     }
     // returns the escaped code point
     parseEscape() {
-      const start = this.pos;
+      const start2 = this.pos;
       this.next();
       const c = this.next();
-      if (c === void 0) throw this.error("Pattern can't end with \\", start);
+      if (c === void 0) throw this.error("Pattern can't end with \\", start2);
       if (RESERVED.has(c) || c === "'") return c.codePointAt(0);
       if (c in NAMED_ESCAPES) return NAMED_ESCAPES[c];
       if (c === "u") {
-        if (!this.eat("{")) throw this.error("Expected { after \\u, as in \\u{e9}", start, this.pos);
+        if (!this.eat("{")) throw this.error("Expected { after \\u, as in \\u{e9}", start2, this.pos);
         const hexStart = this.pos;
         while (this.peek() !== void 0 && this.peek() !== "}") this.next();
         const hex = this.src.slice(hexStart, this.pos);
-        if (!this.eat("}")) throw this.error("Missing } to close \\u{", start, this.pos);
+        if (!this.eat("}")) throw this.error("Missing } to close \\u{", start2, this.pos);
         const cp = HEX.test(hex) ? parseInt(hex, 16) : NaN;
         if (!(cp <= 1114111) || cp >= 55296 && cp <= 57343) {
-          throw this.error(`Invalid code point \\u{${hex}}`, start, this.pos);
+          throw this.error(`Invalid code point \\u{${hex}}`, start2, this.pos);
         }
         return cp;
       }
-      throw this.error(`Unknown escape \\${c}`, start, this.pos);
+      if (c === "p" || c === "P") throw this.error(`Unicode properties (\\${c}{...}) aren't supported`, start2, this.pos);
+      if (c === "b" || c === "B") {
+        throw this.error(`Word boundaries (\\${c}) aren't supported, since patterns match whole strings`, start2, this.pos);
+      }
+      throw this.error(`Unknown escape \\${c}`, start2, this.pos);
+    }
+    // \d \D \w \W \s \S, returning { name, negated }
+    parseShorthand() {
+      this.next();
+      const c = this.next();
+      const name = c.toLowerCase();
+      return { name, negated: c !== name };
+    }
+    isShorthandStart() {
+      return this.peek() === "\\" && SHORTHANDS.has(this.peek(1) ?? "");
     }
     // [abc], [a-z], [^a-z]; [] matches nothing and [^] matches anything
     parseClass() {
-      const start = this.pos;
+      const start2 = this.pos;
       this.next();
       const negated = this.eat("^");
       const ranges = [];
+      const shorthands = [];
+      const rangeError = (from) => this.error("A shorthand like \\d can't be one end of a range: write \\- for a literal -", from, this.pos);
       for (; ; ) {
         const c = this.peek();
-        if (c === void 0) throw this.error("Missing ] to close [", start);
+        if (c === void 0) throw this.error("Missing ] to close [", start2);
         if (c === "]") break;
         const loStart = this.pos;
+        if (this.isShorthandStart()) {
+          shorthands.push(this.parseShorthand());
+          if (this.peek() === "-" && this.peek(1) !== "]" && this.peek(1) !== void 0) throw rangeError(loStart);
+          continue;
+        }
         const lo = this.parseClassChar();
         if (this.peek() === "-" && this.peek(1) !== "]" && this.peek(1) !== void 0) {
           this.next();
+          if (this.isShorthandStart()) {
+            this.parseShorthand();
+            throw rangeError(loStart);
+          }
           const hi = this.parseClassChar();
           if (hi < lo) throw this.error("Range is out of order", loStart, this.pos);
           ranges.push([lo, hi]);
@@ -4556,7 +4599,7 @@
         }
       }
       this.next();
-      return { type: "class", negated, ranges, span: [start, this.pos] };
+      return { type: "class", negated, ranges, ...shorthands.length ? { shorthands } : {}, span: [start2, this.pos] };
     }
     parseClassChar() {
       const c = this.peek();
@@ -4566,9 +4609,9 @@
       return c.codePointAt(0);
     }
   };
-  function combine(type, items, start, end) {
+  function combine(type, items, start2, end) {
     if (items.length === 1) return items[0];
-    return { type, items: items.flatMap((n) => n.type === type ? n.items : [n]), span: [start, end] };
+    return { type, items: items.flatMap((n) => n.type === type ? n.items : [n]), span: [start2, end] };
   }
   var PRINTABLE3 = /^[\p{L}\p{N}\p{P}\p{S} ]$/u;
   function formatChar(cp, inClass = false) {
@@ -4580,11 +4623,11 @@
     if (inClass ? "\\]^-[".includes(c) : RESERVED.has(c)) return "\\" + c;
     return c;
   }
-  function formatClass({ negated, ranges }) {
+  function formatClass({ negated, ranges, shorthands = [] }) {
     const parts2 = ranges.map(
       ([lo, hi]) => lo === hi ? formatChar(lo, true) : `${formatChar(lo, true)}-${formatChar(hi, true)}`
     );
-    return `[${negated ? "^" : ""}${parts2.join("")}]`;
+    return `[${negated ? "^" : ""}${parts2.join("")}${shorthands.map(formatShorthand).join("")}]`;
   }
 
   // src/patterns/letters.js
@@ -4686,7 +4729,7 @@
       }
       return ids.get(key);
     };
-    const start = id("x", a.start, 0);
+    const start2 = id("x", a.start, 0);
     const accepting = [];
     for (let i = 0; i < states.length; i++) {
       const [phase, p, other] = states[i];
@@ -4713,7 +4756,7 @@
           break;
       }
     }
-    return builder.build(start, accepting);
+    return builder.build(start2, accepting);
   }
 
   // src/patterns/rotate.js
@@ -4731,8 +4774,8 @@
       }
       return ids.get(key);
     };
-    const start = builder.state();
-    for (let m = 0; m < a.size; m++) builder.edge(start, null, id(m, m, 0, 0));
+    const start2 = builder.state();
+    for (let m = 0; m < a.size; m++) builder.edge(start2, null, id(m, m, 0, 0));
     const accepting = [];
     for (let i = 0; i < states.length; i++) {
       const [m, q, phase, k] = states[i];
@@ -4746,7 +4789,7 @@
         if (phase === 1 && q === m) accepting.push(i + 1);
       }
     }
-    return builder.build(start, accepting);
+    return builder.build(start2, accepting);
   }
 
   // src/patterns/weave.js
@@ -4764,7 +4807,7 @@
       }
       return ids.get(key);
     };
-    const start = id(a.start, b.start, split.start);
+    const start2 = id(a.start, b.start, split.start);
     for (let i = 0; i < triples.length; i++) {
       const [p, q, s] = triples[i];
       for (const e of a.edges[p]) if (e.label === null) builder.edge(i, null, id(e.to, q, s));
@@ -4778,7 +4821,7 @@
     triples.forEach(([p, q, s], i) => {
       if (a.accepting.has(p) && b.accepting.has(q) && split.accepting.has(s)) accepting.push(i);
     });
-    return builder.build(start, accepting);
+    return builder.build(start2, accepting);
   }
   function weave(a, b, split) {
     return product2(a, b, split, (builder, i, p, q, g, id) => {
@@ -4845,9 +4888,9 @@
   }
   function compile(ast, options = {}) {
     const b = new Builder();
-    const start = b.state();
-    const end = build(b, ast, start, options);
-    return b.build(start, [end]);
+    const start2 = b.state();
+    const end = build(b, ast, start2, options);
+    return b.build(start2, [end]);
   }
   function build(b, node2, from, options) {
     const chars = (set2) => options.caseless ? caseClose(set2) : set2;
@@ -4863,9 +4906,12 @@
         return embed(b, options.caseless ? mapLabels(options.words, caseClose) : options.words, from);
       }
       case "class": {
-        const set2 = chars(CharSet.from(node2.ranges.map(([lo, hi]) => [lo, hi])));
+        const shorthands = (node2.shorthands ?? []).map((sh) => shorthand(sh, chars));
+        const set2 = shorthands.reduce((x, y) => x.union(y), chars(CharSet.from(node2.ranges.map(([lo, hi]) => [lo, hi]))));
         return step(b, from, node2.negated ? set2.complement() : set2);
       }
+      case "shorthand":
+        return step(b, from, shorthand(node2, chars));
       case "concat":
         return node2.items.reduce((at, item) => build(b, item, at, options), from);
       case "alt": {
@@ -4902,6 +4948,10 @@
         throw new Error(`Unknown node type ${node2.type}`);
     }
   }
+  function shorthand(sh, chars) {
+    const set2 = chars(shorthandSet({ name: sh.name, negated: false }));
+    return sh.negated ? set2.complement() : set2;
+  }
   function step(b, from, label) {
     const end = b.state();
     b.edge(from, label, end);
@@ -4930,20 +4980,20 @@
         throw new Error(`Unknown modifier ${flag}`);
     }
   }
-  function slice(a, { start, stop, step: step2 }) {
+  function slice(a, { start: start2, stop, step: step2 }) {
     const length = (n) => compile(parse(`.{${n}}`));
     const anything = compile(parse(".*"));
     const fromEnd = (x, y) => subtract("-", x, y);
     const fromStart = (x, y) => subtract("_-", x, y);
     let middle;
-    if (start === null || start >= 0) {
-      const rest = fromStart(a, length(start ?? 0));
+    if (start2 === null || start2 >= 0) {
+      const rest = fromStart(a, length(start2 ?? 0));
       if (stop === null) middle = rest;
-      else if (stop >= 0) middle = intersect(fromEnd(rest, anything), length(stop - (start ?? 0)));
+      else if (stop >= 0) middle = intersect(fromEnd(rest, anything), length(stop - (start2 ?? 0)));
       else middle = fromEnd(rest, length(-stop));
     } else {
       const rest = stop === null ? a : fromEnd(a, length(-stop));
-      middle = intersect(fromStart(rest, anything), length(-start + (stop ?? 0)));
+      middle = intersect(fromStart(rest, anything), length(-start2 + (stop ?? 0)));
     }
     if (step2 === null || step2 === 1) return middle;
     const split = `(LR{${step2 - 1}})*(LR{0,${step2 - 2}})?`;
@@ -4987,8 +5037,8 @@
     return end;
   }
   function embed(b, nfa2, from) {
-    const { start, accepting } = b.embed(nfa2);
-    b.edge(from, null, start);
+    const { start: start2, accepting } = b.embed(nfa2);
+    b.edge(from, null, start2);
     const end = b.state();
     for (const s of accepting) b.edge(s, null, end);
     return end;
@@ -5131,9 +5181,9 @@
       });
     } catch (e) {
       if (e instanceof PatternError) {
-        const [start, end] = e.span;
+        const [start2, end] = e.span;
         $("error").textContent = e.message;
-        $("pattern-backdrop").innerHTML = escapeHtml(pattern.slice(0, start)) + `<span class="error-span">${escapeHtml(pattern.slice(start, end))}</span>` + escapeHtml(pattern.slice(end)) + "\n";
+        $("pattern-backdrop").innerHTML = escapeHtml(pattern.slice(0, start2)) + `<span class="error-span">${escapeHtml(pattern.slice(start2, end))}</span>` + escapeHtml(pattern.slice(end)) + "\n";
       } else if (e instanceof TooManyStatesError) {
         message = `This view is too large to build: ${e.message}.`;
       } else {
@@ -5241,10 +5291,10 @@
       button.textContent = label;
       setTimeout(() => button.textContent = "Copy", 1500);
     };
-    const range2 = document.createRange();
-    range2.selectNodeContents($("regex"));
+    const range3 = document.createRange();
+    range3.selectNodeContents($("regex"));
     getSelection().removeAllRanges();
-    getSelection().addRange(range2);
+    getSelection().addRange(range3);
     let copied = false;
     try {
       copied = document.execCommand("copy");
@@ -5472,9 +5522,19 @@
   });
   $("clear-words").disabled = true;
   $("words-info").textContent = "None loaded";
+  var started = false;
+  var start = () => {
+    if (!started) update();
+    started = true;
+  };
+  setTimeout(start, 1e3);
   fetchWordList().then((stored) => {
-    if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));
-    else update();
+    if (stored && wordList === null) {
+      started = true;
+      setWordList(makeWordList(stored.name, parseWords(stored.text)));
+    } else {
+      start();
+    }
   });
 })();
 </script>
