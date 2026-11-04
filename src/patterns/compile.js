@@ -69,6 +69,7 @@ function splitDfa(split) {
 // options: { caseless } makes every character comparison case-insensitive, and { words }
 // is the word list's automaton, which @ matches (see wordsAutomaton in wordlist.js)
 export function compile(ast, options = {}) {
+  if (!options.names) options = { ...options, names: definitions(ast) };
   const b = new Builder();
   const start = b.state();
   const end = build(b, ast, start, options);
@@ -85,6 +86,9 @@ function build(b, node, from, options) {
       return step(b, from, chars(CharSet.of(node.cp)));
     case "any":
       return step(b, from, CharSet.ALL);
+    case "define":
+    case "ref":
+      return embed(b, named(node.name, options), from);
     case "words": {
       if (!options.words) throw new PatternError("No word list loaded: load one below to use @", ...node.span);
       return embed(b, options.caseless ? mapLabels(options.words, caseClose) : options.words, from);
@@ -139,6 +143,31 @@ function build(b, node, from, options) {
 function shorthand(sh, chars) {
   const set = chars(shorthandSet({ ...sh, negated: false }));
   return sh.negated ? set.complement() : set;
+}
+
+// Named patterns (see the parser) are compiled once, with the modifiers where they're
+// defined, as in PCRE, so a name always means the same thing. This finds each definition
+// and whether it's inside (?i:...); names are checked to be unique and not to refer to
+// themselves when parsing.
+function definitions(ast) {
+  const names = new Map();
+  const visit = (node, caseless) => {
+    if (node.type === "define") names.set(node.name, { node: node.node, caseless, nfa: null });
+    if (node.type === "modifier" && node.flag === "i") caseless = true;
+    // a custom split's split part isn't affected by modifiers
+    if (node.type === "split") visit(node.split, false);
+    for (const child of [node.node, node.left, node.right, node.find, node.insert, ...(node.items ?? [])]) {
+      if (child) visit(child, caseless);
+    }
+  };
+  visit(ast, false);
+  return names;
+}
+
+function named(name, options) {
+  const entry = options.names.get(name);
+  entry.nfa ??= compile(entry.node, { ...options, caseless: entry.caseless });
+  return entry.nfa;
 }
 
 function step(b, from, label) {

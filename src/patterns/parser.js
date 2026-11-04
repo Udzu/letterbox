@@ -8,7 +8,7 @@
 //                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
 //   postfix        A* A+ A? A{m} A{m,} A{m,n}
-//   atoms          a \* . @ \d \p{L} [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C)
+//   atoms          a \* . @ \d \p{L} [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C) (?<v>A) (?&v)
 //
 // Every node has a `span` of [start, end) UTF-16 offsets into the pattern, for error
 // reporting and highlighting. Parentheses aren't kept as nodes; `format` adds back the ones
@@ -38,6 +38,13 @@
 //                                                    strict
 //   { type: "split", unweave, split, left, right }   (?w:split/left/right), or (?u:...) if
 //                                                    unweave; split only uses L and R
+//   { type: "define", name, node }                   (?<name>node): matches node, and names it
+//   { type: "ref", name }                            (?&name): matches the named pattern again
+//
+// Names can be used before they're defined, but can't refer to themselves (directly or not),
+// since that could describe languages that aren't regular, and must be unique. A custom
+// split's names are separate: its split can only use names defined in the split, and the
+// rest of the pattern can't use those.
 
 import { formatShorthand, isProperty } from "./shorthands.js";
 
@@ -82,6 +89,7 @@ const SPLIT_CHARS = new Set(["L", "R"].map((c) => c.codePointAt(0)));
 // error rather than a surprise
 const PCRE_FLAGS = new Set("msxnUJ-^");
 const MAX_MODIFIER_COUNT = 1000;
+const NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 // escapes for sets of characters, and the uppercase ones for their complements
 const SHORTHANDS = new Set("dDwWsSpP");
 
@@ -152,6 +160,7 @@ class Parser {
       if (this.peek() === "/") throw this.slashError();
       throw this.error(`Unexpected ${this.peek()}`);
     }
+    checkNames(node);
     return node;
   }
 
@@ -322,6 +331,7 @@ class Parser {
     this.next();
     const modifier = this.peek() === "?" ? this.parseModifier(start) : null;
     if (modifier?.type === "parts") return this.parseParts(start, modifier.flag);
+    if (modifier?.type === "ref") return { ...modifier, span: [start, this.pos] };
     const node = this.parseAlt();
     this.closeGroup(start);
     return modifier ? { ...modifier, node, span: [start, this.pos] } : node;
@@ -380,6 +390,7 @@ class Parser {
     const here = () => [groupStart, this.pos];
     if (flag === undefined) throw this.error("Missing modifier after (?", ...here());
     if (flag === "[") return this.parseSlice(groupStart);
+    if (flag === "<" || flag === "&") return this.parseName(groupStart, flag);
     if (PCRE_FLAGS.has(flag)) {
       const hint = flag === "s" ? ": for a cipher shift, write (?c:...)" : "";
       throw this.error(`(?${flag} is a PCRE flag, which isn't supported${hint}`, groupStart, this.pos + 1);
@@ -405,6 +416,25 @@ class Parser {
     }
     if (MODIFIERS[flag].parts) return { type: "parts", flag };
     return { type: "modifier", flag, count };
+  }
+
+  // the "<name>" of (?<name>...), or the "&name)" of (?&name), after the "(?"
+  parseName(groupStart, flag) {
+    this.next();
+    if (flag === "<" && (this.peek() === "=" || this.peek() === "!")) {
+      throw this.error("Lookbehind isn't supported", groupStart, this.pos + 1);
+    }
+    const nameStart = this.pos;
+    const end = flag === "<" ? ">" : ")";
+    while (this.peek() !== undefined && this.peek() !== end) this.next();
+    const name = this.src.slice(nameStart, this.pos);
+    if (!this.eat(end)) {
+      throw this.error(`Missing ${end} after (?${flag}${name}, as in ${flag === "<" ? "(?<v>[aeiou])" : "(?&v)"}`, groupStart, this.pos);
+    }
+    if (!NAME.test(name)) {
+      throw this.error("Names use ASCII letters, digits and _, and can't start with a digit", nameStart, this.pos - 1);
+    }
+    return flag === "<" ? { type: "define", name } : { type: "ref", name };
   }
 
   // an optionally negative number, as in a modifier count or slice index
@@ -453,6 +483,9 @@ class Parser {
         throw this.error(`Invalid code point \\u{${hex}}`, start, this.pos);
       }
       return cp;
+    }
+    if (c === "k" || /[1-9]/.test(c)) {
+      throw this.error(`Backreferences (\\${c}) aren't supported, since they match the same text again: (?&name) matches the same pattern`, start, this.pos);
     }
     if (c === "b" || c === "B") {
       throw this.error(`Word boundaries (\\${c}) aren't supported, since patterns match whole strings`, start, this.pos);
@@ -527,6 +560,65 @@ class Parser {
   }
 }
 
+// Check that every name is defined once and used only where it's visible, and that no name
+// refers to itself. A custom split's split part has its own names (see the top of the file).
+function checkNames(root) {
+  const definitions = new Map(); // name → define node, across all scopes
+  const scopes = []; // { defines, refs }
+  const collect = (node, scope) => {
+    if (node.type === "define") {
+      if (definitions.has(node.name)) throw new PatternError(`${node.name} is defined more than once`, ...node.span);
+      definitions.set(node.name, node);
+      scope.defines.add(node.name);
+    }
+    if (node.type === "ref") scope.refs.push(node);
+    if (node.type === "split") {
+      const inner = { defines: new Set(), refs: [] };
+      scopes.push(inner);
+      collect(node.split, inner);
+    }
+    for (const child of [node.node, node.left, node.right, node.find, node.insert, ...(node.items ?? [])]) {
+      if (child) collect(child, scope);
+    }
+  };
+  const top = { defines: new Set(), refs: [] };
+  scopes.push(top);
+  collect(root, top);
+  for (const { defines, refs } of scopes) {
+    for (const ref of refs) {
+      if (!defines.has(ref.name)) {
+        const where = definitions.has(ref.name) ? ` here: names in a custom split's split and the rest of the pattern are separate` : "";
+        throw new PatternError(`${ref.name} isn't defined${where}`, ...ref.span);
+      }
+    }
+  }
+  // the names each definition uses, to look for cycles
+  const uses = new Map();
+  const usesIn = (node, out) => {
+    if (node.type === "ref") out.add(node.name);
+    for (const child of [node.node, node.left, node.right, node.find, node.insert, node.split, ...(node.items ?? [])]) {
+      if (child) usesIn(child, out);
+    }
+    return out;
+  };
+  for (const [name, node] of definitions) uses.set(name, usesIn(node.node, new Set()));
+  const done = new Set();
+  const visit = (name, path) => {
+    if (path.includes(name)) {
+      // as in "a refers to b, which refers to a"
+      const cycle = path.slice(path.indexOf(name));
+      const message = cycle.length === 1
+        ? `${name} refers to itself`
+        : `${name} refers to ${[...cycle.slice(1), name].join(", which refers to ")}`;
+      throw new PatternError(message, ...definitions.get(name).span);
+    }
+    if (done.has(name)) return;
+    for (const used of uses.get(name)) visit(used, [...path, name]);
+    done.add(name);
+  };
+  for (const name of definitions.keys()) visit(name, []);
+}
+
 // these operators are associative, so (ab)c and a(bc) both become abc
 function combine(type, items, start, end) {
   if (items.length === 1) return items[0];
@@ -553,6 +645,8 @@ function fmt(node, minLevel) {
     case "char": s = formatChar(node.cp, false); break;
     case "any": s = "."; break;
     case "words": s = "@"; break;
+    case "ref": s = `(?&${node.name})`; break;
+    case "define": s = `(?<${node.name}>${fmt(node.node, 0)})`; break;
     case "shorthand": s = formatShorthand(node); break;
     case "class": s = formatClass(node); break;
     case "repeat": s = fmt(node.node, ATOM) + formatQuantifier(node.min, node.max); break;
