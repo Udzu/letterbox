@@ -68,7 +68,7 @@ export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, sp
       const flag = pick(Object.keys(MODIFIERS).filter((f) => !MODIFIERS[f].parts));
       // anagrams need a finite pattern, which a concatenation of leaves always is
       if (flag === "a") return { type: "modifier", flag, count: null, node: { type: "concat", items: [leaf(), leaf(), leaf()] } };
-      const counts = flag === "t" ? [null, 1, 2, 3] : [null, 1, 2, -1, ...(flag === "c" ? [0, 13, 30] : [])];
+      const counts = flag === "t" ? [null, 1, 2, 3] : [null, 1, 2, -1, ...(flag === "c" ? [0, 13, 30, "-"] : [])];
       const count = MODIFIERS[flag].count === "none" ? null : pick(counts);
       return { type: "modifier", flag, count, node: sub() };
     }] : []),

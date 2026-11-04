@@ -81,6 +81,7 @@ test("characters not in the string get their own columns", () => {
 
 test("modifiers and names", () => {
   assert.deepEqual(rows("(?c1:@)", "dbu"), ["dbu (?c1:@)", "cat   @"]);
+  assert.deepEqual(rows("(?c-:@)", "xzg"), ["xzg (?c-:@)", "cat   @"]);
   // reversed and rotated strings are shown in their own order
   assert.deepEqual(rows("(?r:@)", "god"), ["god (?r:@)", "dog   @"]);
   assert.deepEqual(rows("(?r:@^@)", "godtac"), ["godtac (?r:@^@)", "catdog   @^@", "cat        @", "   dog     @"]);

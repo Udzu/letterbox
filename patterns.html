@@ -233,8 +233,8 @@
       <tr><td><code>(?&lt;v&gt;P)</code> <code>(?&amp;v)</code></td><td>P, named v; P again (the same pattern, not the same text). <code>(?&lt;v&gt;P){0}</code> names P without matching it (<code>(?&lt;c&gt;[^aeiou])[aeiou](?&amp;c)</code> matches <i>cat</i>)</td></tr>
       <tr class="heading"><th colspan="2">Modifiers and transformations</th></tr>
       <tr><td><code>(?i:P)</code></td><td>P ignoring case (<code>(?i:the)</code> matches <i>The</i> and <i>THE</i>)</td></tr>
+      <tr><td><code>(?cn:P)</code> <code>(?c:P)</code> <code>(?c-:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25; in Atbash, with the alphabet reversed (<code>(?c1:hal)</code> matches <i>ibm</i>, <code>(?c-:hold)</code> matches <i>slow</i>)</td></tr>
       <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
-      <tr><td><code>(?cn:P)</code> <code>(?c:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25 (<code>(?c1:hal)</code> matches <i>ibm</i>)</td></tr>
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
       <tr><td><code>(?tn:P)</code> <code>(?t:P)</code></td><td>P with two characters n apart swapped (<code>(?t1:the)</code> matches <i>teh</i> and <i>hte</i>); any two</td></tr>
       <tr><td><code>(?a:P)</code></td><td>anagrams of P, which must have finitely many strings, since anagrams of infinite ones may not be regular (<code>(?a:listen)</code> matches <i>silent</i>). <code>(?a:P-^.*)</code> gives sub-anagrams</td></tr>
@@ -4296,7 +4296,7 @@
     r: { count: "none" },
     //     reversed
     c: { count: "optional" },
-    // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25
+    // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25, (?c-:A) Atbash
     R: { count: "optional" },
     // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
     a: { count: "none" },
@@ -4602,7 +4602,10 @@
       }
       this.next();
       let count2 = null;
-      if (/[-0-9]/.test(this.peek() ?? "")) {
+      if (flag === "c" && this.peek() === "-" && this.src[this.pos + 1] === ":") {
+        this.next();
+        count2 = "-";
+      } else if (/[-0-9]/.test(this.peek() ?? "")) {
         const countStart = this.pos;
         if (MODIFIERS[flag].count === "none") {
           this.parseSignedNumber(`after (?${flag}`);
@@ -4986,6 +4989,15 @@
     }
     return out;
   }
+  function mirrorSet(set2) {
+    let out = set2;
+    for (const base of ALPHABETS) {
+      const letters = CharSet.from([[base, base + 25]]);
+      const mirrored = set2.intersect(letters).ranges.map(([lo, hi]) => [2 * base + 25 - hi, 2 * base + 25 - lo]);
+      out = out.minus(letters).union(CharSet.from(mirrored));
+    }
+    return out;
+  }
   function lowerBound2(xs, x) {
     let lo = 0;
     let hi = xs.length;
@@ -5337,6 +5349,7 @@
         return embed(b, reverse(compile(node2.node, options)), from);
       case "c": {
         const inner = compile(node2.node, options);
+        if (count2 === "-") return embed(b, mapLabels(inner, mirrorSet), from);
         const shifts = count2 === null ? Array.from({ length: 25 }, (_, i) => i + 1) : [count2];
         const end = b.state();
         for (const n of shifts) b.edge(embed(b, mapLabels(inner, (set2) => shiftSet(set2, n)), from), null, end);
@@ -5544,6 +5557,7 @@
       case "r":
         return sub(reorder(cells, [...cells].reverse()));
       case "c": {
+        if (node2.count === "-") return sub(cells.map(({ col, ch }) => ({ col, ch: mirrorSet(CharSet.of(ch)).ranges[0][0] })));
         const shifts = node2.count === null ? Array.from({ length: 25 }, (_, i) => i + 1) : [node2.count];
         for (const n of shifts) {
           const shifted = cells.map(({ col, ch }) => ({ col, ch: shiftSet(CharSet.of(ch), -n).ranges[0][0] }));

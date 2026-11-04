@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { compile, matches } from "../src/patterns/index.js";
 import { compile as compileAst } from "../src/patterns/compile.js";
 import { CharSet } from "../src/patterns/charset.js";
-import { caseClass, caseClose, shiftSet } from "../src/patterns/letters.js";
+import { caseClass, caseClose, mirrorSet, shiftSet } from "../src/patterns/letters.js";
 import { equivalent, minimize, trim } from "../src/patterns/nfa.js";
 import { format } from "../src/patterns/parser.js";
 import { randomAst, seededRandom, toRegExp } from "./helpers.js";
@@ -31,6 +31,9 @@ const EXAMPLES = [
   ["(?c1:[x-z])", ["y", "z", "a"], ["x", "b"]],
   ["(?c1:é)", ["é"], []],
   ["(?c:ab)", ["bc", "za", "yz"], ["ab", "ac"]],
+  ["(?c-:hold)", ["slow"], ["hold", "SLOW"]],
+  ["(?c-:Wizard)", ["Draziw"], ["draziw", "Wizard"]],
+  ["(?c-:[a-c]é)", ["zé", "yé", "xé"], ["wé", "aé"]],
   ["(?R1:abc)", ["cab"], ["abc", "bca"]],
   ["(?R-1:abc)", ["bca"], ["abc", "cab"]],
   ["(?R2:abc)", ["bca"], ["abc", "cab"]],
@@ -79,6 +82,13 @@ const shiftChar = (c, n) => {
   return c;
 };
 const shiftString = (s, n) => chars(s).map((c) => shiftChar(c, n)).join("");
+const mirrorString = (s) => chars(s).map((c) => {
+  for (const base of ["a", "A"].map((x) => x.codePointAt(0))) {
+    const i = c.codePointAt(0) - base;
+    if (i >= 0 && i < 26) return String.fromCodePoint(base + 25 - i);
+  }
+  return c;
+}).join("");
 const rotations = (s, count) => {
   // the strings uv where s is vu, with the lengths the modifier requires
   const cs = chars(s);
@@ -100,6 +110,7 @@ function oracle(flag, count, inner, s) {
   switch (flag) {
     case "r": return matches(inner, chars(s).reverse().join(""));
     case "c":
+      if (count === "-") return matches(inner, mirrorString(s));
       if (count !== null) return matches(inner, shiftString(s, -count));
       return Array.from({ length: 25 }, (_, i) => i + 1).some((n) => matches(inner, shiftString(s, -n)));
     case "R": return rotations(s, count).some((t) => matches(inner, t));
@@ -115,12 +126,12 @@ function randomStrings(rand, n) {
     Array.from({ length: Math.floor(rand() * 6) }, () => ALPHABET[Math.floor(rand() * ALPHABET.length)]).join(""));
 }
 
-test("r, c and R agree with their definitions", () => {
+test("r, c (including Atbash) and R agree with their definitions", () => {
   const rand = seededRandom(7);
   for (let i = 0; i < 150; i++) {
     const ast = randomAst(rand, 3, { chars: AST_CHARS });
     const inner = compileAst(ast);
-    for (const [flag, count] of [["r", null], ["c", 1], ["c", -27], ["c", null], ["R", 1], ["R", -2], ["R", null]]) {
+    for (const [flag, count] of [["r", null], ["c", 1], ["c", -27], ["c", null], ["c", "-"], ["R", 1], ["R", -2], ["R", null]]) {
       const nfa = compileAst({ type: "modifier", flag, count, node: ast });
       for (const s of randomStrings(rand, 15)) {
         assert.equal(matches(nfa, s), oracle(flag, count, inner, s), `(?${flag}${count ?? ""}:…) on ${JSON.stringify(s)}`);
@@ -189,6 +200,8 @@ test("identities between modifiers", () => {
   same("(?c3:(?c-3:a+b|c))", "a+b|c");
   same("(?c13:(?c13:[a-z]+))", "[a-z]+");
   same("(?c0:abc)", "abc");
+  same("(?c-:(?c-:a+b|[^c]))", "a+b|[^c]");
+  same("(?c-:(?c1:x))", "(?c-1:(?c-:x))");
   same("(?R1:(?R-1:abcd))", "abcd");
   same("(?r:(?R1:abcd))", "(?R-1:(?r:abcd))");
   same("(?R1:[a-z]*)", "[a-z]{2,}");
@@ -270,4 +283,8 @@ test("caseClose and shiftSet on ranges", () => {
   assert.ok(shiftSet(set("aZé"), 1).equals(set("bAé")));
   assert.ok(shiftSet(set("a"), -1).equals(set("z")));
   assert.ok(shiftSet(set("a"), 52).equals(set("a")));
+  assert.ok(mirrorSet(range("a", "c")).equals(range("x", "z")));
+  assert.ok(mirrorSet(range("a", "z")).equals(range("a", "z")));
+  assert.ok(mirrorSet(set("aZé")).equals(set("zAé")));
+  assert.ok(mirrorSet(set("m").complement()).equals(set("n").complement()));
 });
