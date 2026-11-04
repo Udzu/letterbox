@@ -32,7 +32,7 @@ const REGEX_DELAY = 300; // ms without typing before converting the pattern to a
 const MATCH_CHUNK = 5000; // words checked between pauses that keep the page responsive
 const SHOWN_MATCHES = 1000;
 const LARGE_WORD_LIST = 20000; // above this, patterns using @ take a second or more
-const DEFAULTS = { pattern: "cat^dog", tests: "catdog\ncdaotg\ndcaogt\ncdagot", view: "epsfree" };
+const DEFAULTS = { pattern: "cow^ox", tests: "cowox\ncoxow\nocxow\ncwoox", view: "epsfree" };
 
 const $ = (id) => document.getElementById(id);
 const patternInput = $("pattern");
