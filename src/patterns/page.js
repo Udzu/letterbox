@@ -29,11 +29,10 @@ const MAX_DRAWN_STATES = 300;
 const MAX_QUICK_DFA_SOURCE = 5000;
 const SLOW_VIEWS = new Set(["dfa", "min"]);
 const REGEX_DELAY = 300; // ms without typing before converting the pattern to a regex
-const STORAGE_KEY = "patterns";
 const MATCH_CHUNK = 5000; // words checked between pauses that keep the page responsive
 const SHOWN_MATCHES = 1000;
 const LARGE_WORD_LIST = 20000; // above this, patterns using @ take a second or more
-const DEFAULTS = { pattern: "their|her|his|xyr", tests: "their\nher\nhis\nxyr\nhim", view: "epsfree" };
+const DEFAULTS = { pattern: "cow^ox", tests: "cowox\ncoxow\nocxow\ncwoox", view: "epsfree" };
 
 const $ = (id) => document.getElementById(id);
 const patternInput = $("pattern");
@@ -46,73 +45,12 @@ let compiled = null; // the compiled pattern, if it's valid
 let drawLarge = false;
 let buildLarge = false;
 
-function load() {
-  try {
-    return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(STORAGE_KEY)) };
-  } catch {
-    return DEFAULTS;
-  }
-}
-
-function save() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      // a pattern that wasn't restored stays saved until another is typed (see guarded)
-      pattern: unrestored ?? patternInput.value, tests: testsInput.value, view: viewSelect.value,
-    }));
-  } catch {
-    // storage may be unavailable, e.g. in private windows
-  }
-}
-
-// Slow work is marked in storage while it runs. If the page freezes or crashes during it,
-// the mark is still there when the page is next loaded, which then starts with the default
-// pattern instead of the saved one, and offers to restore it.
-const BUSY_KEY = "patterns-busy";
-let busy = 0;
-let unrestored = null; // the saved pattern, if it wasn't restored
-
-function guarded(f) {
-  if (busy++ === 0) setBusy(true);
-  try {
-    return f();
-  } finally {
-    if (--busy === 0) setBusy(false);
-  }
-}
-
-function setBusy(value) {
-  try {
-    if (value) localStorage.setItem(BUSY_KEY, "1");
-    else localStorage.removeItem(BUSY_KEY);
-  } catch {
-    // storage may be unavailable
-  }
-}
-
-// whether the page stopped during slow work last time
-function stoppedLastTime() {
-  try {
-    return localStorage.getItem(BUSY_KEY) !== null;
-  } catch {
-    return false;
-  }
-}
-
-function offerRestore(pattern) {
-  unrestored = pattern;
-  $("restore").hidden = false;
-  $("restore").innerHTML = "The last pattern wasn't restored, because the page stopped responding while working on it. <button id=\"restore-anyway\">Restore anyway</button>";
-  $("restore-anyway").addEventListener("click", () => {
-    patternInput.value = pattern;
-    dismissRestore();
-    schedule();
-  });
-}
-
-function dismissRestore() {
-  unrestored = null;
-  $("restore").hidden = true;
+// Only the word list is kept between visits (see below): reloading starts afresh, with the
+// default pattern. Earlier versions kept the pattern too, so that is cleared.
+try {
+  for (const key of ["patterns", "patterns-busy"]) localStorage.removeItem(key);
+} catch {
+  // storage may be unavailable, e.g. in private windows
 }
 
 function escapeHtml(s) {
@@ -126,7 +64,6 @@ function autosize(textarea) {
 }
 
 async function update() {
-  save();
   const pattern = patternInput.value;
   autosize(patternInput);
   $("error").textContent = "";
@@ -139,13 +76,11 @@ async function update() {
   let message = null;
   let askToBuild = false;
   try {
-    guarded(() => {
-      compiled = compile(pattern, { words: wordList?.automaton });
-      withStateLimit(limitFor(compiled), () => {
-        $("lengths").textContent = describeLengths(matchLengths(compiled));
-        if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
-        else nfa = VIEWS[viewSelect.value](compiled);
-      });
+    compiled = compile(pattern, { words: wordList?.automaton });
+    withStateLimit(limitFor(compiled), () => {
+      $("lengths").textContent = describeLengths(matchLengths(compiled));
+      if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
+      else nfa = VIEWS[viewSelect.value](compiled);
     });
   } catch (e) {
     if (e instanceof PatternError) {
@@ -201,7 +136,7 @@ async function draw(drawn) {
   }
   const viz = await vizReady;
   if (drawn !== nfa) return; // superseded while Viz.js was loading
-  const svg = guarded(() => viz.renderSVGElement(toDot(drawn)));
+  const svg = viz.renderSVGElement(toDot(drawn));
   // Graphviz gives each node a <title> holding its name, which is the state number
   for (const g of svg.querySelectorAll("g.node")) {
     const state = Number(g.querySelector("title")?.textContent);
@@ -270,7 +205,7 @@ function explanationHtml(text) {
   }
   let result;
   try {
-    result = guarded(() => explainFor.explain(text));
+    result = explainFor.explain(text);
   } catch (e) {
     if (e instanceof TooComplexToExplain || e instanceof TooManyStatesError) return note("Too complex to explain.");
     throw e;
@@ -321,7 +256,6 @@ function showTestString(s) {
   }
   const start = lines.slice(0, lines.indexOf(s)).reduce((n, line) => n + line.length + 1, 0);
   testsInput.setSelectionRange(start, start);
-  save();
   onCursor();
   $("tests-row").scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
@@ -350,7 +284,7 @@ function scheduleRegex() {
 
 function showRegex(target, limits) {
   if (target !== compiled) return; // superseded
-  const result = guarded(() => toRegex(target, limits));
+  const result = toRegex(target, limits);
   $("regex-line").classList.remove("stale");
   $("regex").textContent = result.regex ?? "";
   $("copy-regex").textContent = "Copy";
@@ -401,7 +335,6 @@ function clearTests() {
   testsInput.select();
   edit(testsInput, "");
   $("examples-note").textContent = "";
-  save();
   onCursor();
 }
 
@@ -409,7 +342,7 @@ function clearTests() {
 function addExamples() {
   if (compiled === null) return;
   const lines = testsInput.value.split("\n");
-  const result = guarded(() => withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) })));
+  const result = withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) }));
   const existing = testsInput.value.replace(/\n+$/, "");
   if (result.examples.length) {
     // insert at the end, after any trailing blank lines are removed
@@ -423,7 +356,6 @@ function addExamples() {
   }
   if (result.matchesEmpty) notes.push("The empty string also matches.");
   $("examples-note").textContent = notes.join(" ");
-  save();
   onCursor();
 }
 
@@ -485,9 +417,43 @@ function setWordList(list) {
   schedule();
 }
 
-// a list from its words, including the automaton that @ uses
+// A list from its words, including the automaton that @ uses. Building it is the slowest
+// thing the page does, and a huge list could freeze or crash it. Since the list is restored
+// on every visit, that would happen again on every reload, so building is marked in storage
+// while it runs, and a list whose building never finished isn't built again automatically.
+const BUILDING_KEY = "patterns-building-words";
 function makeWordList(name, words) {
-  return { name, words, automaton: wordsAutomaton(words) };
+  mark(BUILDING_KEY, true);
+  const automaton = wordsAutomaton(words);
+  mark(BUILDING_KEY, false);
+  return { name, words, automaton };
+}
+
+function mark(key, value) {
+  try {
+    if (value) localStorage.setItem(key, "1");
+    else localStorage.removeItem(key);
+  } catch {
+    // storage may be unavailable
+  }
+}
+
+function marked(key) {
+  try {
+    return localStorage.getItem(key) !== null;
+  } catch {
+    return false;
+  }
+}
+
+// a stored list that stopped the page last time: offer to load it anyway, or clear it
+function offerStoredList(stored) {
+  $("clear-words").disabled = false;
+  $("words-info").innerHTML = `${escapeHtml(stored.name)} wasn't loaded, because the page stopped responding while loading it last time. <button id="load-anyway">Load anyway</button>`;
+  $("load-anyway").addEventListener("click", () => {
+    $("words-info").textContent = "Loading…";
+    setTimeout(() => setWordList(makeWordList(stored.name, parseWords(stored.text))), 20);
+  });
 }
 
 async function loadWordFile() {
@@ -501,6 +467,7 @@ async function loadWordFile() {
 }
 
 function clearWordList() {
+  mark(BUILDING_KEY, false);
   setWordList(null);
   storeWordList(null);
 }
@@ -533,9 +500,7 @@ async function findMatches(target, list) {
   for (let i = 0; i < list.words.length; i += MATCH_CHUNK) {
     if (i > 0) await new Promise((resolve) => setTimeout(resolve));
     if (target !== compiled || list !== wordList) return; // superseded
-    guarded(() => {
-      for (let j = i; j < Math.min(i + MATCH_CHUNK, list.words.length); j++) if (test(list.words[j])) found.push(list.words[j]);
-    });
+    for (let j = i; j < Math.min(i + MATCH_CHUNK, list.words.length); j++) if (test(list.words[j])) found.push(list.words[j]);
   }
   showMatches(found);
 }
@@ -605,20 +570,12 @@ function onCursor() {
   showExplanation();
 }
 
-const saved = load();
-if (stoppedLastTime() && saved.pattern !== DEFAULTS.pattern) {
-  patternInput.value = DEFAULTS.pattern;
-  offerRestore(saved.pattern);
-} else {
-  patternInput.value = saved.pattern;
-}
-setBusy(false);
-testsInput.value = saved.tests;
-viewSelect.value = saved.view in VIEWS ? saved.view : DEFAULTS.view;
+patternInput.value = DEFAULTS.pattern;
+testsInput.value = DEFAULTS.tests;
+viewSelect.value = DEFAULTS.view;
 
 patternInput.addEventListener("input", () => {
   if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
-  dismissRestore();
   drawLarge = false;
   buildLarge = false;
   showAllMatches = false;
@@ -646,10 +603,7 @@ $("clear-words").addEventListener("click", clearWordList);
 $("matches").addEventListener("click", (e) => {
   if (e.target.classList.contains("word")) showTestString(e.target.textContent);
 });
-testsInput.addEventListener("input", () => {
-  save();
-  onCursor();
-});
+testsInput.addEventListener("input", onCursor);
 for (const event of ["focus", "blur", "keyup", "click", "select"]) testsInput.addEventListener(event, onCursor);
 document.addEventListener("selectionchange", () => {
   if (document.activeElement === testsInput) onCursor();
@@ -658,21 +612,13 @@ window.addEventListener("resize", () => {
   autosize(patternInput);
   autosize(testsInput);
 });
-// Wait for any stored word list before the first update, since the pattern may use it, but
-// not for long in case storage is slow or blocked: a list arriving later updates the page.
+// The default pattern doesn't use the word list, so the page can update straight away, and
+// again once any stored list has been built.
 $("clear-words").disabled = true;
 $("words-info").textContent = "None loaded";
-let started = false;
-const start = () => {
-  if (!started) update();
-  started = true;
-};
-setTimeout(start, 1000);
+update();
 fetchWordList().then((stored) => {
-  if (stored && wordList === null) {
-    started = true;
-    setWordList(makeWordList(stored.name, parseWords(stored.text)));
-  } else {
-    start();
-  }
+  if (!stored || wordList !== null) return;
+  if (marked(BUILDING_KEY)) offerStoredList(stored);
+  else setWordList(makeWordList(stored.name, parseWords(stored.text)));
 });
