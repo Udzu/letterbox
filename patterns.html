@@ -162,6 +162,7 @@
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
       <tr><td><code>(?[m:n]:P)</code> <code>(?[m:n:s]:P)</code></td><td>P sliced as in Python: characters m up to but not including n, counting from 0 (from the end if negative); every s-th one. Strings too short for the slice are skipped (<code>(?[1:-1]:spam)</code> matches <i>pa</i>)</td></tr>
       <tr><td><code>(?z:P/Q/R)</code> <code>(?Z:P/Q/R)</code></td><td>P with a Q replaced by an R; but not at either end (<code>(?z:London/o/u)</code> matches <i>Lundon</i>). To replace at the end or start, write <code>(P-Q)R</code> or <code>R(P_-Q)</code></td></tr>
+      <tr><td><code>(?w:S/P/Q)</code> <code>(?u:S/P/Q)</code></td><td>P and Q combined by a custom split S, a pattern over L (for P's characters) and R (for Q's), as in the operators above; P with Q removed by S (<code>(?w:L+R+L+/the/[a-z]+)</code> matches <i>tithe</i>)</td></tr>
     </table>
     <p>Operators are listed from tightest to loosest binding, so <code>!ab&lt;c|d</code> means <code>(!((ab)&lt;c))|d</code>. One of the operators from <code>&lt;</code> to <code>-</code><i>op</i> can be repeated, as in <code>a-b-c</code>, but different ones need parentheses, as in <code>(a&lt;b)^c</code>.</p>
   </div>
@@ -4041,9 +4042,15 @@
     // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
     z: { count: "none", parts: 3 },
     // replacement: (?z:A/B/C) is A with a B replaced by a C
-    Z: { count: "none", parts: 3 }
+    Z: { count: "none", parts: 3 },
     // the same, but not at either end
+    w: { count: "none", parts: 3 },
+    // custom weave: (?w:S/A/B) is A and B combined by split S
+    u: { count: "none", parts: 3 }
+    // custom unweave: (?u:S/A/B) is A with B removed by S
   };
+  var PARTS_EXAMPLE = { z: "London/o/u", Z: "London/o/u", w: "L+R+L+/the/[a-z]+", u: "(LLR)*/abcdef/.*" };
+  var SPLIT_CHARS = new Set(["L", "R"].map((c) => c.codePointAt(0)));
   var PCRE_FLAGS = new Set("msxnUJ-^");
   var MAX_MODIFIER_COUNT = 1e3;
   function sliceError(start, stop, step2) {
@@ -4102,7 +4109,7 @@
       return node2;
     }
     slashError() {
-      return this.error("/ is reserved: write \\/ to match it literally (it separates the parts of (?z:A/B/C))");
+      return this.error("/ is reserved: write \\/ to match it literally (it separates the parts of groups like (?z:A/B/C))");
     }
     // alternation branches may be empty, as in "a|" or "()"
     parseAlt() {
@@ -4257,7 +4264,7 @@
       const start = this.pos;
       this.next();
       const modifier2 = this.peek() === "?" ? this.parseModifier(start) : null;
-      if (modifier2?.type === "replace") return this.parseReplace(start, modifier2);
+      if (modifier2?.type === "parts") return this.parseParts(start, modifier2.flag);
       const node2 = this.parseAlt();
       this.closeGroup(start);
       return modifier2 ? { ...modifier2, node: node2, span: [start, this.pos] } : node2;
@@ -4268,9 +4275,9 @@
       if (this.pos < this.src.length) throw this.error(`Unexpected ${this.peek()}`);
       throw this.error("Missing ) to close (", start);
     }
-    // the "A/B/C)" of a replacement, whose parts are separated by / at the top level
-    parseReplace(start, { strict }) {
-      const flag = strict ? "Z" : "z";
+    // the "A/B/C)" of a replacement or custom split, whose parts are separated by / at the top
+    // level
+    parseParts(start, flag) {
       const parts2 = [this.parseAlt()];
       while (this.peek() === "/") {
         if (parts2.length === 3) {
@@ -4280,11 +4287,29 @@
         parts2.push(this.parseAlt());
       }
       if (parts2.length < 3 && this.peek() === ")") {
-        throw this.error(`(?${flag}:...) needs three parts, as in (?${flag}:London/o/u)`, start, this.pos + 1);
+        throw this.error(`(?${flag}:...) needs three parts, as in (?${flag}:${PARTS_EXAMPLE[flag]})`, start, this.pos + 1);
       }
       this.closeGroup(start);
-      const [node2, find, insert] = parts2;
-      return { type: "replace", strict, node: node2, find, insert, span: [start, this.pos] };
+      const span = [start, this.pos];
+      if (flag === "z" || flag === "Z") {
+        const [node2, find, insert] = parts2;
+        return { type: "replace", strict: flag === "Z", node: node2, find, insert, span };
+      }
+      const [split, left, right] = parts2;
+      this.checkSplit(split);
+      return { type: "split", unweave: flag === "u", split, left, right, span };
+    }
+    // split patterns are over L (the left operand's characters) and R (the right one's)
+    checkSplit(node2) {
+      const bad = (n) => {
+        throw new PatternError("Split patterns can only use the characters L and R", ...n.span);
+      };
+      const visit = (n) => {
+        if (n.type === "char" && !SPLIT_CHARS.has(n.cp)) bad(n);
+        if (n.type === "class" && !n.ranges.every(([lo, hi]) => lo === hi && SPLIT_CHARS.has(lo))) bad(n);
+        for (const child of [n.node, n.left, n.right, n.find, n.insert, n.split, ...n.items ?? []]) if (child) visit(child);
+      };
+      visit(node2);
     }
     // the "?flag count:" or "?[slice]:" after the "(" at groupStart, returning the node's
     // fields other than its contents
@@ -4317,7 +4342,7 @@
         const example = MODIFIERS[flag].count === "none" ? `(?${flag}:abc)` : `(?${flag}2:abc)`;
         throw this.error(`Expected : after (?${flag}${count ?? ""}, as in ${example}`, ...here());
       }
-      if (MODIFIERS[flag].parts) return { type: "replace", strict: flag === "Z" };
+      if (MODIFIERS[flag].parts) return { type: "parts", flag };
       return { type: "modifier", flag, count };
     }
     // an optionally negative number, as in a modifier count or slice index
@@ -4717,6 +4742,12 @@
         return modifier(b, node2, from, options);
       case "slice":
         return embed(b, slice(compile(node2.node, options), node2), from);
+      case "split": {
+        const split = minimize(intersect(compile(node2.split), splitAlphabet()));
+        const construct = node2.unweave ? unweave : weave;
+        const nfa2 = construct(removeEpsilons(compile(node2.left, options)), removeEpsilons(compile(node2.right, options)), split);
+        return embed(b, nfa2, from);
+      }
       case "replace": {
         const [a, find, insert] = [node2.node, node2.find, node2.insert].map((n) => removeEpsilons(compile(n, options)));
         return embed(b, replace(a, find, insert, node2.strict), from);
@@ -4771,6 +4802,10 @@
     if (step2 === null || step2 === 1) return middle;
     const split = `(LR{${step2 - 1}})*(LR{0,${step2 - 2}})?`;
     return unweave(removeEpsilons(middle), removeEpsilons(anything), splitDfa(split));
+  }
+  var alphabet = null;
+  function splitAlphabet() {
+    return alphabet ??= compile(parse("[LR]*"));
   }
   function subtract(op, x, y) {
     const { construct, split } = spatialOp(op);

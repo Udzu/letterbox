@@ -1,6 +1,6 @@
 // shared test helpers
 
-import { MODIFIERS, SPATIAL_OPS, sliceError } from "../src/patterns/parser.js";
+import { MODIFIERS, SPATIAL_OPS, parse, sliceError } from "../src/patterns/parser.js";
 
 export const DEFAULT_CHARS = ["a", "b", "é", "😀", " ", "'", "*", "\\", "-", "]", "^", "[", "|", "\n", "\x00", "!"];
 
@@ -14,6 +14,9 @@ export function stripSpans(node) {
   if (node === null || typeof node !== "object") return node;
   return Object.fromEntries(Object.entries(node).filter(([k]) => k !== "span").map(([k, v]) => [k, stripSpans(v)]));
 }
+
+const RANDOM_SPLITS = ["L*R*", "R+L+R+L+R*", "(LLR)*", "(LR+)*L", "[LR]*", "!(L*R*)"];
+const splitAst = (split) => stripSpans(parse(split));
 
 // random ASTs in normal form: associative nodes are flattened and have 2+ items
 export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, spatial = logic, modifiers = false } = {}) {
@@ -56,6 +59,7 @@ export function randomAst(rand, depth, { chars = DEFAULT_CHARS, logic = true, sp
       const count = MODIFIERS[flag].count === "none" ? null : pick([null, 1, 2, -1, ...(flag === "c" ? [0, 13, 30] : [])]);
       return { type: "modifier", flag, count, node: sub() };
     }] : []),
+    ...(modifiers ? [() => ({ type: "split", unweave: rand() < 0.5, split: splitAst(pick(RANDOM_SPLITS)), left: sub(), right: sub() })] : []),
     ...(modifiers ? [() => ({ type: "replace", strict: rand() < 0.5, node: sub(), find: sub(), insert: sub() })] : []),
     ...(modifiers ? [() => {
       for (;;) {

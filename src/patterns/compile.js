@@ -13,6 +13,9 @@
 //            the slice gives nothing (see sliceError in parser.js)
 //   (?z:A/B/C)  A with one substring matching B replaced by one matching C; (?Z:A/B/C)
 //            doesn't replace at either end (see replace.js)
+//   (?w:S/A/B)  A and B combined by a custom split S, a pattern over L and R, as the
+//            separating operators are; (?u:S/A/B) is A with B removed by S, as the
+//            subtraction operators are (see weave.js)
 //
 // build(node, from) adds the node's fragment starting at the existing state `from` and
 // returns its end state. Two invariants keep this sound while sharing states:
@@ -106,6 +109,13 @@ function build(b, node, from, options) {
       return modifier(b, node, from, options);
     case "slice":
       return embed(b, slice(compile(node.node, options), node), from);
+    case "split": {
+      // modifiers like (?i:...) apply to the operands, but not to the split
+      const split = minimize(intersect(compile(node.split), splitAlphabet()));
+      const construct = node.unweave ? unweave : weave;
+      const nfa = construct(removeEpsilons(compile(node.left, options)), removeEpsilons(compile(node.right, options)), split);
+      return embed(b, nfa, from);
+    }
     case "replace": {
       const [a, find, insert] = [node.node, node.find, node.insert].map((n) => removeEpsilons(compile(n, options)));
       return embed(b, replace(a, find, insert, node.strict), from);
@@ -168,6 +178,11 @@ function slice(a, { start, stop, step }) {
   // keep the first of every `step` characters: the others are removed, wherever they are
   const split = `(LR{${step - 1}})*(LR{0,${step - 2}})?`;
   return unweave(removeEpsilons(middle), removeEpsilons(anything), splitDfa(split));
+}
+
+let alphabet = null;
+function splitAlphabet() {
+  return (alphabet ??= compile(parse("[LR]*")));
 }
 
 function subtract(op, x, y) {
