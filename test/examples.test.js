@@ -60,8 +60,16 @@ test("characters come from readable pools", () => {
   for (let i = 0; i < 50; i++) {
     assert.match(String.fromCodePoint(pickChar(CharSet.ALL, rand)), /^[a-z]$/);
     assert.match(String.fromCodePoint(pickChar(CharSet.of(97).complement(), rand)), /^[b-z]$/);
-    assert.match(String.fromCodePoint(pickChar(CharSet.from([[65, 90], [0x4e00, 0x9fff]]), rand)), /^[A-Z]$/);
   }
+  // other large sets show their variety, including characters outside the pools
+  const picked = Array.from({ length: 200 }, () => String.fromCodePoint(pickChar(CharSet.from([[65, 90], [0x4e00, 0x9fff]]), rand)));
+  assert.ok(picked.every((c) => /^[A-Z\u4e00-\u9fff]$/.test(c)));
+  assert.ok(picked.some((c) => /^[A-Z]$/.test(c)) && picked.some((c) => /^[\u4e00-\u9fff]$/.test(c)));
+  const upper = compile("\\p{Lu}").edges.flat().find((e) => e.label).label;
+  const capitals = new Set(Array.from({ length: 300 }, () => pickChar(upper, rand)));
+  assert.ok([...capitals].some((cp) => cp > 0x7f), "some non-ASCII capitals");
+  assert.ok([...capitals].some((cp) => cp < 0x7f), "and some ASCII ones");
+  assert.ok([...capitals].every((cp) => upper.has(cp)));
   // explicitly mentioned characters are preferred some of the time
   const cs = new Set(check("c.t", { count: 30 }).examples.map((s) => s[1]));
   assert.ok(cs.has("c") || cs.has("t"));

@@ -17,7 +17,12 @@ const POOLS = [
   CharSet.from([range("A", "Z"), range("0", "9"), range(" ", " ")]),
   CharSet.from([range("!", "~")]),
   CharSet.from([range("À", "ÿ")]).minus(CharSet.of(0xd7, 0xf7)), // Latin-1 letters, not × ÷
+  CharSet.from([[0x100, 0x24f]]), // Latin Extended-A and B
+  CharSet.from([[0x370, 0x4ff]]), // Greek and Cyrillic
 ];
+// characters beyond the pools, which large sets also pick from (not × and ÷, which the
+// Latin-1 pool leaves out on purpose, or ASCII control characters)
+const BEYOND_POOLS = CharSet.from([[0x500, MAX_CP]]);
 const PRINTABLE = /^[\p{L}\p{N}\p{P}\p{S}]$/u;
 const SMALL_LABEL = 64; // labels this small contribute their characters to the preferred pool
 const LENGTH_SPREAD = 10; // walks aim for up to this many characters more than the shortest
@@ -102,22 +107,38 @@ function walk(g, usable, dist, target, random, preferred, shortest) {
 }
 
 // Pick a readable character from a set: half the time one of the characters the pattern
-// mentions explicitly, otherwise from the first pool (a-z, then A-Z 0-9 and space, ASCII
-// punctuation, Latin-1 letters) that has one, then any printable character, then anything.
+// mentions explicitly, and otherwise from the pools (a-z, then A-Z 0-9 and space, ASCII
+// punctuation, Latin-1 letters, Latin Extended, Greek and Cyrillic), then any printable
+// character, then anything.
+//
+// A set of almost anything, like . or [^a], uses the first pool it overlaps, so examples are
+// mostly plain letters. Other large sets, like \p{Lu}, use any pool they overlap, or the rest
+// of the set, chosen at random, so their examples show their variety.
 export function pickChar(set, random = Math.random, preferred = CharSet.EMPTY) {
   const fromPreferred = set.intersect(preferred);
   if (!fromPreferred.isEmpty() && random() < 0.5) return member(fromPreferred, random);
-  for (const pool of POOLS) {
-    const available = set.intersect(pool);
-    if (!available.isEmpty()) return member(available, random);
+  const options = POOLS.map((pool) => set.intersect(pool)).filter((s) => !s.isEmpty());
+  const anything = set.size() > MAX_CP / 2;
+  if (options.length && anything) return member(options[0], random);
+  if (options.length) {
+    const rest = set.intersect(BEYOND_POOLS);
+    const choice = Math.floor(random() * (options.length + (rest.isEmpty() ? 0 : 1)));
+    if (choice < options.length) return member(options[choice], random);
+    const cp = printableMember(rest, random);
+    if (cp !== null) return cp;
+    return member(options[0], random);
   }
   if (!fromPreferred.isEmpty()) return member(fromPreferred, random);
-  // most of a large set is unassigned or unprintable, so sample a few times before giving up
+  return printableMember(set, random) ?? member(set, random);
+}
+
+// most of a large set can be unassigned or unprintable, so sample a few times before giving up
+function printableMember(set, random) {
   for (let i = 0; i < 20; i++) {
     const cp = member(set, random);
     if (PRINTABLE.test(String.fromCodePoint(cp))) return cp;
   }
-  return member(set, random);
+  return null;
 }
 
 // a random member of a non-empty set
