@@ -169,7 +169,7 @@
   <div id="matches"></div>
 
   <div class="help">
-    <p>Patterns match whole strings. All ASCII punctuation except <code>'</code> is reserved, so write <code>\.</code>, <code>\-</code>, <code>\\</code> and so on to match it literally.</p>
+    <p>Patterns match whole strings, so there are no anchors: unlike in most regex dialects, <code>^</code> means interleaving (see below), not the start of the string. All ASCII punctuation except <code>'</code> is reserved, so write <code>\.</code>, <code>\-</code>, <code>\\</code> and so on to match it literally.</p>
     <table>
       <tr><td><code>a</code> <code>\*</code> <code>\n</code> <code>\u{e9}</code></td><td>a character</td></tr>
       <tr><td><code>.</code></td><td>any character</td></tr>
