@@ -4,6 +4,7 @@ import { instance } from "@viz-js/viz";
 import { examples } from "./examples.js";
 import { describeLengths, matchLengths } from "./lengths.js";
 import { LIMITS, UNLIMITED, toRegex } from "./regex.js";
+import { matcher, parseWords } from "./wordlist.js";
 import {
   compile, determinize, minimize, removeEpsilons, run, toDot, trim, PatternError, TooManyStatesError,
 } from "./index.js";
@@ -25,6 +26,8 @@ const VIEW_HELP = {
 const MAX_DRAWN_STATES = 300;
 const REGEX_DELAY = 300; // ms without typing before converting the pattern to a regex
 const STORAGE_KEY = "patterns";
+const MATCH_CHUNK = 5000; // words checked between pauses that keep the page responsive
+const SHOWN_MATCHES = 1000;
 const DEFAULTS = { pattern: "their|her|his|xyr", tests: "their\nher\nhis\nxyr\nhim", view: "epsfree" };
 
 const $ = (id) => document.getElementById(id);
@@ -98,6 +101,7 @@ async function update() {
 
   $("add-examples").disabled = compiled === null;
   scheduleRegex();
+  scheduleMatches();
   updateTests();
   // while the pattern is invalid, keep showing the last diagram, dimmed
   $("diagram").classList.toggle("stale", nfa === null && message === null);
@@ -259,6 +263,120 @@ function addExamples() {
   onCursor();
 }
 
+// The word list is kept in IndexedDB, since lists are too large for localStorage. If storage
+// is unavailable, the list just lasts until the page is closed.
+const DB = { name: "patterns", store: "wordlist", key: "list" };
+let wordList = null; // { name, words }
+
+function openDb() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB.name, 1);
+    request.onupgradeneeded = () => request.result.createObjectStore(DB.store);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function storeWordList(value) {
+  try {
+    const db = await openDb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(DB.store, "readwrite");
+      if (value === null) tx.objectStore(DB.store).delete(DB.key);
+      else tx.objectStore(DB.store).put(value, DB.key);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch {
+    // storage unavailable
+  }
+}
+
+async function fetchWordList() {
+  try {
+    const db = await openDb();
+    return await new Promise((resolve, reject) => {
+      const request = db.transaction(DB.store).objectStore(DB.store).get(DB.key);
+      request.onsuccess = () => resolve(request.result ?? null);
+      request.onerror = () => reject(request.error);
+    });
+  } catch {
+    return null;
+  }
+}
+
+function setWordList(list) {
+  wordList = list;
+  showAllMatches = false;
+  $("clear-words").disabled = list === null;
+  $("words-info").textContent = list === null ? "None loaded" : `${list.name}: ${count(list.words.length, "word")}`;
+  if (list === null) {
+    $("matches-info").replaceChildren();
+    $("matches").replaceChildren();
+  }
+  scheduleMatches();
+}
+
+async function loadWordFile() {
+  const file = $("words-file").files[0];
+  if (!file) return;
+  $("words-info").textContent = "Loading…";
+  const text = await file.text();
+  $("words-file").value = "";
+  setWordList({ name: file.name, words: parseWords(text) });
+  storeWordList({ name: file.name, text });
+}
+
+function clearWordList() {
+  setWordList(null);
+  storeWordList(null);
+}
+
+const count = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
+
+// Like the regex, matches wait for a pause in typing and are dimmed while out of date. The
+// search works through the list in chunks, giving up if the pattern or list changes.
+let matchTimer = null;
+let firstMatches = true;
+let showAllMatches = false;
+function scheduleMatches() {
+  clearTimeout(matchTimer);
+  for (const id of ["matches", "matches-info"]) $(id).classList.add("stale");
+  if (compiled === null || wordList === null) return;
+  const [target, list] = [compiled, wordList];
+  matchTimer = setTimeout(() => findMatches(target, list), firstMatches ? 0 : REGEX_DELAY);
+  firstMatches = false;
+}
+
+async function findMatches(target, list) {
+  const test = matcher(target);
+  const found = [];
+  for (let i = 0; i < list.words.length; i += MATCH_CHUNK) {
+    if (i > 0) await new Promise((resolve) => setTimeout(resolve));
+    if (target !== compiled || list !== wordList) return; // superseded
+    for (let j = i; j < Math.min(i + MATCH_CHUNK, list.words.length); j++) if (test(list.words[j])) found.push(list.words[j]);
+  }
+  showMatches(found);
+}
+
+function showMatches(found) {
+  for (const id of ["matches", "matches-info"]) $(id).classList.remove("stale");
+  const shown = showAllMatches ? found : found.slice(0, SHOWN_MATCHES);
+  $("matches").textContent = shown.join("\n");
+  $("matches").scrollTop = 0;
+  if (found.length === 0) {
+    $("matches-info").textContent = "No words match.";
+  } else if (shown.length === found.length) {
+    $("matches-info").textContent = `${count(found.length, "matching word")}:`;
+  } else {
+    $("matches-info").innerHTML = `${count(found.length, "matching word")}, showing the first ${shown.length.toLocaleString()}: <button id="show-all-matches">Show all</button>`;
+    $("show-all-matches").addEventListener("click", () => {
+      showAllMatches = true;
+      showMatches(found);
+    });
+  }
+}
+
 let pending = false;
 function schedule() {
   if (pending) return;
@@ -266,6 +384,10 @@ function schedule() {
   requestAnimationFrame(() => {
     pending = false;
     update();
+setWordList(null);
+fetchWordList().then((stored) => {
+  if (stored && wordList === null) setWordList({ name: stored.name, words: parseWords(stored.text) });
+});
   });
 }
 
@@ -282,6 +404,7 @@ viewSelect.value = saved.view in VIEWS ? saved.view : DEFAULTS.view;
 patternInput.addEventListener("input", () => {
   if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
   drawLarge = false;
+  showAllMatches = false;
   schedule();
 });
 // the pattern is a single line, even though it wraps
@@ -299,6 +422,9 @@ viewSelect.addEventListener("change", () => {
 $("add-examples").addEventListener("click", addExamples);
 $("clear-tests").addEventListener("click", clearTests);
 $("copy-regex").addEventListener("click", copyRegex);
+$("load-words").addEventListener("click", () => $("words-file").click());
+$("words-file").addEventListener("change", loadWordFile);
+$("clear-words").addEventListener("click", clearWordList);
 testsInput.addEventListener("input", () => {
   save();
   onCursor();
@@ -312,3 +438,7 @@ window.addEventListener("resize", () => {
   autosize(testsInput);
 });
 update();
+setWordList(null);
+fetchWordList().then((stored) => {
+  if (stored && wordList === null) setWordList({ name: stored.name, words: parseWords(stored.text) });
+});

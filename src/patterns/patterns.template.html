@@ -18,9 +18,9 @@
   nav a { color: #06c; }
   nav b { color: #000; }
   h2 { font-size: 1rem; margin: 24px 0 8px; }
-  #tests-header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 24px 0 8px; }
-  #tests-header h2 { margin: 0; }
-  #tests-header button { font: inherit; font-size: 0.9rem; }
+  .section-header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 24px 0 8px; }
+  .section-header h2 { margin: 0; }
+  .section-header button, #matches-info button { font: inherit; font-size: 0.9rem; }
 
   /* Each textarea's text is transparent; an identical copy with highlights is
      drawn behind it. Both must share exactly the same text metrics. */
@@ -82,7 +82,20 @@
   .match { color: #080; }
   .nomatch { color: #c00; }
   .current { background: #f2f2f2; }
-  #tests-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
+  #tests-help, #words-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
+
+  #matches-info { margin: 12px 0 6px; }
+  #matches-info:empty { display: none; }
+  #matches {
+    max-height: 20em;
+    overflow-y: auto;
+    columns: 12em;
+    column-gap: 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre;
+  }
+  #matches:not(:empty) { border: 1px solid #ccc; padding: 8px; }
+  #matches.stale, #matches-info.stale { opacity: 0.3; }
 
   .help { margin-top: 32px; font-size: 0.9rem; color: #444; }
   .help table { border-collapse: collapse; }
@@ -123,7 +136,7 @@
     <span id="regex-note" class="note"></span>
   </div>
 
-  <div id="tests-header">
+  <div id="tests-header" class="section-header">
     <h2>Test strings</h2>
     <button id="add-examples">Add examples</button>
     <button id="clear-tests">Clear</button>
@@ -134,6 +147,17 @@
     <textarea id="tests" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Test strings, one per line"></textarea>
   </div>
   <p id="tests-help">One per line: <span class="match">matches</span> or <span class="nomatch">doesn't</span>. The states reached by the line with the cursor are highlighted in the diagram.</p>
+
+  <div id="words-header" class="section-header">
+    <h2>Word list</h2>
+    <button id="load-words">Load…</button>
+    <button id="clear-words">Clear</button>
+    <span id="words-info" class="note"></span>
+    <input type="file" id="words-file" accept=".txt,text/plain" hidden>
+  </div>
+  <p id="words-help">Load a text file with one word or phrase per line to list the ones the pattern matches. The list is kept in this browser only.</p>
+  <div id="matches-info"></div>
+  <div id="matches"></div>
 
   <div class="help">
     <p>Patterns match whole strings. All ASCII punctuation except <code>'</code> is reserved, so write <code>\.</code>, <code>\-</code>, <code>\\</code> and so on to match it literally.</p>
