@@ -191,7 +191,8 @@
       <tr><td><code>P&amp;Q</code></td><td>both P and Q</td></tr>
       <tr><td><code>P|Q</code></td><td>either P or Q</td></tr>
       <tr><td><code>(P)</code></td><td>grouping</td></tr>
-      <tr class="gap"><td><code>(?i:P)</code></td><td>P ignoring case (<code>(?i:the)</code> matches <i>The</i> and <i>THE</i>)</td></tr>
+      <tr class="gap"><td><code>(?&lt;v&gt;P)</code> <code>(?&amp;v)</code></td><td>P, named v; P again (the same pattern, not the same text). <code>(?&lt;v&gt;P){0}</code> names P without matching it (<code>(?&lt;c&gt;[^aeiou])[aeiou](?&amp;c)</code> matches <i>cat</i>)</td></tr>
+      <tr><td><code>(?i:P)</code></td><td>P ignoring case (<code>(?i:the)</code> matches <i>The</i> and <i>THE</i>)</td></tr>
       <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
       <tr><td><code>(?cn:P)</code> <code>(?c:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25 (<code>(?c1:hal)</code> matches <i>ibm</i>)</td></tr>
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
@@ -4246,6 +4247,7 @@
   var SPLIT_CHARS = new Set(["L", "R"].map((c) => c.codePointAt(0)));
   var PCRE_FLAGS = new Set("msxnUJ-^");
   var MAX_MODIFIER_COUNT = 1e3;
+  var NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
   var SHORTHANDS = new Set("dDwWsSpP");
   function sliceError(start2, stop, step2) {
     if (step2 === 0) return "Slice step can't be 0";
@@ -4300,6 +4302,7 @@
         if (this.peek() === "/") throw this.slashError();
         throw this.error(`Unexpected ${this.peek()}`);
       }
+      checkNames(node2);
       return node2;
     }
     slashError() {
@@ -4464,6 +4467,7 @@
       this.next();
       const modifier2 = this.peek() === "?" ? this.parseModifier(start2) : null;
       if (modifier2?.type === "parts") return this.parseParts(start2, modifier2.flag);
+      if (modifier2?.type === "ref") return { ...modifier2, span: [start2, this.pos] };
       const node2 = this.parseAlt();
       this.closeGroup(start2);
       return modifier2 ? { ...modifier2, node: node2, span: [start2, this.pos] } : node2;
@@ -4518,6 +4522,7 @@
       const here = () => [groupStart, this.pos];
       if (flag === void 0) throw this.error("Missing modifier after (?", ...here());
       if (flag === "[") return this.parseSlice(groupStart);
+      if (flag === "<" || flag === "&") return this.parseName(groupStart, flag);
       if (PCRE_FLAGS.has(flag)) {
         const hint = flag === "s" ? ": for a cipher shift, write (?c:...)" : "";
         throw this.error(`(?${flag} is a PCRE flag, which isn't supported${hint}`, groupStart, this.pos + 1);
@@ -4543,6 +4548,24 @@
       }
       if (MODIFIERS[flag].parts) return { type: "parts", flag };
       return { type: "modifier", flag, count: count2 };
+    }
+    // the "<name>" of (?<name>...), or the "&name)" of (?&name), after the "(?"
+    parseName(groupStart, flag) {
+      this.next();
+      if (flag === "<" && (this.peek() === "=" || this.peek() === "!")) {
+        throw this.error("Lookbehind isn't supported", groupStart, this.pos + 1);
+      }
+      const nameStart = this.pos;
+      const end = flag === "<" ? ">" : ")";
+      while (this.peek() !== void 0 && this.peek() !== end) this.next();
+      const name = this.src.slice(nameStart, this.pos);
+      if (!this.eat(end)) {
+        throw this.error(`Missing ${end} after (?${flag}${name}, as in ${flag === "<" ? "(?<v>[aeiou])" : "(?&v)"}`, groupStart, this.pos);
+      }
+      if (!NAME.test(name)) {
+        throw this.error("Names use ASCII letters, digits and _, and can't start with a digit", nameStart, this.pos - 1);
+      }
+      return flag === "<" ? { type: "define", name } : { type: "ref", name };
     }
     // an optionally negative number, as in a modifier count or slice index
     parseSignedNumber(where) {
@@ -4588,6 +4611,9 @@
           throw this.error(`Invalid code point \\u{${hex}}`, start2, this.pos);
         }
         return cp;
+      }
+      if (c === "k" || /[1-9]/.test(c)) {
+        throw this.error(`Backreferences (\\${c}) aren't supported, since they match the same text again: (?&name) matches the same pattern`, start2, this.pos);
       }
       if (c === "b" || c === "B") {
         throw this.error(`Word boundaries (\\${c}) aren't supported, since patterns match whole strings`, start2, this.pos);
@@ -4656,6 +4682,58 @@
       return c.codePointAt(0);
     }
   };
+  function checkNames(root) {
+    const definitions2 = /* @__PURE__ */ new Map();
+    const scopes = [];
+    const collect = (node2, scope) => {
+      if (node2.type === "define") {
+        if (definitions2.has(node2.name)) throw new PatternError(`${node2.name} is defined more than once`, ...node2.span);
+        definitions2.set(node2.name, node2);
+        scope.defines.add(node2.name);
+      }
+      if (node2.type === "ref") scope.refs.push(node2);
+      if (node2.type === "split") {
+        const inner = { defines: /* @__PURE__ */ new Set(), refs: [] };
+        scopes.push(inner);
+        collect(node2.split, inner);
+      }
+      for (const child of [node2.node, node2.left, node2.right, node2.find, node2.insert, ...node2.items ?? []]) {
+        if (child) collect(child, scope);
+      }
+    };
+    const top = { defines: /* @__PURE__ */ new Set(), refs: [] };
+    scopes.push(top);
+    collect(root, top);
+    for (const { defines, refs } of scopes) {
+      for (const ref of refs) {
+        if (!defines.has(ref.name)) {
+          const where = definitions2.has(ref.name) ? ` here: names in a custom split's split and the rest of the pattern are separate` : "";
+          throw new PatternError(`${ref.name} isn't defined${where}`, ...ref.span);
+        }
+      }
+    }
+    const uses = /* @__PURE__ */ new Map();
+    const usesIn = (node2, out) => {
+      if (node2.type === "ref") out.add(node2.name);
+      for (const child of [node2.node, node2.left, node2.right, node2.find, node2.insert, node2.split, ...node2.items ?? []]) {
+        if (child) usesIn(child, out);
+      }
+      return out;
+    };
+    for (const [name, node2] of definitions2) uses.set(name, usesIn(node2.node, /* @__PURE__ */ new Set()));
+    const done = /* @__PURE__ */ new Set();
+    const visit = (name, path) => {
+      if (path.includes(name)) {
+        const cycle = path.slice(path.indexOf(name));
+        const message = cycle.length === 1 ? `${name} refers to itself` : `${name} refers to ${[...cycle.slice(1), name].join(", which refers to ")}`;
+        throw new PatternError(message, ...definitions2.get(name).span);
+      }
+      if (done.has(name)) return;
+      for (const used of uses.get(name)) visit(used, [...path, name]);
+      done.add(name);
+    };
+    for (const name of definitions2.keys()) visit(name, []);
+  }
   function combine(type, items, start2, end) {
     if (items.length === 1) return items[0];
     return { type, items: items.flatMap((n) => n.type === type ? n.items : [n]), span: [start2, end] };
@@ -4934,6 +5012,7 @@
     return splitCache.get(split);
   }
   function compile(ast, options = {}) {
+    if (!options.names) options = { ...options, names: definitions(ast) };
     const b = new Builder();
     const start2 = b.state();
     const end = build(b, ast, start2, options);
@@ -4948,6 +5027,9 @@
         return step(b, from, chars(CharSet.of(node2.cp)));
       case "any":
         return step(b, from, CharSet.ALL);
+      case "define":
+      case "ref":
+        return embed(b, named(node2.name, options), from);
       case "words": {
         if (!options.words) throw new PatternError("No word list loaded: load one below to use @", ...node2.span);
         return embed(b, options.caseless ? mapLabels(options.words, caseClose) : options.words, from);
@@ -4998,6 +5080,24 @@
   function shorthand(sh, chars) {
     const set2 = chars(shorthandSet({ ...sh, negated: false }));
     return sh.negated ? set2.complement() : set2;
+  }
+  function definitions(ast) {
+    const names = /* @__PURE__ */ new Map();
+    const visit = (node2, caseless) => {
+      if (node2.type === "define") names.set(node2.name, { node: node2.node, caseless, nfa: null });
+      if (node2.type === "modifier" && node2.flag === "i") caseless = true;
+      if (node2.type === "split") visit(node2.split, false);
+      for (const child of [node2.node, node2.left, node2.right, node2.find, node2.insert, ...node2.items ?? []]) {
+        if (child) visit(child, caseless);
+      }
+    };
+    visit(ast, false);
+    return names;
+  }
+  function named(name, options) {
+    const entry = options.names.get(name);
+    entry.nfa ??= compile(entry.node, { ...options, caseless: entry.caseless });
+    return entry.nfa;
   }
   function step(b, from, label) {
     const end = b.state();

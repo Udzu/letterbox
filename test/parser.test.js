@@ -11,6 +11,8 @@ function show(node) {
     case "char": return String.fromCodePoint(node.cp);
     case "any": return ".";
     case "words": return "@";
+    case "ref": return `&${node.name}`;
+    case "define": return `(<${node.name}> ${show(node.node)})`;
     case "shorthand": return formatShorthand(node);
     case "class": {
       const ranges = node.ranges.map(([lo, hi]) =>
@@ -158,6 +160,12 @@ const PARSES = [
   ["[^\\s,\\p{Lu}]", "[^, \\s \\p{Lu}]"],
   ["[\\d-]", "[- \\d]"],
   ["\\d+", "(repeat 1 ∞ \\d)"],
+  ["(?<c>[^aeiou])(?&c)", "(concat (<c> [^a e i o u]) &c)"],
+  ["(?&v)(?<v>a|b)", "(concat &v (<v> (alt a b)))"],
+  ["(?<v>a){0}(?&v)", "(concat (repeat 0 0 (<v> a)) &v)"],
+  ["(?<_x1>)(?&_x1)", "(concat (<_x1> ε) &_x1)"],
+  ["(?<a>(?<b>x)(?&b))(?&a)", "(concat (<a> (concat (<b> x) &b)) &a)"],
+  ["(?w:(?<s>L)R(?&s)/a/b)", "(w (concat (<s> L) R &s) a b)"],
 ];
 
 for (const [pattern, expected] of PARSES) {
@@ -261,6 +269,25 @@ const ERRORS = [
   ["\\p{}", "Unknown Unicode property \\p{}", [0, 4]],
   ["[\\p{Foo}]", "Unknown Unicode property \\p{Foo}", [1, 8]],
   ["[\\p{L}-z]", "can't be one end of a range", [1, 6]],
+  ["(?&v)", "v isn't defined", [0, 5]],
+  ["a|(?&v)", "v isn't defined", [2, 7]],
+  ["(?<a>x(?&a))", "a refers to itself", [0, 12]],
+  ["(?<a>(?&b))(?<b>(?&a))", "a refers to b, which refers to a", [0, 11]],
+  ["(?<a>(?&b))(?<b>(?&c))(?<c>(?&a))", "a refers to b, which refers to c, which refers to a", [0, 11]],
+  ["(?<a>x)(?<a>y)", "a is defined more than once", [7, 14]],
+  ["(?<1a>x)", "Names use ASCII letters", [3, 5]],
+  ["(?<é>x)", "Names use ASCII letters", [3, 4]],
+  ["(?<>x)", "Names use ASCII letters", [3, 3]],
+  ["(?<a", "Missing > after (?<a, as in (?<v>[aeiou])", [0, 4]],
+  ["(?&a", "Missing ) after (?&a, as in (?&v)", [0, 4]],
+  ["(?&a:x)", "Names use ASCII letters", [3, 6]],
+  ["(?<=a)", "Lookbehind isn't supported", [0, 4]],
+  ["(?<!a)", "Lookbehind isn't supported", [0, 4]],
+  ["\\1", "Backreferences (\\1) aren't supported", [0, 2]],
+  ["\\k<a>", "Backreferences (\\k)", [0, 2]],
+  ["(?w:(?&s)/a/b)(?<s>L)", "s isn't defined here: names in a custom split's split and the rest of the pattern are separate", [4, 9]],
+  ["(?<s>L)(?w:(?&s)/a/b)", "s isn't defined here", [11, 16]],
+  ["(?<s>a)(?w:(?<s>L)/a/b)", "s is defined more than once", [11, 18]],
   ["[\\d-z]", "can't be one end of a range", [1, 3]],
   ["[a-\\d]", "can't be one end of a range", [1, 5]],
   ["&a", "Missing operand before &", [0, 1]],
@@ -341,6 +368,8 @@ const FORMATS = [
   ["[\\da]", "[a\\d]"],
   ["(\\S)*", "\\S*"],
   ["(\\p{L})*", "\\p{L}*"],
+  ["((?<v>a|b))(?&v)", "(?<v>a|b)(?&v)"],
+  ["(?<v>(a))((?&v))*", "(?<v>a)(?&v)*"],
 ];
 
 for (const [pattern, canonical] of FORMATS) {
