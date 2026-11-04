@@ -14,12 +14,11 @@ export function parseWords(text) {
   return [...words];
 }
 
-// A function that tells whether the NFA matches a string, building the DFA lazily: each
-// DFA state (a set of NFA states) and its move on each character is worked out the first
-// time it's needed and then remembered. Matching many words, which share most of their
-// prefixes and characters, then costs about one lookup per character. Strings must already
-// be normalised.
-export function matcher(nfa) {
+// The NFA's DFA, built lazily: each DFA state (a set of NFA states) and its move on each
+// character is worked out the first time it's needed and then remembered. States are
+// numbers: `start`, `dead` (no NFA states), and whatever step(d, cp) returns. states(d) is
+// the sorted NFA states in d.
+export function lazyDfa(nfa) {
   const ids = new Map();
   const sets = [];
   const accepting = [];
@@ -37,23 +36,33 @@ export function matcher(nfa) {
   };
   const start = intern(closure(nfa, [nfa.start]));
   const dead = intern(new Set());
+  const step = (d, cp) => {
+    let next = moves[d].get(cp);
+    if (next === undefined) {
+      const targets = [];
+      for (const s of sets[d]) {
+        for (const { label, to } of nfa.edges[s]) if (label !== null && label.has(cp)) targets.push(to);
+      }
+      next = intern(closure(nfa, targets));
+      moves[d].set(cp, next);
+    }
+    return next;
+  };
+  return { nfa, start, dead, step, accepts: (d) => accepting[d], states: (d) => sets[d] };
+}
+
+// A function that tells whether the NFA matches a string, using its lazy DFA. Matching many
+// words, which share most of their prefixes and characters, then costs about one lookup per
+// character. Strings must already be normalised.
+export function matcher(nfa) {
+  const { start, dead, step, accepts } = lazyDfa(nfa);
   return (string) => {
     let d = start;
     for (const c of string) {
-      const cp = c.codePointAt(0);
-      let next = moves[d].get(cp);
-      if (next === undefined) {
-        const targets = [];
-        for (const s of sets[d]) {
-          for (const { label, to } of nfa.edges[s]) if (label !== null && label.has(cp)) targets.push(to);
-        }
-        next = intern(closure(nfa, targets));
-        moves[d].set(cp, next);
-      }
-      if (next === dead) return false;
-      d = next;
+      d = step(d, c.codePointAt(0));
+      if (d === dead) return false;
     }
-    return accepting[d];
+    return accepts(d);
   };
 }
 

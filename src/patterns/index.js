@@ -6,11 +6,13 @@
 
 import { parse, PatternError } from "./parser.js";
 import { compile as compileAst } from "./compile.js";
-import { MAX_STATES, TooManyStatesError, matches as nfaMatches, run as nfaRun, withStateLimit } from "./nfa.js";
+import { explainer as explainerAst, layout } from "./explain.js";
+import { MAX_STATES, TooManyStatesError, limitFor, matches as nfaMatches, run as nfaRun, withStateLimit } from "./nfa.js";
 
 export { parse, format, PatternError } from "./parser.js";
 export { CharSet } from "./charset.js";
 export { formatLabel, toDot } from "./display.js";
+export { TooComplexToExplain } from "./explain.js";
 export { NFA, TooManyStatesError, closure, trim, removeEpsilons, determinize, complement, intersect, reverse, minimize, limitFor, withStateLimit } from "./nfa.js";
 
 // a pattern using the word list may have this many states per state of the list's automaton,
@@ -22,7 +24,7 @@ export function compile(pattern, { words } = {}) {
   const normalized = pattern.normalize("NFC");
   const ast = parse(normalized);
   const usesWords = words !== undefined && containsWords(ast);
-  const limit = MAX_STATES + (usesWords ? WORDS_FACTOR * words.size : 0);
+  const limit = stateLimit(ast, words);
   try {
     return withStateLimit(limit, () => compileAst(ast, { words }));
   } catch (e) {
@@ -32,6 +34,24 @@ export function compile(pattern, { words } = {}) {
     }
     throw e;
   }
+}
+
+function stateLimit(ast, words) {
+  return MAX_STATES + (words !== undefined && containsWords(ast) ? WORDS_FACTOR * words.size : 0);
+}
+
+// A function that explains how a string matches the pattern (see explain.js), as rows for
+// display, or returns null if it doesn't match. { nfa } is the pattern's compiled NFA. It
+// throws TooComplexToExplain or TooManyStatesError if the explanation takes too long.
+export function explainer(pattern, { words, nfa } = {}) {
+  const normalized = pattern.normalize("NFC");
+  const ast = parse(normalized);
+  const limit = Math.max(stateLimit(ast, words), nfa ? limitFor(nfa) : 0);
+  const explain = explainerAst(ast, { words, nfa });
+  return (string) => withStateLimit(limit, () => {
+    const tree = explain(string.normalize("NFC"));
+    return tree && layout(tree, normalized);
+  });
 }
 
 function containsWords(node) {

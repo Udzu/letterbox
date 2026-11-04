@@ -85,6 +85,33 @@
   .current { background: #f2f2f2; }
   #tests-help, #words-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
 
+  /* The explanation fills the height of the test strings beside it, scrolling if it needs
+     more, so moving the cursor never moves the rest of the page. */
+  #tests-row { display: grid; grid-template-columns: 2fr 3fr; gap: 12px; }
+  #explain-box { position: relative; min-height: calc(7.5 * 1.1rem); border: 1px solid #ccc; }
+  #explain { position: absolute; inset: 0; overflow: auto; padding: 8px; }
+  @media (max-width: 640px) {
+    #tests-row { grid-template-columns: 1fr; }
+    #explain { position: static; max-height: 20em; }
+  }
+  #explain .note { margin: 0; font-size: 0.9rem; }
+  #explain table { border-collapse: collapse; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  #explain td { padding: 0; text-align: center; white-space: pre; line-height: 1.5; }
+  #explain tr:first-child td { font-weight: bold; }
+  #explain td.label { text-align: left; padding-left: 1.5em; color: #666; font-weight: normal; }
+  #explain td.label .other { color: #bbb; }
+  #explain td.synthetic { color: #aaa; font-weight: normal; }
+  #explain tr:first-child td.synthetic.first::before { content: "["; }
+  #explain tr:first-child td.synthetic.last::after { content: "]"; }
+  #explain .g0 { color: #c0392b; }
+  #explain .g1 { color: #1f6fb2; }
+  #explain .g2 { color: #1e8449; }
+  #explain .g3 { color: #a8650a; }
+  #explain .g4 { color: #7d3c98; }
+  #explain .g5 { color: #117a65; }
+  #matches .word { display: block; cursor: pointer; }
+  #matches .word:hover { text-decoration: underline; }
+
   #matches-info { margin: 12px 0 6px; }
   #matches-info:empty { display: none; }
   #matches {
@@ -96,7 +123,7 @@
     white-space: pre;
   }
   #matches:not(:empty) { border: 1px solid #ccc; padding: 8px; }
-  #matches.stale, #matches-info.stale { opacity: 0.3; }
+  #matches.stale, #matches-info.stale, #explain.stale { opacity: 0.3; }
 
   .help {
     margin-top: 32px;
@@ -151,11 +178,14 @@
     <button id="clear-tests">Clear</button>
     <span id="examples-note" class="note"></span>
   </div>
-  <div class="editor">
-    <div class="backdrop" id="tests-backdrop" aria-hidden="true"></div>
-    <textarea id="tests" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Test strings, one per line"></textarea>
+  <div id="tests-row">
+    <div class="editor">
+      <div class="backdrop" id="tests-backdrop" aria-hidden="true"></div>
+      <textarea id="tests" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Test strings, one per line"></textarea>
+    </div>
+    <div id="explain-box"><div id="explain" aria-live="polite"></div></div>
   </div>
-  <p id="tests-help">One per line: <span class="match">matches</span> or <span class="nomatch">doesn't</span>. The states reached by the line with the cursor are highlighted in the diagram.</p>
+  <p id="tests-help">One per line: <span class="match">matches</span> or <span class="nomatch">doesn't</span>. For the line with the cursor, the panel beside it shows which part of the pattern matched each character, and the diagram highlights the states it reaches.</p>
 
   <div id="words-header" class="section-header">
     <h2>Word list</h2>
@@ -164,7 +194,7 @@
     <span id="words-info" class="note"></span>
     <input type="file" id="words-file" accept=".txt,text/plain" hidden>
   </div>
-  <p id="words-help">Load a text file with one word or phrase per line to list the ones the pattern matches. The list is kept in this browser only.</p>
+  <p id="words-help">Load a text file with one word or phrase per line to list the ones the pattern matches. Click a match to add it to the test strings and see how it matches. The list is kept in this browser only.</p>
   <div id="matches-info"></div>
   <div id="matches"></div>
 
@@ -3823,9 +3853,9 @@
     candidates.push(mergeEquivalent(removeEpsilons(nfa2)));
     let best = null;
     let reason = "the automaton is too large";
-    for (const automaton of candidates) {
-      if (automaton.size > limits.states) continue;
-      const node2 = eliminate(automaton, limits.length);
+    for (const automaton2 of candidates) {
+      if (automaton2.size > limits.states) continue;
+      const node2 = eliminate(automaton2, limits.length);
       if (node2 === null) {
         reason = "the result is too long";
         continue;
@@ -4088,7 +4118,7 @@
     }
     return [...words];
   }
-  function matcher(nfa2) {
+  function lazyDfa(nfa2) {
     const ids = /* @__PURE__ */ new Map();
     const sets = [];
     const accepting = [];
@@ -4106,23 +4136,29 @@
     };
     const start2 = intern(closure(nfa2, [nfa2.start]));
     const dead = intern(/* @__PURE__ */ new Set());
+    const step2 = (d, cp) => {
+      let next = moves[d].get(cp);
+      if (next === void 0) {
+        const targets = [];
+        for (const s of sets[d]) {
+          for (const { label, to } of nfa2.edges[s]) if (label !== null && label.has(cp)) targets.push(to);
+        }
+        next = intern(closure(nfa2, targets));
+        moves[d].set(cp, next);
+      }
+      return next;
+    };
+    return { nfa: nfa2, start: start2, dead, step: step2, accepts: (d) => accepting[d], states: (d) => sets[d] };
+  }
+  function matcher(nfa2) {
+    const { start: start2, dead, step: step2, accepts } = lazyDfa(nfa2);
     return (string) => {
       let d = start2;
       for (const c of string) {
-        const cp = c.codePointAt(0);
-        let next = moves[d].get(cp);
-        if (next === void 0) {
-          const targets = [];
-          for (const s of sets[d]) {
-            for (const { label, to } of nfa2.edges[s]) if (label !== null && label.has(cp)) targets.push(to);
-          }
-          next = intern(closure(nfa2, targets));
-          moves[d].set(cp, next);
-        }
-        if (next === dead) return false;
-        d = next;
+        d = step2(d, c.codePointAt(0));
+        if (d === dead) return false;
       }
-      return accepting[d];
+      return accepts(d);
     };
   }
   function wordsAutomaton(words, limit = Infinity) {
@@ -4483,12 +4519,12 @@
     parseGroup() {
       const start2 = this.pos;
       this.next();
-      const modifier2 = this.peek() === "?" ? this.parseModifier(start2) : null;
-      if (modifier2?.type === "parts") return this.parseParts(start2, modifier2.flag);
-      if (modifier2?.type === "ref") return { ...modifier2, span: [start2, this.pos] };
+      const modifier3 = this.peek() === "?" ? this.parseModifier(start2) : null;
+      if (modifier3?.type === "parts") return this.parseParts(start2, modifier3.flag);
+      if (modifier3?.type === "ref") return { ...modifier3, span: [start2, this.pos] };
       const node2 = this.parseAlt();
       this.closeGroup(start2);
-      return modifier2 ? { ...modifier2, node: node2, span: [start2, this.pos] } : node2;
+      return modifier3 ? { ...modifier3, node: node2, span: [start2, this.pos] } : node2;
     }
     closeGroup(start2) {
       if (this.eat(")")) return;
@@ -5209,6 +5245,435 @@
     return end;
   }
 
+  // src/patterns/explain.js
+  var BUDGET = 3e5;
+  var TooComplexToExplain = class extends Error {
+    constructor() {
+      super("Too complex to explain");
+      this.name = "TooComplexToExplain";
+    }
+  };
+  var L2 = "L".codePointAt(0);
+  var R2 = "R".codePointAt(0);
+  function explainer(ast, { words, nfa: nfa2 } = {}) {
+    const names = definitions(ast);
+    const automata = /* @__PURE__ */ new Map();
+    if (nfa2) automata.set(ast, [lazyDfa(nfa2), null]);
+    const ctx = { names, words, automata, steps: 0, splits: /* @__PURE__ */ new Map() };
+    return (string) => {
+      ctx.steps = 0;
+      ctx.serial = 0;
+      const cells = [...string].map((c, i) => ({ col: { key: [i], ch: c.codePointAt(0), synthetic: false }, ch: c.codePointAt(0) }));
+      if (!matches2(ctx, ast, cells, false)) return null;
+      return explain(ctx, ast, cells, false);
+    };
+  }
+  function tick(ctx, n = 1) {
+    ctx.steps += n;
+    if (ctx.steps > BUDGET) throw new TooComplexToExplain();
+  }
+  function automaton(ctx, node2, caseless) {
+    let pair = ctx.automata.get(node2);
+    if (!pair) ctx.automata.set(node2, pair = [null, null]);
+    const i = caseless ? 1 : 0;
+    pair[i] ??= lazyDfa(compile(node2, { words: ctx.words, names: ctx.names, caseless }));
+    return pair[i];
+  }
+  function walk2(ctx, dfa, from, chars) {
+    let d = from;
+    for (const ch of chars) {
+      tick(ctx);
+      d = dfa.step(d, ch);
+      if (d === dfa.dead) break;
+    }
+    return d;
+  }
+  function matches2(ctx, node2, cells, caseless) {
+    const dfa = automaton(ctx, node2, caseless);
+    return dfa.accepts(walk2(ctx, dfa, dfa.start, cells.map((c) => c.ch)));
+  }
+  function splitAutomaton(ctx, split) {
+    if (!ctx.splits.has(split)) ctx.splits.set(split, lazyDfa(compile(typeof split === "string" ? parse(split) : split)));
+    return ctx.splits.get(split);
+  }
+  function explain(ctx, node2, cells, caseless) {
+    tick(ctx);
+    const tree = (children = [], extra = {}) => ({ node: node2, cells, children, ...extra });
+    const sub = (child, part, ci = caseless) => explain(ctx, child, part, ci);
+    switch (node2.type) {
+      case "empty":
+      case "char":
+      case "any":
+      case "class":
+      case "shorthand":
+      case "words":
+      case "not":
+        return tree();
+      case "define":
+        return tree([sub(node2.node, cells)]);
+      case "ref": {
+        const entry = ctx.names.get(node2.name);
+        return tree([sub(entry.node, cells, entry.caseless)], { name: node2.name });
+      }
+      case "alt":
+        return tree([sub(node2.items.find((item) => matches2(ctx, item, cells, caseless)), cells)]);
+      case "and":
+        return tree(node2.items.map((item) => sub(item, cells)));
+      case "concat": {
+        const parts2 = splitConcat(ctx, node2.items, cells, caseless);
+        return tree(parts2.map((part, i) => sub(node2.items[i], part)));
+      }
+      case "repeat": {
+        const parts2 = splitRepeat(ctx, node2, cells, caseless);
+        return tree(parts2.map((part) => sub(node2.node, part)));
+      }
+      case "spatial": {
+        const { op } = node2;
+        if (op in SPLITS) {
+          const [left, right] = weaveSearch(ctx, splitAutomaton(ctx, SPLITS[op]), node2, cells, caseless);
+          return tree([sub(node2.left, left), sub(node2.right, right)]);
+        }
+        const split = op.startsWith("-") ? SPLITS[op.slice(1)] : swap2(SPLITS[op.slice(2)]);
+        const [whole, removed] = unweaveSearch(ctx, splitAutomaton(ctx, split), node2.left, node2.right, cells, caseless);
+        return tree([sub(node2.left, whole), sub(node2.right, removed)]);
+      }
+      case "split": {
+        const split = splitAutomaton(ctx, node2.split);
+        if (!node2.unweave) {
+          const [left, right] = weaveSearch(ctx, split, node2, cells, caseless);
+          return tree([sub(node2.left, left), sub(node2.right, right)]);
+        }
+        const [whole, removed] = unweaveSearch(ctx, split, node2.left, node2.right, cells, caseless);
+        return tree([sub(node2.left, whole), sub(node2.right, removed)]);
+      }
+      case "slice": {
+        const [whole] = unweaveSearch(ctx, splitAutomaton(ctx, sliceSplit(node2)), node2.node, null, cells, caseless);
+        return tree([sub(node2.node, whole)]);
+      }
+      case "replace":
+        return tree(replaceSearch(ctx, node2, cells, caseless).map(([child, part]) => sub(child, part)));
+      case "modifier":
+        return tree([modifier2(ctx, node2, cells, caseless)]);
+      default:
+        throw new Error(`Unknown node type ${node2.type}`);
+    }
+  }
+  function modifier2(ctx, node2, cells, caseless) {
+    const inner = node2.node;
+    const sub = (part, ci = caseless) => explain(ctx, inner, part, ci);
+    switch (node2.flag) {
+      case "i":
+        return sub(cells, true);
+      case "r":
+        return sub(reorder(cells, [...cells].reverse()));
+      case "c": {
+        const shifts = node2.count === null ? Array.from({ length: 25 }, (_, i) => i + 1) : [node2.count];
+        for (const n of shifts) {
+          const shifted = cells.map(({ col, ch }) => ({ col, ch: shiftSet(CharSet.of(ch), -n).ranges[0][0] }));
+          if (matches2(ctx, inner, shifted, caseless)) return sub(shifted);
+        }
+        break;
+      }
+      case "R": {
+        const n = cells.length;
+        const count2 = node2.count;
+        const ks = count2 === null ? Array.from({ length: Math.max(n - 1, 0) }, (_, i) => i + 1) : [count2 > 0 ? count2 : n + count2];
+        for (const k of ks) {
+          if (k < 1 || k > n - 1) continue;
+          const rotated = reorder(cells, [...cells.slice(k), ...cells.slice(0, k)]);
+          if (matches2(ctx, inner, rotated, caseless)) return sub(rotated);
+        }
+        break;
+      }
+    }
+    throw new Error(`No explanation for modifier ${node2.flag}`);
+  }
+  function reorder(cells, moved) {
+    return cells.map(({ col }, i) => ({ col, ch: moved[i].ch }));
+  }
+  function splitConcat(ctx, items, cells, caseless) {
+    const n = cells.length;
+    const failed = /* @__PURE__ */ new Set();
+    const go = (i, start2) => {
+      if (i === items.length - 1) return matches2(ctx, items[i], cells.slice(start2), caseless) ? [cells.slice(start2)] : null;
+      const key = i * (n + 1) + start2;
+      if (failed.has(key)) return null;
+      for (let end = n; end >= start2; end--) {
+        const part = cells.slice(start2, end);
+        if (!matches2(ctx, items[i], part, caseless)) continue;
+        const rest = go(i + 1, end);
+        if (rest) return [part, ...rest];
+      }
+      failed.add(key);
+      return null;
+    };
+    return go(0, 0);
+  }
+  function splitRepeat(ctx, { node: node2, min, max }, cells, caseless) {
+    const n = cells.length;
+    const failed = /* @__PURE__ */ new Set();
+    const go = (count2, start2) => {
+      if (start2 === n && count2 >= min) return [];
+      if (max !== null && count2 >= max) return null;
+      const key = `${max === null ? Math.min(count2, min) : count2},${start2}`;
+      if (failed.has(key)) return null;
+      for (let end = n; end >= start2 + (count2 < min ? 0 : 1); end--) {
+        const part = cells.slice(start2, end);
+        if (!matches2(ctx, node2, part, caseless)) continue;
+        const rest = go(count2 + 1, end);
+        if (rest) return [part, ...rest];
+      }
+      failed.add(key);
+      return null;
+    };
+    return go(0, 0);
+  }
+  function swap2(split) {
+    return split.replace(/[LR]/g, (c) => c === "L" ? "R" : "L");
+  }
+  function search(ctx, start2, key, moves, isGoal) {
+    const seen = /* @__PURE__ */ new Set([key(start2)]);
+    const queue = [{ state: start2, back: null, move: null }];
+    for (let i = 0; i < queue.length; i++) {
+      tick(ctx);
+      const entry = queue[i];
+      if (isGoal(entry.state)) {
+        const path = [];
+        for (let e = entry; e.back; e = e.back) path.push(e.move);
+        return path.reverse();
+      }
+      for (const [move, next] of moves(entry.state)) {
+        const k = key(next);
+        if (seen.has(k)) continue;
+        seen.add(k);
+        queue.push({ state: next, back: entry, move });
+      }
+    }
+    return null;
+  }
+  function weaveSearch(ctx, split, { left, right }, cells, caseless) {
+    const a = automaton(ctx, left, caseless);
+    const b = automaton(ctx, right, caseless);
+    const n = cells.length;
+    const path = search(
+      ctx,
+      [0, split.start, a.start, b.start],
+      (state) => state.join(","),
+      ([i, s, p, q]) => {
+        if (i === n) return [];
+        const out = [];
+        const ch = cells[i].ch;
+        const sl = split.step(s, L2);
+        if (sl !== split.dead) {
+          const p2 = a.step(p, ch);
+          if (p2 !== a.dead) out.push(["L", [i + 1, sl, p2, q]]);
+        }
+        const sr = split.step(s, R2);
+        if (sr !== split.dead) {
+          const q2 = b.step(q, ch);
+          if (q2 !== b.dead) out.push(["R", [i + 1, sr, p, q2]]);
+        }
+        return out;
+      },
+      ([i, s, p, q]) => i === n && split.accepts(s) && a.accepts(p) && b.accepts(q)
+    );
+    if (!path) throw new Error("No split found");
+    return [cells.filter((_, i) => path[i] === "L"), cells.filter((_, i) => path[i] === "R")];
+  }
+  function unweaveSearch(ctx, split, whole, removed, cells, caseless) {
+    const a = automaton(ctx, whole, caseless);
+    const b = removed ? automaton(ctx, removed, caseless) : null;
+    const n = cells.length;
+    const path = search(
+      ctx,
+      [0, split.start, a.start, b ? b.start : 0],
+      (state) => state.join(","),
+      ([i2, s, p, q]) => {
+        const out = [];
+        const sl = split.step(s, L2);
+        if (i2 < n && sl !== split.dead) {
+          const p2 = a.step(p, cells[i2].ch);
+          if (p2 !== a.dead) out.push([null, [i2 + 1, sl, p2, q]]);
+        }
+        const sr = split.step(s, R2);
+        if (sr !== split.dead) {
+          for (const ch of sharedChars(ctx, a, p, b, q)) {
+            const p2 = a.step(p, ch);
+            const q2 = b ? b.step(q, ch) : 0;
+            if (p2 !== a.dead && (!b || q2 !== b.dead)) out.push([ch, [i2, sr, p2, q2]]);
+          }
+        }
+        return out;
+      },
+      ([i2, s, p, q]) => i2 === n && split.accepts(s) && a.accepts(p) && (!b || b.accepts(q))
+    );
+    if (!path) throw new Error("No removal found");
+    const wholeCells = [];
+    const removedCells = [];
+    let i = 0;
+    for (const ch of path) {
+      if (ch === null) {
+        wholeCells.push(cells[i++]);
+      } else {
+        const cell = synthetic(ctx, ch, wholeCells.at(-1), cells[i]);
+        wholeCells.push(cell);
+        removedCells.push(cell);
+      }
+    }
+    return [wholeCells, removedCells];
+  }
+  function replaceSearch(ctx, node2, cells, caseless) {
+    const a = automaton(ctx, node2.node, caseless);
+    const b = automaton(ctx, node2.find, caseless);
+    const n = cells.length;
+    const chars = cells.map((c) => c.ch);
+    let afterX = a.start;
+    for (let i = 0; i <= n; i++) {
+      if (i > 0) afterX = walk2(ctx, a, afterX, [chars[i - 1]]);
+      if (afterX === a.dead) break;
+      if (node2.strict && i === 0) continue;
+      for (let j = i; j <= n - (node2.strict ? 1 : 0); j++) {
+        const c = cells.slice(i, j);
+        if (!matches2(ctx, node2.insert, c, caseless)) continue;
+        const y = chars.slice(j);
+        const path = search(
+          ctx,
+          [afterX, b.start],
+          (state) => state.join(","),
+          ([p, q]) => sharedChars(ctx, a, p, b, q).map((ch) => [ch, [a.step(p, ch), b.step(q, ch)]]).filter(([, [p2, q2]]) => p2 !== a.dead && q2 !== b.dead),
+          ([p, q]) => b.accepts(q) && a.accepts(walk2(ctx, a, p, y))
+        );
+        if (!path) continue;
+        const x = cells.slice(0, i);
+        let prev = x.at(-1);
+        const next = c[0] ?? cells[j];
+        const found = path.map((ch) => prev = synthetic(ctx, ch, prev, next));
+        return [[node2.node, [...x, ...found, ...cells.slice(j)]], [node2.find, found], [node2.insert, c]];
+      }
+    }
+    throw new Error("No replacement found");
+  }
+  function sharedChars(ctx, a, p, b, q) {
+    const labels = (dfa, d) => dfa.states(d).flatMap((s) => dfa.nfa.edges[s]).map((e) => e.label).filter((l) => l !== null);
+    const mine = labels(a, p);
+    const theirs = b ? labels(b, q) : [CharSet.ALL];
+    tick(ctx, mine.length * theirs.length);
+    const out = /* @__PURE__ */ new Set();
+    for (const x of mine) {
+      for (const y of theirs) {
+        const both = x.intersect(y);
+        if (!both.isEmpty()) out.add(representative(both));
+      }
+    }
+    return [...out];
+  }
+  var READABLE = [[97, 122], [65, 90], [48, 57], [224, 255], [33, 126]].map((r) => CharSet.from([r]));
+  function representative(set2) {
+    for (const pool of READABLE) {
+      const both = set2.intersect(pool);
+      if (!both.isEmpty()) return both.ranges[0][0];
+    }
+    return set2.ranges[0][0];
+  }
+  function synthetic(ctx, ch, prev, next) {
+    let key;
+    if (prev) key = [...prev.col.key, ctx.serial++];
+    else if (next) key = [...next.col.key.slice(0, -1), next.col.key.at(-1) - 0.5, ctx.serial++];
+    else key = [-1, ctx.serial++];
+    return { col: { key, ch, synthetic: true }, ch };
+  }
+  function sliceSplit({ start: start2, stop, step: step2 }) {
+    const s = step2 ?? 1;
+    const middle = s === 1 ? "L*" : `(LR{${s - 1}})*(LR{0,${s - 2}})?`;
+    const sized = (k) => `(${middle}&[LR]{${k}})`;
+    if (start2 === null || start2 >= 0) {
+      const a = start2 ?? 0;
+      if (stop === null) return `R{${a}}(${middle})`;
+      if (stop >= 0) return `R{${a}}${sized(stop - a)}R*`;
+      return `R{${a}}(${middle})R{${-stop}}`;
+    }
+    return `R*${sized(-start2 + (stop ?? 0))}R{${stop === null ? 0 : -stop}}`;
+  }
+  var compareKeys = (x, y) => {
+    for (let i = 0; i < Math.min(x.length, y.length); i++) if (x[i] !== y[i]) return x[i] - y[i];
+    return x.length - y.length;
+  };
+  var MAX_LABEL = 30;
+  var TOKEN = /\\u\{[0-9a-f]+\}|\\.|./gsu;
+  function shortLabel(text, highlight = null) {
+    if ([...text].length <= MAX_LABEL) return { label: text, highlight };
+    const take = (from2, room) => {
+      let out = "";
+      for (const token of text.slice(from2).match(TOKEN) ?? []) {
+        if ([...out].length + [...token].length > room) break;
+        out += token;
+      }
+      return out;
+    };
+    const clip = (offset, [a, b]) => [Math.max(a - offset, 0), Math.max(b - offset, 0)];
+    const head = take(0, MAX_LABEL - 1);
+    if (highlight === null || [...text.slice(0, highlight[1])].length <= MAX_LABEL - 1) {
+      return { label: `${head}\u2026`, highlight: highlight && clip(0, highlight).map((x) => Math.min(x, head.length)) };
+    }
+    const from = highlight[0] > 0 ? highlight[0] - 1 : 0;
+    const body = take(from, MAX_LABEL - 2);
+    const label = `\u2026${body}${from + body.length < text.length ? "\u2026" : ""}`;
+    return { label, highlight: clip(from - 1, highlight).map((x) => Math.min(x, body.length + 1)) };
+  }
+  var CLASSES = /* @__PURE__ */ new Set(["char", "any", "class", "shorthand"]);
+  function trivial(node2) {
+    if (node2.type === "empty" || CLASSES.has(node2.type)) return true;
+    if (node2.type === "alt") return node2.items.every((item) => item.type !== "empty" && trivial(item));
+    if (node2.type === "modifier" && node2.flag !== "R") return trivial(node2.node);
+    return false;
+  }
+  var MAX_ROWS = 200;
+  function layout(tree, pattern) {
+    const columns = [];
+    const seen = /* @__PURE__ */ new Set();
+    const collect = (t) => {
+      for (const { col } of t.cells) {
+        if (!seen.has(col)) {
+          seen.add(col);
+          columns.push(col);
+        }
+      }
+      t.children.forEach(collect);
+    };
+    collect(tree);
+    columns.sort((x, y) => compareKeys(x.key, y.key));
+    const index = new Map(columns.map((col, i) => [col, i]));
+    const rows = [];
+    let truncated = false;
+    const same = (x, y) => x.length === y.length && x.every((c, i) => c.col === y[i].col && c.ch === y[i].ch);
+    const visit = (t, parent, depth, group2, operand = false) => {
+      const shown = parent === null || !trivial(t.node) && t.cells.length > 0 && (operand || !same(t.cells, parent.cells));
+      if (shown) {
+        if (rows.length >= MAX_ROWS) {
+          truncated = true;
+          return;
+        }
+        if (depth === 1) group2 = rows.filter((r) => r.depth === 1).length;
+        const text = t.name !== void 0 ? `(?&${t.name})` : pattern.slice(...t.node.span);
+        const chosen = t.node.type === "alt" ? t.children[0].node.span.map((x) => x - t.node.span[0]) : null;
+        const { label, highlight } = shortLabel(text, chosen);
+        rows.push({
+          depth,
+          group: group2,
+          label,
+          highlight,
+          title: label === text ? null : text,
+          chars: new Map(t.cells.map(({ col, ch }) => [index.get(col), String.fromCodePoint(ch)]))
+        });
+      }
+      for (const child of t.children) {
+        visit(child, shown ? t : parent, shown ? depth + 1 : depth, group2, t.node.type === "and");
+      }
+    };
+    visit(tree, null, 0, null);
+    return { columns: columns.map((col) => ({ ch: String.fromCodePoint(col.ch), synthetic: col.synthetic })), rows, truncated };
+  }
+
   // src/patterns/display.js
   function formatLabel(set2) {
     if (set2.isAll()) return ".";
@@ -5219,13 +5684,13 @@
   function classRanges(set2) {
     return set2.ranges.flatMap(([lo, hi]) => hi === lo + 1 ? [[lo, lo], [hi, hi]] : [[lo, hi]]);
   }
-  var MAX_LABEL = 24;
-  function shortLabel(label) {
-    if ([...label].length <= MAX_LABEL) return label;
+  var MAX_LABEL2 = 24;
+  function shortLabel2(label) {
+    if ([...label].length <= MAX_LABEL2) return label;
     const tokens = label.match(/\\u\{[0-9a-f]+\}|\\.|./gsu);
     let head = "";
     for (const token of tokens) {
-      if ([...head].length + [...token].length > MAX_LABEL - 2) break;
+      if ([...head].length + [...token].length > MAX_LABEL2 - 2) break;
       head += token;
     }
     return `${head}\u2026${label.endsWith("]") ? "]" : ""}`;
@@ -5249,7 +5714,7 @@
         let attrs = `label="\u03B5", style=dashed`;
         if (label !== null) {
           const full = formatLabel(label);
-          const short = shortLabel(full);
+          const short = shortLabel2(full);
           attrs = `label=${quote(short)}${short === full ? "" : `, tooltip=${quote(full)}`}`;
         }
         lines.push(`  ${s} -> ${to} [${attrs}];`);
@@ -5265,7 +5730,7 @@
     const normalized = pattern.normalize("NFC");
     const ast = parse(normalized);
     const usesWords = words !== void 0 && containsWords(ast);
-    const limit = MAX_STATES + (usesWords ? WORDS_FACTOR * words.size : 0);
+    const limit = stateLimit2(ast, words);
     try {
       return withStateLimit(limit, () => compile(ast, { words }));
     } catch (e) {
@@ -5275,6 +5740,19 @@
       }
       throw e;
     }
+  }
+  function stateLimit2(ast, words) {
+    return MAX_STATES + (words !== void 0 && containsWords(ast) ? WORDS_FACTOR * words.size : 0);
+  }
+  function explainer2(pattern, { words, nfa: nfa2 } = {}) {
+    const normalized = pattern.normalize("NFC");
+    const ast = parse(normalized);
+    const limit = Math.max(stateLimit2(ast, words), nfa2 ? limitFor(nfa2) : 0);
+    const explain2 = explainer(ast, { words, nfa: nfa2 });
+    return (string) => withStateLimit(limit, () => {
+      const tree = explain2(string.normalize("NFC"));
+      return tree && layout(tree, normalized);
+    });
   }
   function containsWords(node2) {
     if (node2.type === "words") return true;
@@ -5375,6 +5853,7 @@
     scheduleRegex();
     scheduleMatches();
     updateTests();
+    showExplanation();
     $("diagram").classList.toggle("stale", nfa === null && message === null && !askToBuild);
     if (nfa === null) {
       $("stats").textContent = "";
@@ -5439,6 +5918,83 @@
   function currentLine() {
     if (document.activeElement !== testsInput) return -1;
     return testsInput.value.slice(0, testsInput.selectionStart).split("\n").length - 1;
+  }
+  var explainedLine = -1;
+  var explainFor = null;
+  var explained = null;
+  function showExplanation() {
+    const line = currentLine();
+    if (line >= 0) explainedLine = line;
+    const text = explainedLine >= 0 ? testsInput.value.split("\n")[explainedLine] : void 0;
+    if (compiled === null) {
+      $("explain").classList.toggle("stale", text !== void 0);
+      return;
+    }
+    $("explain").classList.remove("stale");
+    if (explained && explained.compiled === compiled && explained.line === text) return;
+    explained = { compiled, line: text, html: explanationHtml(text) };
+    $("explain").innerHTML = explained.html;
+  }
+  function explanationHtml(text) {
+    const note = (message) => `<p class="note">${escapeHtml(message)}</p>`;
+    if (text === void 0) return note("Put the cursor on a test string to see which part of the pattern matched each character.");
+    if (explainFor?.compiled !== compiled) {
+      explainFor = { compiled, explain: explainer2(patternInput.value, { words: wordList?.automaton, nfa: compiled }) };
+    }
+    let result;
+    try {
+      result = explainFor.explain(text);
+    } catch (e) {
+      if (e instanceof TooComplexToExplain || e instanceof TooManyStatesError) return note("Too complex to explain.");
+      throw e;
+    }
+    if (result === null) return note(text === "" ? "The empty string doesn't match." : "This string doesn't match.");
+    if (text === "") return note("The empty string matches.");
+    const { columns, rows, truncated } = result;
+    const groupOf = /* @__PURE__ */ new Map();
+    for (const row of rows) {
+      if (row.depth === 1) {
+        for (const i of row.chars.keys()) if (!groupOf.has(i)) groupOf.set(i, row.group);
+      }
+    }
+    const groupClass = (group2) => group2 === null || group2 === void 0 ? "" : `g${group2 % 6}`;
+    const html = rows.map((row) => {
+      const cells = columns.map((col, i) => {
+        const ch = row.depth === 0 ? col.ch : row.chars.get(i) ?? "";
+        const classes = [groupClass(row.depth === 0 ? groupOf.get(i) : row.group)];
+        if (col.synthetic) {
+          classes.push("synthetic");
+          if (!columns[i - 1]?.synthetic) classes.push("first");
+          if (!columns[i + 1]?.synthetic) classes.push("last");
+        }
+        return `<td class="${classes.join(" ").trim()}">${escapeHtml(ch)}</td>`;
+      }).join("");
+      const title = row.title === null ? "" : ` title="${escapeHtml(row.title)}"`;
+      const text2 = row.highlight === null ? escapeHtml(row.label) : [
+        `<span class="other">${escapeHtml(row.label.slice(0, row.highlight[0]))}</span>`,
+        escapeHtml(row.label.slice(...row.highlight)),
+        `<span class="other">${escapeHtml(row.label.slice(row.highlight[1]))}</span>`
+      ].join("");
+      const label = `<td class="label" style="padding-left: ${1.5 + row.depth}em"${title}>${text2}</td>`;
+      return `<tr>${cells}${label}</tr>`;
+    }).join("");
+    const more = truncated ? note("Only the first rows are shown.") : "";
+    return `<table>${html}</table>${more}`;
+  }
+  function showTestString(s) {
+    testsInput.focus();
+    let lines = testsInput.value.split("\n");
+    if (!lines.includes(s)) {
+      const existing = testsInput.value.replace(/\n+$/, "");
+      testsInput.setSelectionRange(existing.length, testsInput.value.length);
+      edit(testsInput, (existing ? "\n" : "") + s);
+      lines = testsInput.value.split("\n");
+    }
+    const start2 = lines.slice(0, lines.indexOf(s)).reduce((n, line) => n + line.length + 1, 0);
+    testsInput.setSelectionRange(start2, start2);
+    save();
+    onCursor();
+    $("tests-row").scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
   function highlightCurrent() {
     const line = currentLine();
@@ -5618,7 +6174,12 @@
   function showMatches(found) {
     for (const id of ["matches", "matches-info"]) $(id).classList.remove("stale");
     const shown = showAllMatches ? found : found.slice(0, SHOWN_MATCHES);
-    $("matches").textContent = shown.join("\n");
+    $("matches").replaceChildren(...shown.map((word) => {
+      const span = document.createElement("span");
+      span.className = "word";
+      span.textContent = word;
+      return span;
+    }));
     $("matches").scrollTop = 0;
     if (found.length === 0) {
       $("matches-info").textContent = "No words match.";
@@ -5666,6 +6227,7 @@
   function onCursor() {
     updateTests();
     highlightCurrent();
+    showExplanation();
   }
   var saved = load();
   patternInput.value = saved.pattern;
@@ -5696,6 +6258,9 @@
   $("load-words").addEventListener("click", () => $("words-file").click());
   $("words-file").addEventListener("change", loadWordFile);
   $("clear-words").addEventListener("click", clearWordList);
+  $("matches").addEventListener("click", (e) => {
+    if (e.target.classList.contains("word")) showTestString(e.target.textContent);
+  });
   testsInput.addEventListener("input", () => {
     save();
     onCursor();
