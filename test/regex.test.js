@@ -42,7 +42,7 @@ const TARGETS = [
   // special cases and escaping
   ["", "^$"],
   ["[]", "^(?!)$"],
-  [".", "^[\\s\\S]$"],
+  [".", "^.$"],
   ["[^a]", "^[^a]$"],
   ["\\.\\*\\-\\/", "^\\.\\*-\\/$"],
   ["[\\-\\]x]", "^[\\-\\]x]$"],
@@ -83,7 +83,7 @@ test("regexes agree with the patterns, as real JavaScript regexes", () => {
     const result = toRegex(nfa);
     if (!result.regex) continue;
     converted++;
-    const re = new RegExp(result.regex, "u");
+    const re = new RegExp(result.regex, "su");
     for (const s of randomStrings(rand, 40)) {
       assert.equal(re.test(s), matches(nfa, s), `${result.regex} on ${JSON.stringify(s)}`);
     }
