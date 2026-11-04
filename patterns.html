@@ -16,7 +16,7 @@
   main { max-width: 900px; margin: 0 auto; }
   .intro { margin: 0 0 24px; color: #666; }
   nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
-  nav a { color: #06c; }
+  a { color: #06c; }
   nav b { color: #000; }
   h2 { font-size: 1rem; margin: 24px 0 8px; }
   .section-header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 24px 0 8px; }
@@ -146,7 +146,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <b>Patterns</b> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Explore regular expressions as finite automata, with extra operators for wordplay such as containment and subtraction.</p>
+  <p class="intro">Explore regular expressions as finite automata, with extra operators for wordplay (see the <a href="#syntax">full syntax</a> below).</p>
 
   <div class="editor">
     <div class="backdrop" id="pattern-backdrop" aria-hidden="true"></div>
@@ -200,7 +200,7 @@
   <div id="matches-info"></div>
   <div id="matches"></div>
 
-  <div class="help">
+  <div class="help" id="syntax">
     <p>Patterns match whole strings, so there are no anchors: unlike in most regex dialects, <code>^</code> means interleaving (see below), not the start of the string. All ASCII punctuation except <code>'</code> is reserved, so write <code>\.</code>, <code>\-</code>, <code>\\</code> and so on to match it literally.</p>
     <table>
       <tr><td><code>a</code> <code>\*</code> <code>\n</code> <code>\u{e9}</code></td><td>a character</td></tr>
