@@ -139,7 +139,7 @@
   <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
   <div id="regex-line">
-    <span class="label">PCRE-compatible equivalent:</span>
+    <span class="label">PCRE-compatible DOTALL equivalent:</span>
     <code id="regex"></code>
     <button id="copy-regex">Copy</button>
     <span id="regex-note" class="note"></span>
@@ -4070,7 +4070,7 @@
     return c;
   }
   function jsSet(cs) {
-    if (cs.isAll()) return "[\\s\\S]";
+    if (cs.isAll()) return ".";
     if (cs.size() === 1) return jsChar(cs.ranges[0][0], false);
     const complement2 = cs.complement();
     if (complement2.size() === 1) return `[^${jsChar(complement2.ranges[0][0], true)}]`;

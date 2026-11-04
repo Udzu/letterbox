@@ -6,7 +6,8 @@
 // the least (the Delgado-Morais weight heuristic), breaking ties by state number.
 //
 // Expressions are simplified as they're built (see alt, cat and rep below), and the result
-// is written in the syntax PCRE and JavaScript (with the u flag) have in common, except that
+// is written in the syntax PCRE and JavaScript (with the u flag) have in common, assuming DOTALL
+// mode (the s flag), so . matches any character including newlines, except that
 // unprintable characters above U+FF are written \u{...}, which only JavaScript accepts.
 
 import { CharSet } from "./charset.js";
@@ -316,7 +317,7 @@ function jsChar(cp, inClass) {
 }
 
 function jsSet(cs) {
-  if (cs.isAll()) return "[\\s\\S]";
+  if (cs.isAll()) return ".";
   if (cs.size() === 1) return jsChar(cs.ranges[0][0], false);
   const complement = cs.complement();
   if (complement.size() === 1) return `[^${jsChar(complement.ranges[0][0], true)}]`;
