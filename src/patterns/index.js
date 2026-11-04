@@ -6,23 +6,38 @@
 
 import { parse, PatternError } from "./parser.js";
 import { compile as compileAst } from "./compile.js";
-import { TooManyStatesError, matches as nfaMatches, run as nfaRun } from "./nfa.js";
+import { MAX_STATES, TooManyStatesError, matches as nfaMatches, run as nfaRun, withStateLimit } from "./nfa.js";
 
 export { parse, format, PatternError } from "./parser.js";
 export { CharSet } from "./charset.js";
 export { formatLabel, toDot } from "./display.js";
-export { NFA, TooManyStatesError, closure, trim, removeEpsilons, determinize, complement, intersect, reverse, minimize } from "./nfa.js";
+export { NFA, TooManyStatesError, closure, trim, removeEpsilons, determinize, complement, intersect, reverse, minimize, limitFor, withStateLimit } from "./nfa.js";
 
-// pattern string → NFA (throws PatternError)
-export function compile(pattern) {
+// a pattern using the word list may have this many states per state of the list's automaton,
+// on top of the usual limit
+const WORDS_FACTOR = 10;
+
+// pattern string → NFA (throws PatternError); { words } is the word list's automaton, if any
+export function compile(pattern, { words } = {}) {
   const normalized = pattern.normalize("NFC");
   const ast = parse(normalized);
+  const usesWords = words !== undefined && containsWords(ast);
+  const limit = MAX_STATES + (usesWords ? WORDS_FACTOR * words.size : 0);
   try {
-    return compileAst(ast);
+    return withStateLimit(limit, () => compileAst(ast, { words }));
   } catch (e) {
-    if (e instanceof TooManyStatesError) throw new PatternError(`Pattern is too complex: ${e.message}`, 0, normalized.length);
+    if (e instanceof TooManyStatesError) {
+      const hint = usesWords ? " (combining the word list with itself or with other large patterns can be too much)" : "";
+      throw new PatternError(`Pattern is too complex: ${e.message}${hint}`, 0, normalized.length);
+    }
     throw e;
   }
+}
+
+function containsWords(node) {
+  if (node.type === "words") return true;
+  return [node.node, node.left, node.right, node.find, node.insert, node.split, ...(node.items ?? [])]
+    .some((child) => child && containsWords(child));
 }
 
 export function matches(nfa, string) {

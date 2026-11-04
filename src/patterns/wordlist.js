@@ -1,6 +1,7 @@
 // Word lists, and finding the words in one that a pattern matches.
 
-import { closure } from "./nfa.js";
+import { CharSet } from "./charset.js";
+import { Builder, closure } from "./nfa.js";
 
 // The words in a list's text: each non-empty line, without a trailing \r, normalised to NFC
 // like everything else. Spaces are kept, so a list can hold phrases. Duplicates are dropped.
@@ -54,4 +55,51 @@ export function matcher(nfa) {
     }
     return accepting[d];
   };
+}
+
+// The minimal DFA matching exactly the given words (a DAWG): a trie of the words, with
+// equivalent states merged bottom-up, since two states are equivalent when they're both
+// accepting or not and have the same moves to the same (already merged) states. Its size
+// can be well above the usual state limit, so it has its own.
+export function wordsAutomaton(words, limit = Infinity) {
+  // the trie: each node is { final, next: Map cp → node }
+  const root = { final: false, next: new Map() };
+  for (const word of words) {
+    let node = root;
+    for (const c of word) {
+      const cp = c.codePointAt(0);
+      let child = node.next.get(cp);
+      if (!child) node.next.set(cp, (child = { final: false, next: new Map() }));
+      node = child;
+    }
+    node.final = true;
+  }
+  // number the distinct states, children first, so a state's signature can use their ids
+  const ids = new Map(); // signature → id
+  const states = []; // id → { final, moves: [[cp, id]] }
+  const idOf = new Map(); // node → id
+  const stack = [[root, false]];
+  while (stack.length) {
+    const [node, expanded] = stack.pop();
+    if (!expanded) {
+      stack.push([node, true]);
+      for (const child of node.next.values()) stack.push([child, false]);
+      continue;
+    }
+    const moves = [...node.next].map(([cp, child]) => [cp, idOf.get(child)]).sort((x, y) => x[0] - y[0]);
+    const signature = `${node.final ? 1 : 0}|${moves.join(";")}`;
+    if (!ids.has(signature)) {
+      ids.set(signature, states.length);
+      states.push({ final: node.final, moves });
+    }
+    idOf.set(node, ids.get(signature));
+  }
+  const b = new Builder(limit);
+  for (let i = 0; i < states.length; i++) b.state();
+  const accepting = [];
+  states.forEach(({ final, moves }, i) => {
+    if (final) accepting.push(i);
+    for (const [cp, to] of moves) b.edge(i, CharSet.of(cp), to);
+  });
+  return b.build(idOf.get(root), accepting);
 }

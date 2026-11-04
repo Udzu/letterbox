@@ -17,6 +17,8 @@ export const UNLIMITED = { dfaStates: 50000, states: 5000, length: 1e6 };
 
 // Returns { regex } with an anchored JavaScript regex, or { tooComplex: reason }.
 export function toRegex(nfa, limits = LIMITS) {
+  // far too large to end up within the limits, and slow even to try
+  if (nfa.size > 10 * limits.dfaStates) return { tooComplex: "the automaton is too large" };
   const candidates = [];
   try {
     candidates.push(minimize(nfa, { maxStates: limits.dfaStates }));

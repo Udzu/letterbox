@@ -4,9 +4,10 @@ import { instance } from "@viz-js/viz";
 import { examples } from "./examples.js";
 import { describeLengths, matchLengths } from "./lengths.js";
 import { LIMITS, UNLIMITED, toRegex } from "./regex.js";
-import { matcher, parseWords } from "./wordlist.js";
+import { matcher, parseWords, wordsAutomaton } from "./wordlist.js";
 import {
-  compile, determinize, minimize, removeEpsilons, run, toDot, trim, PatternError, TooManyStatesError,
+  compile, determinize, limitFor, minimize, removeEpsilons, run, toDot, trim, withStateLimit, PatternError,
+  TooManyStatesError,
 } from "./index.js";
 
 const VIEWS = {
@@ -24,10 +25,14 @@ const VIEW_HELP = {
   min: "The DFA with the fewest states that matches the same strings.",
 };
 const MAX_DRAWN_STATES = 300;
+// the DFA views of automata larger than this can take seconds, so they wait to be asked for
+const MAX_QUICK_DFA_SOURCE = 5000;
+const SLOW_VIEWS = new Set(["dfa", "min"]);
 const REGEX_DELAY = 300; // ms without typing before converting the pattern to a regex
 const STORAGE_KEY = "patterns";
 const MATCH_CHUNK = 5000; // words checked between pauses that keep the page responsive
 const SHOWN_MATCHES = 1000;
+const LARGE_WORD_LIST = 20000; // above this, patterns using @ take a second or more
 const DEFAULTS = { pattern: "their|her|his|xyr", tests: "their\nher\nhis\nxyr\nhim", view: "epsfree" };
 
 const $ = (id) => document.getElementById(id);
@@ -39,6 +44,7 @@ const vizReady = instance();
 let nfa = null; // the NFA currently drawn, if any
 let compiled = null; // the compiled pattern, if it's valid
 let drawLarge = false;
+let buildLarge = false;
 
 function load() {
   try {
@@ -80,10 +86,14 @@ async function update() {
   $("examples-note").textContent = "";
   $("lengths").textContent = "";
   let message = null;
+  let askToBuild = false;
   try {
-    compiled = compile(pattern);
-    $("lengths").textContent = describeLengths(matchLengths(compiled));
-    nfa = VIEWS[viewSelect.value](compiled);
+    compiled = compile(pattern, { words: wordList?.automaton });
+    withStateLimit(limitFor(compiled), () => {
+      $("lengths").textContent = describeLengths(matchLengths(compiled));
+      if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
+      else nfa = VIEWS[viewSelect.value](compiled);
+    });
   } catch (e) {
     if (e instanceof PatternError) {
       const [start, end] = e.span;
@@ -104,10 +114,18 @@ async function update() {
   scheduleMatches();
   updateTests();
   // while the pattern is invalid, keep showing the last diagram, dimmed
-  $("diagram").classList.toggle("stale", nfa === null && message === null);
+  $("diagram").classList.toggle("stale", nfa === null && message === null && !askToBuild);
   if (nfa === null) {
     $("stats").textContent = "";
-    if (message) $("diagram").innerHTML = `<p class="note">${escapeHtml(message)}</p>`;
+    if (askToBuild) {
+      $("diagram").innerHTML = `<p class="note">This automaton is large, so this view may take a while to build. <button id="build-anyway">Build anyway</button></p>`;
+      $("build-anyway").addEventListener("click", () => {
+        $("diagram").innerHTML = `<p class="note">Building…</p>`;
+        buildLarge = true;
+        // let the note appear before the page is busy
+        setTimeout(update, 20);
+      });
+    } else if (message) $("diagram").innerHTML = `<p class="note">${escapeHtml(message)}</p>`;
     else if (!$("diagram").querySelector("svg")) $("diagram").replaceChildren();
     highlightCurrent();
     return;
@@ -245,7 +263,7 @@ function clearTests() {
 function addExamples() {
   if (compiled === null) return;
   const lines = testsInput.value.split("\n");
-  const result = examples(compiled, { exclude: new Set(lines) });
+  const result = withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) }));
   const existing = testsInput.value.replace(/\n+$/, "");
   if (result.examples.length) {
     // insert at the end, after any trailing blank lines are removed
@@ -310,11 +328,20 @@ function setWordList(list) {
   showAllMatches = false;
   $("clear-words").disabled = list === null;
   $("words-info").textContent = list === null ? "None loaded" : `${list.name}: ${count(list.words.length, "word")}`;
+  if (list !== null && list.words.length > LARGE_WORD_LIST) {
+    $("words-info").textContent += `. Patterns using @ may be slow with this many.`;
+  }
   if (list === null) {
     $("matches-info").replaceChildren();
     $("matches").replaceChildren();
   }
-  scheduleMatches();
+  // @ means something different now
+  schedule();
+}
+
+// a list from its words, including the automaton that @ uses
+function makeWordList(name, words) {
+  return { name, words, automaton: wordsAutomaton(words) };
 }
 
 async function loadWordFile() {
@@ -323,7 +350,7 @@ async function loadWordFile() {
   $("words-info").textContent = "Loading…";
   const text = await file.text();
   $("words-file").value = "";
-  setWordList({ name: file.name, words: parseWords(text) });
+  setWordList(makeWordList(file.name, parseWords(text)));
   storeWordList({ name: file.name, text });
 }
 
@@ -377,17 +404,22 @@ function showMatches(found) {
   }
 }
 
+// Patterns using the word list can take a while to compile, so they wait for a pause in
+// typing; others update on the next frame.
 let pending = false;
+let slowTimer = null;
 function schedule() {
+  clearTimeout(slowTimer);
+  if (wordList !== null && patternInput.value.includes("@")) {
+    $("diagram").classList.add("stale");
+    slowTimer = setTimeout(update, REGEX_DELAY);
+    return;
+  }
   if (pending) return;
   pending = true;
   requestAnimationFrame(() => {
     pending = false;
     update();
-setWordList(null);
-fetchWordList().then((stored) => {
-  if (stored && wordList === null) setWordList({ name: stored.name, words: parseWords(stored.text) });
-});
   });
 }
 
@@ -404,6 +436,7 @@ viewSelect.value = saved.view in VIEWS ? saved.view : DEFAULTS.view;
 patternInput.addEventListener("input", () => {
   if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
   drawLarge = false;
+  buildLarge = false;
   showAllMatches = false;
   schedule();
 });
@@ -417,6 +450,7 @@ function showViewHelp() {
 showViewHelp();
 viewSelect.addEventListener("change", () => {
   showViewHelp();
+  buildLarge = false;
   schedule();
 });
 $("add-examples").addEventListener("click", addExamples);
@@ -437,8 +471,10 @@ window.addEventListener("resize", () => {
   autosize(patternInput);
   autosize(testsInput);
 });
-update();
-setWordList(null);
+// wait for any stored word list before the first update, since the pattern may use it
+$("clear-words").disabled = true;
+$("words-info").textContent = "None loaded";
 fetchWordList().then((stored) => {
-  if (stored && wordList === null) setWordList({ name: stored.name, words: parseWords(stored.text) });
+  if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));
+  else update();
 });

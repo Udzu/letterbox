@@ -165,6 +165,7 @@
     <table>
       <tr><td><code>a</code> <code>\*</code> <code>\n</code> <code>\u{e9}</code></td><td>a character</td></tr>
       <tr><td><code>.</code></td><td>any character</td></tr>
+      <tr><td><code>@</code></td><td>any word in the word list, if one is loaded</td></tr>
       <tr><td><code>[abc]</code> <code>[a-z]</code> <code>[^a-z]</code></td><td>character classes (<code>[]</code> matches nothing)</td></tr>
       <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
       <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
@@ -3332,8 +3333,21 @@
 
   // src/patterns/nfa.js
   var MAX_STATES = 5e4;
+  var stateLimit = MAX_STATES;
+  function limitFor(nfa2) {
+    return Math.max(MAX_STATES, 4 * nfa2.size);
+  }
+  function withStateLimit(limit, f) {
+    const previous = stateLimit;
+    stateLimit = limit;
+    try {
+      return f();
+    } finally {
+      stateLimit = previous;
+    }
+  }
   var TooManyStatesError = class extends Error {
-    constructor(limit = MAX_STATES) {
+    constructor(limit = stateLimit) {
       super(`The automaton needs more than ${limit} states`);
       this.name = "TooManyStatesError";
     }
@@ -3355,7 +3369,7 @@
     }
   };
   var Builder = class {
-    constructor(limit = MAX_STATES) {
+    constructor(limit = stateLimit) {
       this.edges = [];
       this.limit = limit;
     }
@@ -3470,7 +3484,7 @@
     }
     return trim(b.build(nfa2.start, accepting));
   }
-  function determinize(nfa2, { complete = false, maxStates = MAX_STATES } = {}) {
+  function determinize(nfa2, { complete = false, maxStates = stateLimit } = {}) {
     const b = new Builder(maxStates);
     const ids = /* @__PURE__ */ new Map();
     const sets = [];
@@ -3521,7 +3535,18 @@
     for (let s = 0; s < dfa.size; s++) if (!dfa.accepting.has(s)) accepting.push(s);
     return trim(new NFA(dfa.start, new Set(accepting), dfa.edges));
   }
-  function intersect(a, c) {
+  function intersect(x, y) {
+    return product(cheaplyDeterministic(x), cheaplyDeterministic(y));
+  }
+  function cheaplyDeterministic(nfa2) {
+    try {
+      return trim(determinize(nfa2, { maxStates: Math.max(1e3, 2 * nfa2.size) }));
+    } catch (e) {
+      if (e instanceof TooManyStatesError) return nfa2;
+      throw e;
+    }
+  }
+  function product(a, c) {
     const b = new Builder();
     const ids = /* @__PURE__ */ new Map();
     const pairs = [];
@@ -3542,7 +3567,9 @@
           continue;
         }
         for (const f of c.edges[q]) {
-          if (f.label !== null) b.edge(i, e.label.intersect(f.label), id(e.to, f.to));
+          if (f.label === null) continue;
+          const label = e.label.intersect(f.label);
+          if (!label.isEmpty()) b.edge(i, label, id(e.to, f.to));
         }
       }
       for (const f of c.edges[q]) if (f.label === null) b.edge(i, null, id(p, f.to));
@@ -3571,7 +3598,7 @@
     for (const s of nfa2.accepting) b.edge(start, null, s);
     return b.build(start, [nfa2.start]);
   }
-  function minimize(nfa2, { maxStates = MAX_STATES } = {}) {
+  function minimize(nfa2, { maxStates = stateLimit } = {}) {
     return trim(determinize(reverse(determinize(reverse(nfa2), { maxStates })), { maxStates }));
   }
   function mergeEquivalent(nfa2) {
@@ -3760,6 +3787,7 @@
   var LIMITS = { dfaStates: 2e3, states: 200, length: 2e3 };
   var UNLIMITED = { dfaStates: 5e4, states: 5e3, length: 1e6 };
   function toRegex(nfa2, limits = LIMITS) {
+    if (nfa2.size > 10 * limits.dfaStates) return { tooComplex: "the automaton is too large" };
     const candidates = [];
     try {
       candidates.push(minimize(nfa2, { maxStates: limits.dfaStates }));
@@ -4068,6 +4096,46 @@
       return accepting[d];
     };
   }
+  function wordsAutomaton(words, limit = Infinity) {
+    const root = { final: false, next: /* @__PURE__ */ new Map() };
+    for (const word of words) {
+      let node2 = root;
+      for (const c of word) {
+        const cp = c.codePointAt(0);
+        let child = node2.next.get(cp);
+        if (!child) node2.next.set(cp, child = { final: false, next: /* @__PURE__ */ new Map() });
+        node2 = child;
+      }
+      node2.final = true;
+    }
+    const ids = /* @__PURE__ */ new Map();
+    const states = [];
+    const idOf = /* @__PURE__ */ new Map();
+    const stack = [[root, false]];
+    while (stack.length) {
+      const [node2, expanded] = stack.pop();
+      if (!expanded) {
+        stack.push([node2, true]);
+        for (const child of node2.next.values()) stack.push([child, false]);
+        continue;
+      }
+      const moves = [...node2.next].map(([cp, child]) => [cp, idOf.get(child)]).sort((x, y) => x[0] - y[0]);
+      const signature = `${node2.final ? 1 : 0}|${moves.join(";")}`;
+      if (!ids.has(signature)) {
+        ids.set(signature, states.length);
+        states.push({ final: node2.final, moves });
+      }
+      idOf.set(node2, ids.get(signature));
+    }
+    const b = new Builder(limit);
+    for (let i = 0; i < states.length; i++) b.state();
+    const accepting = [];
+    states.forEach(({ final, moves }, i) => {
+      if (final) accepting.push(i);
+      for (const [cp, to] of moves) b.edge(i, CharSet.of(cp), to);
+    });
+    return b.build(idOf.get(root), accepting);
+  }
 
   // src/patterns/parser.js
   var PatternError = class extends Error {
@@ -4323,6 +4391,9 @@
         case ".":
           this.next();
           return { type: "any", span: [start, this.pos] };
+        case "@":
+          this.next();
+          return { type: "words", span: [start, this.pos] };
         case "\\":
           return { type: "char", cp: this.parseEscape(), span: [start, this.pos] };
         default:
@@ -4376,7 +4447,7 @@
         throw new PatternError("Split patterns can only use the characters L and R", ...n.span);
       };
       const visit = (n) => {
-        if (n.type === "char" && !SPLIT_CHARS.has(n.cp)) bad(n);
+        if (n.type === "char" && !SPLIT_CHARS.has(n.cp) || n.type === "words") bad(n);
         if (n.type === "class" && !n.ranges.every(([lo, hi]) => lo === hi && SPLIT_CHARS.has(lo))) bad(n);
         for (const child of [n.node, n.left, n.right, n.find, n.insert, n.split, ...n.items ?? []]) if (child) visit(child);
       };
@@ -4681,7 +4752,7 @@
   // src/patterns/weave.js
   var L = "L".codePointAt(0);
   var R = "R".codePointAt(0);
-  function product(a, b, split, step2) {
+  function product2(a, b, split, step2) {
     const builder = new Builder();
     const ids = /* @__PURE__ */ new Map();
     const triples = [];
@@ -4710,7 +4781,7 @@
     return builder.build(start, accepting);
   }
   function weave(a, b, split) {
-    return product(a, b, split, (builder, i, p, q, g, id) => {
+    return product2(a, b, split, (builder, i, p, q, g, id) => {
       if (g.label.has(L)) {
         for (const e of a.edges[p]) if (e.label !== null) builder.edge(i, e.label, id(e.to, q, g.to));
       }
@@ -4720,7 +4791,7 @@
     });
   }
   function unweave(a, b, split) {
-    return product(a, b, split, (builder, i, p, q, g, id) => {
+    return product2(a, b, split, (builder, i, p, q, g, id) => {
       if (g.label.has(L)) {
         for (const e of a.edges[p]) if (e.label !== null) builder.edge(i, e.label, id(e.to, q, g.to));
       }
@@ -4787,6 +4858,10 @@
         return step(b, from, chars(CharSet.of(node2.cp)));
       case "any":
         return step(b, from, CharSet.ALL);
+      case "words": {
+        if (!options.words) throw new PatternError("No word list loaded: load one below to use @", ...node2.span);
+        return embed(b, options.caseless ? mapLabels(options.words, caseClose) : options.words, from);
+      }
       case "class": {
         const set2 = chars(CharSet.from(node2.ranges.map(([lo, hi]) => [lo, hi])));
         return step(b, from, node2.negated ? set2.complement() : set2);
@@ -4954,15 +5029,25 @@
   }
 
   // src/patterns/index.js
-  function compile2(pattern) {
+  var WORDS_FACTOR = 10;
+  function compile2(pattern, { words } = {}) {
     const normalized = pattern.normalize("NFC");
     const ast = parse(normalized);
+    const usesWords = words !== void 0 && containsWords(ast);
+    const limit = MAX_STATES + (usesWords ? WORDS_FACTOR * words.size : 0);
     try {
-      return compile(ast);
+      return withStateLimit(limit, () => compile(ast, { words }));
     } catch (e) {
-      if (e instanceof TooManyStatesError) throw new PatternError(`Pattern is too complex: ${e.message}`, 0, normalized.length);
+      if (e instanceof TooManyStatesError) {
+        const hint = usesWords ? " (combining the word list with itself or with other large patterns can be too much)" : "";
+        throw new PatternError(`Pattern is too complex: ${e.message}${hint}`, 0, normalized.length);
+      }
       throw e;
     }
+  }
+  function containsWords(node2) {
+    if (node2.type === "words") return true;
+    return [node2.node, node2.left, node2.right, node2.find, node2.insert, node2.split, ...node2.items ?? []].some((child) => child && containsWords(child));
   }
   function run2(nfa2, string) {
     return run(nfa2, string.normalize("NFC"));
@@ -4984,10 +5069,13 @@
     min: "The DFA with the fewest states that matches the same strings."
   };
   var MAX_DRAWN_STATES = 300;
+  var MAX_QUICK_DFA_SOURCE = 5e3;
+  var SLOW_VIEWS = /* @__PURE__ */ new Set(["dfa", "min"]);
   var REGEX_DELAY = 300;
   var STORAGE_KEY = "patterns";
   var MATCH_CHUNK = 5e3;
   var SHOWN_MATCHES = 1e3;
+  var LARGE_WORD_LIST = 2e4;
   var DEFAULTS = { pattern: "their|her|his|xyr", tests: "their\nher\nhis\nxyr\nhim", view: "epsfree" };
   var $ = (id) => document.getElementById(id);
   var patternInput = $("pattern");
@@ -4997,6 +5085,7 @@
   var nfa = null;
   var compiled = null;
   var drawLarge = false;
+  var buildLarge = false;
   function load() {
     try {
       return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(STORAGE_KEY)) };
@@ -5032,10 +5121,14 @@
     $("examples-note").textContent = "";
     $("lengths").textContent = "";
     let message = null;
+    let askToBuild = false;
     try {
-      compiled = compile2(pattern);
-      $("lengths").textContent = describeLengths(matchLengths(compiled));
-      nfa = VIEWS[viewSelect.value](compiled);
+      compiled = compile2(pattern, { words: wordList?.automaton });
+      withStateLimit(limitFor(compiled), () => {
+        $("lengths").textContent = describeLengths(matchLengths(compiled));
+        if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
+        else nfa = VIEWS[viewSelect.value](compiled);
+      });
     } catch (e) {
       if (e instanceof PatternError) {
         const [start, end] = e.span;
@@ -5051,10 +5144,17 @@
     scheduleRegex();
     scheduleMatches();
     updateTests();
-    $("diagram").classList.toggle("stale", nfa === null && message === null);
+    $("diagram").classList.toggle("stale", nfa === null && message === null && !askToBuild);
     if (nfa === null) {
       $("stats").textContent = "";
-      if (message) $("diagram").innerHTML = `<p class="note">${escapeHtml(message)}</p>`;
+      if (askToBuild) {
+        $("diagram").innerHTML = `<p class="note">This automaton is large, so this view may take a while to build. <button id="build-anyway">Build anyway</button></p>`;
+        $("build-anyway").addEventListener("click", () => {
+          $("diagram").innerHTML = `<p class="note">Building\u2026</p>`;
+          buildLarge = true;
+          setTimeout(update, 20);
+        });
+      } else if (message) $("diagram").innerHTML = `<p class="note">${escapeHtml(message)}</p>`;
       else if (!$("diagram").querySelector("svg")) $("diagram").replaceChildren();
       highlightCurrent();
       return;
@@ -5170,7 +5270,7 @@
   function addExamples() {
     if (compiled === null) return;
     const lines = testsInput.value.split("\n");
-    const result = examples(compiled, { exclude: new Set(lines) });
+    const result = withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) }));
     const existing = testsInput.value.replace(/\n+$/, "");
     if (result.examples.length) {
       testsInput.focus();
@@ -5226,11 +5326,17 @@
     showAllMatches = false;
     $("clear-words").disabled = list === null;
     $("words-info").textContent = list === null ? "None loaded" : `${list.name}: ${count(list.words.length, "word")}`;
+    if (list !== null && list.words.length > LARGE_WORD_LIST) {
+      $("words-info").textContent += `. Patterns using @ may be slow with this many.`;
+    }
     if (list === null) {
       $("matches-info").replaceChildren();
       $("matches").replaceChildren();
     }
-    scheduleMatches();
+    schedule();
+  }
+  function makeWordList(name, words) {
+    return { name, words, automaton: wordsAutomaton(words) };
   }
   async function loadWordFile() {
     const file = $("words-file").files[0];
@@ -5238,7 +5344,7 @@
     $("words-info").textContent = "Loading\u2026";
     const text = await file.text();
     $("words-file").value = "";
-    setWordList({ name: file.name, words: parseWords(text) });
+    setWordList(makeWordList(file.name, parseWords(text)));
     storeWordList({ name: file.name, text });
   }
   function clearWordList() {
@@ -5285,16 +5391,19 @@
     }
   }
   var pending = false;
+  var slowTimer = null;
   function schedule() {
+    clearTimeout(slowTimer);
+    if (wordList !== null && patternInput.value.includes("@")) {
+      $("diagram").classList.add("stale");
+      slowTimer = setTimeout(update, REGEX_DELAY);
+      return;
+    }
     if (pending) return;
     pending = true;
     requestAnimationFrame(() => {
       pending = false;
       update();
-      setWordList(null);
-      fetchWordList().then((stored) => {
-        if (stored && wordList === null) setWordList({ name: stored.name, words: parseWords(stored.text) });
-      });
     });
   }
   function onCursor() {
@@ -5308,6 +5417,7 @@
   patternInput.addEventListener("input", () => {
     if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
     drawLarge = false;
+    buildLarge = false;
     showAllMatches = false;
     schedule();
   });
@@ -5320,6 +5430,7 @@
   showViewHelp();
   viewSelect.addEventListener("change", () => {
     showViewHelp();
+    buildLarge = false;
     schedule();
   });
   $("add-examples").addEventListener("click", addExamples);
@@ -5340,10 +5451,11 @@
     autosize(patternInput);
     autosize(testsInput);
   });
-  update();
-  setWordList(null);
+  $("clear-words").disabled = true;
+  $("words-info").textContent = "None loaded";
   fetchWordList().then((stored) => {
-    if (stored && wordList === null) setWordList({ name: stored.name, words: parseWords(stored.text) });
+    if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));
+    else update();
   });
 })();
 </script>
