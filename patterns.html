@@ -5357,11 +5357,15 @@
   var showAllMatches = false;
   function scheduleMatches() {
     clearTimeout(matchTimer);
-    for (const id of ["matches", "matches-info"]) $(id).classList.add("stale");
+    markMatchesStale();
     if (compiled === null || wordList === null) return;
     const [target, list] = [compiled, wordList];
     matchTimer = setTimeout(() => findMatches(target, list), firstMatches ? 0 : REGEX_DELAY);
     firstMatches = false;
+  }
+  function markMatchesStale() {
+    for (const id of ["matches", "matches-info"]) $(id).classList.add("stale");
+    if ($("download-matches")) $("download-matches").disabled = true;
   }
   async function findMatches(target, list) {
     const test = matcher(target);
@@ -5380,15 +5384,29 @@
     $("matches").scrollTop = 0;
     if (found.length === 0) {
       $("matches-info").textContent = "No words match.";
-    } else if (shown.length === found.length) {
-      $("matches-info").textContent = `${count(found.length, "matching word")}:`;
+      return;
+    }
+    const download = `<button id="download-matches">Download</button>`;
+    if (shown.length === found.length) {
+      $("matches-info").innerHTML = `${count(found.length, "matching word")}: ${download}`;
     } else {
-      $("matches-info").innerHTML = `${count(found.length, "matching word")}, showing the first ${shown.length.toLocaleString()}: <button id="show-all-matches">Show all</button>`;
+      $("matches-info").innerHTML = `${count(found.length, "matching word")}, showing the first ${shown.length.toLocaleString()}: <button id="show-all-matches">Show all</button> ${download}`;
       $("show-all-matches").addEventListener("click", () => {
         showAllMatches = true;
         showMatches(found);
       });
     }
+    $("download-matches").addEventListener("click", () => downloadMatches(found));
+  }
+  function downloadMatches(found) {
+    const safe = patternInput.value.replace(/[<>:"/\\|?*\p{Cc}]/gu, "_").slice(0, 50);
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([found.join("\n") + "\n"], { type: "text/plain;charset=utf-8" }));
+    link.download = safe.trim() ? `matches ${safe}.txt` : "matches.txt";
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1e3);
   }
   var pending = false;
   var slowTimer = null;
@@ -5396,6 +5414,7 @@
     clearTimeout(slowTimer);
     if (wordList !== null && patternInput.value.includes("@")) {
       $("diagram").classList.add("stale");
+      markMatchesStale();
       slowTimer = setTimeout(update, REGEX_DELAY);
       return;
     }
