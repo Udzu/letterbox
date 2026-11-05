@@ -118,6 +118,7 @@
   <div id="left">
     <input id="input" type="text" placeholder="Type a potential pangram..." autocomplete="off" autofocus>
     <button id="add" title="Ctrl+Enter">Add to list</button>
+    <button id="ducktiles" title="Open the missing letters as tiles on ducktiles.com">Ducktiles</button>
     <div id="letters"></div>
     <div id="summary"></div>
     <div id="words-header" class="section-header">
@@ -247,6 +248,24 @@
     saveAttempts();
     renderAttempts();
     input.focus();
+  });
+
+  // Ducktiles reads its tiles from the URL hash: base64-encoded JSON of
+  // {id, char, offset} objects, with offsets in pixels from the window centre.
+  document.getElementById("ducktiles").addEventListener("click", () => {
+    const { missing } = analyse(input.value);
+    if (missing === "") return;
+    const chars = [...missing.toUpperCase()];
+    const TILE = 54, STEP = 62, PER_ROW = 10;
+    const cols = Math.min(chars.length, PER_ROW), rows = Math.ceil(chars.length / PER_ROW);
+    const width = cols * STEP - (STEP - TILE), height = rows * STEP - (STEP - TILE);
+    const tiles = chars.map((char, i) => ({
+      id: i + 1,
+      char,
+      offset: [-width / 2 + (i % PER_ROW) * STEP, -height / 2 + Math.floor(i / PER_ROW) * STEP],
+    }));
+    const hash = btoa(JSON.stringify(tiles));
+    window.open(`https://ducktiles.com/#${hash}`, "_blank", "noopener");
   });
 
   document.getElementById("export").addEventListener("click", () => {
