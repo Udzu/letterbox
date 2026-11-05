@@ -47,9 +47,19 @@
   #history-section { margin-top: 24px; }
   #history-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
   #history-header h2 { margin: 0; font-size: 1.1rem; }
-  #history { margin: 0; padding-left: 0; list-style: none; color: #444; font-variant-numeric: tabular-nums; }
+  #history {
+    margin: 0;
+    padding: 4px 8px;
+    max-height: 15.5em;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    list-style: none;
+    color: #444;
+    font-variant-numeric: tabular-nums;
+  }
   #history li { padding: 2px 0; cursor: default; }
   #history b { display: inline-block; min-width: 3em; color: #000; }
+  #history .number { display: inline-block; min-width: 2.5em; color: #999; }
   .help { margin-top: 32px; font-size: 0.9rem; color: #666; }
   nav { max-width: 600px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
   nav a { color: #06c; }
@@ -254,14 +264,14 @@
 
   // Rolling. Each die is uniform, using rejection sampling so that every face is
   // exactly equally likely.
-  const HISTORY_SIZE = 10;
   const rollButton = document.getElementById("roll-dice");
   const totalSpan = document.getElementById("total");
   const breakdown = document.getElementById("breakdown");
   const historySection = document.getElementById("history-section");
   const historyList = document.getElementById("history");
   let current = null;   // the roll the result line shows, if any
-  let history = [];     // { text, total, details }, newest first
+  let history = [];     // { number, text, total, details }, newest first, for this visit only
+  let rollCount = 0;    // numbers the rolls in the history, from 1 since it was last cleared
 
   function rollDie(faces) {
     const limit = 2 ** 32 - (2 ** 32 % faces);
@@ -314,16 +324,20 @@
     void totalSpan.offsetWidth;
     totalSpan.classList.add("fresh");
 
-    history.unshift({ text, total, details });
-    history = history.slice(0, HISTORY_SIZE);
+    history.unshift({ number: ++rollCount, text, total, details });
     renderHistory();
   }
 
   function renderHistory() {
     historySection.hidden = history.length === 0;
-    historyList.replaceChildren(...history.map(({ text, total, details }) => {
+    historyList.scrollTop = 0;
+    historyList.replaceChildren(...history.map(({ number, text, total, details }) => {
       const li = document.createElement("li");
       li.title = details;
+      const numberCell = document.createElement("span");
+      numberCell.className = "number";
+      numberCell.textContent = `${number}.`;
+      li.append(numberCell);
       const totalCell = document.createElement("b");
       totalCell.textContent = total;
       li.append(totalCell, ` ${text}`);
@@ -334,6 +348,7 @@
   rollButton.addEventListener("click", rollDice);
   document.getElementById("clear-history").addEventListener("click", () => {
     history = [];
+    rollCount = 0;
     renderHistory();
   });
   // Enter in any of the inputs rolls too
