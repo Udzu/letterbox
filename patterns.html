@@ -83,6 +83,7 @@
   .match { color: #080; }
   .nomatch { color: #c00; }
   .current { background: #f2f2f2; }
+  .after-cursor { opacity: 0.4; }
   #tests-help, #words-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
 
   /* The explanation fills the height of the test strings beside it, scrolling if it needs
@@ -186,7 +187,7 @@
     </div>
     <div id="explain-box"><div id="explain" aria-live="polite"></div></div>
   </div>
-  <p id="tests-help">One per line: <span class="match">matches</span> or <span class="nomatch">doesn't</span>. For the line with the cursor, the panel beside it shows which part of the pattern matched each character, and the diagram highlights the states it reaches.</p>
+  <p id="tests-help">One per line: <span class="match">matches</span> or <span class="nomatch">doesn't</span>. For the line with the cursor, the panel beside it shows which part of the pattern matched each character, and the diagram highlights the states reached by the text before the cursor.</p>
 
   <div id="words-header" class="section-header">
     <h2>Word list</h2>
@@ -6148,9 +6149,13 @@
   function updateTests() {
     const lines = testsInput.value.split("\n");
     const current = currentLine();
+    const column = cursorColumn();
     $("tests-backdrop").innerHTML = lines.map((line, i) => {
       const cls = nfa === null ? "" : isMatch(line) ? "match" : "nomatch";
-      return `<span class="${cls}${i === current ? " current" : ""}">${escapeHtml(line)}</span>`;
+      if (i !== current) return `<span class="${cls}">${escapeHtml(line)}</span>`;
+      const after = line.slice(column);
+      const faded = after ? `<span class="after-cursor">${escapeHtml(after)}</span>` : "";
+      return `<span class="${cls} current">${escapeHtml(line.slice(0, column))}${faded}</span>`;
     }).join("\n") + "\n";
     autosize(testsInput);
   }
@@ -6158,9 +6163,17 @@
     for (const s of run2(nfa, line)) if (nfa.accepting.has(s)) return true;
     return false;
   }
-  function currentLine() {
+  function cursor() {
     if (document.activeElement !== testsInput) return -1;
-    return testsInput.value.slice(0, testsInput.selectionStart).split("\n").length - 1;
+    return testsInput.selectionDirection === "backward" ? testsInput.selectionStart : testsInput.selectionEnd;
+  }
+  function currentLine() {
+    const at = cursor();
+    return at < 0 ? -1 : testsInput.value.slice(0, at).split("\n").length - 1;
+  }
+  function cursorColumn() {
+    const at = cursor();
+    return at < 0 ? -1 : at - (testsInput.value.lastIndexOf("\n", at - 1) + 1);
   }
   var explainedLine = -1;
   var explainFor = null;
@@ -6240,7 +6253,7 @@
   }
   function highlightCurrent() {
     const line = currentLine();
-    const states = nfa && line >= 0 ? run2(nfa, testsInput.value.split("\n")[line]) : /* @__PURE__ */ new Set();
+    const states = nfa && line >= 0 ? run2(nfa, testsInput.value.split("\n")[line].slice(0, cursorColumn())) : /* @__PURE__ */ new Set();
     for (const g of $("diagram").querySelectorAll("g.node[data-state]")) {
       g.classList.toggle("active", states.has(Number(g.dataset.state)));
     }
