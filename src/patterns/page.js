@@ -378,7 +378,8 @@ function addExamples() {
 }
 
 // The word list is kept in IndexedDB, since lists are too large for localStorage. If storage
-// is unavailable, the list just lasts until the page is closed.
+// is unavailable, the list just lasts until the page is closed. The Anagrams and Pangrams
+// pages read and write the same entry, so a list loaded on any page is shared by all of them.
 const DB = { name: "patterns", store: "wordlist", key: "list" };
 let wordList = null; // { name, words }
 

@@ -85,6 +85,28 @@
     padding: 0 4px;
   }
   #attempts .remove:hover { color: #d00; }
+  .section-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 24px 0 8px;
+  }
+  .section-header h2 { margin: 0 8px 0 0; font-size: 1.1rem; }
+  .note { color: #666; }
+  #words-help { margin: 0 0 8px; color: #444; font-size: 0.95rem; }
+  #words-info { margin: 8px 0 6px; }
+  #words-info:empty { display: none; }
+  #words { max-height: 24em; overflow-y: auto; }
+  #words:not(:empty) { border: 1px solid #999; padding: 4px 8px; }
+  #words h3 { margin: 6px 0 2px; font-size: 0.95rem; font-weight: 600; }
+  #words h3.perfect { color: #080; }
+  #words .group { display: flex; gap: 14px; padding: 4px 0; border-top: 1px solid #eee; }
+  #words h3 + .group { border-top: none; }
+  #words .new { color: #888; min-width: 1.8em; font-variant-numeric: tabular-nums; }
+  #words .list { display: flex; gap: 4px 14px; flex-wrap: wrap; }
+  #words .word { cursor: pointer; white-space: pre; }
+  #words .word:hover { text-decoration: underline; }
   nav { max-width: 1300px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
   nav a { color: #06c; }
   nav b { color: #000; }
@@ -96,8 +118,19 @@
   <div id="left">
     <input id="input" type="text" placeholder="Type a potential pangram..." autocomplete="off" autofocus>
     <button id="add" title="Ctrl+Enter">Add to list</button>
+    <button id="ducktiles" title="Open the missing letters as tiles on ducktiles.com">Ducktiles</button>
     <div id="letters"></div>
     <div id="summary"></div>
+    <div id="words-header" class="section-header">
+      <h2>Word list</h2>
+      <button id="load-words">Load…</button>
+      <button id="clear-words">Clear</button>
+      <span id="words-info-list" class="note"></span>
+      <input type="file" id="words-file" accept=".txt,text/plain" hidden>
+    </div>
+    <p id="words-help">Load a text file with one word or phrase per line to list the ones that use missing letters, grouped by how many duplicates they add, then by how many missing letters (+n) they use. Click one to add it to the pangram. The list is kept in this browser only (but shared with the other pages).</p>
+    <div id="words-info"></div>
+    <div id="words"></div>
   </div>
   <div id="right">
     <div id="attempts-header">
@@ -128,12 +161,12 @@
     cells[ch] = cell;
   }
 
+  // letters of the alphabet in a piece of text, with accents stripped (é → e)
+  const alphabetLetters = text => [...text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()].filter(ch => ALPHABET.includes(ch));
+
   function analyse(text) {
     const counts = Object.fromEntries([...ALPHABET].map(ch => [ch, 0]));
-    // strip accents (é → e) by decomposing and dropping combining marks
-    for (const ch of text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()) {
-      if (ch in counts) counts[ch]++;
-    }
+    for (const ch of alphabetLetters(text)) counts[ch]++;
     let total = 0, missing = "", duplicates = "";
     for (const ch of ALPHABET) {
       const n = counts[ch];
@@ -156,6 +189,7 @@
     if (duplicates !== "") parts.push(`<span class="c2">Duplicates: ${duplicates.length} (${duplicates})</span>`);
     if (missing === "") parts.push(`<span class="done">✓ ${duplicates === "" ? "perfect pangram" : "pangram"}</span>`);
     summary.innerHTML = parts.join(" &nbsp;·&nbsp; ");
+    showWords(missing);
   }
 
   // attempts list, saved in the browser's local storage where available
@@ -216,6 +250,24 @@
     input.focus();
   });
 
+  // Ducktiles reads its tiles from the URL hash: base64-encoded JSON of
+  // {id, char, offset} objects, with offsets in pixels from the window centre.
+  document.getElementById("ducktiles").addEventListener("click", () => {
+    const { missing } = analyse(input.value);
+    if (missing === "") return;
+    const chars = [...missing.toUpperCase()];
+    const TILE = 54, STEP = 62, PER_ROW = 10;
+    const cols = Math.min(chars.length, PER_ROW), rows = Math.ceil(chars.length / PER_ROW);
+    const width = cols * STEP - (STEP - TILE), height = rows * STEP - (STEP - TILE);
+    const tiles = chars.map((char, i) => ({
+      id: i + 1,
+      char,
+      offset: [-width / 2 + (i % PER_ROW) * STEP, -height / 2 + Math.floor(i / PER_ROW) * STEP],
+    }));
+    const hash = btoa(JSON.stringify(tiles));
+    window.open(`https://ducktiles.com/#${hash}`, "_blank", "noopener");
+  });
+
   document.getElementById("export").addEventListener("click", () => {
     if (attempts.length === 0) return;
     const blob = new Blob([attempts.join("\n") + "\n"], { type: "text/plain" });
@@ -238,6 +290,221 @@
       e.preventDefault();
       addButton.click();
     }
+  });
+
+  // word list, stored in IndexedDB under the same entry as the Patterns page
+  // uses, so a list loaded on any page is available on all of them
+  const DB = { name: "patterns", store: "wordlist", key: "list" };
+  const SHOWN_WORDS = 500;
+  const wordsBox = document.getElementById("words");
+  const wordsInfo = document.getElementById("words-info");
+  const listInfo = document.getElementById("words-info-list");
+  const clearWordsButton = document.getElementById("clear-words");
+  let wordList = null;      // { name, size, entries: [{ word, mask, length }] }, alphabetical
+  let shownFor = null;      // the missing letters the words were last listed for
+  let showAllWords = false;
+
+  function openDb() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB.name, 1);
+      request.onupgradeneeded = () => request.result.createObjectStore(DB.store);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function storeWordList(value) {
+    try {
+      const db = await openDb();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(DB.store, "readwrite");
+        if (value === null) tx.objectStore(DB.store).delete(DB.key);
+        else tx.objectStore(DB.store).put(value, DB.key);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {}
+  }
+
+  async function fetchWordList() {
+    try {
+      const db = await openDb();
+      return await new Promise((resolve, reject) => {
+        const request = db.transaction(DB.store).objectStore(DB.store).get(DB.key);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error);
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // one word or phrase per line, as on the Patterns page
+  function parseWords(text) {
+    const words = new Set();
+    for (const line of text.split("\n")) {
+      const word = line.replace(/\r$/, "").normalize("NFC");
+      if (word !== "") words.add(word);
+    }
+    return [...words];
+  }
+
+  const bit = ch => 1 << ALPHABET.indexOf(ch);
+  const popcount = n => {
+    let c = 0;
+    for (; n; n &= n - 1) c++;
+    return c;
+  };
+
+  // each word's letters as a bitmask, worked out once when the list is loaded:
+  // a word uses popcount(mask & missing) new letters and adds length minus that
+  // many duplicates
+  function makeWordList(name, words) {
+    const entries = [];
+    for (const word of words) {
+      const letters = alphabetLetters(word);
+      if (letters.length === 0) continue;
+      let mask = 0;
+      for (const ch of letters) mask |= bit(ch);
+      entries.push({ word, mask, length: letters.length });
+    }
+    entries.sort((a, b) => a.word.localeCompare(b.word));
+    return { name, size: words.length, entries };
+  }
+
+  const count = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
+
+  function setWordList(list) {
+    wordList = list;
+    shownFor = null;
+    showAllWords = false;
+    clearWordsButton.disabled = list === null;
+    listInfo.textContent = list === null ? "None loaded" : `${list.name}: ${count(list.size, "word")}`;
+    update();
+  }
+
+  function showWords(missing) {
+    if (wordList === null) {
+      wordsInfo.textContent = "";
+      wordsBox.replaceChildren();
+      shownFor = null;
+      return;
+    }
+    if (missing === shownFor) return;
+    showAllWords = false;
+    shownFor = missing;
+    renderWords(missing);
+  }
+
+  function renderWords(missing) {
+    let missingMask = 0;
+    for (const ch of missing) missingMask |= bit(ch);
+
+    // buckets[duplicates][new letters], each already in alphabetical order
+    const buckets = [];
+    let found = 0;
+    for (const entry of wordList.entries) {
+      const added = popcount(entry.mask & missingMask);
+      if (added === 0) continue;
+      const dups = entry.length - added;
+      ((buckets[dups] ??= [])[added] ??= []).push(entry.word);
+      found++;
+    }
+
+    const rows = [];
+    let left = showAllWords ? Infinity : SHOWN_WORDS;
+    for (let dups = 0; dups < buckets.length && left > 0; dups++) {
+      if (!buckets[dups]) continue;
+      const heading = document.createElement("h3");
+      heading.textContent = dups === 0 ? "No duplicates" : count(dups, "duplicate");
+      if (dups === 0) heading.className = "perfect";
+      rows.push(heading);
+      for (let added = buckets[dups].length - 1; added > 0 && left > 0; added--) {
+        const words = buckets[dups][added];
+        if (!words) continue;
+        const row = document.createElement("div");
+        row.className = "group";
+        const label = document.createElement("span");
+        label.className = "new";
+        label.textContent = `+${added}`;
+        label.title = `Uses ${count(added, "missing letter")}`;
+        const list = document.createElement("div");
+        list.className = "list";
+        for (const word of words.slice(0, left)) {
+          const span = document.createElement("span");
+          span.className = "word";
+          span.textContent = word;
+          span.title = "Add to the pangram";
+          list.append(span);
+        }
+        left -= list.childElementCount;
+        row.append(label, list);
+        rows.push(row);
+      }
+    }
+    wordsBox.replaceChildren(...rows);
+    wordsBox.scrollTop = 0;
+
+    const shown = showAllWords ? found : Math.min(found, SHOWN_WORDS);
+    if (missing === "") {
+      wordsInfo.textContent = "";
+    } else if (found === 0) {
+      wordsInfo.textContent = "No words use the missing letters.";
+    } else if (shown === found) {
+      wordsInfo.textContent = `${count(found, "word")} use missing letters:`;
+    } else {
+      wordsInfo.innerHTML = `${count(found, "word")} use missing letters, showing the first ${shown.toLocaleString()}: <button id="show-all-words">Show all</button>`;
+      document.getElementById("show-all-words").addEventListener("click", () => {
+        showAllWords = true;
+        renderWords(missing);
+      });
+    }
+  }
+
+  // insert at the cursor (or at the end, if the box isn't focused), with spaces
+  // to separate it from neighbouring words, in a way Ctrl+Z can undo
+  function insertWord(word) {
+    if (document.activeElement !== input) {
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
+    const { selectionStart: start, selectionEnd: end, value } = input;
+    const before = start > 0 && !/\s/.test(value[start - 1]) ? " " : "";
+    const after = end < value.length && !/\s/.test(value[end]) ? " " : "";
+    const text = before + word + after;
+    if (!document.execCommand("insertText", false, text)) {
+      input.setRangeText(text, start, end, "end");
+      update();
+    }
+  }
+
+  // keep the cursor where it is in the box when clicking a word
+  wordsBox.addEventListener("mousedown", e => {
+    if (e.target.classList.contains("word")) e.preventDefault();
+  });
+  wordsBox.addEventListener("click", e => {
+    if (e.target.classList.contains("word")) insertWord(e.target.textContent);
+  });
+
+  document.getElementById("load-words").addEventListener("click", () => document.getElementById("words-file").click());
+  document.getElementById("words-file").addEventListener("change", async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    listInfo.textContent = "Loading…";
+    const text = await file.text();
+    e.target.value = "";
+    setWordList(makeWordList(file.name, parseWords(text)));
+    storeWordList({ name: file.name, text });
+  });
+  clearWordsButton.addEventListener("click", () => {
+    setWordList(null);
+    storeWordList(null);
+  });
+
+  clearWordsButton.disabled = true;
+  listInfo.textContent = "None loaded";
+  fetchWordList().then(stored => {
+    if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));
   });
 
   input.addEventListener("input", update);
