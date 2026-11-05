@@ -63,6 +63,30 @@
   #copy, #reset { margin-top: 12px; font-size: 1rem; cursor: pointer; }
   #copy:disabled { cursor: default; }
   .note { margin-left: 8px; font-size: 0.9rem; color: #666; }
+  .pilish-bad { text-decoration: underline wavy #e80; text-decoration-skip-ink: none; }
+  #lengths-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 24px 0 8px;
+  }
+  #lengths-header h2 { margin: 0; font-size: 1.1rem; }
+  #lengths-header label { font-size: 0.95rem; }
+  #lengths {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  #lengths:not(:empty) { border: 1px solid #999; padding: 6px 8px; }
+  #lengths .row + .row { border-top: 1px solid #eee; }
+  #lengths .count { margin-right: 0.6em; }
+  #lengths .ok { color: #080; }
+  #lengths .after { color: #aaa; }
+  #lengths .expected { color: #888; }
+  #pilish-note { margin-top: 8px; }
+  #pilish-note:empty { display: none; }
+  #pilish-note .ok { color: #080; }
   nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
   nav a { color: #06c; }
   nav b { color: #000; }
@@ -80,6 +104,12 @@
   <button id="copy">Copy to clipboard</button>
   <button id="reset">Start from scratch</button>
   <span id="copy-note" class="note">Banish all taboo symbols to unlock copying</span>
+  <div id="lengths-header">
+    <h2>Word lengths</h2>
+    <label title="Standard Alphanumeric Pilish: words of n letters or digits stand for the digits of π, with 10 for 0 and longer words for two digits"><input type="checkbox" id="pilish"> Check as Pilish (π)</label>
+  </div>
+  <div id="lengths"></div>
+  <div id="pilish-note"></div>
 </main>
 <script>
   const TEXT_KEY = "lipogram-text";
@@ -90,6 +120,10 @@
   const summary = document.getElementById("summary");
   const copyButton = document.getElementById("copy");
   const copyNote = document.getElementById("copy-note");
+  const PILISH_KEY = "lipogram-pilish";
+  const pilishBox = document.getElementById("pilish");
+  const lengthsBox = document.getElementById("lengths");
+  const pilishNote = document.getElementById("pilish-note");
 
   // set a box's value via an editing command where possible, so Ctrl+Z can undo it
   function setBox(box, value) {
@@ -152,6 +186,135 @@
     } catch (e) {}
   }
 
+  // Words are runs of letters and digits (accents and other marks aren't counted).
+  // Apostrophes are dropped without ending the word (don't = 4); anything else
+  // ends it (fun-filled = 3 6), as in Alphanumeric Pilish.
+  const isWordChar = ch => /[\p{L}\p{N}]/u.test(ch);
+  const isSilent = ch => /['’\p{M}]/u.test(ch);
+
+  function findWords(value) {
+    const words = [];
+    let line = 0, word = null, index = 0;
+    for (const ch of value) {
+      if (isWordChar(ch)) {
+        if (word === null) word = { start: index, length: 0, line };
+        word.length++;
+        word.end = index + ch.length;
+      } else if (isSilent(ch) && word !== null) {
+        // part of the word, but not counted
+      } else if (!isSilent(ch)) {
+        if (word !== null) words.push(word);
+        word = null;
+        if (ch === "\n") line++;
+      }
+      index += ch.length;
+    }
+    if (word !== null) words.push(word);
+    return words;
+  }
+
+  // digits of π (as a string, starting "31415…") from Machin's formula
+  // π/4 = 4 arctan(1/5) − arctan(1/239), computed with 10 guard digits
+  const PI_DIGITS = 10000;
+  let piDigits = null;
+  function pi() {
+    if (piDigits !== null) return piDigits;
+    const scale = 10n ** BigInt(PI_DIGITS + 10);
+    const arctanInverse = x => {
+      const x2 = BigInt(x * x);
+      let term = scale / BigInt(x), sum = term;
+      for (let k = 3n, sign = -1n; term !== 0n; k += 2n, sign = -sign) {
+        term /= x2;
+        sum += sign * (term / k);
+      }
+      return sum;
+    };
+    piDigits = (4n * (4n * arctanInverse(5) - arctanInverse(239))).toString().slice(0, PI_DIGITS);
+    return piDigits;
+  }
+
+  // Standard Pilish: a word of n < 10 letters stands for n, 10 letters for 0,
+  // and more than 10 letters for two digits (12 → 1, 2). Returns how many words
+  // and digits match, and whether a word of the wrong length stopped it.
+  function checkPilish(words) {
+    const digits = pi();
+    let used = 0;
+    for (let i = 0; i < words.length; i++) {
+      const n = words[i].length;
+      const wanted = n < 10 ? String(n) : n === 10 ? "0" : String(n);
+      if (used + wanted.length > digits.length) return { matched: i, used, beyond: true };
+      if (digits.slice(used, used + wanted.length) !== wanted) return { matched: i, used, wrong: true };
+      used += wanted.length;
+    }
+    return { matched: words.length, used };
+  }
+
+  // the word lengths that would continue π after `used` digits: d for 1–9, 10 for 0,
+  // and for 1 also the 11–19 letter word that covers the following digit too
+  // (longer words, for digits 2–9, are left out as unlikely)
+  function nextLengths(used) {
+    const [d, e] = [pi()[used], pi()[used + 1]];
+    if (d === "0") return ["10"];
+    if (d === "1" && e !== undefined && e !== "0") return ["1", `1${e}`];
+    return [d];
+  }
+
+  const plural = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
+
+  function nextWordHint(used) {
+    if (used >= pi().length) return "";
+    const [first, other] = nextLengths(used);
+    return `Next: ${first} letter${first === "1" ? "" : "s"}${other ? ` (or ${other})` : ""}`;
+  }
+
+  function showLengths(words, pilish) {
+    const rows = [];
+    let row = null, rowLine = -1;
+    words.forEach((word, i) => {
+      if (row === null || word.line !== rowLine) {
+        row = document.createElement("div");
+        row.className = "row";
+        rowLine = word.line;
+        rows.push(row);
+      }
+      const span = document.createElement("span");
+      span.className = "count";
+      span.textContent = word.length;
+      if (pilish) {
+        if (i < pilish.matched) span.classList.add("ok");
+        else if (i === pilish.matched && pilish.wrong) {
+          span.classList.add("bad");
+          const expected = document.createElement("span");
+          expected.className = "expected";
+          expected.textContent = ` (expected ${nextLengths(pilish.used).join(" or ")})`;
+          span.append(expected);
+        } else span.classList.add("after");
+      }
+      row.append(span);
+    });
+    // while everything matches, the end of the counts shows what comes next
+    if (pilish && !pilish.wrong && !pilish.beyond && row !== null) {
+      const next = document.createElement("span");
+      next.className = "expected";
+      next.textContent = `(next: ${nextLengths(pilish.used).join(" or ")})`;
+      row.append(next);
+    }
+    lengthsBox.replaceChildren(...rows);
+
+    if (!pilish) {
+      pilishNote.textContent = "";
+    } else if (pilish.beyond) {
+      pilishNote.textContent = `Pilish: the text goes beyond the first ${PI_DIGITS.toLocaleString()} digits of π, which is as far as this checks.`;
+    } else {
+      const matched = `${plural(pilish.used, "digit")} of π`;
+      pilishNote.innerHTML = pilish.wrong
+        ? `Pilish: ${matched}, then a word of the wrong length.`
+        : pilish.used === 0
+        ? `Pilish: ${nextWordHint(0)}`
+        : `Pilish: <span class="ok">✓ ${matched}</span>`;
+    }
+  }
+
   function update() {
     // avoided characters, ignoring whitespace; keep first-seen order for the breakdown
     const avoided = new Map();
@@ -161,8 +324,16 @@
       if (f !== "" && !avoided.has(f)) avoided.set(f, 0);
     }
 
-    let html = "", total = 0;
+    const words = findWords(text.value);
+    const pilish = pilishBox.checked ? checkPilish(words) : null;
+    // the word that breaks the Pilish, if any, is underlined
+    const bad = pilish && pilish.wrong ? words[pilish.matched] : null;
+
+    let html = "", total = 0, index = 0;
     for (const ch of text.value) {
+      if (bad && index === bad.start) html += `<span class="pilish-bad">`;
+      if (bad && index === bad.end) html += `</span>`;
+      index += ch.length;
       const f = fold(ch);
       if (avoided.has(f)) {
         avoided.set(f, avoided.get(f) + 1);
@@ -172,6 +343,7 @@
         html += escape(ch);
       }
     }
+    if (bad && index === bad.end) html += `</span>`;
     // a trailing newline needs something after it to take up a line
     backdrop.innerHTML = html + "​";
 
@@ -186,12 +358,17 @@
     copyButton.disabled = total > 0;
     copyNote.hidden = total === 0;
 
+    showLengths(words, pilish);
+
     save(TEXT_KEY, text.value);
     save(AVOID_KEY, avoid.value);
+    save(PILISH_KEY, pilishBox.checked ? "1" : "");
   }
 
   text.value = load(TEXT_KEY, "");
   avoid.value = load(AVOID_KEY, "e");
+  pilishBox.checked = load(PILISH_KEY, "") === "1";
+  pilishBox.addEventListener("change", update);
   text.addEventListener("input", update);
   avoid.addEventListener("input", update);
   window.addEventListener("resize", update);
