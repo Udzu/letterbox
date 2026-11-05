@@ -13,7 +13,8 @@ export function seededRandom(seed) {
 export function stripSpans(node) {
   if (Array.isArray(node)) return node.map(stripSpans);
   if (node === null || typeof node !== "object") return node;
-  return Object.fromEntries(Object.entries(node).filter(([k]) => k !== "span").map(([k, v]) => [k, stripSpans(v)]));
+  // implicit only affects how explanations are shown
+  return Object.fromEntries(Object.entries(node).filter(([k]) => k !== "span" && k !== "implicit").map(([k, v]) => [k, stripSpans(v)]));
 }
 
 const RANDOM_SPLITS = ["L*R*", "R+L+R+L+R*", "(LLR)*", "(LR+)*L", "[LR]*", "!(L*R*)"];

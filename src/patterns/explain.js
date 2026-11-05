@@ -503,7 +503,7 @@ function shortLabel(text, highlight = null) {
 // nodes that are no more than a character class, such as a|b or (?i:a)
 const CLASSES = new Set(["char", "any", "class", "shorthand"]);
 function trivial(node) {
-  if (node.type === "empty" || CLASSES.has(node.type)) return true;
+  if (node.type === "empty" || node.implicit || CLASSES.has(node.type)) return true;
   if (node.type === "alt") return node.items.every((item) => item.type !== "empty" && trivial(item));
   if (node.type === "modifier" && node.flag !== "R") return trivial(node.node);
   return false;

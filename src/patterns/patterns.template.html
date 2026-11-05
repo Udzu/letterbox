@@ -212,7 +212,7 @@
       <tr><td><code>\Q...\E</code></td><td>the characters in between, taken literally (<code>\Qe.g.\E</code> matches <i>e.g.</i>)</td></tr>
       <tr class="heading"><th colspan="2">Repetition and sequence</th></tr>
       <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
-      <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
+      <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code> <code>P{,n}</code></td><td>n; n or more; m to n; up to n</td></tr>
       <tr><td><code>PQ</code></td><td>P followed by Q</td></tr>
       <tr class="heading"><th colspan="2">Combining strings</th></tr>
       <tr><td><code>P&lt;Q</code> <code>P&gt;Q</code></td><td>P inside Q; P outside Q (<code>o+&lt;l+</code> matches <i>loool</i>)</td></tr>
@@ -228,6 +228,9 @@
       <tr><td><code>P&amp;Q</code></td><td>both P and Q</td></tr>
       <tr><td><code>P|Q</code></td><td>either P or Q</td></tr>
       <tr><td><code>(P)</code></td><td>grouping</td></tr>
+      <tr class="heading"><th colspan="2">Lookarounds</th></tr>
+      <tr><td><code>(?=P)</code> <code>(?!P)</code></td><td>what follows starts with P; doesn't (<code>(?!the)[a-z]+</code> matches <i>tea</i> but not <i>then</i>)</td></tr>
+      <tr><td><code>(?&lt;=P)</code> <code>(?&lt;!P)</code></td><td>what precedes ends with P; doesn't (<code>[a-z]+(?&lt;!ing)</code> matches <i>sang</i> but not <i>sing</i>). Unlike in PCRE, lookarounds only see their own group or operand, not the whole string</td></tr>
       <tr class="heading"><th colspan="2">Names</th></tr>
       <tr><td><code>(?&lt;v&gt;P)</code> <code>(?&amp;v)</code></td><td>P, named v; P again (the same pattern, not the same text). <code>(?&lt;v&gt;P){0}</code> names P without matching it (<code>(?&lt;c&gt;[^aeiou])[aeiou](?&amp;c)</code> matches <i>cat</i>)</td></tr>
       <tr class="heading"><th colspan="2">Modifiers and transformations</th></tr>
