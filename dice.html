@@ -16,8 +16,9 @@
   .intro { margin: 0 0 24px; color: #666; }
   #inputs { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; font-size: 1.1rem; }
   #inputs input, #inputs select { font-size: 1.1rem; font-family: inherit; padding: 4px; }
-  #inputs input { width: 4em; }
+  #inputs input[type=number] { width: 4em; }
   #mix-label { display: block; margin-top: 12px; }
+  label:has(input:disabled) { color: #999; }
   #result { margin-top: 24px; }
   #roll { font-size: 1.6rem; font-weight: bold; font-variant-numeric: tabular-nums; }
   #stats { margin-top: 8px; color: #666; }
@@ -31,7 +32,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <b>Dice</b></nav>
 <main>
-  <p class="intro">Replace a roll of many dice with fewer dice, keeping the same mean and variance.</p>
+  <p class="intro">Roll dice, optionally replacing a roll of many dice with fewer, keeping the same mean and variance.</p>
   <div id="inputs">
     <label>Roll: <input id="n" type="number" min="1" max="100" required></label>
     <select id="k" aria-label="Die">
@@ -43,7 +44,7 @@
       <option value="20">d20</option>
     </select>
     <label>+ <input id="c" type="number" step="1" placeholder="0" aria-label="Modifier"></label>
-    <label>using at most <input id="r" type="number" min="1" required> dice</label>
+    <label><input id="limit" type="checkbox"> using at most <input id="r" type="number" min="1" required> dice</label>
   </div>
   <label id="mix-label"><input id="mix" type="checkbox"> Allow other dice (d4, d6, d8, d10, d12, d20)</label>
   <div id="result"></div>
@@ -61,6 +62,7 @@
   const cInput = document.getElementById("c");
   const rInput = document.getElementById("r");
   const mixInput = document.getElementById("mix");
+  const limitInput = document.getElementById("limit");
   const result = document.getElementById("result");
 
   // A die dk with multiplier a adds a²·(k²−1)/12 to the variance, so a solution for ndk
@@ -165,18 +167,21 @@
     const k = Number(kInput.value);
     const r = Number(rInput.value);
     const modifier = Number(cInput.value);
+    const limit = limitInput.checked;
+    rInput.disabled = mixInput.disabled = !limit;
     rInput.max = Number.isInteger(n) && n >= 1 ? Math.min(n, MAX_N) : MAX_N;
     result.replaceChildren();
-    if (!nInput.checkValidity() || !rInput.checkValidity() || !cInput.checkValidity() ||
-        !Number.isInteger(n) || !Number.isInteger(r) || !Number.isInteger(modifier)) {
+    if (!nInput.checkValidity() || !cInput.checkValidity() || !Number.isInteger(n) || !Number.isInteger(modifier) ||
+        (limit && (!rInput.checkValidity() || !Number.isInteger(r)))) {
       const p = document.createElement("p");
       p.className = "none";
-      p.textContent = `Enter a whole number of dice from 1 to ${MAX_N}, a whole-number modifier,` +
-        ` and a maximum from 1 to the number of dice.`;
+      p.textContent = `Enter a whole number of dice from 1 to ${MAX_N}, a whole-number modifier` +
+        (limit ? `, and a maximum from 1 to the number of dice.` : `.`);
       result.appendChild(p);
       return;
     }
-    const solution = solve(n, k, r, mixInput.checked ? DICE : [k]);
+    // without a limit, the roll is just the dice as given
+    const solution = limit ? solve(n, k, r, mixInput.checked ? DICE : [k]) : { dice: n, groups: [{ d: k, a: 1, m: n }] };
     if (solution.groups) {
       const s = solution.dice;
       const roll = document.createElement("div");
@@ -202,13 +207,14 @@
   cInput.value = "";
   rInput.value = "4";
   mixInput.checked = false;
+  limitInput.checked = false;
 
   // keep r within 1..n as n shrinks
   nInput.addEventListener("input", () => {
     const n = Number(nInput.value);
     if (Number.isInteger(n) && n >= 1 && n <= MAX_N && Number(rInput.value) > n) rInput.value = n;
   });
-  for (const input of [nInput, kInput, cInput, rInput, mixInput]) {
+  for (const input of [nInput, kInput, cInput, rInput, mixInput, limitInput]) {
     input.addEventListener("input", render);
   }
   render();
