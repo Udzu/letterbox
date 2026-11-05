@@ -208,6 +208,7 @@
       <tr><td><code>\d</code> <code>\w</code> <code>\s</code></td><td>an ASCII digit; an ASCII letter or digit, or <code>_</code>; ASCII whitespace. <code>\D</code>, <code>\W</code> and <code>\S</code> are the opposites, and all of these work inside classes too, as in <code>[\d_]</code></td></tr>
       <tr><td><code>\p{L}</code> <code>\P{L}</code></td><td>a character with or without a Unicode property, as in JavaScript (<code>\p{Lu}</code> is an uppercase letter, <code>\p{Script=Greek}</code> a Greek character)</td></tr>
       <tr><td><code>@</code></td><td>any word in the word list, if one is loaded</td></tr>
+      <tr><td><code>\Q...\E</code></td><td>the characters in between, taken literally (<code>\Qe.g.\E</code> matches <i>e.g.</i>)</td></tr>
       <tr class="heading"><th colspan="2">Repetition and sequence</th></tr>
       <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
       <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
