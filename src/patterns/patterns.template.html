@@ -82,6 +82,7 @@
   .match { color: #080; }
   .nomatch { color: #c00; }
   .current { background: #f2f2f2; }
+  .after-cursor { opacity: 0.4; }
   #tests-help, #words-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
 
   /* The explanation fills the height of the test strings beside it, scrolling if it needs
@@ -185,7 +186,7 @@
     </div>
     <div id="explain-box"><div id="explain" aria-live="polite"></div></div>
   </div>
-  <p id="tests-help">One per line: <span class="match">matches</span> or <span class="nomatch">doesn't</span>. For the line with the cursor, the panel beside it shows which part of the pattern matched each character, and the diagram highlights the states it reaches.</p>
+  <p id="tests-help">One per line: <span class="match">matches</span> or <span class="nomatch">doesn't</span>. For the line with the cursor, the panel beside it shows which part of the pattern matched each character, and the diagram highlights the states reached by the text before the cursor.</p>
 
   <div id="words-header" class="section-header">
     <h2>Word list</h2>

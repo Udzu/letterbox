@@ -161,9 +161,14 @@ async function draw(drawn) {
 function updateTests() {
   const lines = testsInput.value.split("\n");
   const current = currentLine();
+  const column = cursorColumn();
   $("tests-backdrop").innerHTML = lines.map((line, i) => {
     const cls = nfa === null ? "" : isMatch(line) ? "match" : "nomatch";
-    return `<span class="${cls}${i === current ? " current" : ""}">${escapeHtml(line)}</span>`;
+    if (i !== current) return `<span class="${cls}">${escapeHtml(line)}</span>`;
+    // the diagram shows the text before the cursor, so the rest is faded
+    const after = line.slice(column);
+    const faded = after ? `<span class="after-cursor">${escapeHtml(after)}</span>` : "";
+    return `<span class="${cls} current">${escapeHtml(line.slice(0, column))}${faded}</span>`;
   }).join("\n") + "\n";
   autosize(testsInput);
 }
@@ -173,9 +178,22 @@ function isMatch(line) {
   return false;
 }
 
-function currentLine() {
+// The cursor's offset in the test strings, or -1 if they don't have the focus. With a
+// selection, it's the end the cursor is at.
+function cursor() {
   if (document.activeElement !== testsInput) return -1;
-  return testsInput.value.slice(0, testsInput.selectionStart).split("\n").length - 1;
+  return testsInput.selectionDirection === "backward" ? testsInput.selectionStart : testsInput.selectionEnd;
+}
+
+function currentLine() {
+  const at = cursor();
+  return at < 0 ? -1 : testsInput.value.slice(0, at).split("\n").length - 1;
+}
+
+// the cursor's position in its line
+function cursorColumn() {
+  const at = cursor();
+  return at < 0 ? -1 : at - (testsInput.value.lastIndexOf("\n", at - 1) + 1);
 }
 
 // The explanation is of the line the cursor was last on, kept while the cursor is elsewhere.
@@ -260,10 +278,10 @@ function showTestString(s) {
   $("tests-row").scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 
-// highlight the states reached by the test string on the cursor's line
+// highlight the states reached by the current line's text before the cursor
 function highlightCurrent() {
   const line = currentLine();
-  const states = nfa && line >= 0 ? run(nfa, testsInput.value.split("\n")[line]) : new Set();
+  const states = nfa && line >= 0 ? run(nfa, testsInput.value.split("\n")[line].slice(0, cursorColumn())) : new Set();
   for (const g of $("diagram").querySelectorAll("g.node[data-state]")) {
     g.classList.toggle("active", states.has(Number(g.dataset.state)));
   }
