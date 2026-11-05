@@ -144,7 +144,7 @@
     <span id="words-info-list" class="note"></span>
     <input type="file" id="words-file" accept=".txt,text/plain" hidden>
   </div>
-  <p id="words-help">Load a text file with one word or phrase per line to list the ones that can be made from the missing letters, longest first. Click one to add it to the anagram. The list is shared with the Patterns page and kept in this browser only.</p>
+  <p id="words-help">Load a text file with one word or phrase per line to list the ones that can be made from the missing letters, longest first. Click one to add it to the anagram. The list is shared with the other pages and kept in this browser only.</p>
   <div id="words-info"></div>
   <div id="words"></div>
   <div id="attempts-header">
@@ -369,7 +369,7 @@
   }
 
   // word list, stored in IndexedDB under the same entry as the Patterns page
-  // uses, so a list loaded on either page is available on both
+  // uses, so a list loaded on any page is available on all of them
   const DB = { name: "patterns", store: "wordlist", key: "list" };
   const SHOWN_WORDS = 500;
   const wordsBox = document.getElementById("words");
