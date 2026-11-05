@@ -209,6 +209,7 @@
       <tr><td><code>\d</code> <code>\w</code> <code>\s</code></td><td>an ASCII digit; an ASCII letter or digit, or <code>_</code>; ASCII whitespace. <code>\D</code>, <code>\W</code> and <code>\S</code> are the opposites, and all of these work inside classes too, as in <code>[\d_]</code></td></tr>
       <tr><td><code>\p{L}</code> <code>\P{L}</code></td><td>a character with or without a Unicode property, as in JavaScript (<code>\p{Lu}</code> is an uppercase letter, <code>\p{Script=Greek}</code> a Greek character)</td></tr>
       <tr><td><code>@</code></td><td>any word in the word list, if one is loaded</td></tr>
+      <tr><td><code>\Q...\E</code></td><td>the characters in between, taken literally (<code>\Qe.g.\E</code> matches <i>e.g.</i>)</td></tr>
       <tr class="heading"><th colspan="2">Repetition and sequence</th></tr>
       <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
       <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
@@ -4450,6 +4451,12 @@
       const start = this.pos;
       const items = [];
       for (; ; ) {
+        if (this.peek() === "\\" && this.peek(1) === "Q") {
+          const chars = this.parseQuote();
+          if (chars.length === 0) continue;
+          items.push(...chars.slice(0, -1), this.parsePostfix(chars.at(-1)));
+          continue;
+        }
         const item = this.parsePostfix();
         if (item === null) break;
         items.push(item);
@@ -4458,9 +4465,10 @@
       if (this.peek() === "!") throw this.error("Parenthesise ! inside a sequence, as in a(!b)");
       return combine("concat", items, start, this.pos);
     }
-    parsePostfix() {
-      const start = this.pos;
-      const atom = this.parseAtom();
+    // an atom and any quantifier after it; the atom can be given, if it's already parsed
+    parsePostfix(given = null) {
+      const start = given ? given.span[0] : this.pos;
+      const atom = given ?? this.parseAtom();
       if (atom === null) {
         if (this.isQuantifierStart()) throw this.error("Nothing to repeat");
         return null;
@@ -4673,6 +4681,21 @@
       if (!this.eat(":")) throw this.error("Expected : after slice, as in (?[1:-1]:abc)", groupStart, this.pos);
       return { type: "slice", start, stop, step: step2 };
     }
+    // \Q...\E: the characters in between, taken literally, as char nodes
+    parseQuote() {
+      const start = this.pos;
+      this.pos += 2;
+      const end = this.src.indexOf("\\E", this.pos);
+      if (end < 0) throw this.error("Missing \\E to end the quote started by \\Q", start, this.src.length);
+      const chars = [];
+      while (this.pos < end) {
+        const at = this.pos;
+        const c = this.next();
+        chars.push({ type: "char", cp: c.codePointAt(0), span: [at, this.pos] });
+      }
+      this.pos += 2;
+      return chars;
+    }
     // returns the escaped code point
     parseEscape() {
       const start = this.pos;
@@ -4699,6 +4722,8 @@
       if (c === "b" || c === "B") {
         throw this.error(`Word boundaries (\\${c}) aren't supported, since patterns match whole strings`, start, this.pos);
       }
+      if (c === "E") throw this.error("\\E without \\Q to start a quote", start, this.pos);
+      if (c === "Q") throw this.error("Quotes (\\Q...\\E) can't be used inside classes", start, this.pos);
       throw this.error(`Unknown escape \\${c}`, start, this.pos);
     }
     // \d \D \w \W \s \S, returning { name, negated }, or \p{...} \P{...}, also with a property

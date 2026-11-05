@@ -8,7 +8,7 @@
 //                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
 //   postfix        A* A+ A? A{m} A{m,} A{m,n}
-//   atoms          a \* . @ \d \p{L} [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C) (?<v>A) (?&v)
+//   atoms          a \* \Q...\E . @ \d \p{L} [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C) (?<v>A) (?&v)
 //
 // Every node has a `span` of [start, end) UTF-16 offsets into the pattern, for error
 // reporting and highlighting. Parentheses aren't kept as nodes; `format` adds back the ones
@@ -242,6 +242,13 @@ class Parser {
     const start = this.pos;
     const items = [];
     for (;;) {
+      if (this.peek() === "\\" && this.peek(1) === "Q") {
+        // a quote is a sequence of characters, and a quantifier after it repeats the last
+        const chars = this.parseQuote();
+        if (chars.length === 0) continue;
+        items.push(...chars.slice(0, -1), this.parsePostfix(chars.at(-1)));
+        continue;
+      }
       const item = this.parsePostfix();
       if (item === null) break;
       items.push(item);
@@ -252,9 +259,10 @@ class Parser {
     return combine("concat", items, start, this.pos);
   }
 
-  parsePostfix() {
-    const start = this.pos;
-    const atom = this.parseAtom();
+  // an atom and any quantifier after it; the atom can be given, if it's already parsed
+  parsePostfix(given = null) {
+    const start = given ? given.span[0] : this.pos;
+    const atom = given ?? this.parseAtom();
     if (atom === null) {
       if (this.isQuantifierStart()) throw this.error("Nothing to repeat");
       return null;
@@ -471,6 +479,22 @@ class Parser {
     return { type: "slice", start, stop, step };
   }
 
+  // \Q...\E: the characters in between, taken literally, as char nodes
+  parseQuote() {
+    const start = this.pos;
+    this.pos += 2;
+    const end = this.src.indexOf("\\E", this.pos);
+    if (end < 0) throw this.error("Missing \\E to end the quote started by \\Q", start, this.src.length);
+    const chars = [];
+    while (this.pos < end) {
+      const at = this.pos;
+      const c = this.next();
+      chars.push({ type: "char", cp: c.codePointAt(0), span: [at, this.pos] });
+    }
+    this.pos += 2;
+    return chars;
+  }
+
   // returns the escaped code point
   parseEscape() {
     const start = this.pos;
@@ -497,6 +521,8 @@ class Parser {
     if (c === "b" || c === "B") {
       throw this.error(`Word boundaries (\\${c}) aren't supported, since patterns match whole strings`, start, this.pos);
     }
+    if (c === "E") throw this.error("\\E without \\Q to start a quote", start, this.pos);
+    if (c === "Q") throw this.error("Quotes (\\Q...\\E) can't be used inside classes", start, this.pos);
     throw this.error(`Unknown escape \\${c}`, start, this.pos);
   }
 
