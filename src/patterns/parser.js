@@ -7,8 +7,10 @@
 //   spatial        A<B A^B A##B A-B A->B ... (see SPATIAL_OPS); one operator can be chained,
 //                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
-//   postfix        A* A+ A? A{m} A{m,} A{m,n}
+//   postfix        A* A+ A? A{m} A{m,} A{m,n} A{,n}
 //   atoms          a \* \Q...\E . @ \d \p{L} [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C) (?<v>A) (?&v)
+//                  and lookarounds (?=A) (?!A) (?<=A) (?<!A), which are rewritten with & and !
+//                  (see sequence), so they don't appear in the AST
 //
 // Every node has a `span` of [start, end) UTF-16 offsets into the pattern, for error
 // reporting and highlighting. Parentheses aren't kept as nodes; `format` adds back the ones
@@ -256,7 +258,7 @@ class Parser {
     if (items.length === 0) return null;
     // negation binds more loosely than concatenation, so a!b would be ambiguous
     if (this.peek() === "!") throw this.error("Parenthesise ! inside a sequence, as in a(!b)");
-    return combine("concat", items, start, this.pos);
+    return sequence(items, start, this.pos);
   }
 
   // an atom and any quantifier after it; the atom can be given, if it's already parsed
@@ -268,6 +270,7 @@ class Parser {
       return null;
     }
     if (!this.isQuantifierStart()) return atom;
+    if (atom.type === "look") throw this.error("A lookaround can't be repeated");
     const [min, max] = this.parseQuantifier();
     if (this.isQuantifierStart()) {
       throw this.error("Parenthesise a repetition before repeating it again, as in (a*)?");
@@ -349,6 +352,11 @@ class Parser {
     const modifier = this.peek() === "?" ? this.parseModifier(start) : null;
     if (modifier?.type === "parts") return this.parseParts(start, modifier.flag);
     if (modifier?.type === "ref") return { ...modifier, span: [start, this.pos] };
+    if (modifier?.type === "look") {
+      const node = this.parseAlt() ?? { type: "empty", span: [this.pos, this.pos] };
+      this.closeGroup(start);
+      return { ...modifier, node, span: [start, this.pos] };
+    }
     const node = this.parseAlt();
     this.closeGroup(start);
     return modifier ? { ...modifier, node, span: [start, this.pos] } : node;
@@ -407,6 +415,12 @@ class Parser {
     const here = () => [groupStart, this.pos];
     if (flag === undefined) throw this.error("Missing modifier after (?", ...here());
     if (flag === "[") return this.parseSlice(groupStart);
+    // lookarounds: (?=...) (?!...) (?<=...) (?<!...)
+    const behind = flag === "<" && (this.peek(1) === "=" || this.peek(1) === "!");
+    if (flag === "=" || flag === "!" || behind) {
+      if (behind) this.next();
+      return { type: "look", behind, negated: this.next() === "!" };
+    }
     if (flag === "<" || flag === "&") return this.parseName(groupStart, flag);
     if (PCRE_FLAGS.has(flag)) {
       const hint = flag === "s" ? ": for a cipher shift, write (?c:...)" : "";
@@ -442,9 +456,6 @@ class Parser {
   // the "<name>" of (?<name>...), or the "&name)" of (?&name), after the "(?"
   parseName(groupStart, flag) {
     this.next();
-    if (flag === "<" && (this.peek() === "=" || this.peek() === "!")) {
-      throw this.error("Lookbehind isn't supported", groupStart, this.pos + 1);
-    }
     const nameStart = this.pos;
     const end = flag === "<" ? ">" : ")";
     while (this.peek() !== undefined && this.peek() !== end) this.next();
@@ -659,6 +670,41 @@ function checkNames(root) {
 }
 
 // these operators are associative, so (ab)c and a(bc) both become abc
+// A sequence of items, with any lookarounds in it rewritten using & and !. A lookaround
+// only sees its own sequence (the group or operand it's in), not the rest of the string as
+// in PCRE, so that every part of a pattern means the same wherever it's used. Then:
+//   X(?=Q)Y  is  X(Y&Q.*)       X(?!Q)Y  is  X(Y&!(Q.*))
+//   X(?<=Q)Y is  (X&.*Q)Y       X(?<!Q)Y is  (X&!(.*Q))Y
+// The .* added is marked implicit, so explanations don't show it.
+function sequence(items, start, end) {
+  let before = [];
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (item.type !== "look") {
+      before.push(item);
+      continue;
+    }
+    if (item.behind) {
+      const head = before.length ? combine("concat", before, start, item.span[0]) : empty(item.span[0]);
+      before = [combine("and", [head, condition(item)], start, item.span[1])];
+    } else {
+      const rest = sequence(items.slice(i + 1), item.span[1], end);
+      const ahead = combine("and", [rest, condition(item)], item.span[0], end);
+      return combine("concat", [...before, ahead], start, end);
+    }
+  }
+  return before.length ? combine("concat", before, start, end) : empty(start);
+}
+
+// what a lookaround requires of the rest of its sequence (or the part before it)
+function condition({ behind, negated, node, span }) {
+  const anything = { type: "repeat", node: { type: "any", span }, min: 0, max: null, span, implicit: true };
+  const required = { type: "concat", items: behind ? [anything, node] : [node, anything], span };
+  return negated ? { type: "not", node: required, span } : required;
+}
+
+const empty = (at) => ({ type: "empty", span: [at, at] });
+
 function combine(type, items, start, end) {
   if (items.length === 1) return items[0];
   return { type, items: items.flatMap((n) => (n.type === type ? n.items : [n])), span: [start, end] };
