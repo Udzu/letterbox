@@ -286,10 +286,16 @@ class Parser {
     if (c === "*") return [0, null];
     if (c === "+") return [1, null];
     if (c === "?") return [0, 1];
-    // {m}, {m,} or {m,n}
-    const min = this.parseCount(start);
-    let max = min;
-    if (this.eat(",")) max = this.peek() === "}" ? null : this.parseCount(start);
+    // {m}, {m,}, {m,n} or {,n}
+    let min, max;
+    if (this.eat(",")) {
+      min = 0;
+      max = this.parseCount(start);
+    } else {
+      min = this.parseCount(start);
+      max = min;
+      if (this.eat(",")) max = this.peek() === "}" ? null : this.parseCount(start);
+    }
     if (!this.eat("}")) throw this.error("Expected } to close repetition", start, this.pos);
     if (max !== null && max < min) {
       throw this.error(`Repetition minimum ${min} is larger than maximum ${max}`, start, this.pos);
@@ -301,7 +307,7 @@ class Parser {
     const start = this.pos;
     while (/[0-9]/.test(this.peek() ?? "")) this.next();
     if (start === this.pos) {
-      throw this.error("Expected a number in repetition, as in {2}, {2,} or {2,5}", braceStart, this.pos + 1);
+      throw this.error("Expected a number in repetition, as in {2}, {2,}, {2,5} or {,5}", braceStart, this.pos + 1);
     }
     const n = Number(this.src.slice(start, this.pos));
     if (n > MAX_REPEAT) throw this.error(`Repetition count can be at most ${MAX_REPEAT}`, start, this.pos);

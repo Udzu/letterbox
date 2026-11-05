@@ -213,7 +213,7 @@
       <tr><td><code>\Q...\E</code></td><td>the characters in between, taken literally (<code>\Qe.g.\E</code> matches <i>e.g.</i>)</td></tr>
       <tr class="heading"><th colspan="2">Repetition and sequence</th></tr>
       <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
-      <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code></td><td>n; n or more; m to n</td></tr>
+      <tr><td><code>P{n}</code> <code>P{n,}</code> <code>P{m,n}</code> <code>P{,n}</code></td><td>n; n or more; m to n; up to n</td></tr>
       <tr><td><code>PQ</code></td><td>P followed by Q</td></tr>
       <tr class="heading"><th colspan="2">Combining strings</th></tr>
       <tr><td><code>P&lt;Q</code> <code>P&gt;Q</code></td><td>P inside Q; P outside Q (<code>o+&lt;l+</code> matches <i>loool</i>)</td></tr>
@@ -4491,9 +4491,15 @@
       if (c === "*") return [0, null];
       if (c === "+") return [1, null];
       if (c === "?") return [0, 1];
-      const min = this.parseCount(start);
-      let max = min;
-      if (this.eat(",")) max = this.peek() === "}" ? null : this.parseCount(start);
+      let min, max;
+      if (this.eat(",")) {
+        min = 0;
+        max = this.parseCount(start);
+      } else {
+        min = this.parseCount(start);
+        max = min;
+        if (this.eat(",")) max = this.peek() === "}" ? null : this.parseCount(start);
+      }
       if (!this.eat("}")) throw this.error("Expected } to close repetition", start, this.pos);
       if (max !== null && max < min) {
         throw this.error(`Repetition minimum ${min} is larger than maximum ${max}`, start, this.pos);
@@ -4504,7 +4510,7 @@
       const start = this.pos;
       while (/[0-9]/.test(this.peek() ?? "")) this.next();
       if (start === this.pos) {
-        throw this.error("Expected a number in repetition, as in {2}, {2,} or {2,5}", braceStart, this.pos + 1);
+        throw this.error("Expected a number in repetition, as in {2}, {2,}, {2,5} or {,5}", braceStart, this.pos + 1);
       }
       const n = Number(this.src.slice(start, this.pos));
       if (n > MAX_REPEAT) throw this.error(`Repetition count can be at most ${MAX_REPEAT}`, start, this.pos);
