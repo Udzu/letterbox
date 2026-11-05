@@ -84,9 +84,12 @@
   #lengths .ok { color: #080; }
   #lengths .after { color: #aaa; }
   #lengths .expected { color: #888; }
-  #pilish-note { margin-top: 8px; }
-  #pilish-note:empty { display: none; }
-  #pilish-note .ok { color: #080; }
+  #lengths-header select, #custom { font: inherit; }
+  #custom { width: 16em; padding: 2px 6px; }
+  #custom-help { margin: 0 0 8px; }
+  #check-note { margin-top: 8px; }
+  #check-note:empty { display: none; }
+  #check-note .ok { color: #080; }
   nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
   nav a { color: #06c; }
   nav b { color: #000; }
@@ -106,10 +109,20 @@
   <span id="copy-note" class="note">Banish all taboo symbols to unlock copying</span>
   <div id="lengths-header">
     <h2>Word lengths</h2>
-    <label title="Standard Alphanumeric Pilish: words of n letters or digits stand for the digits of π, with 10 for 0 and longer words for two digits"><input type="checkbox" id="pilish"> Check as Pilish (π)</label>
+    <label title="Check the word lengths against the digits of π, e or φ, or against your own numbers (…). Digits are read as in Standard Pilish: a word of n letters stands for n, 10 letters for 0, and longer words for two digits (12 letters for 1, 2).">Check against:
+      <select id="sequence">
+        <option value=""></option>
+        <option value="pi">π</option>
+        <option value="e">e</option>
+        <option value="phi">φ</option>
+        <option value="custom">…</option>
+      </select>
+    </label>
+    <input id="custom" type="text" placeholder="e.g. 5 7 5 or 1.4142135" autocomplete="off" spellcheck="false" hidden>
   </div>
+  <p id="custom-help" class="note" hidden>Numbers separated by spaces or commas are exact word lengths. A single number, like 1.4142135, is read digit by digit as in Pilish.</p>
   <div id="lengths"></div>
-  <div id="pilish-note"></div>
+  <div id="check-note"></div>
 </main>
 <script>
   const TEXT_KEY = "lipogram-text";
@@ -120,10 +133,13 @@
   const summary = document.getElementById("summary");
   const copyButton = document.getElementById("copy");
   const copyNote = document.getElementById("copy-note");
-  const PILISH_KEY = "lipogram-pilish";
-  const pilishBox = document.getElementById("pilish");
+  const SEQUENCE_KEY = "lipogram-sequence";
+  const CUSTOM_KEY = "lipogram-custom";
+  const sequenceSelect = document.getElementById("sequence");
+  const customInput = document.getElementById("custom");
+  const customHelp = document.getElementById("custom-help");
   const lengthsBox = document.getElementById("lengths");
-  const pilishNote = document.getElementById("pilish-note");
+  const checkNote = document.getElementById("check-note");
 
   // set a box's value via an editing command where possible, so Ctrl+Z can undo it
   function setBox(box, value) {
@@ -213,61 +229,106 @@
     return words;
   }
 
-  // digits of π (as a string, starting "31415…") from Machin's formula
-  // π/4 = 4 arctan(1/5) − arctan(1/239), computed with 10 guard digits
-  const PI_DIGITS = 10000;
-  let piDigits = null;
-  function pi() {
-    if (piDigits !== null) return piDigits;
-    const scale = 10n ** BigInt(PI_DIGITS + 10);
+  // Digits of the constants (as strings, starting "31415…"), worked out with
+  // integers scaled up by 10^(DIGITS + 10), the extra 10 digits absorbing rounding.
+  const DIGITS = 10000;
+  const SCALE = 10n ** BigInt(DIGITS + 10);
+  const digitsOf = n => n.toString().slice(0, DIGITS);
+
+  // π/4 = 4 arctan(1/5) − arctan(1/239) (Machin's formula)
+  function computePi() {
     const arctanInverse = x => {
       const x2 = BigInt(x * x);
-      let term = scale / BigInt(x), sum = term;
+      let term = SCALE / BigInt(x), sum = term;
       for (let k = 3n, sign = -1n; term !== 0n; k += 2n, sign = -sign) {
         term /= x2;
         sum += sign * (term / k);
       }
       return sum;
     };
-    piDigits = (4n * (4n * arctanInverse(5) - arctanInverse(239))).toString().slice(0, PI_DIGITS);
-    return piDigits;
+    return digitsOf(4n * (4n * arctanInverse(5) - arctanInverse(239)));
   }
 
-  // Standard Pilish: a word of n < 10 letters stands for n, 10 letters for 0,
-  // and more than 10 letters for two digits (12 → 1, 2). Returns how many words
-  // and digits match, and whether a word of the wrong length stopped it.
-  function checkPilish(words) {
-    const digits = pi();
+  // e = 1/0! + 1/1! + 1/2! + …
+  function computeE() {
+    let term = SCALE, sum = 0n;
+    for (let k = 1n; term !== 0n; k++) {
+      sum += term;
+      term /= k;
+    }
+    return digitsOf(sum);
+  }
+
+  // φ = (1 + √5) / 2, with the square root by Newton's method
+  function computePhi() {
+    const n = 5n * SCALE * SCALE;
+    let x = 3n * SCALE, y = (x + n / x) / 2n;
+    while (y < x) [x, y] = [y, (y + n / y) / 2n];
+    return digitsOf((SCALE + x) / 2n);
+  }
+
+  const CONSTANTS = {
+    pi: { name: "π", compute: computePi },
+    e: { name: "e", compute: computeE },
+    phi: { name: "φ", compute: computePhi },
+  };
+
+  // What the word lengths are checked against: { digits } for a number read digit by
+  // digit as in Pilish, or { lengths } for a list of exact lengths. `finite` is false
+  // for the constants, which go on beyond the digits worked out here.
+  function sequenceFor(choice, customText) {
+    const constant = CONSTANTS[choice];
+    if (constant) {
+      constant.digits ??= constant.compute();
+      return { digits: constant.digits, name: constant.name, finite: false };
+    }
+    if (choice !== "custom") return null;
+    const custom = customText.trim();
+    if (custom === "") return { error: "Type the numbers to check against." };
+    // a single number, like 1.4142135, is read digit by digit
+    if (/^(\d+\.?\d*|\.\d+)$/.test(custom)) return { digits: custom.replace(".", ""), name: "your number", finite: true };
+    const parts = custom.split(/[\s,;]+/);
+    const bad = parts.find(part => !/^\d+$/.test(part) || Number(part) === 0);
+    if (bad !== undefined) return { error: `“${bad}” isn't a word length.` };
+    return { lengths: parts.map(Number), finite: true };
+  }
+
+  // How many words match, and how far along the sequence they get (`used`: digits or
+  // lengths). For digits, Standard Pilish: a word of n < 10 letters stands for n,
+  // 10 letters for 0, and more than 10 letters for two digits (12 → 1, 2).
+  function check(words, seq) {
     let used = 0;
     for (let i = 0; i < words.length; i++) {
       const n = words[i].length;
-      const wanted = n < 10 ? String(n) : n === 10 ? "0" : String(n);
-      if (used + wanted.length > digits.length) return { matched: i, used, beyond: true };
-      if (digits.slice(used, used + wanted.length) !== wanted) return { matched: i, used, wrong: true };
+      if (seq.lengths) {
+        if (used >= seq.lengths.length || n !== seq.lengths[used]) return { matched: i, used, wrong: true };
+        used++;
+        continue;
+      }
+      const wanted = n === 10 ? "0" : String(n);
+      if (used + wanted.length > seq.digits.length) return { matched: i, used, wrong: seq.finite, beyond: !seq.finite };
+      if (seq.digits.slice(used, used + wanted.length) !== wanted) return { matched: i, used, wrong: true };
       used += wanted.length;
     }
     return { matched: words.length, used };
   }
 
-  // the word lengths that would continue π after `used` digits: d for 1–9, 10 for 0,
-  // and for 1 also the 11–19 letter word that covers the following digit too
-  // (longer words, for digits 2–9, are left out as unlikely)
-  function nextLengths(used) {
-    const [d, e] = [pi()[used], pi()[used + 1]];
+  // The word lengths that could come next, or [] at the end of the sequence. For
+  // digits: d for 1–9, 10 for 0, and for 1 also the 11–19 letter word that covers
+  // the following digit too (longer words, for digits 2–9, are left out as unlikely).
+  function nextLengths(seq, used) {
+    if (seq.lengths) return used < seq.lengths.length ? [String(seq.lengths[used])] : [];
+    const [d, e] = [seq.digits[used], seq.digits[used + 1]];
+    if (d === undefined) return [];
     if (d === "0") return ["10"];
     if (d === "1" && e !== undefined && e !== "0") return ["1", `1${e}`];
     return [d];
   }
 
   const plural = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
+  const describe = lengths => lengths.length === 0 ? "end" : lengths.join(" or ");
 
-  function nextWordHint(used) {
-    if (used >= pi().length) return "";
-    const [first, other] = nextLengths(used);
-    return `Next: ${first} letter${first === "1" ? "" : "s"}${other ? ` (or ${other})` : ""}`;
-  }
-
-  function showLengths(words, pilish) {
+  function showLengths(words, seq, result) {
     const rows = [];
     let row = null, rowLine = -1;
     words.forEach((word, i) => {
@@ -280,38 +341,52 @@
       const span = document.createElement("span");
       span.className = "count";
       span.textContent = word.length;
-      if (pilish) {
-        if (i < pilish.matched) span.classList.add("ok");
-        else if (i === pilish.matched && pilish.wrong) {
+      if (result) {
+        if (i < result.matched) span.classList.add("ok");
+        else if (i === result.matched && result.wrong) {
           span.classList.add("bad");
           const expected = document.createElement("span");
           expected.className = "expected";
-          expected.textContent = ` (expected ${nextLengths(pilish.used).join(" or ")})`;
+          expected.textContent = ` (expected ${describe(nextLengths(seq, result.used))})`;
           span.append(expected);
         } else span.classList.add("after");
       }
       row.append(span);
     });
     // while everything matches, the end of the counts shows what comes next
-    if (pilish && !pilish.wrong && !pilish.beyond && row !== null) {
+    if (result && !result.wrong && !result.beyond && row !== null) {
       const next = document.createElement("span");
       next.className = "expected";
-      next.textContent = `(next: ${nextLengths(pilish.used).join(" or ")})`;
+      const lengths = nextLengths(seq, result.used);
+      next.textContent = lengths.length === 0 ? "(end)" : `(next: ${describe(lengths)})`;
       row.append(next);
     }
     lengthsBox.replaceChildren(...rows);
 
-    if (!pilish) {
-      pilishNote.textContent = "";
-    } else if (pilish.beyond) {
-      pilishNote.textContent = `Pilish: the text goes beyond the first ${PI_DIGITS.toLocaleString()} digits of π, which is as far as this checks.`;
+    if (!seq) {
+      checkNote.textContent = "";
+    } else if (seq.error) {
+      checkNote.textContent = seq.error;
+    } else if (result.beyond) {
+      checkNote.textContent = `The text goes beyond the first ${DIGITS.toLocaleString()} digits of ${seq.name}, which is as far as this checks.`;
     } else {
-      const matched = `${plural(pilish.used, "digit")} of π`;
-      pilishNote.innerHTML = pilish.wrong
-        ? `Pilish: ${matched}, then a word of the wrong length.`
-        : pilish.used === 0
-        ? `Pilish: ${nextWordHint(0)}`
-        : `Pilish: <span class="ok">✓ ${matched}</span>`;
+      const total = seq.lengths ? seq.lengths.length : seq.digits.length;
+      const unit = seq.lengths ? "length" : "digit";
+      const matched = seq.lengths ? `${result.used.toLocaleString()} of ${plural(total, unit)}` : `${plural(result.used, unit)} of ${seq.name}`;
+      if (result.wrong) {
+        const word = words[result.matched];
+        const where = text.value.includes("\n") ? ` (line ${word.line + 1})` : "";
+        const quoted = `“${text.value.slice(word.start, word.end)}”${where}`;
+        const expected = nextLengths(seq, result.used);
+        checkNote.textContent = expected.length === 0
+          ? `${matched}, then ${quoted} goes past the end.`
+          : `${matched}, then ${quoted} has ${plural(word.length, "letter")}, expected ${describe(expected)}.`;
+      }
+      else if (seq.finite && result.used === total) checkNote.innerHTML = `<span class="ok">✓ all ${plural(total, unit)} used</span>`;
+      else if (result.used === 0) {
+        const [first, other] = nextLengths(seq, 0);
+        checkNote.textContent = `First word: ${plural(Number(first), "letter")}${other ? ` (or ${other})` : ""}`;
+      } else checkNote.innerHTML = `<span class="ok">✓ ${matched}</span>`;
     }
   }
 
@@ -325,9 +400,11 @@
     }
 
     const words = findWords(text.value);
-    const pilish = pilishBox.checked ? checkPilish(words) : null;
-    // the word that breaks the Pilish, if any, is underlined
-    const bad = pilish && pilish.wrong ? words[pilish.matched] : null;
+    customInput.hidden = customHelp.hidden = sequenceSelect.value !== "custom";
+    const seq = sequenceFor(sequenceSelect.value, customInput.value);
+    const result = seq && !seq.error ? check(words, seq) : null;
+    // the first word of the wrong length, if any, is underlined
+    const bad = result && result.wrong ? words[result.matched] : null;
 
     let html = "", total = 0, index = 0;
     for (const ch of text.value) {
@@ -358,17 +435,24 @@
     copyButton.disabled = total > 0;
     copyNote.hidden = total === 0;
 
-    showLengths(words, pilish);
+    showLengths(words, seq, result);
 
     save(TEXT_KEY, text.value);
     save(AVOID_KEY, avoid.value);
-    save(PILISH_KEY, pilishBox.checked ? "1" : "");
+    save(SEQUENCE_KEY, sequenceSelect.value);
+    save(CUSTOM_KEY, customInput.value);
   }
 
   text.value = load(TEXT_KEY, "");
   avoid.value = load(AVOID_KEY, "e");
-  pilishBox.checked = load(PILISH_KEY, "") === "1";
-  pilishBox.addEventListener("change", update);
+  sequenceSelect.value = load(SEQUENCE_KEY, "");
+  if (sequenceSelect.selectedIndex < 0) sequenceSelect.selectedIndex = 0;
+  customInput.value = load(CUSTOM_KEY, "");
+  sequenceSelect.addEventListener("change", () => {
+    update();
+    if (sequenceSelect.value === "custom") customInput.focus();
+  });
+  customInput.addEventListener("input", update);
   text.addEventListener("input", update);
   avoid.addEventListener("input", update);
   window.addEventListener("resize", update);
