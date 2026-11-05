@@ -97,6 +97,29 @@
   #attempts .remove:hover { color: #d00; }
   .grey { color: #888; }
   .incomplete { font-style: italic; }
+  .section-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 24px 0 8px;
+  }
+  .section-header h2 { margin-right: 8px; }
+  .note { color: #666; }
+  #words-help { margin: 0 0 8px; color: #444; font-size: 0.95rem; }
+  #words-info { margin: 8px 0 6px; }
+  #words-info:empty { display: none; }
+  #words {
+    max-height: 20em;
+    overflow-y: auto;
+  }
+  #words:not(:empty) { border: 1px solid #999; padding: 4px 8px; }
+  #words .group { display: flex; gap: 14px; padding: 4px 0; }
+  #words .list { display: flex; gap: 4px 14px; flex-wrap: wrap; }
+  #words .group + .group { border-top: 1px solid #ddd; }
+  #words .length { color: #888; min-width: 1.5em; font-variant-numeric: tabular-nums; }
+  #words .word { cursor: pointer; white-space: pre; }
+  #words .word:hover { text-decoration: underline; }
   nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
   nav a { color: #06c; }
   nav b { color: #000; }
@@ -114,6 +137,16 @@
   <button id="add" title="Ctrl+Enter">Add to list</button>
   <button id="ducktiles" title="Open the missing letters as tiles on ducktiles.com">Ducktiles</button>
   <button id="reset" title="Clear the anagrist and anagram">Reset</button>
+  <div id="words-header" class="section-header">
+    <h2>Word list</h2>
+    <button id="load-words">Load…</button>
+    <button id="clear-words">Clear</button>
+    <span id="words-info-list" class="note"></span>
+    <input type="file" id="words-file" accept=".txt,text/plain" hidden>
+  </div>
+  <p id="words-help">Load a text file with one word or phrase per line to list the ones that can be made from the missing letters, longest first. Click one to add it to the anagram. The list is shared with the Patterns page and kept in this browser only.</p>
+  <div id="words-info"></div>
+  <div id="words"></div>
   <div id="attempts-header">
     <h2>Attempts</h2>
     <span>
@@ -199,6 +232,7 @@
 
     save(ANAGRIST_KEY, anagrist.value);
     save(ANAGRAM_KEY, anagram.value);
+    showWords(missing);
   }
 
   // clear via editing commands where possible, so Ctrl+Z can undo it
@@ -334,7 +368,204 @@
     });
   }
 
+  // word list, stored in IndexedDB under the same entry as the Patterns page
+  // uses, so a list loaded on either page is available on both
+  const DB = { name: "patterns", store: "wordlist", key: "list" };
+  const SHOWN_WORDS = 500;
+  const wordsBox = document.getElementById("words");
+  const wordsInfo = document.getElementById("words-info");
+  const listInfo = document.getElementById("words-info-list");
+  const clearWordsButton = document.getElementById("clear-words");
+  let wordList = null;      // { name, entries: [{ word, counts: [[key, n]...], length }] }
+  let shownFor = null;      // the missing letters the words were last listed for
+  let showAllWords = false;
+
+  function openDb() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB.name, 1);
+      request.onupgradeneeded = () => request.result.createObjectStore(DB.store);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function storeWordList(value) {
+    try {
+      const db = await openDb();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(DB.store, "readwrite");
+        if (value === null) tx.objectStore(DB.store).delete(DB.key);
+        else tx.objectStore(DB.store).put(value, DB.key);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {}
+  }
+
+  async function fetchWordList() {
+    try {
+      const db = await openDb();
+      return await new Promise((resolve, reject) => {
+        const request = db.transaction(DB.store).objectStore(DB.store).get(DB.key);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error);
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // one word or phrase per line, as on the Patterns page
+  function parseWords(text) {
+    const words = new Set();
+    for (const line of text.split("\n")) {
+      const word = line.replace(/\r$/, "").normalize("NFC");
+      if (word !== "") words.add(word);
+    }
+    return [...words];
+  }
+
+  // letter counts for each word, worked out once when the list is loaded
+  function makeWordList(name, words) {
+    const keys = new Map();
+    const entries = [];
+    for (const word of words) {
+      const counts = new Map();
+      let length = 0;
+      for (const ch of word) {
+        if (!keys.has(ch)) keys.set(ch, key(ch));
+        const k = keys.get(ch);
+        if (k === null) continue;
+        counts.set(k, (counts.get(k) || 0) + 1);
+        length++;
+      }
+      if (length > 0) entries.push({ word, counts: [...counts], length });
+    }
+    entries.sort((a, b) => b.length - a.length || a.word.localeCompare(b.word));
+    return { name, size: words.length, entries };
+  }
+
+  const count = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
+
+  function setWordList(list) {
+    wordList = list;
+    shownFor = null;
+    showAllWords = false;
+    clearWordsButton.disabled = list === null;
+    listInfo.textContent = list === null ? "None loaded" : `${list.name}: ${count(list.size, "word")}`;
+    update();
+  }
+
+  function showWords(missing) {
+    const letters = sorted([...missing]);
+    if (wordList === null) {
+      wordsInfo.textContent = "";
+      wordsBox.replaceChildren();
+      shownFor = null;
+      return;
+    }
+    if (letters === shownFor) return;
+    showAllWords = false;
+    shownFor = letters;
+    renderWords(missing);
+  }
+
+  function renderWords(missing) {
+    const available = new Map();
+    for (const k of missing) available.set(k, (available.get(k) || 0) + 1);
+    const found = [];
+    for (const entry of wordList.entries) {
+      if (entry.length > missing.length) continue;
+      if (entry.counts.every(([k, n]) => (available.get(k) || 0) >= n)) found.push(entry);
+    }
+
+    const shown = showAllWords ? found : found.slice(0, SHOWN_WORDS);
+    const groups = [];
+    let group = null, groupLength = 0;
+    for (const entry of shown) {
+      if (group === null || groupLength !== entry.length) {
+        const row = document.createElement("div");
+        row.className = "group";
+        const label = document.createElement("span");
+        label.className = "length";
+        label.textContent = entry.length;
+        group = document.createElement("div");
+        group.className = "list";
+        groupLength = entry.length;
+        row.append(label, group);
+        groups.push(row);
+      }
+      const span = document.createElement("span");
+      span.className = "word";
+      span.textContent = entry.word;
+      span.title = "Add to the anagram";
+      group.append(span);
+    }
+    wordsBox.replaceChildren(...groups);
+    wordsBox.scrollTop = 0;
+
+    if (missing.length === 0) {
+      wordsInfo.textContent = anagrist.value.trim() === "" ? "Type an anagrist to see the words that fit." : "";
+    } else if (found.length === 0) {
+      wordsInfo.textContent = "No words fit.";
+    } else if (shown.length === found.length) {
+      wordsInfo.textContent = `${count(found.length, "word")} fit:`;
+    } else {
+      wordsInfo.innerHTML = `${count(found.length, "word")} fit, showing the first ${shown.length.toLocaleString()}: <button id="show-all-words">Show all</button>`;
+      document.getElementById("show-all-words").addEventListener("click", () => {
+        showAllWords = true;
+        renderWords(missing);
+      });
+    }
+  }
+
+  // insert at the cursor (or at the end, if the anagram box isn't focused),
+  // with spaces to separate it from neighbouring words, in a way Ctrl+Z can undo
+  function insertWord(word) {
+    if (document.activeElement !== anagram) {
+      anagram.focus();
+      anagram.setSelectionRange(anagram.value.length, anagram.value.length);
+    }
+    const { selectionStart: start, selectionEnd: end, value } = anagram;
+    const before = start > 0 && !/\s/.test(value[start - 1]) ? " " : "";
+    const after = end < value.length && !/\s/.test(value[end]) ? " " : "";
+    const text = before + word + after;
+    if (!document.execCommand("insertText", false, text)) {
+      anagram.setRangeText(text, start, end, "end");
+      update();
+    }
+  }
+
+  // keep the cursor where it is in the anagram box when clicking a word
+  wordsBox.addEventListener("mousedown", e => {
+    if (e.target.classList.contains("word")) e.preventDefault();
+  });
+  wordsBox.addEventListener("click", e => {
+    if (e.target.classList.contains("word")) insertWord(e.target.textContent);
+  });
+
+  document.getElementById("load-words").addEventListener("click", () => document.getElementById("words-file").click());
+  document.getElementById("words-file").addEventListener("change", async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    listInfo.textContent = "Loading…";
+    const text = await file.text();
+    e.target.value = "";
+    setWordList(makeWordList(file.name, parseWords(text)));
+    storeWordList({ name: file.name, text });
+  });
+  clearWordsButton.addEventListener("click", () => {
+    setWordList(null);
+    storeWordList(null);
+  });
+
   renderAttempts();
+
+  clearWordsButton.disabled = true;
+  listInfo.textContent = "None loaded";
+  fetchWordList().then(stored => {
+    if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));
+  });
 
   anagrist.value = load(ANAGRIST_KEY);
   anagram.value = load(ANAGRAM_KEY);
