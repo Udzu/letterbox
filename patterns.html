@@ -3352,6 +3352,16 @@
   CharSet.EMPTY = new CharSet([]);
   CharSet.ALL = new CharSet([Object.freeze([0, MAX_CP])]);
   function partition(sets) {
+    if (sets.every((s) => s.ranges.length === 1 && s.ranges[0][0] === s.ranges[0][1])) {
+      const byChar = /* @__PURE__ */ new Map();
+      sets.forEach((s, i) => {
+        const cp = s.ranges[0][0];
+        const piece = byChar.get(cp);
+        if (piece) piece.members.push(i);
+        else byChar.set(cp, { set: s, members: [i] });
+      });
+      return [...byChar].sort((x, y) => x[0] - y[0]).map(([, piece]) => piece);
+    }
     const points = /* @__PURE__ */ new Set();
     for (const s of sets) {
       for (const [lo, hi] of s.ranges) {
@@ -3407,6 +3417,11 @@
       this.name = "TooManyStatesError";
     }
   };
+  var KNOWN_DFAS = /* @__PURE__ */ new WeakSet();
+  function markDeterministic(nfa2) {
+    KNOWN_DFAS.add(nfa2);
+    return nfa2;
+  }
   var NFA = class {
     constructor(start, accepting, edges) {
       this.start = start;
@@ -3450,10 +3465,14 @@
     // parallel edges to the same state are merged into one, and duplicate ε-moves dropped
     build(start, accepting) {
       const edges = this.edges.map((es, s) => {
+        if (es.length === 1) {
+          const [{ label, to }] = es;
+          return label === null && to === s ? [] : [Object.freeze({ label, to })];
+        }
         const merged = /* @__PURE__ */ new Map();
         for (const { label, to } of es) {
           if (label === null && to === s) continue;
-          const key = label === null ? `\u03B5${to}` : `${to}`;
+          const key = label === null ? -1 - to : to;
           const existing = merged.get(key);
           if (!existing) merged.set(key, { label, to });
           else if (label !== null) existing.label = existing.label.union(label);
@@ -3495,26 +3514,29 @@
     return false;
   }
   function trim(nfa2) {
+    const n = nfa2.size;
     const reverse2 = nfa2.edges.map(() => []);
     nfa2.edges.forEach((es, s) => {
       for (const { to } of es) reverse2[to].push(s);
     });
-    const live = new Set(nfa2.accepting);
-    const stack = [...live];
+    const live = new Uint8Array(n);
+    const stack = [...nfa2.accepting];
+    for (const s of stack) live[s] = 1;
     while (stack.length) {
       for (const s of reverse2[stack.pop()]) {
-        if (!live.has(s)) {
-          live.add(s);
+        if (!live[s]) {
+          live[s] = 1;
           stack.push(s);
         }
       }
     }
-    const order = /* @__PURE__ */ new Map([[nfa2.start, 0]]);
+    const order = new Int32Array(n).fill(-1);
+    order[nfa2.start] = 0;
     const queue = [nfa2.start];
     for (let i = 0; i < queue.length; i++) {
       for (const { to } of nfa2.edges[queue[i]]) {
-        if (live.has(to) && !order.has(to)) {
-          order.set(to, order.size);
+        if (live[to] && order[to] < 0) {
+          order[to] = queue.length;
           queue.push(to);
         }
       }
@@ -3522,11 +3544,17 @@
     const b = new Builder();
     for (let i = 0; i < queue.length; i++) b.state();
     for (const s of queue) {
-      for (const { label, to } of nfa2.edges[s]) if (order.has(to)) b.edge(order.get(s), label, order.get(to));
+      for (const { label, to } of nfa2.edges[s]) if (order[to] >= 0) b.edge(order[s], label, order[to]);
     }
-    return b.build(0, queue.filter((s) => nfa2.accepting.has(s)).map((s) => order.get(s)));
+    const result = b.build(0, queue.filter((s) => nfa2.accepting.has(s)).map((s) => order[s]));
+    return KNOWN_DFAS.has(nfa2) ? markDeterministic(result) : result;
   }
+  var withoutEpsilons = /* @__PURE__ */ new WeakMap();
   function removeEpsilons(nfa2) {
+    if (!withoutEpsilons.has(nfa2)) withoutEpsilons.set(nfa2, removeEpsilonsUncached(nfa2));
+    return withoutEpsilons.get(nfa2);
+  }
+  function removeEpsilonsUncached(nfa2) {
     const b = new Builder();
     for (let i = 0; i < nfa2.size; i++) b.state();
     const accepting = [];
@@ -3540,35 +3568,61 @@
     return trim(b.build(nfa2.start, accepting));
   }
   function determinize(nfa2, { complete = false, maxStates = stateLimit } = {}) {
+    if (KNOWN_DFAS.has(nfa2)) return complete ? completeDfa(nfa2, maxStates) : nfa2;
     const b = new Builder(maxStates);
     const ids = /* @__PURE__ */ new Map();
     const sets = [];
     const matters = nfa2.edges.map((es, s) => nfa2.accepting.has(s) || es.some((e) => e.label !== null));
-    const id = (closed) => {
-      const states = new Set([...closed].filter((s) => matters[s]));
-      const key = [...states].sort((x, y) => x - y).join(",");
-      if (!ids.has(key)) {
-        ids.set(key, b.state());
+    const stamp = new Int32Array(nfa2.size);
+    let generation = 0;
+    const closed = (from) => {
+      generation++;
+      const stack = [];
+      const out = [];
+      for (const s of from) {
+        if (stamp[s] !== generation) {
+          stamp[s] = generation;
+          stack.push(s);
+        }
+      }
+      while (stack.length) {
+        const s = stack.pop();
+        if (matters[s]) out.push(s);
+        for (const { label, to } of nfa2.edges[s]) {
+          if (label === null && stamp[to] !== generation) {
+            stamp[to] = generation;
+            stack.push(to);
+          }
+        }
+      }
+      return Int32Array.from(out).sort();
+    };
+    const id = (states) => {
+      const key = states.length === 1 ? states[0] : states.join(",");
+      let i = ids.get(key);
+      if (i === void 0) {
+        ids.set(key, i = b.state());
         sets.push(states);
       }
-      return ids.get(key);
+      return i;
     };
     let dead = null;
     const deadState = () => {
       if (dead === null) {
         dead = b.state();
-        sets.push(/* @__PURE__ */ new Set());
+        sets.push(new Int32Array(0));
         b.edge(dead, CharSet.ALL, dead);
       }
       return dead;
     };
-    const start = id(closure(nfa2, [nfa2.start]));
+    const start = id(closed([nfa2.start]));
     for (let i = 0; i < sets.length; i++) {
       if (i === dead) continue;
-      const edges = [...sets[i]].flatMap((s) => nfa2.edges[s].filter((e) => e.label !== null));
+      const edges = [];
+      for (const s of sets[i]) for (const e of nfa2.edges[s]) if (e.label !== null) edges.push(e);
       let covered = CharSet.EMPTY;
       for (const { set: set2, members } of partition(edges.map((e) => e.label))) {
-        b.edge(i, set2, id(closure(nfa2, members.map((m) => edges[m].to))));
+        b.edge(i, set2, id(closed(members.map((m) => edges[m].to))));
         if (complete) covered = covered.union(set2);
       }
       if (complete && !covered.isAll()) b.edge(i, covered.complement(), deadState());
@@ -3582,7 +3636,27 @@
         }
       }
     });
-    return b.build(start, accepting);
+    return markDeterministic(b.build(start, accepting));
+  }
+  function completeDfa(nfa2, maxStates) {
+    const b = new Builder(maxStates);
+    for (let i = 0; i < nfa2.size; i++) b.state();
+    let dead = null;
+    nfa2.edges.forEach((es, s) => {
+      let covered = CharSet.EMPTY;
+      for (const { label, to } of es) {
+        b.edge(s, label, to);
+        covered = covered.union(label);
+      }
+      if (!covered.isAll()) {
+        if (dead === null) {
+          dead = b.state();
+          b.edge(dead, CharSet.ALL, dead);
+        }
+        b.edge(s, covered.complement(), dead);
+      }
+    });
+    return markDeterministic(b.build(nfa2.start, nfa2.accepting));
   }
   function complement(nfa2) {
     const dfa = determinize(nfa2, { complete: true });
@@ -3594,6 +3668,7 @@
     return product(cheaplyDeterministic(x), cheaplyDeterministic(y));
   }
   function cheaplyDeterministic(nfa2) {
+    if (KNOWN_DFAS.has(nfa2)) return nfa2;
     try {
       return trim(determinize(nfa2, { maxStates: Math.max(1e3, 2 * nfa2.size) }));
     } catch (e) {
@@ -3633,7 +3708,9 @@
     pairs.forEach(([p, q], i) => {
       if (a.accepting.has(p) && c.accepting.has(q)) accepting.push(i);
     });
-    return trim(b.build(start, accepting));
+    const result = b.build(start, accepting);
+    if (KNOWN_DFAS.has(a) && KNOWN_DFAS.has(c)) markDeterministic(result);
+    return trim(result);
   }
   function mapLabels(nfa2, f) {
     const b = new Builder();
@@ -3685,6 +3762,8 @@
 
   // src/patterns/examples.js
   var FORBIDDEN = CharSet.from([[10, 10], [13, 13], [55296, 57343]]);
+  var ALLOWED = FORBIDDEN.complement();
+  var usableLabel = (label) => label.intersect(FORBIDDEN).isEmpty() ? label : label.intersect(ALLOWED);
   var range = (lo, hi) => [lo.codePointAt(0), hi.codePointAt(0)];
   var POOLS = [
     CharSet.from([range("a", "z")]),
@@ -3704,8 +3783,9 @@
   function examples(nfa2, { count: count2 = 5, random = Math.random, exclude = /* @__PURE__ */ new Set(), attempts = count2 * 20 } = {}) {
     const g = removeEpsilons(nfa2);
     const matchesEmpty = g.accepting.has(g.start);
-    const usable = g.edges.map((es) => es.map((e) => e.label.minus(FORBIDDEN)));
-    const preferred = g.edges.flat().filter((e) => e.label.size() <= SMALL_LABEL).reduce((set2, e) => set2.union(e.label), CharSet.EMPTY).minus(FORBIDDEN);
+    const usable = g.edges.map((es) => es.map((e) => usableLabel(e.label)));
+    const small = new Set(g.edges.flat().map((e) => e.label).filter((label) => label.size() <= SMALL_LABEL));
+    const preferred = CharSet.from([...small].flatMap((label) => label.ranges.map(([lo, hi]) => [lo, hi]))).intersect(ALLOWED);
     const dist = distances(g, usable);
     const found = [];
     const seen = new Set(exclude);
@@ -3732,20 +3812,29 @@
     return { examples: found, matchesEmpty };
   }
   function pathCounts(g, usable, maxLength) {
+    const n = g.edges.length;
+    const first = new Int32Array(n + 1);
+    const list = [];
+    g.edges.forEach((es, s) => {
+      first[s] = list.length;
+      es.forEach((e, i) => {
+        if (!usable[s][i].isEmpty()) list.push(e.to);
+      });
+    });
+    first[n] = list.length;
+    const targets = Int32Array.from(list);
     const paths = [Float64Array.from(g.edges, (_, s) => g.accepting.has(s) ? 1 : 0)];
-    for (let n = 1; n <= maxLength; n++) {
-      const prev = paths[n - 1];
-      const level = new Float64Array(g.edges.length);
+    for (let length = 1; length <= maxLength; length++) {
+      const prev = paths[length - 1];
+      const level = new Float64Array(n);
       let max = 0;
-      g.edges.forEach((es, s) => {
+      for (let s = 0; s < n; s++) {
         let total = 0;
-        es.forEach((e, i) => {
-          if (!usable[s][i].isEmpty()) total += prev[e.to];
-        });
+        for (let k = first[s]; k < first[s + 1]; k++) total += prev[targets[k]];
         level[s] = total;
         if (total > max) max = total;
-      });
-      if (max > 0) for (let s = 0; s < level.length; s++) level[s] /= max;
+      }
+      if (max > 0) for (let s = 0; s < n; s++) level[s] /= max;
       paths.push(level);
     }
     return paths;
@@ -4270,7 +4359,7 @@
       if (final) accepting.push(i);
       for (const [cp, to] of moves) b.edge(i, CharSet.of(cp), to);
     });
-    return b.build(idOf.get(root), accepting);
+    return markDeterministic(b.build(idOf.get(root), accepting));
   }
 
   // src/patterns/shorthands.js
@@ -5370,6 +5459,7 @@
     return splitCache.get(split);
   }
   function compile(ast, options = {}) {
+    if (ast.type === "words" && options.words && !options.caseless) return options.words;
     if (!options.names) options = { ...options, names: definitions(ast) };
     const b = new Builder();
     const start = b.state();

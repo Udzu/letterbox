@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { compile as compileAst } from "../src/patterns/compile.js";
 import { compile, PatternError } from "../src/patterns/index.js";
-import { intersect, matches, minimize, reverse, withStateLimit } from "../src/patterns/nfa.js";
+import { determinize, intersect, matches, minimize, removeEpsilons, reverse, withStateLimit } from "../src/patterns/nfa.js";
 import { matcher, parseWords, wordsAutomaton } from "../src/patterns/wordlist.js";
 import { randomAst, seededRandom } from "./helpers.js";
 
@@ -65,6 +65,23 @@ test("@ matches the word list", () => {
   yes("\\@", "@");
   yes("(?R1:@)&@", "tac"); // cat rotated right by 1
   assert.throws(() => compile("a|@"), (e) => e instanceof PatternError && /No word list loaded/.test(e.message) && e.span[0] === 2);
+});
+
+test("the word list's automaton is reused rather than determinised again", () => {
+  const words = wordsAutomaton(WORDS);
+  assert.equal(compile("@", { words }), words);
+  assert.equal(determinize(words), words);
+  // complementing it only adds a dead state, and still gives the right answers
+  const yes = (p, s) => assert.ok(matches(compile(p, { words }), s), `${p} should match ${s}`);
+  const no = (p, s) => assert.ok(!matches(compile(p, { words }), s), `${p} shouldn't match ${s}`);
+  yes("[a-z]+&!@", "cow");
+  no("[a-z]+&!@", "cat");
+  yes("@&!(c.*)", "dog");
+  no("@&!(c.*)", "cat");
+  yes("@&@", "cat");
+  // ε-free versions are remembered
+  const nfa = compile("@ @", { words });
+  assert.equal(removeEpsilons(nfa), removeEpsilons(nfa));
 });
 
 test("intersect only builds pairs that share a character", () => {

@@ -112,6 +112,18 @@ CharSet.ALL = new CharSet([Object.freeze([0, MAX_CP])]);
 // pieces. Returns [{ set, members }] where members are the indices of the inputs that
 // contain that piece. Used to turn an NFA state set's outgoing edges into DFA edges.
 export function partition(sets) {
+  // common case, as in word lists and literal text: every set is a single character
+  if (sets.every((s) => s.ranges.length === 1 && s.ranges[0][0] === s.ranges[0][1])) {
+    const byChar = new Map();
+    sets.forEach((s, i) => {
+      const cp = s.ranges[0][0];
+      const piece = byChar.get(cp);
+      if (piece) piece.members.push(i);
+      else byChar.set(cp, { set: s, members: [i] });
+    });
+    // in code point order, as below
+    return [...byChar].sort((x, y) => x[0] - y[0]).map(([, piece]) => piece);
+  }
   const points = new Set();
   for (const s of sets) {
     for (const [lo, hi] of s.ranges) {

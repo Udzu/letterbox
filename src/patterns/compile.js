@@ -75,6 +75,8 @@ function splitDfa(split) {
 // options: { caseless } makes every character comparison case-insensitive, and { words }
 // is the word list's automaton, which @ matches (see wordsAutomaton in wordlist.js)
 export function compile(ast, options = {}) {
+  // @ on its own is the word list's automaton, which is already deterministic
+  if (ast.type === "words" && options.words && !options.caseless) return options.words;
   if (!options.names) options = { ...options, names: definitions(ast) };
   const b = new Builder();
   const start = b.state();

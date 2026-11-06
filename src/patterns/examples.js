@@ -18,6 +18,9 @@ import { matches, removeEpsilons } from "./nfa.js";
 
 // characters an example can never contain: line breaks, and surrogates (not real characters)
 const FORBIDDEN = CharSet.from([[0x0a, 0x0a], [0x0d, 0x0d], [0xd800, 0xdfff]]);
+const ALLOWED = FORBIDDEN.complement();
+// a label without the forbidden characters (most labels have none, so are kept as they are)
+const usableLabel = (label) => (label.intersect(FORBIDDEN).isEmpty() ? label : label.intersect(ALLOWED));
 const range = (lo, hi) => [lo.codePointAt(0), hi.codePointAt(0)];
 const POOLS = [
   CharSet.from([range("a", "z")]),
@@ -40,12 +43,10 @@ const LENGTH_SPREAD = 10; // walks aim for up to this many characters more than 
 export function examples(nfa, { count = 5, random = Math.random, exclude = new Set(), attempts = count * 20 } = {}) {
   const g = removeEpsilons(nfa);
   const matchesEmpty = g.accepting.has(g.start);
-  const usable = g.edges.map((es) => es.map((e) => e.label.minus(FORBIDDEN)));
-  const preferred = g.edges
-    .flat()
-    .filter((e) => e.label.size() <= SMALL_LABEL)
-    .reduce((set, e) => set.union(e.label), CharSet.EMPTY)
-    .minus(FORBIDDEN);
+  const usable = g.edges.map((es) => es.map((e) => usableLabel(e.label)));
+  // the characters of small labels, gathered once (labels repeat a lot, as in word lists)
+  const small = new Set(g.edges.flat().map((e) => e.label).filter((label) => label.size() <= SMALL_LABEL));
+  const preferred = CharSet.from([...small].flatMap((label) => label.ranges.map(([lo, hi]) => [lo, hi]))).intersect(ALLOWED);
   const dist = distances(g, usable);
 
   const found = [];
@@ -84,20 +85,30 @@ export function examples(nfa, { count = 5, random = Math.random, exclude = new S
 // largest count is 1, since only ratios within a level matter and long paths can be very
 // numerous.
 function pathCounts(g, usable, maxLength) {
+  // the usable edges as flat arrays: state s's targets are targets[first[s]..first[s + 1]]
+  const n = g.edges.length;
+  const first = new Int32Array(n + 1);
+  const list = [];
+  g.edges.forEach((es, s) => {
+    first[s] = list.length;
+    es.forEach((e, i) => {
+      if (!usable[s][i].isEmpty()) list.push(e.to);
+    });
+  });
+  first[n] = list.length;
+  const targets = Int32Array.from(list);
   const paths = [Float64Array.from(g.edges, (_, s) => (g.accepting.has(s) ? 1 : 0))];
-  for (let n = 1; n <= maxLength; n++) {
-    const prev = paths[n - 1];
-    const level = new Float64Array(g.edges.length);
+  for (let length = 1; length <= maxLength; length++) {
+    const prev = paths[length - 1];
+    const level = new Float64Array(n);
     let max = 0;
-    g.edges.forEach((es, s) => {
+    for (let s = 0; s < n; s++) {
       let total = 0;
-      es.forEach((e, i) => {
-        if (!usable[s][i].isEmpty()) total += prev[e.to];
-      });
+      for (let k = first[s]; k < first[s + 1]; k++) total += prev[targets[k]];
       level[s] = total;
       if (total > max) max = total;
-    });
-    if (max > 0) for (let s = 0; s < level.length; s++) level[s] /= max;
+    }
+    if (max > 0) for (let s = 0; s < n; s++) level[s] /= max;
     paths.push(level);
   }
   return paths;

@@ -34,6 +34,16 @@ export class TooManyStatesError extends Error {
   }
 }
 
+// Automata known to be deterministic (no ε-moves, and disjoint labels on the edges leaving
+// each state), so that determinising them again can be skipped. Only automata built to be
+// deterministic are marked: determinize's results, the word list's automaton, and what
+// trim and product make from marked ones.
+const KNOWN_DFAS = new WeakSet();
+export function markDeterministic(nfa) {
+  KNOWN_DFAS.add(nfa);
+  return nfa;
+}
+
 export class NFA {
   constructor(start, accepting, edges) {
     this.start = start;
@@ -84,10 +94,15 @@ export class Builder {
   // parallel edges to the same state are merged into one, and duplicate ε-moves dropped
   build(start, accepting) {
     const edges = this.edges.map((es, s) => {
+      if (es.length === 1) {
+        const [{ label, to }] = es;
+        return label === null && to === s ? [] : [Object.freeze({ label, to })];
+      }
+      // keys: to for labelled edges, -1 - to for ε-moves
       const merged = new Map();
       for (const { label, to } of es) {
         if (label === null && to === s) continue; // ε self-loops do nothing
-        const key = label === null ? `ε${to}` : `${to}`;
+        const key = label === null ? -1 - to : to;
         const existing = merged.get(key);
         if (!existing) merged.set(key, { label, to });
         else if (label !== null) existing.label = existing.label.union(label);
@@ -139,26 +154,29 @@ export function matches(nfa, string) {
 // Remove states that can't be reached from the start or can't reach an accepting state.
 // States are renumbered in breadth-first order from the start, which becomes 0.
 export function trim(nfa) {
+  const n = nfa.size;
   const reverse = nfa.edges.map(() => []);
   nfa.edges.forEach((es, s) => {
     for (const { to } of es) reverse[to].push(s);
   });
-  const live = new Set(nfa.accepting);
-  const stack = [...live];
+  const live = new Uint8Array(n);
+  const stack = [...nfa.accepting];
+  for (const s of stack) live[s] = 1;
   while (stack.length) {
     for (const s of reverse[stack.pop()]) {
-      if (!live.has(s)) {
-        live.add(s);
+      if (!live[s]) {
+        live[s] = 1;
         stack.push(s);
       }
     }
   }
-  const order = new Map([[nfa.start, 0]]);
+  const order = new Int32Array(n).fill(-1);
+  order[nfa.start] = 0;
   const queue = [nfa.start];
   for (let i = 0; i < queue.length; i++) {
     for (const { to } of nfa.edges[queue[i]]) {
-      if (live.has(to) && !order.has(to)) {
-        order.set(to, order.size);
+      if (live[to] && order[to] < 0) {
+        order[to] = queue.length;
         queue.push(to);
       }
     }
@@ -166,13 +184,19 @@ export function trim(nfa) {
   const b = new Builder();
   for (let i = 0; i < queue.length; i++) b.state();
   for (const s of queue) {
-    for (const { label, to } of nfa.edges[s]) if (order.has(to)) b.edge(order.get(s), label, order.get(to));
+    for (const { label, to } of nfa.edges[s]) if (order[to] >= 0) b.edge(order[s], label, order[to]);
   }
-  return b.build(0, queue.filter((s) => nfa.accepting.has(s)).map((s) => order.get(s)));
+  const result = b.build(0, queue.filter((s) => nfa.accepting.has(s)).map((s) => order[s]));
+  return KNOWN_DFAS.has(nfa) ? markDeterministic(result) : result;
 }
 
-// equivalent NFA with no ε-moves
+// equivalent NFA with no ε-moves, remembered since several views of a pattern need it
+const withoutEpsilons = new WeakMap();
 export function removeEpsilons(nfa) {
+  if (!withoutEpsilons.has(nfa)) withoutEpsilons.set(nfa, removeEpsilonsUncached(nfa));
+  return withoutEpsilons.get(nfa);
+}
+function removeEpsilonsUncached(nfa) {
   const b = new Builder();
   for (let i = 0; i < nfa.size; i++) b.state();
   const accepting = [];
@@ -190,37 +214,65 @@ export function removeEpsilons(nfa) {
 // adding a non-accepting "dead" state if needed (which complementing relies on).
 // maxStates limits the DFA's size, throwing TooManyStatesError if it's exceeded
 export function determinize(nfa, { complete = false, maxStates = stateLimit } = {}) {
+  if (KNOWN_DFAS.has(nfa)) return complete ? completeDfa(nfa, maxStates) : nfa;
   const b = new Builder(maxStates);
   const ids = new Map();
   const sets = [];
   // states with only ε-moves contribute nothing beyond their closure, so leave them out of
   // state sets; otherwise e.g. a fresh start state makes the start set unique
   const matters = nfa.edges.map((es, s) => nfa.accepting.has(s) || es.some((e) => e.label !== null));
-  const id = (closed) => {
-    const states = new Set([...closed].filter((s) => matters[s]));
-    const key = [...states].sort((x, y) => x - y).join(",");
-    if (!ids.has(key)) {
-      ids.set(key, b.state());
+  // the ε-closure of some states, as the sorted states that matter, using stamps rather than
+  // a Set to mark the states seen
+  const stamp = new Int32Array(nfa.size);
+  let generation = 0;
+  const closed = (from) => {
+    generation++;
+    const stack = [];
+    const out = [];
+    for (const s of from) {
+      if (stamp[s] !== generation) {
+        stamp[s] = generation;
+        stack.push(s);
+      }
+    }
+    while (stack.length) {
+      const s = stack.pop();
+      if (matters[s]) out.push(s);
+      for (const { label, to } of nfa.edges[s]) {
+        if (label === null && stamp[to] !== generation) {
+          stamp[to] = generation;
+          stack.push(to);
+        }
+      }
+    }
+    return Int32Array.from(out).sort();
+  };
+  const id = (states) => {
+    const key = states.length === 1 ? states[0] : states.join(",");
+    let i = ids.get(key);
+    if (i === undefined) {
+      ids.set(key, (i = b.state()));
       sets.push(states);
     }
-    return ids.get(key);
+    return i;
   };
   let dead = null;
   const deadState = () => {
     if (dead === null) {
       dead = b.state();
-      sets.push(new Set());
+      sets.push(new Int32Array(0));
       b.edge(dead, CharSet.ALL, dead);
     }
     return dead;
   };
-  const start = id(closure(nfa, [nfa.start]));
+  const start = id(closed([nfa.start]));
   for (let i = 0; i < sets.length; i++) {
     if (i === dead) continue;
-    const edges = [...sets[i]].flatMap((s) => nfa.edges[s].filter((e) => e.label !== null));
+    const edges = [];
+    for (const s of sets[i]) for (const e of nfa.edges[s]) if (e.label !== null) edges.push(e);
     let covered = CharSet.EMPTY;
     for (const { set, members } of partition(edges.map((e) => e.label))) {
-      b.edge(i, set, id(closure(nfa, members.map((m) => edges[m].to))));
+      b.edge(i, set, id(closed(members.map((m) => edges[m].to))));
       if (complete) covered = covered.union(set);
     }
     if (complete && !covered.isAll()) b.edge(i, covered.complement(), deadState());
@@ -234,7 +286,29 @@ export function determinize(nfa, { complete = false, maxStates = stateLimit } = 
       }
     }
   });
-  return b.build(start, accepting);
+  return markDeterministic(b.build(start, accepting));
+}
+
+// a known DFA with edges for every character, adding a dead state if needed
+function completeDfa(nfa, maxStates) {
+  const b = new Builder(maxStates);
+  for (let i = 0; i < nfa.size; i++) b.state();
+  let dead = null;
+  nfa.edges.forEach((es, s) => {
+    let covered = CharSet.EMPTY;
+    for (const { label, to } of es) {
+      b.edge(s, label, to);
+      covered = covered.union(label);
+    }
+    if (!covered.isAll()) {
+      if (dead === null) {
+        dead = b.state();
+        b.edge(dead, CharSet.ALL, dead);
+      }
+      b.edge(s, covered.complement(), dead);
+    }
+  });
+  return markDeterministic(b.build(nfa.start, nfa.accepting));
 }
 
 // accepts exactly the strings the NFA rejects
@@ -255,6 +329,7 @@ export function intersect(x, y) {
 }
 
 function cheaplyDeterministic(nfa) {
+  if (KNOWN_DFAS.has(nfa)) return nfa;
   try {
     return trim(determinize(nfa, { maxStates: Math.max(1000, 2 * nfa.size) }));
   } catch (e) {
@@ -296,7 +371,9 @@ function product(a, c) {
   pairs.forEach(([p, q], i) => {
     if (a.accepting.has(p) && c.accepting.has(q)) accepting.push(i);
   });
-  return trim(b.build(start, accepting));
+  const result = b.build(start, accepting);
+  if (KNOWN_DFAS.has(a) && KNOWN_DFAS.has(c)) markDeterministic(result);
+  return trim(result);
 }
 
 // accepts the reverse of every string the NFA accepts
