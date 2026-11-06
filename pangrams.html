@@ -94,6 +94,7 @@
   }
   .section-header h2 { margin: 0 8px 0 0; font-size: 1.1rem; }
   .note { color: #666; }
+  #words-filter { width: 9em; font-size: 1rem; font-family: inherit; padding: 2px 4px; }
   #words-help { margin: 0 0 8px; color: #444; font-size: 0.95rem; }
   #words-info { margin: 8px 0 6px; }
   #words-info:empty { display: none; }
@@ -125,6 +126,7 @@
       <h2>Word list</h2>
       <button id="load-words">Load…</button>
       <button id="clear-words">Clear</button>
+      <input id="words-filter" type="text" placeholder="Filter letters" title="Only show words containing all of these letters" autocomplete="off" spellcheck="false">
       <span id="words-info-list" class="note"></span>
       <input type="file" id="words-file" accept=".txt,text/plain" hidden>
     </div>
@@ -300,8 +302,9 @@
   const wordsInfo = document.getElementById("words-info");
   const listInfo = document.getElementById("words-info-list");
   const clearWordsButton = document.getElementById("clear-words");
+  const filterInput = document.getElementById("words-filter");
   let wordList = null;      // { name, size, entries: [{ word, mask, length }] }, alphabetical
-  let shownFor = null;      // the missing letters the words were last listed for
+  let shownFor = null;      // the missing letters and filter the words were last listed for
   let showAllWords = false;
 
   function openDb() {
@@ -379,6 +382,7 @@
     shownFor = null;
     showAllWords = false;
     clearWordsButton.disabled = list === null;
+    filterInput.disabled = list === null;
     listInfo.textContent = list === null ? "None loaded" : `${list.name}: ${count(list.size, "word")}`;
     update();
   }
@@ -390,22 +394,26 @@
       shownFor = null;
       return;
     }
-    if (missing === shownFor) return;
+    const key = missing + "|" + filterInput.value;
+    if (key === shownFor) return;
     showAllWords = false;
-    shownFor = missing;
+    shownFor = key;
     renderWords(missing);
   }
 
   function renderWords(missing) {
     let missingMask = 0;
     for (const ch of missing) missingMask |= bit(ch);
+    let filterMask = 0;
+    for (const ch of alphabetLetters(filterInput.value)) filterMask |= bit(ch);
+    const filter = [...ALPHABET].filter(ch => filterMask & bit(ch)).join("");
 
     // buckets[duplicates][new letters], each already in alphabetical order
     const buckets = [];
     let found = 0;
     for (const entry of wordList.entries) {
       const added = popcount(entry.mask & missingMask);
-      if (added === 0) continue;
+      if (added === 0 || (entry.mask & filterMask) !== filterMask) continue;
       const dups = entry.length - added;
       ((buckets[dups] ??= [])[added] ??= []).push(entry.word);
       found++;
@@ -446,14 +454,15 @@
     wordsBox.scrollTop = 0;
 
     const shown = showAllWords ? found : Math.min(found, SHOWN_WORDS);
+    const use = filter === "" ? "use missing letters" : `use missing letters and contain ${filter}`;
     if (missing === "") {
       wordsInfo.textContent = "";
     } else if (found === 0) {
-      wordsInfo.textContent = "No words use the missing letters.";
+      wordsInfo.textContent = filter === "" ? "No words use the missing letters." : `No words ${use}.`;
     } else if (shown === found) {
-      wordsInfo.textContent = `${count(found, "word")} use missing letters:`;
+      wordsInfo.textContent = `${count(found, "word")} ${use}:`;
     } else {
-      wordsInfo.innerHTML = `${count(found, "word")} use missing letters, showing the first ${shown.toLocaleString()}: <button id="show-all-words">Show all</button>`;
+      wordsInfo.innerHTML = `${count(found, "word")} ${use}, showing the first ${shown.toLocaleString()}: <button id="show-all-words">Show all</button>`;
       document.getElementById("show-all-words").addEventListener("click", () => {
         showAllWords = true;
         renderWords(missing);
@@ -502,6 +511,8 @@
   });
 
   clearWordsButton.disabled = true;
+  filterInput.disabled = true;
+  filterInput.addEventListener("input", () => wordList && showWords(analyse(input.value).missing));
   listInfo.textContent = "None loaded";
   fetchWordList().then(stored => {
     if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));

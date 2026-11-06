@@ -106,6 +106,7 @@
   }
   .section-header h2 { margin-right: 8px; }
   .note { color: #666; }
+  #words-filter { width: 9em; font-size: 1rem; font-family: inherit; padding: 2px 4px; }
   #words-help { margin: 0 0 8px; color: #444; font-size: 0.95rem; }
   #words-info { margin: 8px 0 6px; }
   #words-info:empty { display: none; }
@@ -141,6 +142,7 @@
     <h2>Word list</h2>
     <button id="load-words">Load…</button>
     <button id="clear-words">Clear</button>
+    <input id="words-filter" type="text" placeholder="Filter letters" title="Only show words containing all of these letters" autocomplete="off" spellcheck="false">
     <span id="words-info-list" class="note"></span>
     <input type="file" id="words-file" accept=".txt,text/plain" hidden>
   </div>
@@ -376,8 +378,9 @@
   const wordsInfo = document.getElementById("words-info");
   const listInfo = document.getElementById("words-info-list");
   const clearWordsButton = document.getElementById("clear-words");
+  const filterInput = document.getElementById("words-filter");
   let wordList = null;      // { name, entries: [{ word, counts: [[key, n]...], length }] }
-  let shownFor = null;      // the missing letters the words were last listed for
+  let shownFor = null;      // the missing letters and filter the words were last listed for
   let showAllWords = false;
 
   function openDb() {
@@ -452,12 +455,13 @@
     shownFor = null;
     showAllWords = false;
     clearWordsButton.disabled = list === null;
+    filterInput.disabled = list === null;
     listInfo.textContent = list === null ? "None loaded" : `${list.name}: ${count(list.size, "word")}`;
     update();
   }
 
   function showWords(missing) {
-    const letters = sorted([...missing]);
+    const letters = sorted([...missing]) + "|" + filterInput.value;
     if (wordList === null) {
       wordsInfo.textContent = "";
       wordsBox.replaceChildren();
@@ -473,9 +477,12 @@
   function renderWords(missing) {
     const available = new Map();
     for (const k of missing) available.set(k, (available.get(k) || 0) + 1);
+    const filterKeys = [...new Set([...filterInput.value].map(key).filter(k => k !== null))];
+    const filter = sorted([...filterKeys]);
     const found = [];
     for (const entry of wordList.entries) {
       if (entry.length > missing.length) continue;
+      if (!filterKeys.every(k => entry.counts.some(([c]) => c === k))) continue;
       if (entry.counts.every(([k, n]) => (available.get(k) || 0) >= n)) found.push(entry);
     }
 
@@ -504,14 +511,15 @@
     wordsBox.replaceChildren(...groups);
     wordsBox.scrollTop = 0;
 
+    const fit = filter === "" ? "fit" : `fit and contain ${filter}`;
     if (missing.length === 0) {
       wordsInfo.textContent = anagrist.value.trim() === "" ? "Type an anagrist to see the words that fit." : "";
     } else if (found.length === 0) {
-      wordsInfo.textContent = "No words fit.";
+      wordsInfo.textContent = filter === "" ? "No words fit." : `No words fit and contain ${filter}.`;
     } else if (shown.length === found.length) {
-      wordsInfo.textContent = `${count(found.length, "word")} fit:`;
+      wordsInfo.textContent = `${count(found.length, "word")} ${fit}:`;
     } else {
-      wordsInfo.innerHTML = `${count(found.length, "word")} fit, showing the first ${shown.length.toLocaleString()}: <button id="show-all-words">Show all</button>`;
+      wordsInfo.innerHTML = `${count(found.length, "word")} ${escape(fit)}, showing the first ${shown.length.toLocaleString()}: <button id="show-all-words">Show all</button>`;
       document.getElementById("show-all-words").addEventListener("click", () => {
         showAllWords = true;
         renderWords(missing);
@@ -562,6 +570,8 @@
   renderAttempts();
 
   clearWordsButton.disabled = true;
+  filterInput.disabled = true;
+  filterInput.addEventListener("input", () => wordList && update());
   listInfo.textContent = "None loaded";
   fetchWordList().then(stored => {
     if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));
