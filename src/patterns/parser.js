@@ -423,8 +423,7 @@ class Parser {
     }
     if (flag === "<" || flag === "&") return this.parseName(groupStart, flag);
     if (PCRE_FLAGS.has(flag)) {
-      const hint = flag === "s" ? ": for a cipher shift, write (?c:...)" : "";
-      throw this.error(`(?${flag} is a PCRE flag, which isn't supported${hint}`, groupStart, this.pos + 1);
+      throw this.error(`(?${flag} is a PCRE flag, which isn't supported`, groupStart, this.pos + 1);
     }
     if (!(flag in MODIFIERS)) {
       if (flag === ":") throw this.error("Write (...) for grouping, not (?:...)", groupStart, this.pos + 1);

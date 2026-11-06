@@ -238,7 +238,7 @@ const ERRORS = [
   ["$", "$ is reserved", [0, 1]],
   ["😀,", ", is reserved", [2, 3]],
   ["(?", "Missing modifier", [0, 2]],
-  ["(?s:a)", "PCRE flag, which isn't supported: for a cipher shift", [0, 3]],
+  ["(?s:a)", "(?s is a PCRE flag, which isn't supported", [0, 3]],
   ["(?m:a)", "(?m is a PCRE flag", [0, 3]],
   ["(?-i:a)", "(?- is a PCRE flag", [0, 3]],
   ["(?:a)", "not (?:...)", [0, 3]],
