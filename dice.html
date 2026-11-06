@@ -32,6 +32,11 @@
   @keyframes fresh { from { background: #ffe08a; } to { background: transparent; } }
   #breakdown { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px 20px; color: #666; font-size: 0.95rem; }
   #breakdown .part { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+  #roll-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 24px; }
+  #rules { display: flex; gap: 16px; }
+  #rules:not(:has(label:not([hidden]))) { display: none; }
+  #breakdown .die.kept { border-color: #080; color: #080; background: #eef8ee; }
+  #breakdown .die.dropped { border-color: #d00; color: #d00; background: #fdeeee; text-decoration: line-through; opacity: 0.7; }
   #breakdown .die {
     min-width: 1.6em;
     padding: 1px 4px;
@@ -86,6 +91,11 @@
   </div>
   <label id="mix-label"><input id="mix" type="checkbox"> Allow other dice (d4, d6, d8, d10, d12, d20, d100)<span id="mix-note" hidden> — not available when rolling d100s</span></label>
   <div id="result"></div>
+  <div id="rules">
+    <label id="ability-label" hidden><input id="ability" type="checkbox"> ability score</label>
+    <label id="advantage-label" hidden><input id="advantage" type="checkbox"> advantage</label>
+    <label id="disadvantage-label" hidden><input id="disadvantage" type="checkbox"> disadvantage</label>
+  </div>
   <div id="roller">
     <button id="roll-dice" title="Enter">Roll</button>
     <span id="total" aria-live="polite"></span>
@@ -114,6 +124,41 @@
   const mixInput = document.getElementById("mix");
   const limitInput = document.getElementById("limit");
   const mixNote = document.getElementById("mix-note");
+  const rules = document.getElementById("rules");
+
+  // Special ways of reading a plain roll of exactly 4d6 or 2d20, each dropping one die.
+  const RULES = {
+    ability: { input: document.getElementById("ability"), m: 4, d: 6, drop: "lowest", name: "ability score" },
+    advantage: { input: document.getElementById("advantage"), m: 2, d: 20, drop: "lowest", name: "advantage" },
+    disadvantage: { input: document.getElementById("disadvantage"), m: 2, d: 20, drop: "highest", name: "disadvantage" },
+  };
+
+  // the index of the die a rule drops (only one, if there's a tie)
+  function droppedIndex(faces, rule) {
+    const value = rule.drop === "lowest" ? Math.min(...faces) : Math.max(...faces);
+    return faces.indexOf(value);
+  }
+
+  // exact mean and variance of the sum of the kept dice, over every possible roll
+  function ruleStats(rule) {
+    let count = 0, sum = 0, sumSquares = 0;
+    const faces = new Array(rule.m);
+    (function each(i) {
+      if (i === rule.m) {
+        const kept = faces.reduce((x, y) => x + y, 0) - faces[droppedIndex(faces, rule)];
+        count++;
+        sum += kept;
+        sumSquares += kept * kept;
+        return;
+      }
+      for (let f = 1; f <= rule.d; f++) {
+        faces[i] = f;
+        each(i + 1);
+      }
+    })(0);
+    const mean = sum / count;
+    return { mean, variance: sumSquares / count - mean * mean };
+  }
   const result = document.getElementById("result");
 
   // A die dk with multiplier a adds a²·(k²−1)/12 to the variance, so a solution for ndk
@@ -226,6 +271,7 @@
     current = null;
     rollButton.disabled = true;
     clearRoll();
+    for (const rule of Object.values(RULES)) rule.input.parentElement.hidden = true;
     const limit = limitInput.checked;
     // mixing other dice into a d100 roll makes the search far too slow (seconds), and
     // its answers, like 25d12×12 + 25d10×14, are impractical to roll anyway
@@ -253,13 +299,29 @@
       current = rollFor(solution.groups, n, k, modifier);
       roll.textContent = current.text;
       rollButton.disabled = false;
+      // the rules are offered only when the roll is exactly the dice asked for
+      const [g] = solution.groups;
+      const plain = solution.groups.length === 1 && g.a === 1 && g.m === n && g.d === k;
+      let mean = n * (k + 1) / 2, variance = n * (k * k - 1) / 12;
+      for (const rule of Object.values(RULES)) {
+        const applies = plain && n === rule.m && k === rule.d;
+        rule.input.parentElement.hidden = !applies;
+        if (applies && rule.input.checked) {
+          current.rule = rule;
+          ({ mean, variance } = ruleStats(rule));
+        }
+      }
       const stats = document.createElement("div");
       stats.id = "stats";
       // the mean is bold, since it's often used instead of rolling
-      const mean = document.createElement("b");
-      mean.textContent = formatNumber(n * (k + 1) / 2 + modifier);
-      stats.append(`${s} ${s === 1 ? "die" : "dice"} · mean `, mean, ` · variance ${formatNumber(n * (k * k - 1) / 12)}`);
-      result.append(roll, stats);
+      const meanCell = document.createElement("b");
+      meanCell.textContent = formatNumber(mean + modifier);
+      stats.append(`${s} ${s === 1 ? "die" : "dice"} · mean `, meanCell, ` · variance ${formatNumber(variance)}`);
+      // the rules sit beside the roll they apply to
+      const line = document.createElement("div");
+      line.id = "roll-line";
+      line.append(roll, rules);
+      result.append(line, stats);
     } else {
       const p = document.createElement("p");
       p.className = "none";
@@ -294,26 +356,34 @@
 
   function rollDice() {
     if (current === null) return;
-    const { groups, c, text } = current;
+    const { groups, c, rule } = current;
+    const text = rule ? `${current.text} (${rule.name})` : current.text;
     let total = c;
     // each part is shown with the dice as boxes, and kept as text for the history
     const parts = [], texts = [];
     for (const g of groups) {
       const faces = Array.from({ length: g.m }, () => rollDie(g.d));
-      const sum = faces.reduce((x, y) => x + y, 0) * g.a;
+      // a rule drops one die from the sum (rules only apply to a single group with a = 1)
+      const dropped = rule ? droppedIndex(faces, rule) : -1;
+      const sum = (faces.reduce((x, y) => x + y, 0) - (dropped >= 0 ? faces[dropped] : 0)) * g.a;
       total += sum;
       // a subtotal helps when there's more than one part to add up
       const subtotal = g.a > 1 ? ` (×${g.a} = ${sum})` : g.m > 1 && (groups.length > 1 || c !== 0) ? ` (= ${sum})` : "";
       const part = document.createElement("span");
       part.className = "part";
-      part.append(`${term(g)}: `, ...faces.map(face => {
+      part.append(`${term(g)}: `, ...faces.map((face, i) => {
         const die = document.createElement("span");
         die.className = "die";
+        if (rule) {
+          die.classList.add(i === dropped ? "dropped" : "kept");
+          if (i === dropped) die.title = `Dropped (${rule.drop})`;
+        }
         die.textContent = face;
         return die;
       }), subtotal);
       parts.push(part);
-      texts.push(`${term(g)}: ${faces.join(" ")}${subtotal}`);
+      const faceTexts = faces.map((face, i) => i === dropped ? `(${face} dropped)` : face);
+      texts.push(`${term(g)}: ${faceTexts.join(" ")}${subtotal}`);
     }
     if (c !== 0) {
       const constant = c > 0 ? `+ ${c}` : `− ${-c}`;
@@ -375,13 +445,20 @@
   rInput.value = "4";
   mixInput.checked = false;
   limitInput.checked = false;
+  for (const rule of Object.values(RULES)) rule.input.checked = false;
 
   // keep r within 1..n as n shrinks
   nInput.addEventListener("input", () => {
     const n = Number(nInput.value);
     if (Number.isInteger(n) && n >= 1 && n <= MAX_N && Number(rInput.value) > n) rInput.value = n;
   });
-  for (const input of [nInput, kInput, cInput, rInput, mixInput, limitInput]) {
+  // advantage and disadvantage exclude each other (listening before render does, below)
+  for (const [a, b] of [[RULES.advantage, RULES.disadvantage], [RULES.disadvantage, RULES.advantage]]) {
+    a.input.addEventListener("input", () => {
+      if (a.input.checked) b.input.checked = false;
+    });
+  }
+  for (const input of [nInput, kInput, cInput, rInput, mixInput, limitInput, ...Object.values(RULES).map(rule => rule.input)]) {
     input.addEventListener("input", render);
   }
   render();
