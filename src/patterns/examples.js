@@ -58,11 +58,13 @@ export function examples(nfa, { count = 5, random = Math.random, exclude = new S
       found.push(normalized);
     }
   };
-  if (dist[g.start] === Infinity) return { examples: found, matchesEmpty };
+  // the shortest non-empty example's length, since the empty string isn't shown
+  const shortest = Math.min(...g.edges[g.start].map((e, i) => (usable[g.start][i].isEmpty() ? Infinity : 1 + dist[e.to])));
+  if (shortest === Infinity) return { examples: found, matchesEmpty };
 
   // start with a shortest example, then random ones of the lengths that are possible
-  add(shortestWalk(g, usable, dist, preferred));
-  const paths = pathCounts(g, usable, dist[g.start] + LENGTH_SPREAD);
+  add(shortestWalk(g, usable, dist, shortest, preferred));
+  const paths = pathCounts(g, usable, shortest + LENGTH_SPREAD);
   const lengths = paths.map((level, n) => n).filter((n) => n > 0 && paths[n][g.start] > 0);
   for (let i = 0; i < attempts && found.length < count; i++) {
     // two uniform walks for every free one, in the order U F U U F U …, so that a batch of
@@ -70,7 +72,7 @@ export function examples(nfa, { count = 5, random = Math.random, exclude = new S
     if (i % 3 !== 1 && lengths.length > 0) {
       add(uniformWalk(g, usable, paths, lengths[Math.floor(random() * lengths.length)], random, preferred));
     } else {
-      const s = freeWalk(g, usable, dist, dist[g.start] + Math.floor(random() * (LENGTH_SPREAD + 1)), random, preferred);
+      const s = freeWalk(g, usable, dist, shortest + Math.floor(random() * (LENGTH_SPREAD + 1)), random, preferred);
       if (s !== null) add(s);
     }
   }
@@ -121,14 +123,17 @@ function distances(g, usable) {
   return dist;
 }
 
-// A shortest example, always taking the first edge that gets closer to an accepting state.
-function shortestWalk(g, usable, dist, preferred) {
+// A shortest non-empty example, of length n: a first step that leaves n − 1 characters to go
+// (needed when the start state accepts), then always the first edge that gets closer to an
+// accepting state.
+function shortestWalk(g, usable, dist, n, preferred) {
   const chars = [];
-  for (let s = g.start; dist[s] > 0;) {
-    const i = g.edges[s].findIndex((e, i) => !usable[s][i].isEmpty() && dist[e.to] === dist[s] - 1);
+  const step = (s, i) => {
     chars.push(String.fromCodePoint(pickChar(usable[s][i], () => 0, preferred)));
-    s = g.edges[s][i].to;
-  }
+    return g.edges[s][i].to;
+  };
+  let s = step(g.start, g.edges[g.start].findIndex((e, i) => !usable[g.start][i].isEmpty() && 1 + dist[e.to] === n));
+  while (dist[s] > 0) s = step(s, g.edges[s].findIndex((e, i) => !usable[s][i].isEmpty() && dist[e.to] === dist[s] - 1));
   return chars.join("");
 }
 

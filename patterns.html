@@ -3716,15 +3716,16 @@
         found.push(normalized);
       }
     };
-    if (dist[g.start] === Infinity) return { examples: found, matchesEmpty };
-    add(shortestWalk(g, usable, dist, preferred));
-    const paths = pathCounts(g, usable, dist[g.start] + LENGTH_SPREAD);
+    const shortest2 = Math.min(...g.edges[g.start].map((e, i) => usable[g.start][i].isEmpty() ? Infinity : 1 + dist[e.to]));
+    if (shortest2 === Infinity) return { examples: found, matchesEmpty };
+    add(shortestWalk(g, usable, dist, shortest2, preferred));
+    const paths = pathCounts(g, usable, shortest2 + LENGTH_SPREAD);
     const lengths = paths.map((level, n) => n).filter((n) => n > 0 && paths[n][g.start] > 0);
     for (let i = 0; i < attempts && found.length < count2; i++) {
       if (i % 3 !== 1 && lengths.length > 0) {
         add(uniformWalk(g, usable, paths, lengths[Math.floor(random() * lengths.length)], random, preferred));
       } else {
-        const s = freeWalk(g, usable, dist, dist[g.start] + Math.floor(random() * (LENGTH_SPREAD + 1)), random, preferred);
+        const s = freeWalk(g, usable, dist, shortest2 + Math.floor(random() * (LENGTH_SPREAD + 1)), random, preferred);
         if (s !== null) add(s);
       }
     }
@@ -3766,13 +3767,14 @@
     }
     return dist;
   }
-  function shortestWalk(g, usable, dist, preferred) {
+  function shortestWalk(g, usable, dist, n, preferred) {
     const chars = [];
-    for (let s = g.start; dist[s] > 0; ) {
-      const i = g.edges[s].findIndex((e, i2) => !usable[s][i2].isEmpty() && dist[e.to] === dist[s] - 1);
-      chars.push(String.fromCodePoint(pickChar(usable[s][i], () => 0, preferred)));
-      s = g.edges[s][i].to;
-    }
+    const step2 = (s2, i) => {
+      chars.push(String.fromCodePoint(pickChar(usable[s2][i], () => 0, preferred)));
+      return g.edges[s2][i].to;
+    };
+    let s = step2(g.start, g.edges[g.start].findIndex((e, i) => !usable[g.start][i].isEmpty() && 1 + dist[e.to] === n));
+    while (dist[s] > 0) s = step2(s, g.edges[s].findIndex((e, i) => !usable[s][i].isEmpty() && dist[e.to] === dist[s] - 1));
     return chars.join("");
   }
   function uniformWalk(g, usable, paths, n, random, preferred) {
@@ -4675,8 +4677,7 @@
       }
       if (flag === "<" || flag === "&") return this.parseName(groupStart, flag);
       if (PCRE_FLAGS.has(flag)) {
-        const hint = flag === "s" ? ": for a cipher shift, write (?c:...)" : "";
-        throw this.error(`(?${flag} is a PCRE flag, which isn't supported${hint}`, groupStart, this.pos + 1);
+        throw this.error(`(?${flag} is a PCRE flag, which isn't supported`, groupStart, this.pos + 1);
       }
       if (!(flag in MODIFIERS)) {
         if (flag === ":") throw this.error("Write (...) for grouping, not (?:...)", groupStart, this.pos + 1);
