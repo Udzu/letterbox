@@ -284,7 +284,8 @@
     }
     if (choice !== "custom") return null;
     const custom = customText.trim();
-    if (custom === "") return { error: "Type the numbers to check against." };
+    // with no numbers, the lengths are just shown, without checking them
+    if (custom === "") return { unchecked: true };
     // a single number, like 1.4142135, is read digit by digit
     if (/^(\d+\.?\d*|\.\d+)$/.test(custom)) return { digits: custom.replace(".", ""), name: "your number", finite: true };
     const parts = custom.split(/[\s,;]+/);
@@ -372,7 +373,7 @@
     }
     lengthsBox.replaceChildren(...rows);
 
-    if (!seq) {
+    if (!seq || seq.unchecked) {
       checkNote.textContent = "";
     } else if (seq.error) {
       checkNote.textContent = seq.error;
@@ -409,7 +410,7 @@
     const words = findWords(text.value);
     customInput.hidden = customHelp.hidden = sequenceSelect.value !== "custom";
     const seq = sequenceFor(sequenceSelect.value, customInput.value);
-    const result = seq && !seq.error ? check(words, seq) : null;
+    const result = seq && !seq.error && !seq.unchecked ? check(words, seq) : null;
     // the first word of the wrong length, if any, is underlined
     const bad = result && result.wrong ? words[result.matched] : null;
 
