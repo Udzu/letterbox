@@ -138,6 +138,7 @@
   .help td { padding: 2px 16px 2px 0; vertical-align: top; }
   .help td:first-child { white-space: nowrap; }
   .help th { text-align: left; font-weight: 600; color: #222; padding: 14px 0 4px; }
+  .help th .heading-note { font-weight: normal; color: #444; }
   .help tr:first-child th { padding-top: 4px; }
   .help td:first-child code + code, .help .ops code + code { margin-left: 0.5em; }
   .help code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
@@ -228,9 +229,10 @@
       <tr><td><code>P&amp;Q</code></td><td>both P and Q</td></tr>
       <tr><td><code>P|Q</code></td><td>either P or Q</td></tr>
       <tr><td><code>(P)</code></td><td>grouping</td></tr>
-      <tr class="heading"><th colspan="2">Lookarounds</th></tr>
+      <tr class="heading"><th colspan="2">Lookarounds <span class="heading-note">(unlike in PCRE, these only see their own group or operand, so can't look outside it)</span></th></tr>
       <tr><td><code>(?=P)</code> <code>(?!P)</code></td><td>what follows starts with P; doesn't (<code>(?!the)[a-z]+</code> matches <i>tea</i> but not <i>then</i>)</td></tr>
-      <tr><td><code>(?&lt;=P)</code> <code>(?&lt;!P)</code></td><td>what precedes ends with P; doesn't (<code>[a-z]+(?&lt;!ing)</code> matches <i>sang</i> but not <i>sing</i>). Unlike in PCRE, lookarounds only see their own group or operand, not the whole string</td></tr>
+      <tr><td><code>(?&lt;=P)</code> <code>(?&lt;!P)</code></td><td>what precedes ends with P; doesn't (<code>[a-z]+(?&lt;!ing)</code> matches <i>sang</i> but not <i>sing</i>)</td></tr>
+      <tr><td><code>\b</code> <code>\B</code></td><td>a word boundary (<code>\w</code> on one side only); not one (<code>.*\bcat.*</code> matches <i>a cat</i> but not <i>concat</i>)</td></tr>
       <tr class="heading"><th colspan="2">Names</th></tr>
       <tr><td><code>(?&lt;v&gt;P)</code> <code>(?&amp;v)</code></td><td>P, named v; P again (the same pattern, not the same text). <code>(?&lt;v&gt;P){0}</code> names P without matching it (<code>(?&lt;c&gt;[^aeiou])[aeiou](?&amp;c)</code> matches <i>cat</i>)</td></tr>
       <tr class="heading"><th colspan="2">Modifiers and transformations</th></tr>

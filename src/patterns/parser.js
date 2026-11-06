@@ -158,6 +158,7 @@ class Parser {
   }
 
   parsePattern() {
+    this.edges = [];
     const node = this.parseAlt();
     if (this.pos < this.src.length) {
       // parseAlt only stops early at a ")", a "/" or a character it couldn't use
@@ -220,6 +221,7 @@ class Parser {
 
   parseSpatial() {
     const start = this.pos;
+    const edges = this.edges.length;
     let left = this.parseConcat();
     const first = this.peekSpatial();
     if (first === null) return left;
@@ -237,6 +239,7 @@ class Parser {
       }
       left = { type: "spatial", op, left, right, span: [start, this.pos] };
     }
+    this.checkEdges(edges);
     return left;
   }
 
@@ -258,6 +261,10 @@ class Parser {
     if (items.length === 0) return null;
     // negation binds more loosely than concatenation, so a!b would be ambiguous
     if (this.peek() === "!") throw this.error("Parenthesise ! inside a sequence, as in a(!b)");
+    // remember items that look past the start or end of the sequence (see edgeError)
+    const [first, last] = [items[0], items.at(-1)];
+    if (first.type === "look" && (first.behind || first.boundary)) this.edges.push({ item: first, side: "start" });
+    if (last.type === "look" && !last.behind) this.edges.push({ item: last, side: "end" });
     return sequence(items, start, this.pos);
   }
 
@@ -270,7 +277,7 @@ class Parser {
       return null;
     }
     if (!this.isQuantifierStart()) return atom;
-    if (atom.type === "look") throw this.error("A lookaround can't be repeated");
+    if (atom.type === "look") throw this.error(atom.boundary ? "A word boundary can't be repeated" : "A lookaround can't be repeated");
     const [min, max] = this.parseQuantifier();
     if (this.isQuantifierStart()) {
       throw this.error("Parenthesise a repetition before repeating it again, as in (a*)?");
@@ -337,6 +344,10 @@ class Parser {
         return { type: "words", span: [start, this.pos] };
       case "\\": {
         if (SHORTHANDS.has(this.peek(1) ?? "")) return { type: "shorthand", ...this.parseShorthand(), span: [start, this.pos] };
+        if (this.peek(1) === "b" || this.peek(1) === "B") {
+          this.next();
+          return { type: "look", boundary: true, negated: this.next() === "B", span: [start, this.pos] };
+        }
         return { type: "char", cp: this.parseEscape(), span: [start, this.pos] };
       }
       default:
@@ -348,7 +359,26 @@ class Parser {
 
   parseGroup() {
     const start = this.pos;
+    const edges = this.edges.length;
     this.next();
+    const group = this.parseGroupContents(start);
+    this.checkEdges(edges);
+    return group;
+  }
+
+  // Lookarounds and word boundaries only see their own sequence: a group, or an operand of an
+  // operator like <. At the start or end of one, they'd look at nothing, where in PCRE they'd
+  // see the rest of the string, so that's an error. At the start or end of the whole pattern,
+  // they mean the same as in PCRE.
+  checkEdges(from) {
+    const edge = this.edges[from];
+    if (!edge) return;
+    const { item, side } = edge;
+    const name = item.boundary ? (item.negated ? "\\B" : "\\b") : `(?${item.behind ? "<" : ""}${item.negated ? "!" : "="}...)`;
+    throw new PatternError(`${name} can't be at the ${side} of a group or operand, since it only sees inside it`, ...item.span);
+  }
+
+  parseGroupContents(start) {
     const modifier = this.peek() === "?" ? this.parseModifier(start) : null;
     if (modifier?.type === "parts") return this.parseParts(start, modifier.flag);
     if (modifier?.type === "ref") return { ...modifier, span: [start, this.pos] };
@@ -534,9 +564,7 @@ class Parser {
     if (c === "k" || /[1-9]/.test(c)) {
       throw this.error(`Backreferences (\\${c}) aren't supported, since they match the same text again: (?&name) matches the same pattern`, start, this.pos);
     }
-    if (c === "b" || c === "B") {
-      throw this.error(`Word boundaries (\\${c}) aren't supported, since patterns match whole strings`, start, this.pos);
-    }
+    if (c === "b" || c === "B") throw this.error(`Word boundaries (\\${c}) can't be used inside classes`, start, this.pos);
     if (c === "E") throw this.error("\\E without \\Q to start a quote", start, this.pos);
     if (c === "Q") throw this.error("Quotes (\\Q...\\E) can't be used inside classes", start, this.pos);
     throw this.error(`Unknown escape \\${c}`, start, this.pos);
@@ -674,6 +702,10 @@ function checkNames(root) {
 // in PCRE, so that every part of a pattern means the same wherever it's used. Then:
 //   X(?=Q)Y  is  X(Y&Q.*)       X(?!Q)Y  is  X(Y&!(Q.*))
 //   X(?<=Q)Y is  (X&.*Q)Y       X(?<!Q)Y is  (X&!(.*Q))Y
+// A word boundary needs a word character (\w) on exactly one side of it, and \B on both
+// sides or neither:
+//   X\bY is  (X&.*\w)(Y&!(\w.*)) | (X&!(.*\w))(Y&\w.*)
+//   X\BY is  (X&.*\w)(Y&\w.*) | (X&!(.*\w))(Y&!(\w.*))
 // The .* added is marked implicit, so explanations don't show it.
 function sequence(items, start, end) {
   let before = [];
@@ -682,6 +714,16 @@ function sequence(items, start, end) {
     if (item.type !== "look") {
       before.push(item);
       continue;
+    }
+    if (item.boundary) {
+      const head = before.length ? combine("concat", before, start, item.span[0]) : empty(item.span[0]);
+      const rest = sequence(items.slice(i + 1), item.span[1], end);
+      const word = (behind) => condition({ behind, negated: false, node: { type: "shorthand", name: "w", negated: false, span: item.span }, span: item.span });
+      // each side's span includes the boundary, as a lookaround's does
+      const side = (node, behind, isWord) => combine("and", [node, isWord ? word(behind) : { type: "not", node: word(behind), span: item.span }],
+        behind ? start : item.span[0], behind ? item.span[1] : end);
+      const branch = (headWord, restWord) => combine("concat", [side(head, true, headWord), side(rest, false, restWord)], start, end);
+      return combine("alt", [branch(true, item.negated), branch(false, !item.negated)], start, end);
     }
     if (item.behind) {
       const head = before.length ? combine("concat", before, start, item.span[0]) : empty(item.span[0]);
