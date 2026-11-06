@@ -139,6 +139,7 @@
   .help td { padding: 2px 16px 2px 0; vertical-align: top; }
   .help td:first-child { white-space: nowrap; }
   .help th { text-align: left; font-weight: 600; color: #222; padding: 14px 0 4px; }
+  .help th .heading-note { font-weight: normal; color: #444; }
   .help tr:first-child th { padding-top: 4px; }
   .help td:first-child code + code, .help .ops code + code { margin-left: 0.5em; }
   .help code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
@@ -229,9 +230,10 @@
       <tr><td><code>P&amp;Q</code></td><td>both P and Q</td></tr>
       <tr><td><code>P|Q</code></td><td>either P or Q</td></tr>
       <tr><td><code>(P)</code></td><td>grouping</td></tr>
-      <tr class="heading"><th colspan="2">Lookarounds</th></tr>
+      <tr class="heading"><th colspan="2">Lookarounds <span class="heading-note">(unlike in PCRE, these only see their own group or operand, so can't look outside it)</span></th></tr>
       <tr><td><code>(?=P)</code> <code>(?!P)</code></td><td>what follows starts with P; doesn't (<code>(?!the)[a-z]+</code> matches <i>tea</i> but not <i>then</i>)</td></tr>
-      <tr><td><code>(?&lt;=P)</code> <code>(?&lt;!P)</code></td><td>what precedes ends with P; doesn't (<code>[a-z]+(?&lt;!ing)</code> matches <i>sang</i> but not <i>sing</i>). Unlike in PCRE, lookarounds only see their own group or operand, not the whole string</td></tr>
+      <tr><td><code>(?&lt;=P)</code> <code>(?&lt;!P)</code></td><td>what precedes ends with P; doesn't (<code>[a-z]+(?&lt;!ing)</code> matches <i>sang</i> but not <i>sing</i>)</td></tr>
+      <tr><td><code>\b</code> <code>\B</code></td><td>a word boundary (<code>\w</code> on one side only); not one (<code>.*\bcat.*</code> matches <i>a cat</i> but not <i>concat</i>)</td></tr>
       <tr class="heading"><th colspan="2">Names</th></tr>
       <tr><td><code>(?&lt;v&gt;P)</code> <code>(?&amp;v)</code></td><td>P, named v; P again (the same pattern, not the same text). <code>(?&lt;v&gt;P){0}</code> names P without matching it (<code>(?&lt;c&gt;[^aeiou])[aeiou](?&amp;c)</code> matches <i>cat</i>)</td></tr>
       <tr class="heading"><th colspan="2">Modifiers and transformations</th></tr>
@@ -4514,6 +4516,7 @@
       return new PatternError(message, start, end ?? start + (here === void 0 ? 0 : here > 65535 ? 2 : 1));
     }
     parsePattern() {
+      this.edges = [];
       const node2 = this.parseAlt();
       if (this.pos < this.src.length) {
         if (this.peek() === ")") throw this.error("Unmatched )");
@@ -4568,6 +4571,7 @@
     }
     parseSpatial() {
       const start = this.pos;
+      const edges = this.edges.length;
       let left = this.parseConcat();
       const first = this.peekSpatial();
       if (first === null) return left;
@@ -4585,6 +4589,7 @@
         }
         left = { type: "spatial", op, left, right, span: [start, this.pos] };
       }
+      this.checkEdges(edges);
       return left;
     }
     parseConcat() {
@@ -4603,6 +4608,9 @@
       }
       if (items.length === 0) return null;
       if (this.peek() === "!") throw this.error("Parenthesise ! inside a sequence, as in a(!b)");
+      const [first, last] = [items[0], items.at(-1)];
+      if (first.type === "look" && (first.behind || first.boundary)) this.edges.push({ item: first, side: "start" });
+      if (last.type === "look" && !last.behind) this.edges.push({ item: last, side: "end" });
       return sequence(items, start, this.pos);
     }
     // an atom and any quantifier after it; the atom can be given, if it's already parsed
@@ -4614,7 +4622,7 @@
         return null;
       }
       if (!this.isQuantifierStart()) return atom;
-      if (atom.type === "look") throw this.error("A lookaround can't be repeated");
+      if (atom.type === "look") throw this.error(atom.boundary ? "A word boundary can't be repeated" : "A lookaround can't be repeated");
       const [min, max] = this.parseQuantifier();
       if (this.isQuantifierStart()) {
         throw this.error("Parenthesise a repetition before repeating it again, as in (a*)?");
@@ -4686,6 +4694,10 @@
           return { type: "words", span: [start, this.pos] };
         case "\\": {
           if (SHORTHANDS.has(this.peek(1) ?? "")) return { type: "shorthand", ...this.parseShorthand(), span: [start, this.pos] };
+          if (this.peek(1) === "b" || this.peek(1) === "B") {
+            this.next();
+            return { type: "look", boundary: true, negated: this.next() === "B", span: [start, this.pos] };
+          }
           return { type: "char", cp: this.parseEscape(), span: [start, this.pos] };
         }
         default:
@@ -4696,7 +4708,24 @@
     }
     parseGroup() {
       const start = this.pos;
+      const edges = this.edges.length;
       this.next();
+      const group2 = this.parseGroupContents(start);
+      this.checkEdges(edges);
+      return group2;
+    }
+    // Lookarounds and word boundaries only see their own sequence: a group, or an operand of an
+    // operator like <. At the start or end of one, they'd look at nothing, where in PCRE they'd
+    // see the rest of the string, so that's an error. At the start or end of the whole pattern,
+    // they mean the same as in PCRE.
+    checkEdges(from) {
+      const edge = this.edges[from];
+      if (!edge) return;
+      const { item, side } = edge;
+      const name = item.boundary ? item.negated ? "\\B" : "\\b" : `(?${item.behind ? "<" : ""}${item.negated ? "!" : "="}...)`;
+      throw new PatternError(`${name} can't be at the ${side} of a group or operand, since it only sees inside it`, ...item.span);
+    }
+    parseGroupContents(start) {
       const modifier3 = this.peek() === "?" ? this.parseModifier(start) : null;
       if (modifier3?.type === "parts") return this.parseParts(start, modifier3.flag);
       if (modifier3?.type === "ref") return { ...modifier3, span: [start, this.pos] };
@@ -4872,9 +4901,7 @@
       if (c === "k" || /[1-9]/.test(c)) {
         throw this.error(`Backreferences (\\${c}) aren't supported, since they match the same text again: (?&name) matches the same pattern`, start, this.pos);
       }
-      if (c === "b" || c === "B") {
-        throw this.error(`Word boundaries (\\${c}) aren't supported, since patterns match whole strings`, start, this.pos);
-      }
+      if (c === "b" || c === "B") throw this.error(`Word boundaries (\\${c}) can't be used inside classes`, start, this.pos);
       if (c === "E") throw this.error("\\E without \\Q to start a quote", start, this.pos);
       if (c === "Q") throw this.error("Quotes (\\Q...\\E) can't be used inside classes", start, this.pos);
       throw this.error(`Unknown escape \\${c}`, start, this.pos);
@@ -5000,6 +5027,19 @@
       if (item.type !== "look") {
         before.push(item);
         continue;
+      }
+      if (item.boundary) {
+        const head = before.length ? combine("concat", before, start, item.span[0]) : empty(item.span[0]);
+        const rest = sequence(items.slice(i + 1), item.span[1], end);
+        const word = (behind) => condition({ behind, negated: false, node: { type: "shorthand", name: "w", negated: false, span: item.span }, span: item.span });
+        const side = (node2, behind, isWord) => combine(
+          "and",
+          [node2, isWord ? word(behind) : { type: "not", node: word(behind), span: item.span }],
+          behind ? start : item.span[0],
+          behind ? item.span[1] : end
+        );
+        const branch = (headWord, restWord) => combine("concat", [side(head, true, headWord), side(rest, false, restWord)], start, end);
+        return combine("alt", [branch(true, item.negated), branch(false, !item.negated)], start, end);
       }
       if (item.behind) {
         const head = before.length ? combine("concat", before, start, item.span[0]) : empty(item.span[0]);
