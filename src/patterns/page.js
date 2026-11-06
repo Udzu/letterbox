@@ -44,6 +44,7 @@ const vizReady = instance();
 let nfa = null; // the NFA currently drawn, if any
 let compiled = null; // the compiled pattern, if it's valid
 let drawLarge = false;
+let diagramHidden = false; // hidden diagrams are built (for their stats) but not drawn
 let buildLarge = false;
 
 // Only the word list is kept between visits (see below): reloading starts afresh, with the
@@ -126,6 +127,10 @@ async function update() {
 }
 
 async function draw(drawn) {
+  if (diagramHidden) {
+    $("diagram").replaceChildren(); // rather than leave an out-of-date diagram
+    return;
+  }
   if (drawn.size > MAX_DRAWN_STATES && !drawLarge) {
     $("diagram").innerHTML =
       `<p class="note">Too many states to draw quickly. <button id="draw-anyway">Draw anyway</button></p>`;
@@ -136,7 +141,7 @@ async function draw(drawn) {
     return;
   }
   const viz = await vizReady;
-  if (drawn !== nfa) return; // superseded while Viz.js was loading
+  if (drawn !== nfa || diagramHidden) return; // superseded while Viz.js was loading
   const svg = viz.renderSVGElement(toDot(drawn));
   // Graphviz gives each node a <title> holding its name, which is the state number
   for (const g of svg.querySelectorAll("g.node")) {
@@ -343,6 +348,16 @@ function copyText(button, text) {
   if (copied) done("Copied");
   else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => done("Copied"), () => done("Couldn't copy"));
   else done("Couldn't copy");
+}
+
+function toggleDiagram() {
+  diagramHidden = !diagramHidden;
+  const button = $("toggle-diagram");
+  button.textContent = diagramHidden ? "Show diagram" : "Hide diagram";
+  button.setAttribute("aria-expanded", String(!diagramHidden));
+  $("diagram").hidden = diagramHidden;
+  // diagrams skipped while hidden left it empty
+  if (!diagramHidden && nfa !== null && !$("diagram").hasChildNodes()) draw(nfa);
 }
 
 function copyLink() {
@@ -626,6 +641,7 @@ $("add-examples").addEventListener("click", addExamples);
 $("clear-tests").addEventListener("click", clearTests);
 $("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));
 $("copy-link").addEventListener("click", copyLink);
+$("toggle-diagram").addEventListener("click", toggleDiagram);
 $("load-words").addEventListener("click", () => $("words-file").click());
 $("words-file").addEventListener("change", loadWordFile);
 $("clear-words").addEventListener("click", clearWordList);
