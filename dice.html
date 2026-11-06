@@ -79,11 +79,12 @@
       <option value="10">d10</option>
       <option value="12">d12</option>
       <option value="20">d20</option>
+      <option value="100">d100</option>
     </select>
     <label>+ <input id="c" type="number" step="1" placeholder="0" aria-label="Modifier"></label>
     <label><input id="limit" type="checkbox"> using at most <input id="r" type="number" min="1" required> dice</label>
   </div>
-  <label id="mix-label"><input id="mix" type="checkbox"> Allow other dice (d4, d6, d8, d10, d12, d20)</label>
+  <label id="mix-label"><input id="mix" type="checkbox"> Allow other dice (d4, d6, d8, d10, d12, d20, d100)<span id="mix-note" hidden> — not available when rolling d100s</span></label>
   <div id="result"></div>
   <div id="roller">
     <button id="roll-dice" title="Enter">Roll</button>
@@ -105,13 +106,14 @@
 </main>
 <script>
   const MAX_N = 100;
-  const DICE = [4, 6, 8, 10, 12, 20];
+  const DICE = [4, 6, 8, 10, 12, 20, 100];
   const nInput = document.getElementById("n");
   const kInput = document.getElementById("k");
   const cInput = document.getElementById("c");
   const rInput = document.getElementById("r");
   const mixInput = document.getElementById("mix");
   const limitInput = document.getElementById("limit");
+  const mixNote = document.getElementById("mix-note");
   const result = document.getElementById("result");
 
   // A die dk with multiplier a adds a²·(k²−1)/12 to the variance, so a solution for ndk
@@ -225,7 +227,12 @@
     rollButton.disabled = true;
     clearRoll();
     const limit = limitInput.checked;
-    rInput.disabled = mixInput.disabled = !limit;
+    // mixing other dice into a d100 roll makes the search far too slow (seconds), and
+    // its answers, like 25d12×12 + 25d10×14, are impractical to roll anyway
+    const canMix = k !== 100;
+    rInput.disabled = !limit;
+    mixInput.disabled = !limit || !canMix;
+    mixNote.hidden = canMix;
     rInput.max = Number.isInteger(n) && n >= 1 ? Math.min(n, MAX_N) : MAX_N;
     result.replaceChildren();
     if (!nInput.checkValidity() || !cInput.checkValidity() || !Number.isInteger(n) || !Number.isInteger(modifier) ||
@@ -238,7 +245,7 @@
       return;
     }
     // without a limit, the roll is just the dice as given
-    const solution = limit ? solve(n, k, r, mixInput.checked ? DICE : [k]) : { dice: n, groups: [{ d: k, a: 1, m: n }] };
+    const solution = limit ? solve(n, k, r, mixInput.checked && canMix ? DICE : [k]) : { dice: n, groups: [{ d: k, a: 1, m: n }] };
     if (solution.groups) {
       const s = solution.dice;
       const roll = document.createElement("div");
