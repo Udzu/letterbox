@@ -64,6 +64,7 @@
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
   #info { color: #666; }
+  #copy-link { margin-left: auto; font: inherit; font-size: 0.9rem; }
   #view-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
   #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
   #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
@@ -165,6 +166,7 @@
       <option value="min">Minimal DFA</option>
     </select>
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
+    <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram view">Copy link</button>
   </div>
   <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
@@ -4271,6 +4273,25 @@
     return `[${negated ? "^" : ""}${body}]`;
   }
 
+  // src/patterns/share.js
+  function shareQuery({ pattern, tests, view }, defaultView) {
+    const params = new URLSearchParams({ p: pattern });
+    if (tests.trim() !== "") params.set("t", tests);
+    if (view !== defaultView) params.set("v", view);
+    return `?${params}`;
+  }
+  function readShared(search2, views, defaultView) {
+    const params = new URLSearchParams(search2);
+    const pattern = params.get("p");
+    if (pattern === null) return null;
+    const view = params.get("v");
+    return {
+      pattern: pattern.replace(/[\r\n]/g, ""),
+      tests: (params.get("t") ?? "").replace(/\r\n?/g, "\n"),
+      view: view !== null && Object.hasOwn(views, view) ? view : defaultView
+    };
+  }
+
   // src/patterns/wordlist.js
   function parseWords(text) {
     const words = /* @__PURE__ */ new Set();
@@ -6509,25 +6530,31 @@
       setTimeout(() => showRegex(target, UNLIMITED), 20);
     });
   }
-  function copyRegex() {
-    const button = $("copy-regex");
-    const done = (label) => {
-      button.textContent = label;
-      setTimeout(() => button.textContent = "Copy", 1500);
+  function copyText(button, text) {
+    const label = button.textContent;
+    const done = (result) => {
+      button.textContent = result;
+      setTimeout(() => button.textContent = label, 1500);
     };
-    const range3 = document.createRange();
-    range3.selectNodeContents($("regex"));
-    getSelection().removeAllRanges();
-    getSelection().addRange(range3);
+    const box = document.createElement("textarea");
+    box.value = text;
+    box.readOnly = true;
+    box.style.cssText = "position: fixed; top: 0; opacity: 0";
+    document.body.append(box);
+    box.select();
     let copied = false;
     try {
       copied = document.execCommand("copy");
     } catch {
     }
-    getSelection().removeAllRanges();
+    box.remove();
     if (copied) done("Copied");
-    else if (navigator.clipboard) navigator.clipboard.writeText($("regex").textContent).then(() => done("Copied"), () => done("Couldn't copy"));
+    else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => done("Copied"), () => done("Couldn't copy"));
     else done("Couldn't copy");
+  }
+  function copyLink() {
+    const state = { pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value };
+    copyText($("copy-link"), location.href.replace(/[?#].*/s, "") + shareQuery(state, DEFAULTS.view));
   }
   function edit(box, text) {
     const value = box.value.slice(0, box.selectionStart) + text + box.value.slice(box.selectionEnd);
@@ -6734,9 +6761,10 @@
     highlightCurrent();
     showExplanation();
   }
-  patternInput.value = DEFAULTS.pattern;
-  testsInput.value = DEFAULTS.tests;
-  viewSelect.value = DEFAULTS.view;
+  var initial = readShared(location.search, VIEWS, DEFAULTS.view) ?? DEFAULTS;
+  patternInput.value = initial.pattern;
+  testsInput.value = initial.tests;
+  viewSelect.value = initial.view;
   patternInput.addEventListener("input", () => {
     if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
     drawLarge = false;
@@ -6758,7 +6786,8 @@
   });
   $("add-examples").addEventListener("click", addExamples);
   $("clear-tests").addEventListener("click", clearTests);
-  $("copy-regex").addEventListener("click", copyRegex);
+  $("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));
+  $("copy-link").addEventListener("click", copyLink);
   $("load-words").addEventListener("click", () => $("words-file").click());
   $("words-file").addEventListener("change", loadWordFile);
   $("clear-words").addEventListener("click", clearWordList);

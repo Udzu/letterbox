@@ -4,6 +4,7 @@ import { instance } from "@viz-js/viz";
 import { examples } from "./examples.js";
 import { describeLengths, matchLengths } from "./lengths.js";
 import { LIMITS, UNLIMITED, toRegex } from "./regex.js";
+import { readShared, shareQuery } from "./share.js";
 import { matcher, parseWords, wordsAutomaton } from "./wordlist.js";
 import {
   compile, determinize, explainer, limitFor, minimize, removeEpsilons, run, toDot, trim, withStateLimit, PatternError,
@@ -46,7 +47,7 @@ let drawLarge = false;
 let buildLarge = false;
 
 // Only the word list is kept between visits (see below): reloading starts afresh, with the
-// default pattern. Earlier versions kept the pattern too, so that is cleared.
+// default pattern, unless the address is a shared link. Earlier versions kept the pattern too, so that is cleared.
 try {
   for (const key of ["patterns", "patterns-busy"]) localStorage.removeItem(key);
 } catch {
@@ -318,28 +319,35 @@ function showRegex(target, limits) {
   });
 }
 
-// Copying by selecting the text works synchronously during a click, even for local files;
-// the clipboard API is the fallback, since it can wait indefinitely for a permission.
-function copyRegex() {
-  const button = $("copy-regex");
-  const done = (label) => {
-    button.textContent = label;
-    setTimeout(() => (button.textContent = "Copy"), 1500);
+// Copying by selecting text works synchronously during a click, even for local files; the
+// clipboard API is the fallback, since it can wait indefinitely for a permission.
+function copyText(button, text) {
+  const label = button.textContent;
+  const done = (result) => {
+    button.textContent = result;
+    setTimeout(() => (button.textContent = label), 1500);
   };
-  const range = document.createRange();
-  range.selectNodeContents($("regex"));
-  getSelection().removeAllRanges();
-  getSelection().addRange(range);
+  const box = document.createElement("textarea");
+  box.value = text;
+  box.readOnly = true;
+  box.style.cssText = "position: fixed; top: 0; opacity: 0";
+  document.body.append(box);
+  box.select();
   let copied = false;
   try {
     copied = document.execCommand("copy");
   } catch {
     // not supported
   }
-  getSelection().removeAllRanges();
+  box.remove();
   if (copied) done("Copied");
-  else if (navigator.clipboard) navigator.clipboard.writeText($("regex").textContent).then(() => done("Copied"), () => done("Couldn't copy"));
+  else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => done("Copied"), () => done("Couldn't copy"));
   else done("Couldn't copy");
+}
+
+function copyLink() {
+  const state = { pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value };
+  copyText($("copy-link"), location.href.replace(/[?#].*/s, "") + shareQuery(state, DEFAULTS.view));
 }
 
 // replace a textarea's selection via editing commands where possible, so Ctrl+Z can undo it
@@ -589,9 +597,10 @@ function onCursor() {
   showExplanation();
 }
 
-patternInput.value = DEFAULTS.pattern;
-testsInput.value = DEFAULTS.tests;
-viewSelect.value = DEFAULTS.view;
+const initial = readShared(location.search, VIEWS, DEFAULTS.view) ?? DEFAULTS;
+patternInput.value = initial.pattern;
+testsInput.value = initial.tests;
+viewSelect.value = initial.view;
 
 patternInput.addEventListener("input", () => {
   if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
@@ -615,7 +624,8 @@ viewSelect.addEventListener("change", () => {
 });
 $("add-examples").addEventListener("click", addExamples);
 $("clear-tests").addEventListener("click", clearTests);
-$("copy-regex").addEventListener("click", copyRegex);
+$("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));
+$("copy-link").addEventListener("click", copyLink);
 $("load-words").addEventListener("click", () => $("words-file").click());
 $("words-file").addEventListener("change", loadWordFile);
 $("clear-words").addEventListener("click", clearWordList);
@@ -631,8 +641,8 @@ window.addEventListener("resize", () => {
   autosize(patternInput);
   autosize(testsInput);
 });
-// The default pattern doesn't use the word list, so the page can update straight away, and
-// again once any stored list has been built.
+// The page updates straight away, and again once any stored list has been built (a shared
+// pattern using @ shows an error until then).
 $("clear-words").disabled = true;
 $("words-info").textContent = "None loaded";
 update();

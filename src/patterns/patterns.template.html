@@ -63,6 +63,7 @@
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
   #info { color: #666; }
+  #copy-link { margin-left: auto; font: inherit; font-size: 0.9rem; }
   #view-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
   #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
   #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
@@ -164,6 +165,7 @@
       <option value="min">Minimal DFA</option>
     </select>
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
+    <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram view">Copy link</button>
   </div>
   <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
