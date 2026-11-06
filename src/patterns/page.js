@@ -361,7 +361,7 @@ function toggleDiagram() {
 }
 
 function copyLink() {
-  const state = { pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value };
+  const state = { pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value, hidden: diagramHidden };
   copyText($("copy-link"), location.href.replace(/[?#].*/s, "") + shareQuery(state, DEFAULTS.view));
 }
 
@@ -616,6 +616,7 @@ const initial = readShared(location.search, VIEWS, DEFAULTS.view) ?? DEFAULTS;
 patternInput.value = initial.pattern;
 testsInput.value = initial.tests;
 viewSelect.value = initial.view;
+if (initial.hidden) toggleDiagram(); // nothing is drawn yet, so this only hides it
 
 patternInput.addEventListener("input", () => {
   if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");

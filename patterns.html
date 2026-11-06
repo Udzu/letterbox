@@ -168,7 +168,7 @@
     </select>
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
     <button id="toggle-diagram" aria-controls="diagram" aria-expanded="true">Hide diagram</button>
-    <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram view">Copy link</button>
+    <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram settings">Copy link</button>
   </div>
   <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
@@ -4276,10 +4276,11 @@
   }
 
   // src/patterns/share.js
-  function shareQuery({ pattern, tests, view }, defaultView) {
+  function shareQuery({ pattern, tests, view, hidden = false }, defaultView) {
     const params = new URLSearchParams({ p: pattern });
     if (tests.trim() !== "") params.set("t", tests);
     if (view !== defaultView) params.set("v", view);
+    if (hidden) params.set("h", "1");
     return `?${params}`;
   }
   function readShared(search2, views, defaultView) {
@@ -4290,7 +4291,8 @@
     return {
       pattern: pattern.replace(/[\r\n]/g, ""),
       tests: (params.get("t") ?? "").replace(/\r\n?/g, "\n"),
-      view: view !== null && Object.hasOwn(views, view) ? view : defaultView
+      view: view !== null && Object.hasOwn(views, view) ? view : defaultView,
+      hidden: params.get("h") === "1"
     };
   }
 
@@ -6568,7 +6570,7 @@
     if (!diagramHidden && nfa !== null && !$("diagram").hasChildNodes()) draw(nfa);
   }
   function copyLink() {
-    const state = { pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value };
+    const state = { pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value, hidden: diagramHidden };
     copyText($("copy-link"), location.href.replace(/[?#].*/s, "") + shareQuery(state, DEFAULTS.view));
   }
   function edit(box, text) {
@@ -6780,6 +6782,7 @@
   patternInput.value = initial.pattern;
   testsInput.value = initial.tests;
   viewSelect.value = initial.view;
+  if (initial.hidden) toggleDiagram();
   patternInput.addEventListener("input", () => {
     if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
     drawLarge = false;
