@@ -6154,7 +6154,14 @@
   // src/patterns/display.js
   function formatLabel(set2) {
     if (set2.isAll()) return ".";
-    if (set2.size() === 1) return formatChar(set2.ranges[0][0]);
+    if (set2.size() === 1) {
+      const cp = set2.ranges[0][0];
+      if (cp === 46) return "\\.";
+      if (cp === 32) return "\u2423";
+      if (cp === 9251) return "\\u{2423}";
+      const escaped = formatChar(cp);
+      return escaped === "\\" + String.fromCodePoint(cp) ? String.fromCodePoint(cp) : escaped;
+    }
     const complement2 = set2.complement();
     return complement2.ranges.length < set2.ranges.length ? formatClass({ negated: true, ranges: classRanges(complement2) }) : formatClass({ negated: false, ranges: classRanges(set2) });
   }

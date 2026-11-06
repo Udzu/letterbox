@@ -10,7 +10,14 @@ const range = (a, b) => [cp(a), cp(b)];
 test("formatLabel", () => {
   assert.equal(formatLabel(CharSet.ALL), ".");
   assert.equal(formatLabel(CharSet.of(cp("a"))), "a");
-  assert.equal(formatLabel(CharSet.of(cp("*"))), "\\*");
+  // single characters aren't escaped, except a dot, which would look like anything
+  assert.equal(formatLabel(CharSet.of(cp("*"))), "*");
+  assert.equal(formatLabel(CharSet.of(cp("-"))), "-");
+  assert.equal(formatLabel(CharSet.of(cp("\\"))), "\\");
+  assert.equal(formatLabel(CharSet.of(cp("."))), "\\.");
+  assert.equal(formatLabel(CharSet.of(cp(" "))), "␣");
+  assert.equal(formatLabel(CharSet.of(cp("␣"))), "\\u{2423}");
+  assert.equal(formatLabel(CharSet.of(0x0a)), "\\n");
   assert.equal(formatLabel(CharSet.of(cp("a"), cp("e"))), "[ae]");
   assert.equal(formatLabel(CharSet.from([range("a", "b")])), "[ab]");
   assert.equal(formatLabel(CharSet.from([range("a", "z")])), "[a-z]");
@@ -30,8 +37,9 @@ test("toDot", () => {
   assert.match(dot, /-> \d+ \[label="a"\];/);
   assert.match(dot, /label="ε", style=dashed/);
   assert.match(dot, /\d+ \[shape=doublecircle/);
-  // the label \" quoted for DOT
-  assert.ok(toDot(compile('\\"')).includes(String.raw`label="\\\""`));
+  // quotes and backslashes in labels are escaped for DOT
+  assert.ok(toDot(compile('\\"')).includes(String.raw`label="\""`));
+  assert.ok(toDot(compile("\\\\")).includes(String.raw`label="\\"`));
 });
 
 test("shortLabel", () => {
