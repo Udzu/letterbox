@@ -1,7 +1,7 @@
 // Word lists, and finding the words in one that a pattern matches.
 
 import { CharSet } from "./charset.js";
-import { Builder, closure } from "./nfa.js";
+import { Builder, closure, markDeterministic } from "./nfa.js";
 
 // The words in a list's text: each non-empty line, without a trailing \r, normalised to NFC
 // like everything else. Spaces are kept, so a list can hold phrases. Duplicates are dropped.
@@ -110,5 +110,5 @@ export function wordsAutomaton(words, limit = Infinity) {
     if (final) accepting.push(i);
     for (const [cp, to] of moves) b.edge(i, CharSet.of(cp), to);
   });
-  return b.build(idOf.get(root), accepting);
+  return markDeterministic(b.build(idOf.get(root), accepting));
 }
