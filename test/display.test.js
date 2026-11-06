@@ -14,7 +14,7 @@ test("formatLabel", () => {
   assert.equal(formatLabel(CharSet.of(cp("*"))), "*");
   assert.equal(formatLabel(CharSet.of(cp("-"))), "-");
   assert.equal(formatLabel(CharSet.of(cp("\\"))), "\\");
-  assert.equal(formatLabel(CharSet.of(cp("."))), "\\.");
+  assert.equal(formatLabel(CharSet.of(cp("."))), "[.]");
   assert.equal(formatLabel(CharSet.of(cp(" "))), "␣");
   assert.equal(formatLabel(CharSet.of(cp("␣"))), "\\u{2423}");
   assert.equal(formatLabel(CharSet.of(0x0a)), "\\n");

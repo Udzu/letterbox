@@ -4,14 +4,14 @@ import { formatChar, formatClass } from "./parser.js";
 
 // Short pattern syntax for an edge label: a, [abc], [a-z], [^a], or "." for anything.
 // Uses the negated form when it needs fewer ranges. A single character isn't escaped, since
-// on its own it can't be mistaken for syntax, except for a literal "." (\.), which would
-// look like anything. A space is shown as ␣, as it would otherwise be invisible, so a literal ␣
-// is shown escaped, as \u{2423}.
+// on its own it can't be mistaken for syntax, except for a literal "." ([.]), which would
+// look like anything (and \. could be read as a backslash and a dot). A space is shown as ␣,
+// as it would otherwise be invisible, so a literal ␣ is shown escaped, as \u{2423}.
 export function formatLabel(set) {
   if (set.isAll()) return ".";
   if (set.size() === 1) {
     const cp = set.ranges[0][0];
-    if (cp === 0x2e) return "\\.";
+    if (cp === 0x2e) return "[.]";
     if (cp === 0x20) return "␣";
     if (cp === 0x2423) return "\\u{2423}";
     const escaped = formatChar(cp);

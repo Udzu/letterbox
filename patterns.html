@@ -6156,7 +6156,7 @@
     if (set2.isAll()) return ".";
     if (set2.size() === 1) {
       const cp = set2.ranges[0][0];
-      if (cp === 46) return "\\.";
+      if (cp === 46) return "[.]";
       if (cp === 32) return "\u2423";
       if (cp === 9251) return "\\u{2423}";
       const escaped = formatChar(cp);
