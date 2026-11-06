@@ -1,8 +1,15 @@
 // Generating example strings that an NFA matches.
 //
 // Examples come from random walks on the NFA without ε-moves, which is cheap to build (unlike
-// a DFA, which can be exponentially larger). Each walk picks a target length; once it reaches
-// it, it only follows edges that get closer to an accepting state, so it always finishes soon.
+// a DFA, which can be exponentially larger), of two kinds, two uniform walks to each free one:
+// - Uniform walks pick a length they can reach, and then a path of exactly that length
+//   uniformly at random, by weighting each step by how many paths of the remaining length
+//   lead on from it (counted per edge, not per character, so that a branch like . doesn't
+//   swamp one like a). Strings with several paths are a little more likely than others.
+// - Free walks pick each step uniformly from the options, until they reach a target length,
+//   then head for the nearest accepting state. These favour early choices (in lo+l>\*, the *
+//   mostly lands at the start or the end), but they keep small branches like cat in
+//   cat|(a|b)+ visible, which uniform walks almost never pick.
 // Characters are picked from readable pools first (see pickChar), and newlines are never
 // used, since examples are shown one per line.
 
@@ -53,14 +60,45 @@ export function examples(nfa, { count = 5, random = Math.random, exclude = new S
   };
   if (dist[g.start] === Infinity) return { examples: found, matchesEmpty };
 
-  // start with a shortest example, then random ones of varying lengths
-  add(walk(g, usable, dist, dist[g.start], random, preferred, true));
+  // start with a shortest example, then random ones of the lengths that are possible
+  add(shortestWalk(g, usable, dist, preferred));
+  const paths = pathCounts(g, usable, dist[g.start] + LENGTH_SPREAD);
+  const lengths = paths.map((level, n) => n).filter((n) => n > 0 && paths[n][g.start] > 0);
   for (let i = 0; i < attempts && found.length < count; i++) {
-    const target = dist[g.start] + Math.floor(random() * (LENGTH_SPREAD + 1));
-    const s = walk(g, usable, dist, target, random, preferred, false);
-    if (s !== null) add(s);
+    // two uniform walks for every free one, in the order U F U U F U …, so that a batch of
+    // five has two free walks when the shortest example is already known
+    if (i % 3 !== 1 && lengths.length > 0) {
+      add(uniformWalk(g, usable, paths, lengths[Math.floor(random() * lengths.length)], random, preferred));
+    } else {
+      const s = freeWalk(g, usable, dist, dist[g.start] + Math.floor(random() * (LENGTH_SPREAD + 1)), random, preferred);
+      if (s !== null) add(s);
+    }
   }
   return { examples: found, matchesEmpty };
+}
+
+// paths[n][s] is proportional to the number of paths of exactly n characters from state s to
+// an accepting state, along edges with a usable character. Each level is scaled so its
+// largest count is 1, since only ratios within a level matter and long paths can be very
+// numerous.
+function pathCounts(g, usable, maxLength) {
+  const paths = [Float64Array.from(g.edges, (_, s) => (g.accepting.has(s) ? 1 : 0))];
+  for (let n = 1; n <= maxLength; n++) {
+    const prev = paths[n - 1];
+    const level = new Float64Array(g.edges.length);
+    let max = 0;
+    g.edges.forEach((es, s) => {
+      let total = 0;
+      es.forEach((e, i) => {
+        if (!usable[s][i].isEmpty()) total += prev[e.to];
+      });
+      level[s] = total;
+      if (total > max) max = total;
+    });
+    if (max > 0) for (let s = 0; s < level.length; s++) level[s] /= max;
+    paths.push(level);
+  }
+  return paths;
 }
 
 // number of characters needed to get from each state to an accepting one, using edges
@@ -83,10 +121,35 @@ function distances(g, usable) {
   return dist;
 }
 
+// A shortest example, always taking the first edge that gets closer to an accepting state.
+function shortestWalk(g, usable, dist, preferred) {
+  const chars = [];
+  for (let s = g.start; dist[s] > 0;) {
+    const i = g.edges[s].findIndex((e, i) => !usable[s][i].isEmpty() && dist[e.to] === dist[s] - 1);
+    chars.push(String.fromCodePoint(pickChar(usable[s][i], () => 0, preferred)));
+    s = g.edges[s][i].to;
+  }
+  return chars.join("");
+}
+
+// A random path of exactly n characters to an accepting state (there must be one), each step
+// weighted by the number of ways to finish from where it leads.
+function uniformWalk(g, usable, paths, n, random, preferred) {
+  const chars = [];
+  for (let s = g.start, left = n; left > 0; left--) {
+    const weights = g.edges[s].map((e, i) => (usable[s][i].isEmpty() ? 0 : paths[left - 1][e.to]));
+    let r = random() * weights.reduce((x, y) => x + y, 0);
+    let i = 0;
+    while (i < weights.length - 1 && (r >= weights[i] || weights[i] === 0)) r -= weights[i++];
+    chars.push(String.fromCodePoint(pickChar(usable[s][i], random, preferred)));
+    s = g.edges[s][i].to;
+  }
+  return chars.join("");
+}
+
 // A walk that goes anywhere until it has `target` characters, then heads for the nearest
-// accepting state. With `shortest`, it only ever heads for acceptance and picks the first
-// option each time, giving a shortest example. Returns null if it can't finish.
-function walk(g, usable, dist, target, random, preferred, shortest) {
+// accepting state. Returns null if it can't finish.
+function freeWalk(g, usable, dist, target, random, preferred) {
   const chars = [];
   let s = g.start;
   for (;;) {
@@ -96,12 +159,12 @@ function walk(g, usable, dist, target, random, preferred, shortest) {
     g.edges[s].forEach((e, i) => {
       const label = usable[s][i];
       if (label.isEmpty() || dist[e.to] === Infinity) return;
-      if ((done || shortest) && dist[e.to] !== dist[s] - 1) return;
+      if (done && dist[e.to] !== dist[s] - 1) return;
       options.push([label, e.to]);
     });
     if (options.length === 0) return g.accepting.has(s) ? chars.join("") : null;
-    const [label, to] = shortest ? options[0] : options[Math.floor(random() * options.length)];
-    chars.push(String.fromCodePoint(pickChar(label, shortest ? () => 0 : random, preferred)));
+    const [label, to] = options[Math.floor(random() * options.length)];
+    chars.push(String.fromCodePoint(pickChar(label, random, preferred)));
     s = to;
   }
 }
