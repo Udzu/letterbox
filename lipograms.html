@@ -313,20 +313,17 @@
     return { matched: words.length, used };
   }
 
-  // The word lengths that could come next, or [] at the end of the sequence. For
-  // digits: d for 1–9, 10 for 0, and for 1 also the 11–19 letter word that covers
-  // the following digit too (longer words, for digits 2–9, are left out as unlikely).
-  function nextLengths(seq, used) {
-    if (seq.lengths) return used < seq.lengths.length ? [String(seq.lengths[used])] : [];
-    const [d, e] = [seq.digits[used], seq.digits[used + 1]];
-    if (d === undefined) return [];
-    if (d === "0") return ["10"];
-    if (d === "1" && e !== undefined && e !== "0") return ["1", `1${e}`];
-    return [d];
+  // The next few word lengths, reading one word per digit (10 letters for 0) or per
+  // length, followed by "…" if the sequence goes on after them. Empty at the end.
+  const UPCOMING = 7;
+  function upcoming(seq, used, count = UPCOMING) {
+    const all = seq.lengths ? seq.lengths.map(String) : [...seq.digits];
+    const lengths = all.slice(used, used + count).map(d => d === "0" && !seq.lengths ? "10" : d);
+    if (used + count < all.length || (!seq.finite && lengths.length > 0)) lengths.push("…");
+    return lengths;
   }
 
   const plural = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
-  const describe = lengths => lengths.length === 0 ? "end" : lengths.join(" or ");
 
   function showLengths(words, seq, result) {
     const rows = [];
@@ -347,18 +344,29 @@
           span.classList.add("bad");
           const expected = document.createElement("span");
           expected.className = "expected";
-          expected.textContent = ` (expected ${describe(nextLengths(seq, result.used))})`;
+          const lengths = upcoming(seq, result.used);
+          expected.textContent = lengths.length === 0 ? " (expected no more words)" : ` (expected: ${lengths.join(" ")})`;
           span.append(expected);
         } else span.classList.add("after");
       }
       row.append(span);
     });
+    // before there are any words, the box shows how to start
+    if (result && row === null) {
+      row = document.createElement("div");
+      row.className = "row";
+      const first = document.createElement("span");
+      first.className = "expected";
+      first.textContent = `Expected word lengths: ${upcoming(seq, 0).join(" ")}`;
+      row.append(first);
+      rows.push(row);
+    }
     // while everything matches, the end of the counts shows what comes next
-    if (result && !result.wrong && !result.beyond && row !== null) {
+    else if (result && !result.wrong && !result.beyond) {
       const next = document.createElement("span");
       next.className = "expected";
-      const lengths = nextLengths(seq, result.used);
-      next.textContent = lengths.length === 0 ? "(end)" : `(next: ${describe(lengths)})`;
+      const lengths = upcoming(seq, result.used);
+      next.textContent = lengths.length === 0 ? "(end)" : `(next: ${lengths.join(" ")})`;
       row.append(next);
     }
     lengthsBox.replaceChildren(...rows);
@@ -377,16 +385,14 @@
         const word = words[result.matched];
         const where = text.value.includes("\n") ? ` (line ${word.line + 1})` : "";
         const quoted = `“${text.value.slice(word.start, word.end)}”${where}`;
-        const expected = nextLengths(seq, result.used);
-        checkNote.textContent = expected.length === 0
+        const [expected] = upcoming(seq, result.used, 1);
+        checkNote.textContent = expected === undefined
           ? `${matched}, then ${quoted} goes past the end.`
-          : `${matched}, then ${quoted} has ${plural(word.length, "letter")}, expected ${describe(expected)}.`;
+          : `${matched}, then ${quoted} has ${plural(word.length, "letter")}, expected ${expected}.`;
       }
       else if (seq.finite && result.used === total) checkNote.innerHTML = `<span class="ok">✓ all ${plural(total, unit)} used</span>`;
-      else if (result.used === 0) {
-        const [first, other] = nextLengths(seq, 0);
-        checkNote.textContent = `First word: ${plural(Number(first), "letter")}${other ? ` (or ${other})` : ""}`;
-      } else checkNote.innerHTML = `<span class="ok">✓ ${matched}</span>`;
+      else if (result.used === 0) checkNote.textContent = "";
+      else checkNote.innerHTML = `<span class="ok">✓ ${matched}</span>`;
     }
   }
 
