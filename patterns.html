@@ -3717,13 +3717,37 @@
       }
     };
     if (dist[g.start] === Infinity) return { examples: found, matchesEmpty };
-    add(walk(g, usable, dist, dist[g.start], random, preferred, true));
+    add(shortestWalk(g, usable, dist, preferred));
+    const paths = pathCounts(g, usable, dist[g.start] + LENGTH_SPREAD);
+    const lengths = paths.map((level, n) => n).filter((n) => n > 0 && paths[n][g.start] > 0);
     for (let i = 0; i < attempts && found.length < count2; i++) {
-      const target = dist[g.start] + Math.floor(random() * (LENGTH_SPREAD + 1));
-      const s = walk(g, usable, dist, target, random, preferred, false);
-      if (s !== null) add(s);
+      if (i % 3 !== 1 && lengths.length > 0) {
+        add(uniformWalk(g, usable, paths, lengths[Math.floor(random() * lengths.length)], random, preferred));
+      } else {
+        const s = freeWalk(g, usable, dist, dist[g.start] + Math.floor(random() * (LENGTH_SPREAD + 1)), random, preferred);
+        if (s !== null) add(s);
+      }
     }
     return { examples: found, matchesEmpty };
+  }
+  function pathCounts(g, usable, maxLength) {
+    const paths = [Float64Array.from(g.edges, (_, s) => g.accepting.has(s) ? 1 : 0)];
+    for (let n = 1; n <= maxLength; n++) {
+      const prev = paths[n - 1];
+      const level = new Float64Array(g.edges.length);
+      let max = 0;
+      g.edges.forEach((es, s) => {
+        let total = 0;
+        es.forEach((e, i) => {
+          if (!usable[s][i].isEmpty()) total += prev[e.to];
+        });
+        level[s] = total;
+        if (total > max) max = total;
+      });
+      if (max > 0) for (let s = 0; s < level.length; s++) level[s] /= max;
+      paths.push(level);
+    }
+    return paths;
   }
   function distances(g, usable) {
     const reverse2 = g.edges.map(() => []);
@@ -3742,7 +3766,28 @@
     }
     return dist;
   }
-  function walk(g, usable, dist, target, random, preferred, shortest2) {
+  function shortestWalk(g, usable, dist, preferred) {
+    const chars = [];
+    for (let s = g.start; dist[s] > 0; ) {
+      const i = g.edges[s].findIndex((e, i2) => !usable[s][i2].isEmpty() && dist[e.to] === dist[s] - 1);
+      chars.push(String.fromCodePoint(pickChar(usable[s][i], () => 0, preferred)));
+      s = g.edges[s][i].to;
+    }
+    return chars.join("");
+  }
+  function uniformWalk(g, usable, paths, n, random, preferred) {
+    const chars = [];
+    for (let s = g.start, left = n; left > 0; left--) {
+      const weights = g.edges[s].map((e, i2) => usable[s][i2].isEmpty() ? 0 : paths[left - 1][e.to]);
+      let r = random() * weights.reduce((x, y) => x + y, 0);
+      let i = 0;
+      while (i < weights.length - 1 && (r >= weights[i] || weights[i] === 0)) r -= weights[i++];
+      chars.push(String.fromCodePoint(pickChar(usable[s][i], random, preferred)));
+      s = g.edges[s][i].to;
+    }
+    return chars.join("");
+  }
+  function freeWalk(g, usable, dist, target, random, preferred) {
     const chars = [];
     let s = g.start;
     for (; ; ) {
@@ -3752,12 +3797,12 @@
       g.edges[s].forEach((e, i) => {
         const label2 = usable[s][i];
         if (label2.isEmpty() || dist[e.to] === Infinity) return;
-        if ((done || shortest2) && dist[e.to] !== dist[s] - 1) return;
+        if (done && dist[e.to] !== dist[s] - 1) return;
         options.push([label2, e.to]);
       });
       if (options.length === 0) return g.accepting.has(s) ? chars.join("") : null;
-      const [label, to] = shortest2 ? options[0] : options[Math.floor(random() * options.length)];
-      chars.push(String.fromCodePoint(pickChar(label, shortest2 ? () => 0 : random, preferred)));
+      const [label, to] = options[Math.floor(random() * options.length)];
+      chars.push(String.fromCodePoint(pickChar(label, random, preferred)));
       s = to;
     }
   }
@@ -5545,7 +5590,7 @@
     pair[i] ??= lazyDfa(compile(node2, { words: ctx.words, names: ctx.names, caseless }));
     return pair[i];
   }
-  function walk2(ctx, dfa, from, chars) {
+  function walk(ctx, dfa, from, chars) {
     let d = from;
     for (const ch of chars) {
       tick(ctx);
@@ -5556,7 +5601,7 @@
   }
   function matches2(ctx, node2, cells, caseless) {
     const dfa = automaton(ctx, node2, caseless);
-    return dfa.accepts(walk2(ctx, dfa, dfa.start, cells.map((c) => c.ch)));
+    return dfa.accepts(walk(ctx, dfa, dfa.start, cells.map((c) => c.ch)));
   }
   function splitAutomaton(ctx, split) {
     if (!ctx.splits.has(split)) ctx.splits.set(split, lazyDfa(compile(typeof split === "string" ? parse(split) : split)));
@@ -5830,7 +5875,7 @@
     const chars = cells.map((c) => c.ch);
     let afterX = a.start;
     for (let i = 0; i <= n; i++) {
-      if (i > 0) afterX = walk2(ctx, a, afterX, [chars[i - 1]]);
+      if (i > 0) afterX = walk(ctx, a, afterX, [chars[i - 1]]);
       if (afterX === a.dead) break;
       if (node2.strict && i === 0) continue;
       for (let j = i; j <= n - (node2.strict ? 1 : 0); j++) {
@@ -5842,7 +5887,7 @@
           [afterX, b.start],
           (state) => state.join(","),
           ([p, q]) => sharedChars(ctx, a, p, b, q).map((ch) => [ch, [a.step(p, ch), b.step(q, ch)]]).filter(([, [p2, q2]]) => p2 !== a.dead && q2 !== b.dead),
-          ([p, q]) => b.accepts(q) && a.accepts(walk2(ctx, a, p, y))
+          ([p, q]) => b.accepts(q) && a.accepts(walk(ctx, a, p, y))
         );
         if (!path) continue;
         const x = cells.slice(0, i);
