@@ -32,6 +32,10 @@ test("the first example is a shortest one", () => {
   assert.equal(check("a+b+").examples[0], "ab");
   assert.equal(check("(cat|horse|ox)s?").examples[0], "ox");
   assert.equal(check("[a-z]{1000}").examples[0].length, 1000);
+  // the empty string isn't shown, so a shortest non-empty one comes first instead
+  assert.equal(check("(he)*").examples[0], "he");
+  assert.equal(check("x?(abc|de)?").examples[0], "x");
+  assert.equal(check("(a{3})*").examples[0], "aaa");
 });
 
 test("finite and empty languages", () => {
