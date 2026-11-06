@@ -328,7 +328,8 @@
   function showLengths(words, seq, result) {
     const rows = [];
     let row = null, rowLine = -1;
-    words.forEach((word, i) => {
+    // the lengths are only shown while checking them against something
+    (seq ? words : []).forEach((word, i) => {
       if (row === null || word.line !== rowLine) {
         row = document.createElement("div");
         row.className = "row";
