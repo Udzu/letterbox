@@ -64,7 +64,8 @@
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
   #info { color: #666; }
-  #copy-link { margin-left: auto; font: inherit; font-size: 0.9rem; }
+  #toggle-diagram { margin-left: auto; }
+  #toggle-diagram, #copy-link { font: inherit; font-size: 0.9rem; }
   #view-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
   #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
   #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
@@ -166,6 +167,7 @@
       <option value="min">Minimal DFA</option>
     </select>
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
+    <button id="toggle-diagram" aria-controls="diagram" aria-expanded="true">Hide diagram</button>
     <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram view">Copy link</button>
   </div>
   <p id="view-help"></p>
@@ -6298,6 +6300,7 @@
   var nfa = null;
   var compiled = null;
   var drawLarge = false;
+  var diagramHidden = false;
   var buildLarge = false;
   try {
     for (const key of ["patterns", "patterns-busy"]) localStorage.removeItem(key);
@@ -6364,6 +6367,10 @@
     await draw(nfa);
   }
   async function draw(drawn) {
+    if (diagramHidden) {
+      $("diagram").replaceChildren();
+      return;
+    }
     if (drawn.size > MAX_DRAWN_STATES && !drawLarge) {
       $("diagram").innerHTML = `<p class="note">Too many states to draw quickly. <button id="draw-anyway">Draw anyway</button></p>`;
       $("draw-anyway").addEventListener("click", () => {
@@ -6373,7 +6380,7 @@
       return;
     }
     const viz = await vizReady;
-    if (drawn !== nfa) return;
+    if (drawn !== nfa || diagramHidden) return;
     const svg = viz.renderSVGElement(toDot(drawn));
     for (const g of svg.querySelectorAll("g.node")) {
       const state = Number(g.querySelector("title")?.textContent);
@@ -6551,6 +6558,14 @@
     if (copied) done("Copied");
     else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => done("Copied"), () => done("Couldn't copy"));
     else done("Couldn't copy");
+  }
+  function toggleDiagram() {
+    diagramHidden = !diagramHidden;
+    const button = $("toggle-diagram");
+    button.textContent = diagramHidden ? "Show diagram" : "Hide diagram";
+    button.setAttribute("aria-expanded", String(!diagramHidden));
+    $("diagram").hidden = diagramHidden;
+    if (!diagramHidden && nfa !== null && !$("diagram").hasChildNodes()) draw(nfa);
   }
   function copyLink() {
     const state = { pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value };
@@ -6788,6 +6803,7 @@
   $("clear-tests").addEventListener("click", clearTests);
   $("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));
   $("copy-link").addEventListener("click", copyLink);
+  $("toggle-diagram").addEventListener("click", toggleDiagram);
   $("load-words").addEventListener("click", () => $("words-file").click());
   $("words-file").addEventListener("change", loadWordFile);
   $("clear-words").addEventListener("click", clearWordList);
