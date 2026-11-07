@@ -56,12 +56,20 @@ async function listText(list) {
   return texts.get(list.file);
 }
 
-const rows = new Map(); // file -> { badge, status }
-let loadedName = null;
+const rows = new Map(); // file -> { li, badge, status }
 
+// show which list (if any) is in the shared slot; null if none, or not one of these
 function markLoaded(name) {
-  loadedName = name;
-  for (const [file, row] of rows) row.badge.hidden = file !== name;
+  for (const [file, row] of rows) {
+    row.badge.hidden = file !== name;
+    row.li.classList.toggle("current", file === name);
+  }
+}
+
+// a list loaded or cleared elsewhere (on another page, or in another tab) shows up on return
+async function refreshLoaded() {
+  const stored = await fetchWordList();
+  markLoaded(stored?.name ?? null);
 }
 
 function setStatus(row, message, error = false) {
@@ -85,6 +93,7 @@ async function load(list, row) {
     return;
   }
   markLoaded(list.file);
+  for (const other of rows.values()) setStatus(other, "");
   setStatus(row, `Loaded ${count(wordCount(text), "word")}. Reload any of the other pages that are already open to see it.`);
 }
 
@@ -146,13 +155,14 @@ for (const list of LISTS) {
   li.append(status);
   listsBox.append(li);
 
-  const row = { badge, status };
+  const row = { li, badge, status };
   rows.set(list.file, row);
   loadButton.addEventListener("click", () => load(list, row));
   downloadButton.addEventListener("click", () => download(list, row));
 }
 
 // a list loaded from this page (or a file with the same name) is marked as loaded
-fetchWordList().then((stored) => {
-  if (stored && loadedName === null) markLoaded(stored.name);
+refreshLoaded();
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") refreshLoaded();
 });

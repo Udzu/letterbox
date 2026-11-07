@@ -17,7 +17,8 @@
   .intro { margin: 0 0 24px; color: #666; }
   .intro a { color: #06c; }
   #lists { list-style: none; margin: 0; padding: 0; }
-  #lists li { padding: 12px 0; border-bottom: 1px solid #ddd; }
+  #lists li { margin: 0 -8px; padding: 12px 8px; border-bottom: 1px solid #ddd; }
+  #lists li.current { background: #eef8ee; }
   #lists li:last-child { border-bottom: none; }
   .title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .name { font-size: 1.2rem; font-weight: 600; }
@@ -118,10 +119,15 @@ ${stripped}` : stripped;
     return texts.get(list.file);
   }
   var rows = /* @__PURE__ */ new Map();
-  var loadedName = null;
   function markLoaded(name) {
-    loadedName = name;
-    for (const [file, row] of rows) row.badge.hidden = file !== name;
+    for (const [file, row] of rows) {
+      row.badge.hidden = file !== name;
+      row.li.classList.toggle("current", file === name);
+    }
+  }
+  async function refreshLoaded() {
+    const stored = await fetchWordList();
+    markLoaded(stored?.name ?? null);
   }
   function setStatus(row, message, error = false) {
     row.status.textContent = message;
@@ -143,6 +149,7 @@ ${stripped}` : stripped;
       return;
     }
     markLoaded(list.file);
+    for (const other of rows.values()) setStatus(other, "");
     setStatus(row, `Loaded ${count(wordCount(text), "word")}. Reload any of the other pages that are already open to see it.`);
   }
   async function download(list, row) {
@@ -197,13 +204,14 @@ ${stripped}` : stripped;
     if (list.attribution) li.append(linkify(list.attribution));
     li.append(status);
     listsBox.append(li);
-    const row = { badge, status };
+    const row = { li, badge, status };
     rows.set(list.file, row);
     loadButton.addEventListener("click", () => load(list, row));
     downloadButton.addEventListener("click", () => download(list, row));
   }
-  fetchWordList().then((stored) => {
-    if (stored && loadedName === null) markLoaded(stored.name);
+  refreshLoaded();
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") refreshLoaded();
   });
 })();
 </script>
