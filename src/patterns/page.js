@@ -47,12 +47,80 @@ let drawLarge = false;
 let diagramHidden = false; // hidden diagrams are built (for their stats) but not drawn
 let buildLarge = false;
 
-// Only the word list is kept between visits (see below): reloading starts afresh, with the
-// default pattern, unless the address is a shared link. Earlier versions kept the pattern too, so that is cleared.
-try {
-  for (const key of ["patterns", "patterns-busy"]) localStorage.removeItem(key);
-} catch {
-  // storage may be unavailable, e.g. in private windows
+// The pattern, test strings and diagram settings are kept between visits, like the other
+// pages' text (and the word lists, below), unless the address is a shared link. Reset goes
+// back to the defaults.
+const STORAGE_KEY = "patterns";
+
+function load() {
+  try {
+    const saved = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(STORAGE_KEY)) };
+    return { ...saved, view: saved.view in VIEWS ? saved.view : DEFAULTS.view };
+  } catch {
+    return DEFAULTS;
+  }
+}
+
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      // a pattern that wasn't restored stays saved until another is typed (see guarded)
+      pattern: unrestored ?? patternInput.value, tests: testsInput.value, view: viewSelect.value, hidden: diagramHidden,
+    }));
+  } catch {
+    // storage may be unavailable, e.g. in private windows
+  }
+}
+
+// Slow work is marked in storage while it runs. If the page freezes or crashes during it,
+// the mark is still there when the page is next loaded, which then starts with the default
+// pattern instead of the saved one, and offers to restore it. (Building the automaton for @
+// has its own mark, below, so a list that stopped the page doesn't count against the pattern.)
+const BUSY_KEY = "patterns-busy";
+let busy = 0;
+let unrestored = null; // the saved pattern, if it wasn't restored
+
+function guarded(f) {
+  if (busy++ === 0) setBusy(true);
+  try {
+    return f();
+  } finally {
+    if (--busy === 0) setBusy(false);
+  }
+}
+
+function setBusy(value) {
+  try {
+    if (value) localStorage.setItem(BUSY_KEY, "1");
+    else localStorage.removeItem(BUSY_KEY);
+  } catch {
+    // storage may be unavailable
+  }
+}
+
+// whether the page stopped during slow work last time
+function stoppedLastTime() {
+  try {
+    return localStorage.getItem(BUSY_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+function offerRestore(pattern) {
+  unrestored = pattern;
+  $("restore").hidden = false;
+  $("restore").innerHTML = "The last pattern wasn't restored, because the page stopped responding while working on it. <button id=\"restore-anyway\">Restore anyway</button>";
+  $("restore-anyway").addEventListener("click", () => {
+    patternInput.value = pattern;
+    dismissRestore();
+    schedule();
+  });
+}
+
+function dismissRestore() {
+  unrestored = null;
+  $("restore").hidden = true;
 }
 
 function escapeHtml(s) {
@@ -66,6 +134,7 @@ function autosize(textarea) {
 }
 
 async function update() {
+  save();
   const pattern = patternInput.value;
   autosize(patternInput);
   $("error").textContent = "";
@@ -78,11 +147,14 @@ async function update() {
   let message = null;
   let askToBuild = false;
   try {
-    compiled = compile(pattern, { words: atAutomaton() });
-    withStateLimit(limitFor(compiled), () => {
-      $("lengths").textContent = describeLengths(matchLengths(compiled));
-      if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
-      else nfa = VIEWS[viewSelect.value](compiled);
+    const words = atAutomaton(); // outside the pattern's guard, since it has its own
+    guarded(() => {
+      compiled = compile(pattern, { words });
+      withStateLimit(limitFor(compiled), () => {
+        $("lengths").textContent = describeLengths(matchLengths(compiled));
+        if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
+        else nfa = VIEWS[viewSelect.value](compiled);
+      });
     });
   } catch (e) {
     if (e instanceof PatternError) {
@@ -142,7 +214,7 @@ async function draw(drawn) {
   }
   const viz = await vizReady;
   if (drawn !== nfa || diagramHidden) return; // superseded while Viz.js was loading
-  const svg = viz.renderSVGElement(toDot(drawn));
+  const svg = guarded(() => viz.renderSVGElement(toDot(drawn)));
   // Graphviz gives each node a <title> holding its name, which is the state number
   for (const g of svg.querySelectorAll("g.node")) {
     const state = Number(g.querySelector("title")?.textContent);
@@ -229,7 +301,7 @@ function explanationHtml(text) {
   }
   let result;
   try {
-    result = explainFor.explain(text);
+    result = guarded(() => explainFor.explain(text));
   } catch (e) {
     if (e instanceof TooComplexToExplain || e instanceof TooManyStatesError) return note("Too complex to explain.");
     throw e;
@@ -308,7 +380,7 @@ function scheduleRegex() {
 
 function showRegex(target, limits) {
   if (target !== compiled) return; // superseded
-  const result = toRegex(target, limits);
+  const result = guarded(() => toRegex(target, limits));
   $("regex-line").classList.remove("stale");
   $("regex").textContent = result.regex ?? "";
   $("copy-regex").textContent = "Copy";
@@ -358,6 +430,7 @@ function toggleDiagram() {
   $("diagram").hidden = diagramHidden;
   // diagrams skipped while hidden left it empty
   if (!diagramHidden && nfa !== null && !$("diagram").hasChildNodes()) draw(nfa);
+  save();
 }
 
 function copyLink() {
@@ -383,7 +456,7 @@ function clearTests() {
 function addExamples() {
   if (compiled === null) return;
   const lines = testsInput.value.split("\n");
-  const result = withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) }));
+  const result = guarded(() => withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) })));
   const existing = testsInput.value.replace(/\n+$/, "");
   if (result.examples.length) {
     // insert at the end, after any trailing blank lines are removed
@@ -575,7 +648,9 @@ async function findMatches(target, list) {
   for (let i = 0; i < list.words.length; i += MATCH_CHUNK) {
     if (i > 0) await new Promise((resolve) => setTimeout(resolve));
     if (target !== compiled || list !== wordList) return; // superseded
-    for (let j = i; j < Math.min(i + MATCH_CHUNK, list.words.length); j++) if (test(list.words[j])) found.push(list.words[j]);
+    guarded(() => {
+      for (let j = i; j < Math.min(i + MATCH_CHUNK, list.words.length); j++) if (test(list.words[j])) found.push(list.words[j]);
+    });
   }
   showMatches(found);
 }
@@ -640,19 +715,50 @@ function schedule() {
 }
 
 function onCursor() {
+  save();
   updateTests();
   highlightCurrent();
   showExplanation();
 }
 
-const initial = readShared(location.search, VIEWS, DEFAULTS.view) ?? DEFAULTS;
-patternInput.value = initial.pattern;
+// A shared link wins over what was saved, and becomes what's saved. It's then removed from
+// the address, so reloading keeps any later changes rather than going back to it.
+const shared = readShared(location.search, VIEWS, DEFAULTS.view);
+const initial = shared ?? load();
+if (shared) history.replaceState(null, "", location.pathname + location.hash);
+if (!shared && stoppedLastTime() && initial.pattern !== DEFAULTS.pattern) {
+  patternInput.value = DEFAULTS.pattern;
+  offerRestore(initial.pattern);
+} else {
+  patternInput.value = initial.pattern;
+}
+setBusy(false);
 testsInput.value = initial.tests;
 viewSelect.value = initial.view;
 if (initial.hidden) toggleDiagram(); // nothing is drawn yet, so this only hides it
 
+// Back to the default pattern, test strings and view, with the diagram showing. The text is
+// replaced as an edit, so undo brings it back.
+function reset() {
+  dismissRestore();
+  for (const [box, text] of [[testsInput, DEFAULTS.tests], [patternInput, DEFAULTS.pattern]]) {
+    box.focus();
+    box.select();
+    edit(box, text);
+  }
+  viewSelect.value = DEFAULTS.view;
+  showViewHelp();
+  if (diagramHidden) toggleDiagram();
+  $("examples-note").textContent = "";
+  drawLarge = false;
+  buildLarge = false;
+  showAllMatches = false;
+  schedule();
+}
+
 patternInput.addEventListener("input", () => {
   if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
+  dismissRestore();
   drawLarge = false;
   buildLarge = false;
   showAllMatches = false;
@@ -676,6 +782,7 @@ $("clear-tests").addEventListener("click", clearTests);
 $("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));
 $("copy-link").addEventListener("click", copyLink);
 $("toggle-diagram").addEventListener("click", toggleDiagram);
+$("reset").addEventListener("click", reset);
 for (const slot of Object.values(SLOTS)) {
   $(slot.load).addEventListener("click", () => $(slot.file).click());
   $(slot.file).addEventListener("change", () => loadListFile(slot));

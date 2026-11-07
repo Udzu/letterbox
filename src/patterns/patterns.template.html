@@ -60,13 +60,14 @@
   #tests, #tests-backdrop { min-height: 7.5em; }
   .error-span { background: #fdd; text-decoration: underline wavy #d00; text-decoration-skip-ink: none; }
   .error-span:empty::after { content: " "; }
+  #restore { margin: 0 0 6px; }
   #error { color: #d00; margin: 6px 0 0; min-height: 1.4em; }
 
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
   #info { color: #666; }
   #toggle-diagram { margin-left: auto; }
-  #toggle-diagram, #copy-link { font: inherit; font-size: 0.9rem; }
+  #toggle-diagram, #copy-link, #reset { font: inherit; font-size: 0.9rem; }
   #view-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
   #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
   #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
@@ -158,6 +159,7 @@
     <textarea id="pattern" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Pattern"></textarea>
   </div>
   <div id="error" role="status"></div>
+  <p id="restore" class="note" hidden></p>
 
   <div id="toolbar">
     <select id="view" aria-label="Diagram">
@@ -170,6 +172,7 @@
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
     <button id="toggle-diagram" aria-controls="diagram" aria-expanded="true">Hide diagram</button>
     <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram settings">Copy link</button>
+    <button id="reset" title="Go back to the example pattern and test strings, and the default diagram (undo brings your text back)">Reset</button>
   </div>
   <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
