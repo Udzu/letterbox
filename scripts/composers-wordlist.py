@@ -92,7 +92,7 @@ for item in sorted(composers, key=lambda item: -prominence[item]):
                 seen.add(word)
                 words.append(word)
 
-DESCRIPTION = ("Surnames of classical composers, including film and light music, most prominent first."
+DESCRIPTION = ("Surnames of classical composers, most prominent first."
                " Names with accents are followed by their unaccented forms.")
 ATTRIBUTION = ("Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from"
                " [danker](https://github.com/athalhammer/danker). Licensed under"
