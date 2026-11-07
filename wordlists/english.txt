@@ -1,7 +1,7 @@
 # name: English
 # description: General English words and phrases from Wiktionary and ENABLE, roughly most common first.
 # kind: general
-# attribution: Adapted from the [Crossword Nexus ranked Wiktionary word list](https://crosswordnexus.com/wiki/downloadwiki.php) and [ENABLE](https://github.com/dolph/dictionary) (plus a, i and ok). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from [Wiktionary](https://en.wiktionary.org/).
+# attribution: Adapted from the [Crossword Nexus ranked Wiktionary word list](https://crosswordnexus.com/wiki/downloadwiki.php) and [ENABLE](https://github.com/dolph/dictionary). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from [Wiktionary](https://en.wiktionary.org/).
 
 to
 of
