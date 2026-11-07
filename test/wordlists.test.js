@@ -30,7 +30,7 @@ test("readList reads an optional attribution", () => {
 test("readList reads the kind: general or a topic", () => {
   assert.equal(readList("# name: Words\n# description: All words.\n# kind: general\n\ncat\n").kind, "general");
   assert.equal(readList("# name: Words\n# description: All words.\n# kind: geography\n\ncat\n").kind, "geography");
-  assert.throws(() => readList("# name: Words\n# description: All words.\n# kind: topic\n\ncat\n"), { message: /unknown kind "topic" \(expected general, geography, science\)/ });
+  assert.throws(() => readList("# name: Words\n# description: All words.\n# kind: topic\n\ncat\n"), { message: /unknown kind "topic" \(expected general, culture, geography, science\)/ });
   assert.throws(() => readList("# name: Words\n# description: All words.\n\ncat\n"), { message: /missing header key "kind"/ });
 });
 
