@@ -1,8 +1,65 @@
 # name: English
 # description: General English words and phrases from Wiktionary, roughly most common first.
 # kind: general
-# attribution: Adapted from the Crossword Nexus ranked Wiktionary word list (https://crosswordnexus.com/wiki/downloadwiki.php), with scores removed. Wiktionary content is licensed under CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), and so is this list.
+# attribution: Adapted from the [Crossword Nexus ranked Wiktionary word list](https://crosswordnexus.com/wiki/downloadwiki.php), with scores removed and common one- and two-letter words added. Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from [Wiktionary](https://en.wiktionary.org/).
 
+to
+of
+a
+in
+i
+is
+it
+on
+be
+as
+at
+he
+by
+my
+or
+we
+an
+so
+me
+if
+up
+do
+no
+us
+go
+am
+oh
+re
+ok
+la
+hi
+ex
+ad
+mm
+ah
+ma
+id
+ha
+em
+en
+pa
+yo
+mi
+eh
+uh
+ye
+er
+fa
+aw
+um
+lo
+pi
+ti
+hm
+ow
+ox
+ax
 abandon
 abdomen
 ability

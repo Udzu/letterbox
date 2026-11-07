@@ -1,27 +1,50 @@
 # name: Common English
 # description: English words used about once per million words or more, most common first, without phrases.
 # kind: general
-# attribution: Adapted from the Crossword Nexus ranked Wiktionary word list (https://crosswordnexus.com/wiki/downloadwiki.php), keeping the single words with a wordfreq (https://github.com/rspeer/wordfreq) Zipf frequency of 3 or more, in order of frequency. Wiktionary content is licensed under CC BY-SA 3.0 and wordfreq data under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/), and this list is under CC BY-SA 4.0.
+# attribution: Adapted from the [Crossword Nexus ranked Wiktionary word list](https://crosswordnexus.com/wiki/downloadwiki.php), filtered and ordered by [wordfreq](https://github.com/rspeer/wordfreq) frequency, with one- and two-letter words added. Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from [Wiktionary](https://en.wiktionary.org/) and wordfreq's data.
 
 the
+to
 and
+of
+a
+in
+i
+is
 that
 you
+it
+on
 with
 this
+be
+as
 have
+at
+he
 not
+by
 but
+my
+or
+we
+an
 all
+so
+me
+if
 one
 can
 will
 about
+up
 out
 what
 has
 when
 more
+do
+no
 were
 who
 had
@@ -54,8 +77,10 @@ any
 then
 could
 back
+us
 want
 because
+go
 well
 said
 way
@@ -105,6 +130,7 @@ something
 use
 same
 used
+am
 come
 part
 three
@@ -273,6 +299,7 @@ early
 friends
 information
 local
+oh
 post
 thanks
 video
@@ -467,6 +494,7 @@ issue
 played
 points
 price
+re
 rest
 results
 running
@@ -598,6 +626,7 @@ evidence
 follow
 lives
 official
+ok
 production
 reading
 round
@@ -763,6 +792,7 @@ below
 created
 deep
 followed
+la
 lol
 mark
 missing
@@ -871,6 +901,7 @@ described
 despite
 female
 focus
+hi
 husband
 ice
 individual
@@ -1361,6 +1392,7 @@ draw
 dude
 employees
 enter
+ex
 follows
 foundation
 gain
@@ -1486,6 +1518,7 @@ skills
 software
 tough
 units
+ad
 alive
 apple
 balance
@@ -1914,6 +1947,7 @@ kitchen
 leads
 maintain
 measure
+mm
 numerous
 owners
 posts
@@ -1969,6 +2003,7 @@ tony
 troops
 truck
 votes
+ah
 authorities
 basically
 besides
@@ -1992,6 +2027,7 @@ identified
 incredible
 inspired
 launched
+ma
 meat
 ministry
 neck
@@ -2070,6 +2106,7 @@ granted
 guilty
 humans
 hundreds
+id
 improved
 largely
 laughing
@@ -2190,6 +2227,7 @@ favor
 flag
 frame
 guest
+ha
 heaven
 independence
 institutions
@@ -2224,6 +2262,7 @@ chemical
 competitive
 detail
 diet
+em
 favourite
 fruit
 harder
@@ -2550,6 +2589,7 @@ dancing
 document
 eggs
 employee
+en
 engineer
 equivalent
 facing
@@ -2767,6 +2807,7 @@ locations
 loose
 machines
 moral
+pa
 package
 pointed
 poverty
@@ -2855,6 +2896,7 @@ uncle
 unusual
 waters
 woods
+yo
 arrival
 asks
 assault
@@ -3650,6 +3692,7 @@ hurts
 intellectual
 invite
 involvement
+mi
 nuts
 partly
 petition
@@ -3877,6 +3920,7 @@ controversy
 convince
 cooper
 disappeared
+eh
 encounter
 equality
 exam
@@ -3913,6 +3957,7 @@ spectrum
 stays
 ted
 terror
+uh
 virtually
 waited
 warren
@@ -3986,6 +4031,7 @@ venue
 wages
 wells
 wheels
+ye
 8th
 abortion
 accuracy
@@ -4005,6 +4051,7 @@ destination
 dirt
 diverse
 emails
+er
 exclusively
 export
 fastest
@@ -4310,6 +4357,7 @@ dismissed
 distinguished
 eighth
 experiments
+fa
 flesh
 flip
 forty
@@ -4833,6 +4881,7 @@ alike
 applicable
 arrow
 availability
+aw
 bend
 boundary
 breach
@@ -4904,6 +4953,7 @@ skilled
 sterling
 surgeon
 theft
+um
 understands
 washing
 adjacent
@@ -5351,6 +5401,7 @@ inn
 intel
 kicks
 legends
+lo
 lucy
 matrix
 measuring
@@ -6722,6 +6773,7 @@ notification
 ok'ing
 outline
 pasta
+pi
 productions
 professors
 quicker
@@ -7461,6 +7513,7 @@ superhero
 taxpayers
 therapeutic
 threads
+ti
 timely
 tomato
 tub
@@ -7732,6 +7785,7 @@ guru
 hacked
 hatch
 historians
+hm
 hormone
 inadequate
 infinity
@@ -9997,6 +10051,7 @@ northeastern
 noticing
 nun
 nutritional
+ow
 pathways
 pedal
 pest
@@ -12473,6 +12528,7 @@ nobility
 notation
 onstage
 ordeal
+ox
 painfully
 paranormal
 pear
@@ -14529,6 +14585,7 @@ armoured
 ascension
 aspirin
 atheists
+ax
 bard
 bearded
 beetles
