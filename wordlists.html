@@ -26,6 +26,10 @@
   .title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .name { font-size: 1.2rem; font-weight: 600; }
   .size { color: #888; margin-right: 8px; }
+  /* topic badges, in colours apart from the green and blue of the loaded and @ rows */
+  .badge { padding: 1px 8px; border-radius: 10px; font-size: 0.8rem; }
+  .badge.geography { background: #fcecd9; color: #8a4b00; }
+  .badge.science { background: #efe6fa; color: #5b2f94; }
   /* pressed buttons are coloured like the shading of their rows */
   button.load[aria-pressed=true] { background: #080; border: 1px solid #080; border-radius: 3px; color: #fff; }
   button.at[aria-pressed=true] { background: #06c; border: 1px solid #06c; border-radius: 3px; color: #fff; }
@@ -76,35 +80,35 @@
     "file": "elements.txt",
     "name": "Chemical elements",
     "description": "The 118 chemical elements, with alternative spellings and the Latin names behind some of their symbols.",
-    "kind": "topic",
+    "kind": "science",
     "size": 134
   },
   {
     "file": "element-symbols.txt",
     "name": "Chemical symbols",
     "description": "The symbols of the 118 chemical elements, such as He and Na, in their usual capitalisation.",
-    "kind": "topic",
+    "kind": "science",
     "size": 118
   },
   {
     "file": "countries.txt",
     "name": "Countries",
     "description": "Sovereign states and dependent territories, with common alternative and former names.",
-    "kind": "topic",
+    "kind": "geography",
     "size": 290
   },
   {
     "file": "us-state-codes.txt",
     "name": "US state codes",
     "description": "The two-letter postal codes of the 50 US states, DC and the inhabited territories, such as CA and NY.",
-    "kind": "topic",
+    "kind": "geography",
     "size": 56
   },
   {
     "file": "us-states.txt",
     "name": "US states",
     "description": "The 50 US states, with the District of Columbia and the five inhabited territories.",
-    "kind": "topic",
+    "kind": "geography",
     "size": 59
   }
 ]
@@ -112,8 +116,10 @@
 <script>
 (() => {
   // src/wordlists/lists.js
-  var REQUIRED = ["name", "description"];
-  var KEYS = [...REQUIRED, "kind", "attribution"];
+  var REQUIRED = ["name", "description", "kind"];
+  var KEYS = [...REQUIRED, "attribution"];
+  var TOPICS = ["geography", "science"];
+  var KINDS = ["general", ...TOPICS];
   function stripList(text) {
     const words = text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !line.startsWith("#"));
     return words.length === 0 ? "" : words.join("\n") + "\n";
@@ -295,15 +301,18 @@ ${stripped}` : stripped;
   var listsBox = document.getElementById("lists");
   var group = null;
   for (const list of LISTS) {
-    if (group?.kind !== list.kind) {
-      group = { kind: list.kind, ul: element("ul") };
+    const general = list.kind === "general";
+    if (group?.general !== general) {
+      group = { general, ul: element("ul") };
       listsBox.append(group.ul);
     }
     const buttons = { load: element("button", "load"), at: element("button", "at") };
     const downloadButton = element("button", "", "Download");
     downloadButton.title = `Save the list as ${list.file}`;
     const title = element("div", "title");
-    title.append(element("span", "name", list.name), element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
+    title.append(element("span", "name", list.name));
+    if (!general) title.append(element("span", `badge ${list.kind}`, list.kind));
+    title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
     const status = element("p", "status");
     status.setAttribute("aria-live", "polite");
     const li = element("li");

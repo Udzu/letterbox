@@ -191,19 +191,22 @@ function attributionElement(attribution) {
   return p;
 }
 
-// one <ul> per kind, so general lists are set apart from the topic lists after them
+// one <ul> for the general lists and another for the topic lists after them
 const listsBox = document.getElementById("lists");
 let group = null;
 for (const list of LISTS) {
-  if (group?.kind !== list.kind) {
-    group = { kind: list.kind, ul: element("ul") };
+  const general = list.kind === "general";
+  if (group?.general !== general) {
+    group = { general, ul: element("ul") };
     listsBox.append(group.ul);
   }
   const buttons = { load: element("button", "load"), at: element("button", "at") };
   const downloadButton = element("button", "", "Download");
   downloadButton.title = `Save the list as ${list.file}`;
   const title = element("div", "title");
-  title.append(element("span", "name", list.name), element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
+  title.append(element("span", "name", list.name));
+  if (!general) title.append(element("span", `badge ${list.kind}`, list.kind));
+  title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
   const status = element("p", "status");
   status.setAttribute("aria-live", "polite");
   const li = element("li");

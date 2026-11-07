@@ -3,21 +3,24 @@
 //
 // A list file has one word or phrase per line. Lines starting with # are comments, and they
 // and blank lines are dropped. The file starts with a header of "# key: value" comments,
-// ended by a blank line, giving the list's name and description. Optionally, it gives the
-// list's kind, "general" (such as a whole language) or "topic" (the default), and an
-// attribution, which is shown on the page and kept at the top of downloaded copies. Links in
+// ended by a blank line, giving the list's name, description and kind: "general" (such as a
+// whole language) or one of the TOPICS, which the page shows as a badge. Optionally, it gives
+// an attribution, which is shown on the page and kept at the top of downloaded copies. Links in
 // an attribution are written [text](url): the page links the text, and downloads spell out the
 // address as text (url).
 //
 //   # name: Countries
 //   # description: Sovereign states and dependent territories.
+//   # kind: geography
 //
 //   Afghanistan
 //   ...
 
-const REQUIRED = ["name", "description"];
-const KEYS = [...REQUIRED, "kind", "attribution"];
-const KINDS = ["general", "topic"];
+const REQUIRED = ["name", "description", "kind"];
+const KEYS = [...REQUIRED, "attribution"];
+// each topic has a badge colour in the page's CSS (.badge.<topic>)
+export const TOPICS = ["geography", "science"];
+const KINDS = ["general", ...TOPICS];
 
 // the list's words, one per line, without comments, blank lines or surrounding spaces
 export function stripList(text) {
@@ -74,15 +77,16 @@ export function readList(text) {
   for (const key of REQUIRED) {
     if (!(key in meta)) throw new Error(`missing header key "${key}"`);
   }
-  meta.kind ??= "topic";
-  if (!KINDS.includes(meta.kind)) throw new Error(`unknown kind "${meta.kind}" (expected ${KINDS.join(" or ")})`);
+  if (!KINDS.includes(meta.kind)) throw new Error(`unknown kind "${meta.kind}" (expected ${KINDS.join(", ")})`);
   for (let j = i; j < lines.length; j++) {
     if (/^\s|\s$/.test(lines[j])) throw new Error(`line ${j + 1}: leading or trailing space in ${JSON.stringify(lines[j])}`);
   }
   return { ...meta, size: wordCount(stripList(text)) };
 }
 
-// lists in the order the page shows them: general lists first, then topics, each by name
+// lists in the order the page shows them: general lists first, then topic lists, each by name
+// (topics aren't grouped: their badges tell them apart)
 export function sortLists(lists) {
-  return [...lists].sort((a, b) => KINDS.indexOf(a.kind) - KINDS.indexOf(b.kind) || a.name.localeCompare(b.name, "en"));
+  const rank = (list) => (list.kind === "general" ? 0 : 1);
+  return [...lists].sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, "en"));
 }
