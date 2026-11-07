@@ -1,5 +1,6 @@
 # name: Chemical symbols
 # description: The symbols of the 118 chemical elements, such as He and Na, in their usual capitalisation.
+# kind: science
 
 # Period 1
 H

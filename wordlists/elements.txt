@@ -1,5 +1,6 @@
 # name: Chemical elements
 # description: The 118 chemical elements, with alternative spellings and the Latin names behind some of their symbols.
+# kind: science
 
 # ==============================
 # IUPAC names, by atomic number
