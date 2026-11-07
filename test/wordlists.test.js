@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { parseWords } from "../src/patterns/wordlist.js";
-import { downloadText, readList, stripList, wordCount } from "../src/wordlists/lists.js";
+import { downloadText, readList, sortLists, stripList, wordCount } from "../src/wordlists/lists.js";
 
 const HEADER = "# name: Animals\n# description: Some animals.\n\n";
 
@@ -18,13 +18,30 @@ test("wordCount counts words the way the other pages do", () => {
 });
 
 test("readList reads the header and counts the words", () => {
-  assert.deepEqual(readList(HEADER + "# section\ncat\ndog\n\ncat\n"), { name: "Animals", description: "Some animals.", size: 2 });
-  assert.deepEqual(readList(HEADER.replaceAll("\n", "\r\n") + "cat\r\n"), { name: "Animals", description: "Some animals.", size: 1 });
+  assert.deepEqual(readList(HEADER + "# section\ncat\ndog\n\ncat\n"), { name: "Animals", description: "Some animals.", kind: "topic", size: 2 });
+  assert.deepEqual(readList(HEADER.replaceAll("\n", "\r\n") + "cat\r\n"), { name: "Animals", description: "Some animals.", kind: "topic", size: 1 });
 });
 
 test("readList reads an optional attribution", () => {
   const text = "# name: Animals\n# description: Some animals.\n# attribution: From a zoo.\n\ncat\n";
-  assert.deepEqual(readList(text), { name: "Animals", description: "Some animals.", attribution: "From a zoo.", size: 1 });
+  assert.deepEqual(readList(text), { name: "Animals", description: "Some animals.", attribution: "From a zoo.", kind: "topic", size: 1 });
+});
+
+test("readList reads an optional kind", () => {
+  assert.equal(readList("# name: Words\n# description: All words.\n# kind: general\n\ncat\n").kind, "general");
+  assert.equal(readList("# name: Words\n# description: All words.\n# kind: topic\n\ncat\n").kind, "topic");
+  assert.throws(() => readList("# name: Words\n# description: All words.\n# kind: big\n\ncat\n"), { message: /unknown kind "big"/ });
+});
+
+test("sortLists puts general lists first, then sorts by name", () => {
+  const lists = [
+    { name: "countries", kind: "topic" },
+    { name: "English", kind: "general" },
+    { name: "Chemical symbols", kind: "topic" },
+    { name: "Chemical elements", kind: "topic" },
+    { name: "Dutch", kind: "general" },
+  ];
+  assert.deepEqual(sortLists(lists).map((list) => list.name), ["Dutch", "English", "Chemical elements", "Chemical symbols", "countries"]);
 });
 
 test("downloadText keeps the attribution in a comment the other pages skip", () => {
@@ -37,7 +54,7 @@ test("readList rejects bad headers and stray spaces", () => {
   const rejects = (text, message) => assert.throws(() => readList(text), { message: new RegExp(message) }, JSON.stringify(text));
   rejects("cat\n", 'expected "# key: value"');
   rejects("# name: Animals\n\ncat\n", 'missing header key "description"');
-  rejects("# name: Animals\n# description: x\n# colour: red\n\ncat\n", 'unknown header key "colour" \\(expected name, description, attribution\\)');
+  rejects("# name: Animals\n# description: x\n# colour: red\n\ncat\n", 'unknown header key "colour" \\(expected name, description, kind, attribution\\)');
   rejects("# name: Animals\n# name: Pets\n# description: x\n\ncat\n", 'repeated header key "name"');
   rejects("# name: Animals\n# description: x\n# ====\n\ncat\n", 'line 3: expected "# key: value"');
   rejects("# name: \n# description: x\n\ncat\n", "line 1:");

@@ -5,7 +5,8 @@
 
 import { downloadText, stripList, wordCount } from "./lists.js";
 
-// [{ file, name, description, attribution?, size }], sorted by name, written into the page by the build
+// [{ file, name, description, kind, attribution?, size }], general lists first and then by name,
+// written into the page by the build
 const LISTS = JSON.parse(document.getElementById("lists-data").textContent);
 
 // the word list entry shared by the Anagrams, Pangrams and Patterns pages
@@ -137,8 +138,14 @@ function linkify(text) {
   return p;
 }
 
+// one <ul> per kind, so general lists are set apart from the topic lists after them
 const listsBox = document.getElementById("lists");
+let group = null;
 for (const list of LISTS) {
+  if (group?.kind !== list.kind) {
+    group = { kind: list.kind, ul: element("ul") };
+    listsBox.append(group.ul);
+  }
   const loadButton = element("button", "", "Load");
   loadButton.title = "Use this list on the other pages";
   const downloadButton = element("button", "", "Download");
@@ -153,7 +160,7 @@ for (const list of LISTS) {
   li.append(title, element("p", "description", list.description));
   if (list.attribution) li.append(linkify(list.attribution));
   li.append(status);
-  listsBox.append(li);
+  group.ul.append(li);
 
   const row = { li, badge, status };
   rows.set(list.file, row);

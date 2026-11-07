@@ -1,5 +1,6 @@
 # name: English
 # description: General English words and phrases from Wiktionary, roughly most common first.
+# kind: general
 # attribution: Adapted from the Crossword Nexus ranked Wiktionary word list (https://crosswordnexus.com/wiki/downloadwiki.php), with scores removed. Wiktionary content is licensed under CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), and so is this list.
 
 abandon

@@ -3,7 +3,8 @@
 //
 // A list file has one word or phrase per line. Lines starting with # are comments, and they
 // and blank lines are dropped. The file starts with a header of "# key: value" comments,
-// ended by a blank line, giving the list's name and description, and optionally an
+// ended by a blank line, giving the list's name and description. Optionally, it gives the
+// list's kind, "general" (such as a whole language) or "topic" (the default), and an
 // attribution, which is shown on the page and kept at the top of downloaded copies:
 //
 //   # name: Countries
@@ -13,7 +14,8 @@
 //   ...
 
 const REQUIRED = ["name", "description"];
-const KEYS = [...REQUIRED, "attribution"];
+const KEYS = [...REQUIRED, "kind", "attribution"];
+const KINDS = ["general", "topic"];
 
 // the list's words, one per line, without comments, blank lines or surrounding spaces
 export function stripList(text) {
@@ -50,8 +52,15 @@ export function readList(text) {
   for (const key of REQUIRED) {
     if (!(key in meta)) throw new Error(`missing header key "${key}"`);
   }
+  meta.kind ??= "topic";
+  if (!KINDS.includes(meta.kind)) throw new Error(`unknown kind "${meta.kind}" (expected ${KINDS.join(" or ")})`);
   for (let j = i; j < lines.length; j++) {
     if (/^\s|\s$/.test(lines[j])) throw new Error(`line ${j + 1}: leading or trailing space in ${JSON.stringify(lines[j])}`);
   }
   return { ...meta, size: wordCount(stripList(text)) };
+}
+
+// lists in the order the page shows them: general lists first, then topics, each by name
+export function sortLists(lists) {
+  return [...lists].sort((a, b) => KINDS.indexOf(a.kind) - KINDS.indexOf(b.kind) || a.name.localeCompare(b.name, "en"));
 }
