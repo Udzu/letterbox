@@ -1,6 +1,9 @@
-# The composers in the Composers word list, for composers-wordlist.py: each line is a Wikidata
-# item, then the names to list for it, separated by commas (most often just the surname), with
-# the composer's full name as a comment. Composers who share a surname each have a line, but the
+# name: Classical composers
+# description: Surnames of classical composers, most prominent first. Names with accents are followed by their unaccented forms.
+# kind: culture
+# attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
+
+# Composers who share a surname each have a line, with their full name as a comment, but the
 # surname is only listed once.
 
 Q189544: Adam                       # Adolphe Adam

@@ -1,0 +1,217 @@
+# name: Political systems and ideologies
+# description: Forms of government and political ideologies, most prominent first.
+# kind: politics
+# attribution: From Wikipedia's lists of [forms of government](https://en.wikipedia.org/wiki/List_of_forms_of_government) and [ideologies](https://en.wikipedia.org/wiki/List_of_political_ideologies), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.
+
+# Terms from the two Wikipedia lists whose own articles are about them, with a few that the lists
+# link differently (such as tyranny, scored by the article on tyrants).
+
+Q7184037: absolutism             # scored by the article Absolutism (European history)
+Q16001522: accelerationism
+Q356648: adhocracy
+Q492050: agrarianism
+Q211380: anarcha-feminism
+Q6199: anarchism
+Q192424: anarcho-capitalism
+Q188670: anarcho-communism       # scored by the article Anarchist communism
+Q667672: anarcho-primitivism
+Q188993: anarcho-syndicalism
+Q31895: anarchy
+Q1030234: anti-authoritarianism
+Q478004: anti-clericalism
+Q182121: anti-communism
+Q1783091: anti-consumerism
+Q210189: anti-fascism
+Q1144178: anti-imperialism
+Q575959: anti-intellectualism
+Q2712657: anti-revisionism
+Q584548: Anti-Zionism
+Q575220: antifeminism
+Q506674: antimilitarism
+Q11409: apartheid
+Q123432: aristocracy
+Q6229: authoritarianism
+Q173424: autocracy
+Q127393: autonomism
+Q2582421: Ba'athism
+Q8813: Bolivarianism
+Q472940: Bolshevism
+Q672087: Bonapartism
+Q72468: bureaucracy
+Q273665: caesaropapism
+Q131401: caliphate
+Q6206: capitalism
+Q679189: Carlism
+Q6587194: centrism
+Q193974: Chartism
+Q226418: chauvinism
+Q3666864: Chavismo
+Q133442: city-state
+Q747439: clericalism
+Q1543464: clientelism
+Q237789: collectivism
+Q7167: colonialism
+Q133156: colony
+Q2578692: commonwealth
+Q6186: communism
+Q324530: communitarianism
+Q170156: confederation
+Q9581: Confucianism
+Q7169: conservatism
+Q1414948: consociationalism
+Q1194747: constitutionalism
+Q192886: corporatism
+Q2383947: corporatocracy
+Q188843: cosmopolitanism
+Q10964327: cronyism
+Q7174: democracy
+Q179352: despotism
+Q936648: diarchy
+Q317: dictatorship
+Q1229663: distributism
+Q223832: dominion
+Q154547: duchy
+Q855175: e-democracy
+Q275595: eco-socialism
+Q1510591: ecofascism
+Q294949: ecofeminism
+Q188958: egalitarianism
+Q189898: emirate
+Q48349: empire
+Q2855609: environmentalism
+Q1324222: Eurasianism
+Q376717: Eurocentrism
+Q206743: Eurocommunism
+Q223200: Euroscepticism
+Q466439: extremism
+Q5431652: Falangism
+Q6223: fascism
+Q5439978: federacy
+Q204886: federalism
+Q43702: federation
+Q7252: feminism
+Q37739: feudalism
+Q1049968: Fidelismo
+Q9149: fundamentalism
+Q770215: Gaullism
+Q679595: Georgism
+Q193032: gerontocracy
+Q2167348: globalism
+Q2287593: Guevarism
+Q182034: hegemony
+Q589468: Hoxhaism
+Q7260: imperialism
+Q171995: individualism
+Q592832: integralism
+Q695838: internationalism
+Q182274: irredentism
+Q189746: Islamism
+Q309310: isolationism
+Q1679542: Jacobinism             # scored by the article Jacobin (politics)
+Q212983: Jacobitism
+Q3757343: jihadism
+Q181800: Juche
+Q280692: junta
+Q2932554: kakistocracy
+Q269443: Kemalism
+Q331644: khanate
+Q191244: kleptocracy
+Q208701: labourism               # scored by the article Labour movement
+Q831192: left-libertarianism
+Q155059: Leninism
+Q6216: liberalism
+Q178598: libertarianism
+Q167651: Maoism
+Q7264: Marxism
+Q185681: matriarchy
+Q207066: McCarthyism
+Q162527: mercantilism
+Q178079: meritocracy
+Q188443: micronation
+Q177266: militarism
+Q216669: monarchism
+Q7269: monarchy
+Q190656: multiculturalism
+Q1813600: Nasserism
+Q648045: national-anarchism
+Q6235: nationalism
+Q912158: Naxalism
+Q7310: Nazism
+Q696116: neo-fascism
+Q2662880: Neo-Luddism
+Q1058263: Neo-Marxism
+Q151250: Neo-Nazism
+Q190586: neocolonialism
+Q192139: neoconservatism
+Q162719: neoliberalism
+Q161165: nepotism
+Q191031: ochlocracy              # scored by the article Mob rule
+Q79751: oligarchy
+Q727480: ordoliberalism
+Q58848: pacifism
+Q1074954: paleoconservatism
+Q580171: paleolibertarianism
+Q282739: Pan-Africanism
+Q193476: Pan-Arabism
+Q155812: Pan-Germanism
+Q430032: Pan-Islamism
+Q182267: Pan-Slavism
+Q83280: Pan-Turkism
+Q376631: particracy
+Q181339: patriarchy
+Q6241: patriotism
+Q464555: Peronism
+Q856020: personalism
+Q14850164: pluralism
+Q131708: plutocracy
+Q1063239: polity
+Q180490: populism
+Q208500: principality
+Q3781399: Pro-Europeanism
+Q821102: progressivism
+Q179073: protectionism
+Q164142: protectorate
+Q1207817: Putinism
+Q8461: racism
+Q913401: radicalism              # scored by the article Classical radicalism
+Q878445: reformism
+Q477406: regency                 # scored by the article Regent
+Q7270: republic
+Q877848: republicanism
+Q1136718: revanchism
+Q250598: right-libertarianism
+Q15975478: Ruscism
+Q170305: satrapy                 # scored by the article Satrap
+Q216920: secularism
+Q194236: separatism
+Q131767: shogunate               # scored by the article Shogun
+Q7272: socialism
+Q70196: sortition
+Q912036: sovereigntism
+Q179121: Stalinism
+Q322294: statism
+Q701333: Strasserism
+Q3975904: stratocracy
+Q43292: sultanate                # scored by the article Sultan
+Q2353993: syndicalism
+Q190044: technocracy
+Q174450: tetrarchy
+Q288587: thalassocracy
+Q877530: Thatcherism
+Q44405: theocracy
+Q585804: timocracy
+Q663333: Titoism
+Q3433953: Toryism                # scored by the article Tory
+Q128135: totalitarianism
+Q3308597: transfeminism
+Q1482645: tribalism
+Q83204: triumvirate
+Q181133: Trotskyism
+Q31838499: Trumpism
+Q15057121: tsarism               # scored by the article Tsarist autocracy
+Q269248: Turanism
+Q180095: tyranny                 # scored by the article Tyrant
+Q274053: ultramontanism
+Q38352698: ultranationalism
+Q163140: Wahhabism
+Q42388: Zionism
