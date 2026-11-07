@@ -17,6 +17,7 @@ Q313970: Arensky                    # Anton Arensky
 Q309709: Arne                       # Thomas Arne
 Q313554: Arnold                     # Malcolm Arnold
 Q157672: Auber                      # Daniel François Esprit Auber
+Q251818: Auric                      # Georges Auric
 Q318518: Babbitt                    # Milton Babbitt
 Q230978: Bacewicz                   # Grażyna Bacewicz
 Q76428: Bach                        # Carl Philipp Emanuel Bach
@@ -49,6 +50,7 @@ Q316505: Bortniansky                # Dmytro Bortnianskyi
 Q230412: Boulanger                  # Lili Boulanger
 Q156193: Boulez                     # Pierre Boulez
 Q7294: Brahms                       # Johannes Brahms
+Q366636: Bridge                     # Frank Bridge
 Q150767: Britten                    # Benjamin Britten
 Q106434: Bruch                      # Max Bruch
 Q81752: Bruckner                    # Anton Bruckner
@@ -66,9 +68,11 @@ Q236438: Chaminade                  # Cécile Chaminade
 Q55524: Charpentier                 # Marc-Antoine Charpentier
 Q312368: Chausson                   # Ernest Chausson
 Q20721: Cherubini                   # Luigi Cherubini
+Q272236: Chin                       # Unsuk Chin
 Q1268: Chopin                       # Frédéric Chopin
 Q191775: Cimarosa                   # Domenico Cimarosa
 Q297137: Čiurlionis                 # Mikalojus Konstantinas Čiurlionis
+Q259670: Clarke                     # Rebecca Clarke
 Q193673: Clementi                   # Muzio Clementi
 Q739229: Coleridge-Taylor           # Samuel Coleridge-Taylor
 Q192185: Copland                    # Aaron Copland
@@ -93,6 +97,7 @@ Q207717: Dufay, Du Fay              # Guillaume Dufay
 Q215556: Dukas                      # Paul Dukas
 Q215134: Dunstaple, Dunstable       # John Dunstaple
 Q315879: Dupré                      # Marcel Dupré
+Q368914: Durey                      # Louis Durey
 Q318829: Dutilleux                  # Henri Dutilleux
 Q7298: Dvořák                       # Antonín Dvořák
 Q6309766: Eastman                   # Julius Eastman
@@ -145,7 +150,8 @@ Q57286: Hensel                      # Fanny Mendelssohn
 Q76915: Henze                       # Hans Werner Henze
 Q1275145: Herbert                   # Victor Herbert
 Q296804: Herrmann                   # Bernard Herrmann
-Q70991: Hildegard                   # Hildegard of Bingen
+Q289468: Higdon                     # Jennifer Higdon
+Q70991: Hildegard, Bingen           # Hildegard of Bingen
 Q57244: Hindemith                   # Paul Hindemith
 Q275900: Hisaishi                   # Joe Hisaishi
 Q200867: Holst                      # Gustav Holst
@@ -212,6 +218,7 @@ Q186264: Milhaud                    # Darius Milhaud
 Q434821: Minkus                     # Ludwig Minkus
 Q217613: Moniuszko                  # Stanisław Moniuszko
 Q53068: Monteverdi                  # Claudio Monteverdi
+Q342543: Monti                      # Vittorio Monti
 Q23848: Morricone                   # Ennio Morricone
 Q322427: Moszkowski                 # Moritz Moszkowski
 Q156280: Mozart                     # Leopold Mozart
@@ -232,6 +239,7 @@ Q191957: Paderewski                 # Ignacy Jan Paderewski
 Q66075: Paganini                    # Niccolò Paganini
 Q202303: Paisiello                  # Giovanni Paisiello
 Q179277: Palestrina                 # Giovanni Pierluigi da Palestrina
+Q442963: Panufnik                   # Andrzej Panufnik
 Q354250: Parry                      # Hubert Parry
 Q189534: Pärt                       # Arvo Pärt
 Q153469: Penderecki                 # Krzysztof Penderecki
@@ -245,6 +253,7 @@ Q207390: Ponchielli                 # Amilcare Ponchielli
 Q312788: Porpora                    # Nicola Porpora
 Q191408: Poulenc                    # Francis Poulenc
 Q108278: Praetorius                 # Michael Praetorius
+Q155712: Previn                     # André Previn
 Q520522: Price                      # Florence Price
 Q49481: Prokofiev                   # Sergei Prokofiev
 Q7311: Puccini                      # Giacomo Puccini
@@ -286,6 +295,7 @@ Q132232: Schumann                   # Clara Schumann
 Q7351: Schumann                     # Robert Schumann
 Q153643: Schütz                     # Heinrich Schütz
 Q185647: Scriabin, Skryabin         # Alexander Scriabin
+Q15430653: Shaw                     # Caroline Shaw
 Q165706: Shchedrin                  # Rodion Shchedrin
 Q207773: Shore                      # Howard Shore
 Q80135: Shostakovich                # Dmitri Shostakovich
@@ -314,6 +324,7 @@ Q310518: Süssmayr                   # Franz Xaver Süssmayr
 Q467738: Sviridov                   # Georgy Sviridov
 Q110294: Sweelinck                  # Jan Pieterszoon Sweelinck
 Q295400: Szymanowski                # Karol Szymanowski
+Q376383: Tailleferre                # Germaine Tailleferre
 Q155467: Takemitsu                  # Tōru Takemitsu
 Q207789: Tallis                     # Thomas Tallis
 Q314176: Tan Dun                    # Tan Dun
@@ -330,6 +341,7 @@ Q356499: Tippett                    # Michael Tippett
 Q207532: Torelli                    # Giuseppe Torelli
 Q153172: Vangelis                   # Vangelis
 Q57247: Varèse                      # Edgard Varèse
+Q368449: Vasks                      # Pēteris Vasks
 Q207947: Vaughan Williams           # Ralph Vaughan Williams
 Q7317: Verdi                        # Giuseppe Verdi
 Q215128: Victoria                   # Tomás Luis de Victoria
@@ -343,11 +355,13 @@ Q154812: Weber                      # Carl Maria von Weber
 Q190933: Webern                     # Anton Webern
 Q55004: Weill                       # Kurt Weill
 Q919127: Weinberg                   # Mieczysław Weinberg
+Q2411818: Weir                      # Judith Weir
 Q215161: Widor                      # Charles-Marie Widor
 Q272184: Wieniawski                 # Henri Wieniawski
 Q131285: Williams                   # John Williams
 Q215747: Wolf                       # Hugo Wolf
 Q152880: Xenakis                    # Iannis Xenakis
+Q312857: Ysaÿe                      # Eugène Ysaÿe
 Q157777: Zelenka                    # Jan Dismas Zelenka
 Q78524: Zemlinsky                   # Alexander von Zemlinsky
 Q76364: Zimmer                      # Hans Zimmer
