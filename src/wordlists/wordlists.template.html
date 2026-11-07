@@ -18,12 +18,16 @@
   #lists ul { list-style: none; margin: 0; padding: 0; }
   #lists ul + ul { margin-top: 32px; }
   #lists li { margin: 0 -8px; padding: 12px 8px; border-bottom: 1px solid #ddd; }
-  #lists li.current { background: #eef8ee; }
+  /* the word list's row is shaded green, and the @ list's blue, unless it's also the word list */
+  #lists li.at { background: #eef4fc; }
+  #lists li.loaded { background: #eef8ee; }
   #lists li:last-child { border-bottom: none; }
   .title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .name { font-size: 1.2rem; font-weight: 600; }
   .size { color: #888; margin-right: 8px; }
-  .loaded { font-size: 0.85rem; color: #080; border: 1px solid #080; border-radius: 4px; padding: 0 4px; }
+  /* pressed buttons are coloured like the shading of their rows */
+  button.load[aria-pressed=true] { background: #080; border: 1px solid #080; border-radius: 3px; color: #fff; }
+  button.at[aria-pressed=true] { background: #06c; border: 1px solid #06c; border-radius: 3px; color: #fff; }
   .description { margin: 4px 0 0; color: #444; }
   .attribution { margin: 4px 0 0; color: #888; font-size: 0.85rem; }
   .attribution a { color: #888; }
@@ -38,7 +42,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <b>Wordlists</b> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Word lists for the <a href="anagrams.html">Anagrams</a>, <a href="pangrams.html">Pangrams</a> and <a href="patterns.html">Patterns</a> pages. Load one to use it on those pages straight away (it replaces any list already loaded), or download it as a text file to load later. Unlike the other pages, this one needs an internet connection.</p>
+  <p class="intro">Word lists for the <a href="anagrams.html">Anagrams</a>, <a href="pangrams.html">Pangrams</a> and <a href="patterns.html">Patterns</a> pages. Load one to use it on those pages straight away (it replaces any list already loaded), or download it as a text file to load later. The <b>@</b> button loads a list as the Patterns page's @ list instead, which is what <code>@</code> in a pattern stands for. Unlike the other pages, this one needs an internet connection.</p>
   <div id="lists"></div>
 </main>
 <!-- @wordlists ../../wordlists -->

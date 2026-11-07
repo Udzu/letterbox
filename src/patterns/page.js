@@ -78,7 +78,7 @@ async function update() {
   let message = null;
   let askToBuild = false;
   try {
-    compiled = compile(pattern, { words: wordList?.automaton });
+    compiled = compile(pattern, { words: atAutomaton() });
     withStateLimit(limitFor(compiled), () => {
       $("lengths").textContent = describeLengths(matchLengths(compiled));
       if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
@@ -225,7 +225,7 @@ function explanationHtml(text) {
   const note = (message) => `<p class="note">${escapeHtml(message)}</p>`;
   if (text === undefined) return note("Put the cursor on a test string to see which part of the pattern matched each character.");
   if (explainFor?.compiled !== compiled) {
-    explainFor = { compiled, explain: explainer(patternInput.value, { words: wordList?.automaton, nfa: compiled }) };
+    explainFor = { compiled, explain: explainer(patternInput.value, { words: atAutomaton(), nfa: compiled }) };
   }
   let result;
   try {
@@ -400,11 +400,18 @@ function addExamples() {
   onCursor();
 }
 
-// The word list is kept in IndexedDB, since lists are too large for localStorage. If storage
-// is unavailable, the list just lasts until the page is closed. The Anagrams and Pangrams
-// pages read and write the same entry, so a list loaded on any page is shared by all of them.
-const DB = { name: "patterns", store: "wordlist", key: "list" };
-let wordList = null; // { name, words }
+// Two lists are kept in IndexedDB, since lists are too large for localStorage: the word list,
+// whose words are searched for matches, and the optional @ list, which @ stands for in place
+// of the word list. If storage is unavailable, they last until the page is closed. The
+// Anagrams and Pangrams pages read and write the word list's entry, so it's shared by all of
+// them, while the @ list is only used here.
+const DB = { name: "patterns", store: "wordlist" };
+const SLOTS = {
+  words: { key: "list", load: "load-words", clear: "clear-words", info: "words-info", file: "words-file", none: "None loaded", list: null },
+  at: { key: "at-list", load: "load-at", clear: "clear-at", info: "at-info", file: "at-file", none: "None loaded, so @ uses the word list", list: null },
+};
+let wordList = null; // { name, words, automaton }, with automaton null until @ needs it
+let atList = null; // the same, for the @ list
 
 function openDb() {
   return new Promise((resolve, reject) => {
@@ -415,13 +422,13 @@ function openDb() {
   });
 }
 
-async function storeWordList(value) {
+async function storeList(slot, value) {
   try {
     const db = await openDb();
     await new Promise((resolve, reject) => {
       const tx = db.transaction(DB.store, "readwrite");
-      if (value === null) tx.objectStore(DB.store).delete(DB.key);
-      else tx.objectStore(DB.store).put(value, DB.key);
+      if (value === null) tx.objectStore(DB.store).delete(slot.key);
+      else tx.objectStore(DB.store).put(value, slot.key);
       tx.oncomplete = resolve;
       tx.onerror = () => reject(tx.error);
     });
@@ -430,11 +437,11 @@ async function storeWordList(value) {
   }
 }
 
-async function fetchWordList() {
+async function fetchList(slot) {
   try {
     const db = await openDb();
     return await new Promise((resolve, reject) => {
-      const request = db.transaction(DB.store).objectStore(DB.store).get(DB.key);
+      const request = db.transaction(DB.store).objectStore(DB.store).get(slot.key);
       request.onsuccess = () => resolve(request.result ?? null);
       request.onerror = () => reject(request.error);
     });
@@ -443,37 +450,62 @@ async function fetchWordList() {
   }
 }
 
-function setWordList(list) {
-  wordList = list;
-  showAllMatches = false;
-  $("clear-words").disabled = list === null;
-  $("words-info").textContent = list === null ? "None loaded" : `${list.name}: ${count(list.words.length, "word")}`;
-  if (list !== null && list.words.length > LARGE_WORD_LIST) {
-    $("words-info").textContent += `. Patterns using @ may be slow with this many.`;
+// the list @ stands for: the @ list if there is one, or else the word list
+const atSource = () => atList ?? wordList;
+
+// The automaton @ uses, built the first time it's needed. Building it is the slowest thing
+// the page does, and a huge list could freeze or crash it. Since the lists are restored on
+// every visit, that would happen again on every reload, so the key of the list being built
+// is marked in storage while it runs, and a list whose building never finished isn't loaded
+// again automatically.
+const BUILDING_KEY = "patterns-building-words";
+function atAutomaton() {
+  const list = atSource();
+  if (list === null) return undefined;
+  if (list.automaton === null) {
+    mark(BUILDING_KEY, list === atList ? SLOTS.at.key : SLOTS.words.key);
+    list.automaton = wordsAutomaton(list.words);
+    mark(BUILDING_KEY, null);
   }
-  if (list === null) {
+  return list.automaton;
+}
+
+function setList(slot, list) {
+  slot.list = list;
+  slot.offered = false;
+  listsChanged();
+}
+
+function listsChanged() {
+  wordList = SLOTS.words.list;
+  atList = SLOTS.at.list;
+  showAllMatches = false;
+  for (const s of Object.values(SLOTS)) showListInfo(s);
+  if (wordList === null) {
     $("matches-info").replaceChildren();
     $("matches").replaceChildren();
   }
-  // @ means something different now
+  // @ may mean something different now
   schedule();
 }
 
-// A list from its words, including the automaton that @ uses. Building it is the slowest
-// thing the page does, and a huge list could freeze or crash it. Since the list is restored
-// on every visit, that would happen again on every reload, so building is marked in storage
-// while it runs, and a list whose building never finished isn't built again automatically.
-const BUILDING_KEY = "patterns-building-words";
-function makeWordList(name, words) {
-  mark(BUILDING_KEY, true);
-  const automaton = wordsAutomaton(words);
-  mark(BUILDING_KEY, false);
-  return { name, words, automaton };
+function showListInfo(slot) {
+  if (slot.offered) return; // leave the offer to load a stuck list in place
+  const list = slot.list;
+  $(slot.clear).disabled = list === null;
+  $(slot.info).textContent = list === null ? slot.none : `${list.name}: ${count(list.words.length, "word")}`;
+  if (list !== null && list === atSource() && list.words.length > LARGE_WORD_LIST) {
+    $(slot.info).textContent += `. Patterns using @ may be slow with this many.`;
+  }
+}
+
+function makeList(name, words) {
+  return { name, words, automaton: null };
 }
 
 function mark(key, value) {
   try {
-    if (value) localStorage.setItem(key, "1");
+    if (value !== null) localStorage.setItem(key, value);
     else localStorage.removeItem(key);
   } catch {
     // storage may be unavailable
@@ -482,36 +514,37 @@ function mark(key, value) {
 
 function marked(key) {
   try {
-    return localStorage.getItem(key) !== null;
+    return localStorage.getItem(key);
   } catch {
-    return false;
+    return null;
   }
 }
 
 // a stored list that stopped the page last time: offer to load it anyway, or clear it
-function offerStoredList(stored) {
-  $("clear-words").disabled = false;
-  $("words-info").innerHTML = `${escapeHtml(stored.name)} wasn't loaded, because the page stopped responding while loading it last time. <button id="load-anyway">Load anyway</button>`;
-  $("load-anyway").addEventListener("click", () => {
-    $("words-info").textContent = "Loading…";
-    setTimeout(() => setWordList(makeWordList(stored.name, parseWords(stored.text))), 20);
+function offerStoredList(slot, stored) {
+  slot.offered = true;
+  $(slot.clear).disabled = false;
+  $(slot.info).innerHTML = `${escapeHtml(stored.name)} wasn't loaded, because the page stopped responding while loading it last time. <button id="${slot.key}-anyway">Load anyway</button>`;
+  $(`${slot.key}-anyway`).addEventListener("click", () => {
+    $(slot.info).textContent = "Loading…";
+    setTimeout(() => setList(slot, makeList(stored.name, parseWords(stored.text))), 20);
   });
 }
 
-async function loadWordFile() {
-  const file = $("words-file").files[0];
+async function loadListFile(slot) {
+  const file = $(slot.file).files[0];
   if (!file) return;
-  $("words-info").textContent = "Loading…";
+  $(slot.info).textContent = "Loading…";
   const text = await file.text();
-  $("words-file").value = "";
-  setWordList(makeWordList(file.name, parseWords(text)));
-  storeWordList({ name: file.name, text });
+  $(slot.file).value = "";
+  setList(slot, makeList(file.name, parseWords(text)));
+  storeList(slot, { name: file.name, text });
 }
 
-function clearWordList() {
-  mark(BUILDING_KEY, false);
-  setWordList(null);
-  storeWordList(null);
+function clearList(slot) {
+  if (marked(BUILDING_KEY) === slot.key) mark(BUILDING_KEY, null);
+  setList(slot, null);
+  storeList(slot, null);
 }
 
 const count = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
@@ -592,7 +625,7 @@ let pending = false;
 let slowTimer = null;
 function schedule() {
   clearTimeout(slowTimer);
-  if (wordList !== null && patternInput.value.includes("@")) {
+  if (atSource() !== null && patternInput.value.includes("@")) {
     $("diagram").classList.add("stale");
     markMatchesStale();
     slowTimer = setTimeout(update, REGEX_DELAY);
@@ -643,9 +676,11 @@ $("clear-tests").addEventListener("click", clearTests);
 $("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));
 $("copy-link").addEventListener("click", copyLink);
 $("toggle-diagram").addEventListener("click", toggleDiagram);
-$("load-words").addEventListener("click", () => $("words-file").click());
-$("words-file").addEventListener("change", loadWordFile);
-$("clear-words").addEventListener("click", clearWordList);
+for (const slot of Object.values(SLOTS)) {
+  $(slot.load).addEventListener("click", () => $(slot.file).click());
+  $(slot.file).addEventListener("change", () => loadListFile(slot));
+  $(slot.clear).addEventListener("click", () => clearList(slot));
+}
 $("matches").addEventListener("click", (e) => {
   if (e.target.classList.contains("word")) showTestString(e.target.textContent);
 });
@@ -658,13 +693,18 @@ window.addEventListener("resize", () => {
   autosize(patternInput);
   autosize(testsInput);
 });
-// The page updates straight away, and again once any stored list has been built (a shared
-// pattern using @ shows an error until then).
-$("clear-words").disabled = true;
-$("words-info").textContent = "None loaded";
+// The page updates straight away, and again once any stored lists are loaded (a shared
+// pattern using @ shows an error until then). Pages from before the @ list marked a stuck
+// word list with "1".
+for (const slot of Object.values(SLOTS)) showListInfo(slot);
 update();
-fetchWordList().then((stored) => {
-  if (!stored || wordList !== null) return;
-  if (marked(BUILDING_KEY)) offerStoredList(stored);
-  else setWordList(makeWordList(stored.name, parseWords(stored.text)));
+Promise.all([fetchList(SLOTS.words), fetchList(SLOTS.at)]).then((stored) => {
+  const stuck = marked(BUILDING_KEY) === "1" ? SLOTS.words.key : marked(BUILDING_KEY);
+  for (const [slot, list] of [[SLOTS.words, stored[0]], [SLOTS.at, stored[1]]]) {
+    if (!list || slot.list !== null) continue;
+    if (slot.key === stuck) offerStoredList(slot, list);
+    else slot.list = makeList(list.name, parseWords(list.text));
+  }
+  // show both at once, so the word list's automaton isn't built when there's an @ list
+  if (SLOTS.words.list !== null || SLOTS.at.list !== null) listsChanged();
 });
