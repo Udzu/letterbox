@@ -9,12 +9,13 @@ PageRank of its articles' links across all Wikipedias. Writes wordlists/composer
 build afterwards to update the Wordlists page.
 
 The composers are the ones in composers-wordlist/composers.txt, which is edited by hand. They're
-ordered by how prominent they are: the average of their page views and their PageRank, each taken
-as a logarithm and scaled to have mean 0 and standard deviation 1 across the composers, so that
-neither dominates. (Page views alone overrate composers known for a single piece, and PageRank
-alone those who are cited more than read about.) Each name is listed once, at the place of the most
-prominent composer with it, and names with accents or other non-ASCII letters are followed by their
-ASCII forms, so Dvořák is followed by Dvorak.
+ordered by how prominent they are: a weighted average of their PageRank and their page views, each
+taken as a logarithm and scaled to have mean 0 and standard deviation 1 across the composers. Page
+views alone overrate popular composers such as film composers, so PageRank, which measures how much
+other articles refer to a composer, gets PAGERANK_WEIGHT of the weight; but not all of it, since
+PageRank alone underrates composers known for being played more than written about. Each name is
+listed once, at the place of the most prominent composer with it, and names with accents or other
+non-ASCII letters are followed by their ASCII forms, so Dvořák is followed by Dvorak.
 """
 
 import bz2
@@ -24,6 +25,9 @@ import statistics
 import sys
 import unicodedata
 from pathlib import Path
+
+# how much of a composer's prominence comes from PageRank rather than page views
+PAGERANK_WEIGHT = 0.75
 
 QRANK, DANKER = sys.argv[1:3]
 HERE = Path(__file__).parent
@@ -69,7 +73,7 @@ def standardised(measure):
 
 
 views, pagerank = standardised(views), standardised(pagerank)
-prominence = {item: (views[item] + pagerank[item]) / 2 for item in composers}
+prominence = {item: PAGERANK_WEIGHT * pagerank[item] + (1 - PAGERANK_WEIGHT) * views[item] for item in composers}
 
 # --- Write: most prominent first, each name followed by its ASCII form if it's different
 
