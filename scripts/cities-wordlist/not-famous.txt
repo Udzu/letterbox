@@ -1,0 +1,21 @@
+# GeoNames names of places that cities-wordlist.py would otherwise add as famous, but aren't well
+# known: mostly villages with articles in many Wikipedias thanks to translation campaigns, and
+# places that take the fame of something else of the same name.
+
+Almazán
+Arara
+Breinigerberg
+Ecser
+Entrena
+Końskowola
+Kurów
+Międzyrzec Podlaski
+Monzón
+Montsoreau
+Moshchena
+Mošovce
+Orange
+Pichilemu
+Siligo
+Uetersen
+Zichyújfalu

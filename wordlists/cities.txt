@@ -1,7 +1,7 @@
 # name: Cities
-# description: Cities of half a million people or more, and all capitals, with English and former names, largest first. Names with accents are followed by their unaccented forms.
+# description: Cities of half a million people or more, capitals, and smaller cities with articles in most major Wikipedias, largest first, with English and former names. Names with accents are followed by their unaccented forms.
 # kind: geography
-# attribution: Adapted from [GeoNames](https://www.geonames.org/). Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), like GeoNames' data.
+# attribution: Adapted from [GeoNames](https://www.geonames.org/), with famous cities found using [Wikidata](https://www.wikidata.org/). Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), like GeoNames' data.
 
 Shanghai
 Chongqing
@@ -1463,95 +1463,967 @@ Jalalpur Pirwala
 Kampung Larkin Lama
 Kota Damansara
 Talatona
+Karagandy
+Karaganda
+Qaraghandy
+Liverpool
+Cheboksary
+Gdańsk
+Gdansk
+Miami
+Omaha
+Najaf
+Raleigh
+Bristol
+Yazd
+Hargeysa
+Hargeisa
+Kansas City
+Kaliningrad
 Skopje
+The Hague
+Long Beach
+Murcia
+Mesa
+Halifax
+Mykolayiv
+Vernoleninsk
+Mykolaiv
+Staten Island
+Ḩamāh
+Hamah
+Hama
+Colorado Springs
+Virginia Beach
 Juba
+Kursk
+Constantine
 Bissau
+Palma
+Palma de Mallorca
+Tel Aviv
+Tel Aviv Yafo
+Tel Aviv Yaffo
+Vinnytsya
+Vinnytsia
+Cusco
+Cuzco
 Bratislava
+Luxor
+Tver
+Tver'
+Oakland
+Christchurch
+Santos
 Tirana
 San Juan
+Zürich
+Zurich
+Tulsa
+Minneapolis
+Gaza
+Nagasaki
 Panama City
+Brno
+Antofagasta
+Antakya
+Antioch
+Teopolis
+Luhansk
+Voroshilovgrad
+Wichita
+Szczecin
+Bologna
 Tallinn
 Revel
+Arlington
 Windhoek
+Bochum
+Las Palmas de Gran Canaria
 Wellington
+Aswān
+Aswan
+Iaşi
+Iasi
+Iași
+Jassy
+Utrecht
+Yogyakarta
+Bakersfield
+Nagano
+Cardiff
+Leicester
 Canberra
+Florence
+Cleveland
+New Orleans
+Malmö
+Malmo
+Wuppertal
+Ulan-Ude
 Maseru
+Vladimir
+Honolulu
+Anaheim
+Arkhangel'sk
+Arkhangelsk
+Alicante
+Belfast
+Bilbao
+Brest
+Coventry
+Belgorod
 Doha
+Annaba
+Nice
+Simferopol
+Lublin
+Orlando
+Bielefeld
+Ganja
+Gǝncǝ
+Gence
+Bonn
+Bydgoszcz
+Smolensk
+Plovdiv
+Sochi
+Cordova
+Nantes
+Espoo
+Nottingham
+Osh
+Lexington
+Saransk
+Varna
+Reading
+Constanţa
+Constanta
+Constanța
 New Delhi
+Thessaloníki
+Thessaloniki
+Bari
+Corpus Christi
+Kingston upon Hull
+Hull
+Catania
+Cincinnati
+Santa Ana
+Münster
+Munster
+Mannheim
+Pittsburgh
+Graz
+Saint Paul
+St. Paul
+Augsburg
+Valladolid
+Swansea
+Newcastle upon Tyne
+Newcastle-on-Tyne
+Grozny
+Groznyy
+Białystok
+Bialystok
+Murmansk
+Semenova
+Romanov-on-Murman
+Romanov
+Lincoln
+Bergen
+Tambov
+Vigo
+Anchorage
+Kaunas
+Wiesbaden
+Katowice
+Cluj-Napoca
+Haifa
+Århus
+Arhus
+Aarhus
+Brighton
+Karlsruhe
 Port Moresby
+Chernihiv
+Valparaíso
+Valparaiso
+Newark
+Ostrava
+Madison
+Bukhara
+St. Louis
+St Louis
+Saint Louis
+Poltava
+Taganrog
 Yamoussoukro
+Strasbourg
+Khmelnytskyi
+Khmel'nyts'kyy
 Ljubljana
+Gijón
+Gijon
+Derby
+Gelsenkirchen
+Cherkasy
+Cherkassy
+Southampton
+Saskatoon
+Bordeaux
+Aachen
+Gent
+Ghent
 Porto-Novo
+Chernivtsi
+Jersey City
+Mönchengladbach
+Monchengladbach
+Zhytomyr
+Tampere
+Fort Wayne
+Plymouth
+Buffalo
+Verona
+Gasteiz / Vitoria
+Vitoria-Gasteiz
+Gdynia
+Bratsk
+Sumy
+Hobart
+Braşov
+Brasov
+Vantaa
+Porto
+Kiel
+Timişoara
+Timisoara
+Timișoara
+A Coruña
+A Coruna
+The Groyne
+Niš
+Nis
+Montpellier
+City of Westminster
+Chemnitz
 Gaborone
+Puerto Montt
+Port Montt
+Groningen
+Braunschweig
+Brunswick
+Magdeburg
+Trabzon
+Nalchik
+Nal'chik
+Lille
+Ivano-Frankivsk
+Temuco
+Norfolk
+Krefeld
+Halle (Saale)
+Halle
+Freiburg
+Freiburg im Breisgau
 Podgorica
+Eindhoven
+Boise
+Yakutsk
 Georgetown
+Granada
+Mariupol
+Ashdod
+Ashdod Yam
 Nassau
+Rennes
+Baton Rouge
+Richmond
+Regina
+Ternopil
+Blagoveshchensk
+Košice
+Kosice
 Sucre
+Cork
 Paramaribo
+Concepción
+Concepcion
+Mainz
+Velikiy Novgorod
+Novgorod
+Veliky Novgorod
+Tilburg
+Sousse
+Banja Luka
+Oviedo
+Messina
+Kropyvnytskyi
+Kirovohrad
+Yelisavetgrad
+Kirovo
+Kirovograd
+Zinovievsk
+Zinovyevsk
+Elisavetgrad
+Elizabethgrad
+Oberhausen
+Erfurt
+Trondheim
+Oulu
+Lutsk
+Salt Lake City
+Novi Sad
+Huntsville
+Des Moines
+Lübeck
+Lubeck
+Santa Cruz de Tenerife
+Tenerife
+Burgas
+Pskov
+Rochester
+Pamplona
+Portsmouth
+Turku
+Linz
+Trieste
+Padua
+Padova
+Little Rock
+Debrecen
+Geneva
+Tallahassee
 Nicosia
+Brescia
+Aberdeen
+Taranto
+Rostock
+Parma
+Akron
+Kassel
+Almería
+Almeria
+İzmit
+Izmit
+Reims
+Laayoune
+El Aaiún
+El Aaiun
+Durrës
+Durres
+Montgomery
+Liège
+Liege
+Prato
+Alcalá de Henares
+Alcala de Henares
+Braga
+Providence
+Batumi
+Bat'umi
+Beersheba
+Biʾr as-Sabʿ
+Bi'r as-Sab'
+Be'er Sheva
+Le Havre
+Donostia / San Sebastián
+Donostia / San Sebastian
+Donostia
+Potsdam
+Modena
+Abakan
+Breda
+Fort Lauderdale
+Oradea
+Saarbrücken
+Saarbrucken
+Reggio Calabria
+Petropavlovsk-Kamchatsky
+Petropavlovsk-Kamchatskiy
+Odense
+Edirne
+Podolsk
+Ipswich
+Basel
+Nijmegen
+Uppsala
+Almere Stad
+Burgos
+Saint-Étienne
+Saint-Etienne
+Santander
+Klaipėda
+Klaipeda
+Reggio nell'Emilia
+Reggio Emilia
+Sioux Falls
+Sunderland
+Toulon
+Angers
+Pátra
+Patra
+Patras
+Pátrai
+Patrai
+Darmstadt
+Ashkelon
+Ashquelon
+Ashqelon
+Linköping
+Linkoping
+Osnabrück
+Osnabruck
+Piraeus
+Bournemouth
+Sidon
+Saida
+Peterborough
+Ludwigshafen am Rhein
+Leverkusen
+Haarlem
+Arnhem
+Oxford
+Newport
+Szeged
+Hebron
+Dijon
+Grenoble
+Sāmarrā'
+Samarra'
+Samarra
+Salzburg
+Livorno
+Tiraspol
+York
+Örebro
+Orebro
+Malabo
 Port Louis
 Saint-Denis
+Miskolc
+Jackson
+Enschede
+Stavanger
+Regensburg
+Badajoz
+Badajos
 Dili
+Split
+Cagliari
+Jyväskylä
+Jyvaskyla
+Rimini
+Nîmes
+Nimes
+Dundee
+Clermont-Ferrand
+Bridgeport
+Kragujevac
 Manama
+Lárisa
+Larisa
+Larissa
+Aix-en-Provence
+Cambridge
+Pécs
+Pecs
+Blackpool
+Salamanca
+Le Mans
+Syracuse
+Heidelberg
+Norwich
+Amiens
+Aalborg
+Middlesbrough
+Tuzla
+Columbia
+Pasadena
+Paderborn
+Maykop
+Tours
+Tarragona
+Bolton
+Limoges
+Ghazni
+Coimbra
+Amersfoort
+Darwin
+Port Darwin
+Lausanne
 Praia
+Irákleion
+Irakleion
+Heraklion
+Foggia
+Apeldoorn
+Tyre
+Kutaisi
+Sibiu
+Würzburg
+Wurzburg
+Đồng Hới
+Dong Hoi
+Dunedin
+Charleston
+Innsbruck
+Ferrara
+New Haven
+Umeå
+Umea
+Zwolle
+Al Bayḑā'
+Al Bayda'
+Győr
+Gyor
+Besançon
+Besancon
+Västerås
+Vasteras
+Topeka
+Salerno
+Kuopio
+Bălţi
+Balti
 Willemstad
+Leeuwarden
+Monza
+Metz
+Wolfsburg
+Maastricht
+Göttingen
+Gottingen
 Bern
 Berne
+Lahti
+Siracusa
+Bergamo
+Hartford
+Berkeley
+Heilbronn
+Trento
+Ingolstadt
+Ulm
+Perugia
+Leiden
+Pescara
+Dordrecht
 Reykjavík
 Reykjavik
+Brugge
+Bruges
+Billings
+Ann Arbor
+Cadiz
+Forlì
+Forli
+Orléans
+Orleans
+Rouen
+Sri Jayewardenepura Kotte
+Kotte
+Sri Jayawardenepura Kotte
+Vlorë
+Vlore
+Balkh
+Springfield
+Jönköping
+Jonkoping
+Lansing
+Reutlingen
+Vicenza
+Winterthur
+Kandy
+Mulhouse
+Terni
+Perpignan
+Caen
+St. John's
+Saint John's
+St Johns
+Pisa
+Boulogne-Billancourt
+Rijeka
+Bolzano
+Koblenz
+Derbent
+Funchal
+Nancy
+Jena
+Mostar
+Helsingborg
 Male
 Malé
+Piacenza
+Hildesheim
+Liberec
+Erlangen
+Limerick
+Novara
+Székesfehérvár
+Szekesfehervar
+Bath
+Albany
+Leuven
+Elbasan
+Arezzo
+Klagenfurt am Wörthersee
+Klagenfurt am Worthersee
+Klagenfurt
+Girona
+Udine
+Trier
+Santiago de Compostela
+Roubaix
+Olomouc
 Thimphu
 Bridgetown
+Lugo
+Schwerin
+Maribor
+Cáceres
+Caceres
+Shkodër
+Shkoder
+Mons
+Delft
+Aqaba
+Alkmaar
+Aksum
+Axum
+Norrköping
+Norrkoping
+České Budějovice
+Ceske Budejovice
+La Spezia
+Santa Monica
 Nouméa
 Noumea
+Magadan
+Esslingen
+Esslingen am Neckar
+Tübingen
+Tubingen
+Alessandria
+Sassari
+Tartu
 Fort-de-France
+Ancona
+Avignon
+Trenton
+Santa Fe
+Lund
+Brindisi
+Toledo
+Dunkirk
+Melilla
+Poitiers
+Galway
+Flensburg
+Treviso
+Versailles
+Como
+Timbuktu
+Ceuta
+Pori
+Prešov
+Presov
+Pontevedra
+Pau
+Lucca
+Luzern
+Lucerne
+Worms
+Ravenna
+Lecce
+Varese
+Bakhmut
+Artemivs'k
+Catanzaro
+Marburg an der Lahn
+Marburg
+Vyborg
+Joensuu
+Daugavpils
+Szombathely
+Luleå
+Lulea
+Nazareth
+Natserat
 Suva
+Gary
+Shūsh
+Shush
+Susa
+Yalta
+La Rochelle
 Luxembourg
+Antibes
 Mbabane
+Sankt Gallen
+St. Gallen
+Saint Gallen
+Bismarck
+Gela
 Moroni
+Banská Bystrica
+Banska Bystrica
+Cannes
+Calais
+Pistoia
+Bayreuth
+Borås
+Boras
+Växjö
+Vaxjo
+Lüneburg
+Luneburg
+Cremona
+Wilmington
+Faro
+Bamberg
+Bitola
+Assen
+Liepāja
+Liepaja
+Zadar
+Zara
+Palo Alto
+Karlskrona
+Kherson
+Pavia
+Rovaniemi
+Ioánnina
+Ioannina
+Sokhumi
+Sukhumi
+Colmar
+Belize City
+Cheyenne
 Gitega
+Weimar
 Bandar Seri Begawan
 Brunei Town
 Brunei
+Valence
+Cosenza
+Lugano
+Villeneuve-d'Ascq
+Sopron
+Berat
 Cayenne
+Neuilly-sur-Seine
+Troyes
+Matera
 Kuwait City
 Kuwait
+Veliko Tŭrnovo
+Veliko Turnovo
+Veliko Tarnovo
+Carson City
+Racibórz
+Raciborz
+Benevento
+Korçë
+Korce
+Lorient
+Ávila
+Avila
+Frankfurt (Oder)
+Baden-Baden
+Ushuaia
+Potenza
 Honiara
+Fier
+Eilat
+Elat
+Eschweiler
+Olympia
+Biel/Bienne
+Canterbury
+Jelgava
 Mamoudzou
 Mamoutzou
+Narva
+Ajaccio
+Siena
+Arles
 São Tomé
 Sao Tome
-Saint John's
-St. John's
+Acre
+Akre
+'Akko
+Akko
+Universitäts- und Hansestadt Greifswald
+Universitats- und Hansestadt Greifswald
+Greifswald
+Wetzlar
+Albi
+Pula
+Jūrmala
+Jurmala
 St John's
+Segovia
+Venice
+Tadmur
+Palmyra
+Saint-Malo
+St-Malo
+Passau
+Harrisburg
+Putrajaya
+Carcassonne
+Annecy
+Campobasso
 Port of Spain
 Saipan
+Viterbo
+Arras
+Sanremo
+Boulogne-sur-Mer
+Winchester
+Bourg-en-Bresse
+Wismar
+Valenciennes
+Suresnes
+Bayonne
+Concord
+Ramallah
+Chartres
+Thun
+Bellinzona
+Jefferson City
+Tikrīt
+Tikrit
+Ohrid
+Tromsø
+Tromso
+Dover
+Auxerre
+Bastia
+Annapolis
 Apia
 Tarawa
 South Tarawa
+Pärnu
+Parnu
+Kópavogur
+Kopavogur
+Dachau
+Atlantic City
+Mantua
+Mantova
+Charlottetown
+Kalmar
+Fribourg
+Lens
+Sint-Truiden
 Banjul
+Schaffhausen
+Teruel
+Paphos
 Port-Vila
 Port Vila
+Chur
+Aosta
+Sitten
+Sion
+Agen
+L'Aquila
+Neuchâtel
+Neuchatel
 Monaco
+Ventspils
+Agrigento
+Thívai
+Thivai
+Thebes
+Fairbanks
+Helena
+Hafnarfjörður
+Hafnarfjordur
+Šibenik
+Sibenik
+Baalbek
+Kórinthos
+Korinthos
+Corinth
+Fatehpur Sīkri
+Fatehpur Sikri
 Oranjestad
+Bregenz
+Princeton
 George Town
+Bethlehem
+Esztergom
+Frankfort
+Whitehorse
 Saint Helier
 St Helier
 St. Helier
+Vichy
+Dubrovnik
+Ragusa
 Gibraltar
 Papeete
 Douglas
+Montreux
+Alice Springs
+Koper
 Majuro
+Saint-Dié-des-Vosges
+Saint-Die-des-Vosges
+Saint-Dié
+Saint-Die
 Kingstown
+Carthage
+Chios
+Scio
+Chíos
+Gjirokastër
+Gjirokaster
+Visby
+Quedlinburg
 Nuku'alofa
+Sankt Pölten
+Sankt Polten
+St. Pölten
+St. Polten
+Saint Pölten
+Saint Polten
+Verdun
+Aarau
+Byblos
+Jebeil
+Jbeil
+Sedan
 Andorra la Vella
+Yellowknife
 Castries
 Charlotte Amalie
+Vesoul
+Jericho
+Akureyri
+Albertville
+Augusta
+Chichén-Itzá
+Chichen-Itza
+Chichen Itza
+Viljandi
 Roseau
 Saint Peter Port
 St Peter Port
+Sparta
+Lacedaemon
+Sparti
+Cetinje
 Nuuk
+Pierre
+Wādī Mūsá
+Wadi Musa
+Petra
 Belmopan
 Avarua
 Tórshavn
@@ -1559,28 +2431,64 @@ Torshavn
 Basseterre
 Pago Pago
 Basse-Terre
+Archaía Olympía
+Archaia Olympia
+Ancient Olympia
+Davos
 Mariehamn
 Kralendijk
+Chamonix-Mont-Blanc
+Chamonix
+Eisenstadt
 Road Town
+Montpelier
+City of London
 Saint George's
 St. George's
+Iqaluit
+Frobisher Bay
+Crystal Two
 Palikir
 Valletta
 Funafuti
 Saint-Pierre
 Gustavia
+Urbino
 Marigot
+Cortina d'Ampezzo
 Vaduz
+St. Moritz
+Saint Moritz
 San Marino
+Braunau am Inn
+Piran
+Assisi
 Cockburn Town
+San Gimignano
+Mikínai
+Mikinai
+Mycenae
+Mykines
+Delphi
 Longyearbyen
 Stanley
 Port Stanley
+Khankendi
+Stepanakert
 The Valley
 Ciudad de la Paz
+Samos
+Kato Vathy
+Limenas Vatheos
+Vathi
+Chornobyl
+Chernobyl
+Chornobyl'
 Philipsburg
 Filipsburg
 Flying Fish Cove
+Helgoland
+Heligoland
 Mata-Utu
 Yaren
 Hagåtña
@@ -1594,5 +2502,5 @@ Adamstown
 Port-aux-Français
 Port-aux-Francais
 Grytviken
+Angkor Thum
 Ngerulmud
-Plymouth

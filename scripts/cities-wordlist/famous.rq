@@ -1,0 +1,45 @@
+# Settlements with articles in at least 40 of these larger Wikipedias, which are mostly written by
+# people rather than bots, with their coordinates, English labels and GeoNames IDs. For
+# cities-wordlist.py: see there for how to run it.
+
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+SELECT ?item ?articles (SAMPLE(?c) AS ?coord) (SAMPLE(?label) AS ?en) (GROUP_CONCAT(DISTINCT ?gn; separator=" ") AS ?geonames) WHERE {
+  { SELECT ?item (COUNT(DISTINCT ?wiki) AS ?articles) WHERE {
+    VALUES ?wiki {
+    <https://en.wikipedia.org/> <https://de.wikipedia.org/> <https://fr.wikipedia.org/>
+    <https://es.wikipedia.org/> <https://it.wikipedia.org/> <https://ru.wikipedia.org/>
+    <https://ja.wikipedia.org/> <https://zh.wikipedia.org/> <https://pt.wikipedia.org/>
+    <https://pl.wikipedia.org/> <https://uk.wikipedia.org/> <https://nl.wikipedia.org/>
+    <https://ar.wikipedia.org/> <https://fa.wikipedia.org/> <https://he.wikipedia.org/>
+    <https://ko.wikipedia.org/> <https://tr.wikipedia.org/> <https://id.wikipedia.org/>
+    <https://cs.wikipedia.org/> <https://fi.wikipedia.org/> <https://hu.wikipedia.org/>
+    <https://no.wikipedia.org/> <https://ro.wikipedia.org/> <https://ca.wikipedia.org/>
+    <https://sr.wikipedia.org/> <https://ms.wikipedia.org/> <https://eu.wikipedia.org/>
+    <https://hy.wikipedia.org/> <https://da.wikipedia.org/> <https://bg.wikipedia.org/>
+    <https://el.wikipedia.org/> <https://sk.wikipedia.org/> <https://et.wikipedia.org/>
+    <https://lt.wikipedia.org/> <https://sl.wikipedia.org/> <https://hr.wikipedia.org/>
+    <https://gl.wikipedia.org/> <https://eo.wikipedia.org/> <https://th.wikipedia.org/>
+    <https://hi.wikipedia.org/> <https://bn.wikipedia.org/> <https://ta.wikipedia.org/>
+    <https://ka.wikipedia.org/> <https://kk.wikipedia.org/> <https://be.wikipedia.org/>
+    <https://az.wikipedia.org/> <https://lv.wikipedia.org/> <https://sq.wikipedia.org/>
+    <https://mk.wikipedia.org/> <https://is.wikipedia.org/> <https://af.wikipedia.org/>
+    <https://ur.wikipedia.org/> <https://ml.wikipedia.org/> <https://te.wikipedia.org/>
+    <https://mr.wikipedia.org/> <https://nn.wikipedia.org/> <https://simple.wikipedia.org/>
+    <https://la.wikipedia.org/> <https://cy.wikipedia.org/> <https://ga.wikipedia.org/>
+    <https://lb.wikipedia.org/> <https://bs.wikipedia.org/>
+    }
+    ?article schema:isPartOf ?wiki ; schema:about ?item .
+    ?item wdt:P625 [] .
+  } GROUP BY ?item HAVING (COUNT(DISTINCT ?wiki) >= 40) }
+  # a human settlement, municipality, city, town or village, or a kind of one
+  { SELECT DISTINCT ?item WHERE {
+    VALUES ?type { wd:Q486972 wd:Q15284 wd:Q515 wd:Q3957 wd:Q532 }
+    ?item wdt:P31/wdt:P279* ?type .
+  } }
+  ?item wdt:P625 ?c .
+  OPTIONAL { ?item rdfs:label ?label . FILTER(LANG(?label) = "en") }
+  OPTIONAL { ?item wdt:P1566 ?gn }
+} GROUP BY ?item ?articles
