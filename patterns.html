@@ -115,7 +115,7 @@
   #explain .g3 { color: #a8650a; }
   #explain .g4 { color: #7d3c98; }
   #explain .g5 { color: #117a65; }
-  #matches .word { display: block; cursor: pointer; }
+  #matches .word { display: block; cursor: pointer; break-inside: avoid; padding-left: 2ch; text-indent: -2ch; }
   #matches .word:hover { text-decoration: underline; }
 
   #matches-info { margin: 12px 0 6px; }
@@ -126,7 +126,9 @@
     columns: 12em;
     column-gap: 16px;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    white-space: pre;
+    /* a match wider than its column wraps rather than running into the next one */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
   #matches:not(:empty) { border: 1px solid #ccc; padding: 8px; }
   #matches.stale, #matches-info.stale, #explain.stale { opacity: 0.3; }
@@ -6307,6 +6309,7 @@
   var REGEX_DELAY = 300;
   var MATCH_CHUNK = 5e3;
   var SHOWN_MATCHES = 1e3;
+  var MAX_MATCH_COLUMN = 32;
   var LARGE_WORD_LIST = 2e4;
   var DEFAULTS = { pattern: "cow^ox", tests: "cowox\ncoxow\nocxow\ncwoox", view: "epsfree" };
   var $ = (id) => document.getElementById(id);
@@ -6832,6 +6835,8 @@
       span.textContent = word;
       return span;
     }));
+    const longest2 = Math.max(0, ...shown.map((word) => [...word].length));
+    $("matches").style.columnWidth = `max(12em, ${Math.min(longest2, MAX_MATCH_COLUMN) + 3}ch)`;
     $("matches").scrollTop = 0;
     if (found.length === 0) {
       $("matches-info").textContent = "No words match.";

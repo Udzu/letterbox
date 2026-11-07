@@ -32,6 +32,7 @@ const SLOW_VIEWS = new Set(["dfa", "min"]);
 const REGEX_DELAY = 300; // ms without typing before converting the pattern to a regex
 const MATCH_CHUNK = 5000; // words checked between pauses that keep the page responsive
 const SHOWN_MATCHES = 1000;
+const MAX_MATCH_COLUMN = 32; // characters, before a long match wraps
 const LARGE_WORD_LIST = 20000; // above this, patterns using @ take a second or more
 const DEFAULTS = { pattern: "cow^ox", tests: "cowox\ncoxow\nocxow\ncwoox", view: "epsfree" };
 
@@ -664,6 +665,10 @@ function showMatches(found) {
     span.textContent = word;
     return span;
   }));
+  // Columns as wide as the longest match (the font is monospaced), but at least 12em as before
+  // and at most MAX_MATCH_COLUMN characters; longer matches wrap, indented.
+  const longest = Math.max(0, ...shown.map((word) => [...word].length));
+  $("matches").style.columnWidth = `max(12em, ${Math.min(longest, MAX_MATCH_COLUMN) + 3}ch)`;
   $("matches").scrollTop = 0;
   if (found.length === 0) {
     $("matches-info").textContent = "No words match.";
