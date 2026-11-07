@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { compile as compileAst } from "../src/patterns/compile.js";
 import { compile, PatternError } from "../src/patterns/index.js";
-import { determinize, intersect, matches, minimize, removeEpsilons, reverse, withStateLimit } from "../src/patterns/nfa.js";
+import { determinize, equivalent, intersect, matches, minimize, removeEpsilons, reverse, withStateLimit } from "../src/patterns/nfa.js";
 import { matcher, parseWords, wordsAutomaton } from "../src/patterns/wordlist.js";
 import { randomAst, seededRandom } from "./helpers.js";
 
@@ -71,6 +71,33 @@ test("@ matches the word list", () => {
   yes("\\@", "@");
   yes("(?R1:@)&@", "tac"); // cat rotated right by 1
   assert.throws(() => compile("a|@"), (e) => e instanceof PatternError && /No word list loaded/.test(e.message) && e.span[0] === 2);
+});
+
+test("ignoring case throughout is like wrapping the pattern in (?i:...)", () => {
+  const words = wordsAutomaton(WORDS);
+  const caseless = (p) => compile(p, { words, caseless: true });
+  for (const [p, yes, no] of [
+    ["@", ["cat", "CATS", "Dog", "BIG cat"], ["cow", "big"]],
+    ["@&c.*", ["Cat", "CATS"], ["dog", "ACT"]],
+    ["(?<v>a)(?&v)b", ["aAb", "AaB"], ["ab"]],
+    ["!a", ["b", "aa"], ["a", "A"]],
+    ["\\W", ["-"], ["k", "K", "ſ"]],
+  ]) {
+    for (const s of yes) assert.ok(matches(caseless(p), s), `${p} should match ${s} ignoring case`);
+    for (const s of no) assert.ok(!matches(caseless(p), s), `${p} shouldn't match ${s} ignoring case`);
+    assert.ok(equivalent(caseless(p), compile(`(?i:${p})`, { words })), p);
+  }
+  // errors still point at what was typed
+  assert.throws(() => compile("ab(", { caseless: true }), (e) => e instanceof PatternError && e.span[0] === 2);
+});
+
+test("the word list ignoring case is made once, and is deterministic", () => {
+  const words = wordsAutomaton(WORDS);
+  const once = compile("@", { words, caseless: true });
+  assert.equal(compile("@", { words, caseless: true }), once);
+  assert.equal(compile("(?i:@)", { words }), once);
+  assert.ok(once.isDeterministic());
+  assert.equal(determinize(once), once);
 });
 
 test("the word list's automaton is reused rather than determinised again", () => {

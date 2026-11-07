@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { compile as compileAst, definitions } from "../src/patterns/compile.js";
 import { examples } from "../src/patterns/examples.js";
 import { explainer, layout, sliceSplit, TooComplexToExplain } from "../src/patterns/explain.js";
-import { compile, matches } from "../src/patterns/index.js";
+import { compile, explainer as explainPattern, matches } from "../src/patterns/index.js";
 import { format, parse } from "../src/patterns/parser.js";
 import { wordsAutomaton } from "../src/patterns/wordlist.js";
 import { randomAst, seededRandom } from "./helpers.js";
@@ -94,6 +94,15 @@ test("modifiers and names", () => {
   assert.deepEqual(rows("(?<v>ca)(?&v)t", "cacat"), ["cacat (?<v>ca)(?&v)t", "ca      (?<v>ca)", "  ca    (?&v)"]);
   assert.deepEqual(rows("(?i:CAT)", "cat"), ["cat (?i:CAT)"]);
   assert.deepEqual(rows("!a", "bb"), ["bb !a"]);
+});
+
+test("ignoring case throughout explains like (?i:...), without a row of its own", () => {
+  const explain = explainPattern("@@", { words, caseless: true });
+  const { rows } = explain("CarPet");
+  assert.deepEqual(rows.map((r) => [r.depth, r.label, [...r.chars.values()].join("")]), [
+    [0, "@@", "CarPet"], [1, "@", "Car"], [1, "@", "Pet"],
+  ]);
+  assert.equal(explainPattern("@@", { words })("CarPet"), null);
 });
 
 test("both operands of & are shown", () => {

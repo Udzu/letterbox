@@ -66,6 +66,7 @@
 
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
+  #ignore-case-label { white-space: nowrap; }
   #info { color: #666; }
   #toggle-diagram { margin-left: auto; }
   #toggle-diagram, #copy-link, #reset { font: inherit; font-size: 0.9rem; }
@@ -165,6 +166,7 @@
   <p id="restore" class="note" hidden></p>
 
   <div id="toolbar">
+    <label id="ignore-case-label" title="Match the whole pattern ignoring case, as if it were inside (?i:...)"><input type="checkbox" id="ignore-case"> Ignore case</label>
     <select id="view" aria-label="Diagram">
       <option value="raw">Thompson NFA</option>
       <option value="trimmed">Trimmed NFA</option>
@@ -175,7 +177,7 @@
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
     <button id="toggle-diagram" aria-controls="diagram" aria-expanded="true">Hide diagram</button>
     <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram settings">Copy link</button>
-    <button id="reset" title="Go back to the example pattern and test strings, and the default diagram (undo brings your text back)">Reset</button>
+    <button id="reset" title="Go back to the example pattern and test strings, matching case, and the default diagram (undo brings your text back)">Reset</button>
   </div>
   <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
@@ -255,7 +257,7 @@
       <tr class="heading"><th colspan="2">Names</th></tr>
       <tr><td><code>(?&lt;v&gt;P)</code> <code>(?&amp;v)</code></td><td>P, named v; P again (the same pattern, not the same text). <code>(?&lt;v&gt;P){0}</code> names P without matching it (<code>(?&lt;c&gt;[^aeiou])[aeiou](?&amp;c)</code> matches <i>cat</i>)</td></tr>
       <tr class="heading"><th colspan="2">Modifiers and transformations</th></tr>
-      <tr><td><code>(?i:P)</code></td><td>P ignoring case (<code>(?i:the)</code> matches <i>The</i> and <i>THE</i>)</td></tr>
+      <tr><td><code>(?i:P)</code></td><td>P ignoring case (<code>(?i:the)</code> matches <i>The</i> and <i>THE</i>); <i>Ignore case</i> does this for the whole pattern</td></tr>
       <tr><td><code>(?cn:P)</code> <code>(?c:P)</code> <code>(?c-:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25; in Atbash, with the alphabet reversed (<code>(?c1:hal)</code> matches <i>ibm</i>, <code>(?c-:hold)</code> matches <i>slow</i>)</td></tr>
       <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
@@ -4290,11 +4292,12 @@
   }
 
   // src/patterns/share.js
-  function shareQuery({ pattern, tests, view, hidden = false }, defaultView) {
+  function shareQuery({ pattern, tests, view, hidden = false, caseless = false }, defaultView) {
     const params = new URLSearchParams({ p: pattern });
     if (tests.trim() !== "") params.set("t", tests);
     if (view !== defaultView) params.set("v", view);
     if (hidden) params.set("h", "1");
+    if (caseless) params.set("i", "1");
     return `?${params}`;
   }
   function readShared(search2, views, defaultView) {
@@ -4306,7 +4309,8 @@
       pattern: pattern.replace(/[\r\n]/g, ""),
       tests: (params.get("t") ?? "").replace(/\r\n?/g, "\n"),
       view: view !== null && Object.hasOwn(views, view) ? view : defaultView,
-      hidden: params.get("h") === "1"
+      hidden: params.get("h") === "1",
+      caseless: params.get("i") === "1"
     };
   }
 
@@ -5540,8 +5544,16 @@
     if (!splitCache.has(split)) splitCache.set(split, minimize(compile(parse(split))));
     return splitCache.get(split);
   }
+  var caselessCache = /* @__PURE__ */ new WeakMap();
+  function caselessWords(words) {
+    if (!caselessCache.has(words)) caselessCache.set(words, determinize(mapLabels(words, caseClose)));
+    return caselessCache.get(words);
+  }
   function compile(ast, options = {}) {
-    if (ast.type === "words" && options.words && !options.caseless) return options.words;
+    if (options.words) {
+      if (ast.type === "words") return options.caseless ? caselessWords(options.words) : options.words;
+      if (ast.type === "modifier" && ast.flag === "i" && ast.node.type === "words") return caselessWords(options.words);
+    }
     if (!options.names) options = { ...options, names: definitions(ast) };
     const b = new Builder();
     const start = b.state();
@@ -5562,7 +5574,7 @@
         return embed(b, named(node2.name, options), from);
       case "words": {
         if (!options.words) throw new PatternError("No word list loaded: load one below to use @", ...node2.span);
-        return embed(b, options.caseless ? mapLabels(options.words, caseClose) : options.words, from);
+        return embed(b, options.caseless ? caselessWords(options.words) : options.words, from);
       }
       case "class": {
         const shorthands = (node2.shorthands ?? []).map((sh) => shorthand(sh, chars));
@@ -6252,9 +6264,9 @@
 
   // src/patterns/index.js
   var WORDS_FACTOR = 10;
-  function compile2(pattern, { words } = {}) {
+  function compile2(pattern, { words, caseless = false } = {}) {
     const normalized = pattern.normalize("NFC");
-    const ast = parse(normalized);
+    const ast = parseWith(normalized, caseless);
     const usesWords = words !== void 0 && containsWords(ast);
     const limit = stateLimit2(ast, words);
     try {
@@ -6267,12 +6279,16 @@
       throw e;
     }
   }
+  function parseWith(normalized, caseless) {
+    const ast = parse(normalized);
+    return caseless ? { type: "modifier", flag: "i", count: null, node: ast, span: [0, normalized.length] } : ast;
+  }
   function stateLimit2(ast, words) {
     return MAX_STATES + (words !== void 0 && containsWords(ast) ? WORDS_FACTOR * words.size : 0);
   }
-  function explainer2(pattern, { words, nfa: nfa2 } = {}) {
+  function explainer2(pattern, { words, nfa: nfa2, caseless = false } = {}) {
     const normalized = pattern.normalize("NFC");
-    const ast = parse(normalized);
+    const ast = parseWith(normalized, caseless);
     const limit = Math.max(stateLimit2(ast, words), nfa2 ? limitFor(nfa2) : 0);
     const explain2 = explainer(ast, { words, nfa: nfa2 });
     return (string) => withStateLimit(limit, () => {
@@ -6311,11 +6327,12 @@
   var SHOWN_MATCHES = 1e3;
   var MAX_MATCH_COLUMN = 32;
   var LARGE_WORD_LIST = 2e4;
-  var DEFAULTS = { pattern: "cow^ox", tests: "cowox\ncoxow\nocxow\ncwoox", view: "epsfree" };
+  var DEFAULTS = { pattern: "cow^ox", tests: "cowox\ncoxow\nocxow\ncwoox", view: "epsfree", caseless: false };
   var $ = (id) => document.getElementById(id);
   var patternInput = $("pattern");
   var testsInput = $("tests");
   var viewSelect = $("view");
+  var caselessBox = $("ignore-case");
   var vizReady = instance();
   var nfa = null;
   var compiled = null;
@@ -6338,7 +6355,8 @@
         pattern: unrestored ?? patternInput.value,
         tests: testsInput.value,
         view: viewSelect.value,
-        hidden: diagramHidden
+        hidden: diagramHidden,
+        caseless: caselessBox.checked
       }));
     } catch {
     }
@@ -6404,7 +6422,7 @@
     try {
       const words = atAutomaton();
       guarded(() => {
-        compiled = compile2(pattern, { words });
+        compiled = compile2(pattern, { words, caseless: caselessBox.checked });
         withStateLimit(limitFor(compiled), () => {
           $("lengths").textContent = describeLengths(matchLengths(compiled));
           if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
@@ -6528,7 +6546,7 @@
     const note = (message) => `<p class="note">${escapeHtml(message)}</p>`;
     if (text === void 0) return note("Put the cursor on a test string to see which part of the pattern matched each character.");
     if (explainFor?.compiled !== compiled) {
-      explainFor = { compiled, explain: explainer2(patternInput.value, { words: atAutomaton(), nfa: compiled }) };
+      explainFor = { compiled, explain: explainer2(patternInput.value, { words: atAutomaton(), nfa: compiled, caseless: caselessBox.checked }) };
     }
     let result;
     try {
@@ -6649,7 +6667,13 @@
     save();
   }
   function copyLink() {
-    const state = { pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value, hidden: diagramHidden };
+    const state = {
+      pattern: patternInput.value,
+      tests: testsInput.value,
+      view: viewSelect.value,
+      hidden: diagramHidden,
+      caseless: caselessBox.checked
+    };
     copyText($("copy-link"), location.href.replace(/[?#].*/s, "") + shareQuery(state, DEFAULTS.view));
   }
   function edit(box, text) {
@@ -6899,6 +6923,7 @@
   setBusy(false);
   testsInput.value = initial.tests;
   viewSelect.value = initial.view;
+  caselessBox.checked = initial.caseless === true;
   if (initial.hidden) toggleDiagram();
   function reset() {
     dismissRestore();
@@ -6908,6 +6933,7 @@
       edit(box, text);
     }
     viewSelect.value = DEFAULTS.view;
+    caselessBox.checked = DEFAULTS.caseless;
     showViewHelp();
     if (diagramHidden) toggleDiagram();
     $("examples-note").textContent = "";
@@ -6934,6 +6960,11 @@
   viewSelect.addEventListener("change", () => {
     showViewHelp();
     buildLarge = false;
+    schedule();
+  });
+  caselessBox.addEventListener("change", () => {
+    buildLarge = false;
+    showAllMatches = false;
     schedule();
   });
   $("add-examples").addEventListener("click", addExamples);

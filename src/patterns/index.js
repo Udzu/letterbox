@@ -19,10 +19,11 @@ export { NFA, TooManyStatesError, closure, trim, removeEpsilons, determinize, co
 // on top of the usual limit
 const WORDS_FACTOR = 10;
 
-// pattern string → NFA (throws PatternError); { words } is the word list's automaton, if any
-export function compile(pattern, { words } = {}) {
+// pattern string → NFA (throws PatternError); { words } is the word list's automaton, if any,
+// and { caseless } ignores case throughout, as if the pattern were inside (?i:...)
+export function compile(pattern, { words, caseless = false } = {}) {
   const normalized = pattern.normalize("NFC");
-  const ast = parse(normalized);
+  const ast = parseWith(normalized, caseless);
   const usesWords = words !== undefined && containsWords(ast);
   const limit = stateLimit(ast, words);
   try {
@@ -36,16 +37,24 @@ export function compile(pattern, { words } = {}) {
   }
 }
 
+// the pattern's syntax tree, inside an (?i:...) node spanning the whole pattern if caseless, so
+// that ignoring case throughout behaves exactly like the modifier
+function parseWith(normalized, caseless) {
+  const ast = parse(normalized);
+  return caseless ? { type: "modifier", flag: "i", count: null, node: ast, span: [0, normalized.length] } : ast;
+}
+
 function stateLimit(ast, words) {
   return MAX_STATES + (words !== undefined && containsWords(ast) ? WORDS_FACTOR * words.size : 0);
 }
 
 // A function that explains how a string matches the pattern (see explain.js), as rows for
-// display, or returns null if it doesn't match. { nfa } is the pattern's compiled NFA. It
-// throws TooComplexToExplain or TooManyStatesError if the explanation takes too long.
-export function explainer(pattern, { words, nfa } = {}) {
+// display, or returns null if it doesn't match. { nfa } is the pattern's compiled NFA, and
+// { caseless } is as for compile. It throws TooComplexToExplain or TooManyStatesError if the
+// explanation takes too long.
+export function explainer(pattern, { words, nfa, caseless = false } = {}) {
   const normalized = pattern.normalize("NFC");
-  const ast = parse(normalized);
+  const ast = parseWith(normalized, caseless);
   const limit = Math.max(stateLimit(ast, words), nfa ? limitFor(nfa) : 0);
   const explain = explainerAst(ast, { words, nfa });
   return (string) => withStateLimit(limit, () => {
