@@ -1,0 +1,335 @@
+# name: Countries
+# description: Sovereign states and dependent territories, with common alternative and former names.
+
+# ================
+# Sovereign states
+# ================
+
+# UN members
+Afghanistan
+Albania
+Algeria
+Andorra
+Angola
+Antigua and Barbuda
+Argentina
+Armenia
+Australia
+Austria
+Azerbaijan
+Bahamas
+Bahrain
+Bangladesh
+Barbados
+Belarus
+Belgium
+Belize
+Benin
+Bhutan
+Bolivia
+Bosnia and Herzegovina
+Botswana
+Brazil
+Brunei
+Bulgaria
+Burkina Faso
+Burundi
+Cabo Verde
+Cambodia
+Cameroon
+Canada
+Central African Republic
+Chad
+Chile
+China
+Colombia
+Comoros
+Congo
+Costa Rica
+Cote d'Ivoire
+Croatia
+Cuba
+Cyprus
+Czechia
+Denmark
+Djibouti
+Dominica
+Dominican Republic
+DR Congo
+Ecuador
+Egypt
+El Salvador
+Equatorial Guinea
+Eritrea
+Estonia
+Eswatini
+Ethiopia
+Fiji
+Finland
+France
+Gabon
+Gambia
+Georgia
+Germany
+Ghana
+Greece
+Grenada
+Guatemala
+Guinea
+Guinea-Bissau
+Guyana
+Haiti
+Honduras
+Hungary
+Iceland
+India
+Indonesia
+Iran
+Iraq
+Ireland
+Israel
+Italy
+Jamaica
+Japan
+Jordan
+Kazakhstan
+Kenya
+Kiribati
+Kuwait
+Kyrgyzstan
+Laos
+Latvia
+Lebanon
+Lesotho
+Liberia
+Libya
+Liechtenstein
+Lithuania
+Luxembourg
+Madagascar
+Malawi
+Malaysia
+Maldives
+Mali
+Malta
+Marshall Islands
+Mauritania
+Mauritius
+Mexico
+Micronesia
+Moldova
+Monaco
+Mongolia
+Montenegro
+Morocco
+Mozambique
+Myanmar
+Namibia
+Naoero
+Nepal
+Netherlands
+New Zealand
+Nicaragua
+Niger
+Nigeria
+North Korea
+North Macedonia
+Norway
+Oman
+Pakistan
+Palau
+Panama
+Papua New Guinea
+Paraguay
+Peru
+Philippines
+Poland
+Portugal
+Qatar
+Romania
+Russia
+Rwanda
+Saint Kitts and Nevis
+Saint Lucia
+Saint Vincent and the Grenadines
+Samoa
+San Marino
+Sao Tome and Principe
+Saudi Arabia
+Senegal
+Serbia
+Seychelles
+Sierra Leone
+Singapore
+Slovakia
+Slovenia
+Solomon Islands
+Somalia
+South Africa
+South Korea
+South Sudan
+Spain
+Sri Lanka
+Sudan
+Suriname
+Sweden
+Switzerland
+Syria
+Tajikistan
+Tanzania
+Thailand
+Timor-Leste
+Togo
+Tonga
+Trinidad and Tobago
+Tunisia
+Türkiye
+Turkmenistan
+Tuvalu
+UAE
+Uganda
+UK
+Ukraine
+Uruguay
+USA
+Uzbekistan
+Vanuatu
+Venezuela
+Vietnam
+Yemen
+Zambia
+Zimbabwe
+
+# UN observer states
+Palestine
+Vatican
+
+# UN non-members
+Cook Islands
+Kosovo
+Niue
+Taiwan
+Western Sahara
+
+# Common alternative names
+America
+Antigua
+Bosnia
+Britain
+Burma
+Cape Verde
+CAR
+Czech Republic
+DRC
+East Timor
+Eire
+Great Britain
+Holland
+Holy See
+Ivory Coast
+Korea
+Macedonia
+Nauru
+Saint Kitts
+Saint Vincent
+Sao Tome
+Swaziland
+Trinidad
+Turkey
+United Arab Emirates
+United Kingdom
+United States
+Vatican City
+
+# Former countries
+Czechoslovakia
+Persia
+Rhodesia
+Soviet Union
+USSR
+Yugoslavia
+Zaire
+
+# =====================
+# Dependent territories
+# =====================
+
+# Australia
+Christmas Island
+Cocos Islands
+Norfolk Island
+
+# China
+Hong Kong
+Macao
+Macau
+
+# Denmark
+Faroe Islands
+Greenland
+
+# Finland
+Aland
+
+# France
+French Guiana
+French Polynesia
+Guadeloupe
+Martinique
+Mayotte
+New Caledonia
+Reunion
+Saint Barthelemy
+Saint Martin
+Saint Pierre and Miquelon
+Wallis and Futuna
+
+# Netherlands
+Aruba
+Curacao
+Sint Maarten
+
+# New Zealand
+Tokelau
+
+# Norway
+Svalbard
+
+# Palestine
+Gaza
+West Bank
+
+# UK
+England
+Northern Ireland
+Scotland
+Wales
+Channel Islands
+Guernsey
+Isle of Man
+Jersey
+Anguilla
+Ascension
+Bermuda
+British Virgin Islands
+Cayman Islands
+Falkland Islands
+Gibraltar
+Montserrat
+Pitcairn Islands
+Saint Helena
+Tristan da Cunha
+Turks and Caicos Islands
+Virgin Islands
+
+# USA
+American Samoa
+Guam
+Northern Mariana Islands
+Northern Marianas
+Puerto Rico
+US Virgin Islands
+
+# other
+Antarctica
+

@@ -5,10 +5,15 @@
 // Each <!-- @inline path/to/entry.js --> marker in the template (path relative to the
 // template) is replaced by a <script> containing that module bundled with its imports,
 // so the output works offline and when saved as a single file.
+//
+// A <!-- @wordlists path/to/dir --> marker is replaced by a JSON <script id="lists-data">
+// holding the name, description and size of each .txt list in that directory, sorted by
+// name. The build fails if any list's header is missing or malformed (see src/wordlists/lists.js).
 
 import { build } from "esbuild";
-import { readFile, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { readList } from "../src/wordlists/lists.js";
 
 const [template, output] = process.argv.slice(2);
 if (!template || !output) {
@@ -34,7 +39,35 @@ for (const [, entry] of html.matchAll(MARKER)) {
   bundles.set(entry, result.outputFiles[0].text.replace(/<\/script/gi, "<\\/script"));
 }
 
+const LISTS_MARKER = /<!-- @wordlists (\S+) -->/g;
+const lists = new Map();
+for (const [, dir] of html.matchAll(LISTS_MARKER)) {
+  const full = path.join(path.dirname(template), dir);
+  const files = (await readdir(full)).filter((file) => file.endsWith(".txt"));
+  const entries = [];
+  for (const file of files) {
+    try {
+      entries.push({ file, ...readList(await readFile(path.join(full, file), "utf8")) });
+    } catch (e) {
+      console.error(`${path.join(full, file)}: ${e.message}`);
+      process.exit(1);
+    }
+  }
+  entries.sort((a, b) => a.name.localeCompare(b.name, "en"));
+  for (let i = 1; i < entries.length; i++) {
+    if (entries[i].name === entries[i - 1].name) {
+      console.error(`${entries[i - 1].file} and ${entries[i].file} have the same name, ${entries[i].name}`);
+      process.exit(1);
+    }
+  }
+  // escaping < keeps a </script inside a name or description from ending the script early
+  const json = JSON.stringify(entries, null, 2).replace(/</g, "\\u003c");
+  lists.set(dir, `<script type="application/json" id="lists-data">\n${json}\n</script>`);
+}
+
 const header = `<!-- Generated from ${path.relative(process.cwd(), template)} by scripts/build.mjs: do not edit -->\n`;
-const out = html.replace(MARKER, (_, entry) => `<script>\n${bundles.get(entry)}</script>`);
+const out = html
+  .replace(MARKER, (_, entry) => `<script>\n${bundles.get(entry)}</script>`)
+  .replace(LISTS_MARKER, (_, dir) => lists.get(dir));
 await writeFile(output, out.replace(/^(<!doctype html>\n)?/i, (doctype) => doctype + header));
 console.log(`Wrote ${output} (${Math.round(out.length / 1024)} KB)`);

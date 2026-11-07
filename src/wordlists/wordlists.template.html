@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wordlists</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main { max-width: 900px; margin: 0 auto; }
+  .intro { margin: 0 0 24px; color: #666; }
+  .intro a { color: #06c; }
+  #lists { list-style: none; margin: 0; padding: 0; }
+  #lists li { padding: 12px 0; border-bottom: 1px solid #ddd; }
+  #lists li:last-child { border-bottom: none; }
+  .title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .name { font-size: 1.2rem; font-weight: 600; }
+  .size { color: #888; margin-right: 8px; }
+  .loaded { font-size: 0.85rem; color: #080; border: 1px solid #080; border-radius: 4px; padding: 0 4px; }
+  .description { margin: 4px 0 0; color: #444; }
+  .status { margin: 4px 0 0; color: #666; font-size: 0.95rem; }
+  .status:empty { display: none; }
+  .status.error { color: #d00; }
+  nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <b>Wordlists</b> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
+<main>
+  <p class="intro">Word lists for the <a href="anagrams.html">Anagrams</a>, <a href="pangrams.html">Pangrams</a> and <a href="patterns.html">Patterns</a> pages. Load one to use it on those pages straight away (it replaces any list already loaded), or download it as a text file to load later. Unlike the other pages, this one needs an internet connection.</p>
+  <ul id="lists"></ul>
+</main>
+<!-- @wordlists ../../wordlists -->
+<!-- @inline page.js -->
+</body>
+</html>
