@@ -1,0 +1,320 @@
+# The composers in the Composers word list, for composers-wordlist.py: each line is a Wikidata
+# item, then the names to list for it, separated by commas (most often just the surname), with
+# the composer's full name as a comment. Composers who share a surname each have a line, but the
+# surname is only listed once.
+
+Q189544: Adam                       # Adolphe Adam
+Q84114: Adams                       # John Adams
+Q185812: Albéniz                    # Isaac Albéniz
+Q174606: Albinoni                   # Tomaso Albinoni
+Q318840: Alfvén                     # Hugo Alfvén
+Q217068: Alkan                      # Charles-Valentin Alkan
+Q17575: Dallapiccola                # Luigi Dallapiccola
+Q216695: Allegri                    # Gregorio Allegri
+Q366756: Anderson                   # Leroy Anderson
+Q137739: Antheil                    # George Antheil
+Q313970: Arensky                    # Anton Arensky
+Q311384: Dargomyzhsky               # Alexander Dargomyzhsky
+Q309709: Arne                       # Thomas Arne
+Q313554: Arnold                     # Malcolm Arnold
+Q157672: Auber                      # Daniel François Esprit Auber
+Q139223: Davies                     # Peter Maxwell Davies
+Q318518: Babbitt                    # Milton Babbitt
+Q230978: Bacewicz                   # Grażyna Bacewicz
+Q76428: Bach                        # Carl Philipp Emanuel Bach
+Q106641: Bach                       # Johann Christian Bach
+Q57225: Bach                        # Johann Christoph Friedrich Bach
+Q1339: Bach                         # Johann Sebastian Bach
+Q107277: Bach                       # Wilhelm Friedemann Bach
+Q185040: Balakirev                  # Mily Alexeyevich Balakirev
+Q216870: Barber                     # Samuel Barber
+Q83326: Bartók                      # Béla Bartók
+Q143198: Bax                        # Arnold Bax
+Q235699: Beach                      # Amy Beach
+Q255: Beethoven                     # Ludwig van Beethoven
+Q170209: Bellini                    # Vincenzo Bellini
+Q78475: Berg                        # Alban Berg
+Q221450: Berio                      # Luciano Berio
+Q1151: Berlioz                      # Hector Berlioz
+Q152505: Bernstein                  # Leonard Bernstein
+Q217044: Berwald                    # Franz Berwald
+Q153455: Biber                      # Heinrich Biber
+Q56158: Bizet                       # Georges Bizet
+Q123234: Bloch                      # Ernest Bloch
+Q189766: Boccherini                 # Luigi Boccherini
+Q109875: Boieldieu                  # François Adrien Boieldieu
+Q219491: Boito                      # Arrigo Boito
+Q164004: Borodin                    # Alexander Borodin
+Q316505: Bortniansky                # Dmytro Bortnianskyi
+Q230412: Boulanger                  # Lili Boulanger
+Q156193: Boulez                     # Pierre Boulez
+Q7294: Brahms                       # Johannes Brahms
+Q150767: Britten                    # Benjamin Britten
+Q106434: Bruch                      # Max Bruch
+Q81752: Bruckner                    # Anton Bruckner
+Q219551: Busoni                     # Ferruccio Busoni
+Q153637: Buxtehude                  # Dietrich Buxtehude
+Q208375: Byrd                       # William Byrd
+Q215308: Caccini                    # Giulio Caccini
+Q180727: Cage                       # John Cage
+Q318835: Carter                     # Elliott Carter
+Q377558: Castelnuovo-Tedesco        # Mario Castelnuovo-Tedesco
+Q108062: Cavalli                    # Francesco Cavalli
+Q313374: Chabrier                   # Emmanuel Chabrier
+Q236438: Chaminade                  # Cécile Chaminade
+Q55524: Charpentier                 # Marc-Antoine Charpentier
+Q312368: Chausson                   # Ernest Chausson
+Q20721: Cherubini                   # Luigi Cherubini
+Q1268: Chopin                       # Frédéric Chopin
+Q191775: Cimarosa                   # Domenico Cimarosa
+Q297137: Čiurlionis                 # Mikalojus Konstantinas Čiurlionis
+Q193673: Clementi                   # Muzio Clementi
+Q192185: Copland                    # Aaron Copland
+Q164475: Corelli                    # Arcangelo Corelli
+Q450620: Corigliano                 # John Corigliano
+Q50186: Couperin                    # François Couperin
+Q434610: Cowell                     # Henry Cowell
+Q208546: Cui                        # César Cui
+Q215333: Czerny                     # Carl Czerny
+Q4700: Debussy                      # Claude Debussy
+Q83182: Einaudi                     # Ludovico Einaudi
+Q78704: Eisler                      # Hanns Eisler
+Q179631: Elgar                      # Edward Elgar
+Q207951: Delibes                    # Léo Delibes
+Q312698: Delius                     # Frederick Delius
+Q77177: Enescu                      # Georges Enescou
+Q316820: Erkel                      # Ferenc Erkel
+Q193283: Falla                      # Manuel de Falla
+Q104919: Fauré                      # Gabriel Fauré
+Q316427: Feldman                    # Morton Feldman
+Q209684: Field                      # John Field
+Q50187: Franck                      # César Franck
+Q209212: Frescobaldi                # Girolamo Frescobaldi
+Q311378: Fux                        # Johann Joseph Fux
+Q34624: Gabrieli                    # Giovanni Gabrieli
+Q154632: Gade                       # Niels Gade
+Q208338: Galuppi                    # Baldassare Galuppi
+Q123829: Gershwin                   # George Gershwin
+Q192958: Gesualdo                   # Carlo Gesualdo
+Q311913: Gibbons                    # Orlando Gibbons
+Q311389: Ginastera                  # Alberto Ginastera
+Q294826: Giordano                   # Umberto Giordano
+Q189729: Glass                      # Philip Glass
+Q25872: Glazunov                    # Alexander Glazounov
+Q316795: Glière                     # Reinhold Glière
+Q181885: Glinka                     # Michael Glinka
+Q130759: Gluck                      # Christoph Willibald von Gluck
+Q235077: Goldsmith                  # Jerry Goldsmith
+Q294568: Górecki                    # Henryk Mikolaj Górecki
+Q313667: Gossec                     # François Joseph Gossec
+Q1352656: Gould                     # Morton Gould
+Q180278: Gounod                     # Charles Gounod
+Q318354: Grainger                   # Percy Grainger
+Q294225: Granados                   # Enrique Granados
+Q210962: Grétry                     # André Grétry
+Q80621: Grieg                       # Edvard Grieg
+Q165668: Gubaidulina                # Sofia Gubaidulina
+Q432938: Hahn                       # Reynaldo Hahn
+Q317397: Hajibeyov                  # Uzeyir Hajibeyov
+Q313917: Halévy                     # Fromental Halévy
+Q7302: Handel                       # George Frideric Handel
+Q164732: Hasse                      # Johann Adolf Hasse
+Q7349: Haydn                        # Joseph Haydn
+Q490381: Haydn                      # Michael Haydn
+Q57286: Hensel                      # Fanny Mendelssohn
+Q76915: Henze                       # Hans Werner Henze
+Q1275145: Herbert                   # Victor Herbert
+Q70991: Hildegard                   # Hildegard of Bingen
+Q57244: Hindemith                   # Paul Hindemith
+Q275900: Hisaishi                   # Joe Hisaishi
+Q200867: Holst                      # Gustav Holst
+Q123164: Honegger                   # Arthur Honegger
+Q151953: Hummel                     # Johann Nepomuk Hummel
+Q55010: Humperdinck                 # Engelbert Humperdinck
+Q296828: Ibert                      # Jacques Ibert
+Q313584: d'Indy                     # Vincent d'Indy
+Q78522: Dittersdorf                 # Carl Ditters von Dittersdorf
+Q309648: Ives                       # Charles Ives
+Q184933: Janáček                    # Leoš Janáček
+Q333168: Jenkins                    # Karl Jenkins
+Q191499: Joplin                     # Scott Joplin
+Q143100: Josquin                    # Josquin des Prez
+Q153776: Kabalevsky                 # Dmitry Borisovich Kabalevsky
+Q178293: Kagel                      # Mauricio Kagel
+Q348652: Kancheli                   # Giya Kancheli
+Q152293: Khachaturian               # Aram Khachaturian
+Q367830: Khrennikov                 # Tikhon Khrennikov
+Q319777: Kilar                      # Wojciech Kilar
+Q153008: Kodály                     # Zoltán Kodály
+Q313371: Korngold                   # Erich Wolfgang Korngold
+Q78517: Kreisler                    # Fritz Kreisler
+Q158436: Krenek                     # Ernst Krenek
+Q48184: Kurtág                      # György Kurtág
+Q224002: Lalo                       # Edouard Lalo
+Q154792: Lassus                     # Orlande de Lassus
+Q191917: Lehár                      # Franz Lehár
+Q189015: Leoncavallo                # Ruggero Leoncavallo
+Q467914: Leontovych                 # Mykola Leontovych
+Q504426: Liatoshynsky               # Borys Liatoshynsky
+Q154331: Ligeti                     # György Ligeti
+Q41309: Liszt                       # Franz Liszt
+Q180975: Lloyd Webber               # Andrew Lloyd Webber
+Q124772: Locatelli                  # Pietro Locatelli
+Q158899: Loewe                      # Carl Loewe
+Q154203: Lortzing                   # Albert Lortzing
+Q1192: Lully                        # Jean-Baptiste Lully
+Q156472: Lutosławski                # Witold Lutosławski
+Q348282: Lyadov                     # Anatoly Lyadov
+Q172425: Lysenko                    # Mykola Lysenko
+Q450467: MacDowell                  # Edward MacDowell
+Q200580: Machaut                    # Guillaume de Machaut
+Q7304: Mahler                       # Gustav Mahler
+Q213519: Marais                     # Marin Marais
+Q160063: Marschner                  # Heinrich August Marschner
+Q223258: Martinů                    # Bohuslav Martinů
+Q181894: Mascagni                   # Pietro Mascagni
+Q194436: Massenet                   # Jules Massenet
+Q365574: Medtner                    # Nikolai Medtner
+Q364020: Méhul                      # Étienne Méhul
+Q46096: Mendelssohn                 # Felix Mendelssohn
+Q270662: Menotti                    # Gian Carlo Menotti
+Q313980: Mercadante                 # Saverio Mercadante
+Q151593: Messiaen                   # Olivier Messiaen
+Q105237: Meyerbeer                  # Giacomo Meyerbeer
+Q186264: Milhaud                    # Darius Milhaud
+Q434821: Minkus                     # Ludwig Minkus
+Q217613: Moniuszko                  # Stanisław Moniuszko
+Q53068: Monteverdi                  # Claudio Monteverdi
+Q322427: Moszkowski                 # Moritz Moszkowski
+Q156280: Mozart                     # Leopold Mozart
+Q254: Mozart                        # Wolfgang Amadeus Mozart
+Q132682: Mussorgsky                 # Modest Petrovich Mussorgsky
+Q312778: Myaskovsky                 # Nikolai Myaskovsky
+Q313974: Mysliveček                 # Josef Mysliveček
+Q154602: Nicolai                    # Otto Nicolai
+Q205139: Nielsen                    # Carl Nielsen
+Q160451: Nono                       # Luigi Nono
+Q313639: Nyman                      # Michael Nyman
+Q143059: Ockeghem                   # Johannes Ockeghem
+Q41555: Offenbach                   # Jacques Offenbach
+Q78532: Dohnányi                    # Ernő Dohnányi
+Q101698: Donizetti                  # Gaetano Donizetti
+Q44086: Orff                        # Carl Orff
+Q207355: Dowland                    # John Dowland
+Q76485: Pachelbel                   # Johann Pachelbel
+Q191957: Paderewski                 # Ignacy Jan Paderewski
+Q66075: Paganini                    # Niccolò Paganini
+Q202303: Paisiello                  # Giovanni Paisiello
+Q179277: Palestrina                 # Giovanni Pierluigi da Palestrina
+Q354250: Parry                      # Hubert Parry
+Q189534: Pärt                       # Arvo Pärt
+Q153469: Penderecki                 # Krzysztof Penderecki
+Q185312: Pergolesi                  # Giovanni Battista Pergolesi
+Q205519: Peri                       # Jacopo Peri
+Q57358: Pfitzner                    # Hans Pfitzner
+Q172505: Piazzolla                  # Astor Piazzolla
+Q310687: Piccinni                   # Niccolò Piccinni
+Q207390: Ponchielli                 # Amilcare Ponchielli
+Q312788: Porpora                    # Nicola Porpora
+Q191408: Poulenc                    # Francis Poulenc
+Q108278: Praetorius                 # Michael Praetorius
+Q49481: Prokofiev                   # Sergei Prokofiev
+Q7311: Puccini                      # Giacomo Puccini
+Q9695: Purcell                      # Henry Purcell
+Q77212: Quantz                      # Johann Joachim Quantz
+Q131861: Rachmaninoff, Rachmaninov  # Sergei Rachmaninoff
+Q1145: Rameau                       # Jean-Philippe Rameau
+Q433592: Rautavaara                 # Einojuhani Rautavaara
+Q1178: Ravel                        # Maurice Ravel
+Q57139: Reger                       # Max Reger
+Q262791: Reich                      # Steve Reich
+Q311387: Reicha                     # Anton Reicha
+Q159569: Reinecke                   # Carl Reinecke
+Q243837: Respighi                   # Ottorino Respighi
+Q365243: Riley                      # Terry Riley
+Q93227: Rimsky-Korsakov             # Nikolai Rimsky-Korsakov
+Q151084: Rodrigo                    # Joaquín Rodrigo
+Q733299: Rorem                      # Ned Rorem
+Q9726: Rossini                      # Gioachino Rossini
+Q214665: Rota                       # Nino Rota
+Q313376: Roussel                    # Albert Roussel
+Q319396: Rózsa                      # Miklós Rózsa
+Q87567: Rubinstein                  # Anton Rubinstein
+Q241432: Saariaho                   # Kaija Saariaho
+Q150445: Saint-Saëns                # Camille Saint-Saëns
+Q51088: Salieri                     # Antonio Salieri
+Q204503: Sarasate                   # Pablo de Sarasate
+Q187192: Satie                      # Erik Satie
+Q183087: Scarlatti                  # Alessandro Scarlatti
+Q167837: Scarlatti                  # Domenico Scarlatti
+Q158078: Schnittke                  # Alfred Schnittke
+Q154770: Schoenberg                 # Arnold Schoenberg
+Q7312: Schubert                     # Franz Schubert
+Q132232: Schumann                   # Clara Schumann
+Q7351: Schumann                     # Robert Schumann
+Q153643: Schütz                     # Heinrich Schütz
+Q185647: Scriabin                   # Alexander Scriabin
+Q165706: Shchedrin                  # Rodion Shchedrin
+Q80135: Shostakovich                # Dmitri Shostakovich
+Q45682: Sibelius                    # Jean Sibelius
+Q48173: Smetana                     # Bedřich Smetana
+Q236599: Smyth                      # Ethel Smyth
+Q254110: Sor                        # Fernando Sor
+Q295935: Sousa                      # John Philip Sousa
+Q57226: Spohr                       # Louis Spohr
+Q168485: Spontini                   # Gaspare Spontini
+Q156033: Stamitz                    # Johann Stamitz
+Q368264: Stanford                   # Charles Villiers Stanford
+Q350704: Steiner                    # Max Steiner
+Q154556: Stockhausen                # Karlheinz Stockhausen
+Q184178: Strauss                    # Johann Strauss I
+Q83309: Strauss                     # Johann Strauss II
+Q312941: Strauss                    # Joseph Strauss
+Q13894: Strauss                     # Richard Strauss
+Q7314: Stravinsky                   # Igor Stravinsky
+Q312700: Suk                        # Josef Suk
+Q212692: Sullivan                   # Arthur Sullivan
+Q310431: Suppé                      # Franz von Suppè
+Q310518: Süssmayr                   # Franz Xaver Süssmayr
+Q467738: Sviridov                   # Georgy Sviridov
+Q110294: Sweelinck                  # Jan Pieterszoon Sweelinck
+Q295400: Szymanowski                # Karol Szymanowski
+Q155467: Takemitsu                  # Tōru Takemitsu
+Q207789: Tallis                     # Thomas Tallis
+Q314176: Tan Dun                    # Tan Dun
+Q335006: Taneyev                    # Sergei Ivanovich Taneyev
+Q313372: Tárrega                    # Francisco Tárrega
+Q108555: Tartini                    # Giuseppe Tartini
+Q317350: Tavener                    # John Tavener
+Q7315: Tchaikovsky                  # Pyotr Ilyich Tchaikovsky
+Q75854: Telemann                    # Georg Philipp Telemann
+Q151976: Theodorakis                # Mikis Theodorakis
+Q297717: Thomas                     # Ambroise Thomas
+Q207532: Torelli                    # Giuseppe Torelli
+Q207717: Dufay                      # Guillaume Dufay
+Q215556: Dukas                      # Paul Dukas
+Q215134: Dunstaple                  # John Dunstaple
+Q315879: Dupré                      # Marcel Dupré
+Q318829: Dutilleux                  # Henri Dutilleux
+Q57247: Varèse                      # Edgard Varèse
+Q207947: Vaughan Williams           # Ralph Vaughan Williams
+Q7317: Verdi                        # Giuseppe Verdi
+Q215128: Victoria                   # Tomás Luis de Victoria
+Q299669: Vierne                     # Louis Vierne
+Q312790: Vieuxtemps                 # Henri Vieuxtemps
+Q203514: Villa-Lobos                # Heitor Villa-Lobos
+Q1340: Vivaldi                      # Antonio Vivaldi
+Q7298: Dvořák                       # Antonín Dvořák
+Q1511: Wagner                       # Richard Wagner
+Q310939: Walton                     # William Walton
+Q154812: Weber                      # Carl Maria von Weber
+Q190933: Webern                     # Anton Webern
+Q55004: Weill                       # Kurt Weill
+Q919127: Weinberg                   # Mieczysław Weinberg
+Q215161: Widor                      # Charles-Marie Widor
+Q272184: Wieniawski                 # Henri Wieniawski
+Q131285: Williams                   # John Williams
+Q215747: Wolf                       # Hugo Wolf
+Q152880: Xenakis                    # Iannis Xenakis
+Q157777: Zelenka                    # Jan Dismas Zelenka
+Q78524: Zemlinsky                   # Alexander von Zemlinsky

@@ -28,6 +28,7 @@
   .size { color: #888; margin-right: 8px; }
   /* topic badges, in colours apart from the green and blue of the loaded and @ rows */
   .badge { padding: 1px 8px; border-radius: 10px; font-size: 0.8rem; }
+  .badge.culture { background: #fbe4ec; color: #9c2155; }
   .badge.geography { background: #fcecd9; color: #8a4b00; }
   .badge.science { background: #efe6fa; color: #5b2f94; }
   /* pressed buttons are coloured like the shading of their rows */
@@ -99,6 +100,14 @@
     "size": 2501
   },
   {
+    "file": "composers.txt",
+    "name": "Classical composers",
+    "description": "Surnames of classical composers, most prominent first. Names with accents are followed by their unaccented forms.",
+    "kind": "culture",
+    "attribution": "Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.",
+    "size": 333
+  },
+  {
     "file": "countries.txt",
     "name": "Countries",
     "description": "Sovereign states and dependent territories, with common alternative and former names.",
@@ -126,7 +135,7 @@
   // src/wordlists/lists.js
   var REQUIRED = ["name", "description", "kind"];
   var KEYS = [...REQUIRED, "attribution"];
-  var TOPICS = ["geography", "science"];
+  var TOPICS = ["culture", "geography", "science"];
   var KINDS = ["general", ...TOPICS];
   function stripList(text) {
     const words = text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !line.startsWith("#"));
