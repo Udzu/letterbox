@@ -74,8 +74,8 @@ Ingres
 Ernst
 Braque
 Rivera
-Cranach
 O'Keeffe
+Cranach
 Malevich
 Seurat
 Poussin
@@ -113,8 +113,8 @@ Lichtenstein
 Hopper
 Brâncuși
 Brancusi
-Cassatt
 Rothko
+Cassatt
 Tiepolo
 Daumier
 Whistler
@@ -134,8 +134,8 @@ Audubon
 Perugino
 Rossetti
 Hundertwasser
-Millais
 Hockney
+Millais
 Masaccio
 Sisley
 Sargent
@@ -144,9 +144,9 @@ Gainsborough
 Millet
 Dix
 Muybridge
-Arp
 Abramović
 Abramovic
+Arp
 Fragonard
 Banksy
 Van der Weyden
@@ -165,8 +165,8 @@ Ghirlandaio
 Cartier-Bresson
 Giorgione
 Reni
-Arcimboldo
 Basquiat
+Arcimboldo
 Cole
 Vasnetsov
 Rublev
@@ -175,9 +175,9 @@ Ribera
 Boccioni
 Lorrain
 Redon
+Gentileschi
 Thorvaldsen
 Grosz
-Gentileschi
 Praxiteles
 Nolde
 Prokudin-Gorskii
@@ -189,18 +189,18 @@ Claudel
 Liebermann
 Bourgeois
 Picabia
-Merian
-Rauschenberg
 Rockwell
+Rauschenberg
+Merian
 Kollwitz
 Spitzweg
 Moreau
 Verrocchio
 Roerich
-Carracci
 Hirst
-Le Brun
+Carracci
 Freud
+Le Brun
 Lange
 Cimabue
 Dufy
@@ -213,13 +213,13 @@ Siqueiros
 Tàpies
 Tapies
 Ravi Varma
-Correggio
 Waterhouse
+Correggio
 Bierstadt
 Van Doesburg
 Haring
-Dahl
 Memling
+Dahl
 Ghiberti
 Fouquet
 Church
@@ -228,23 +228,23 @@ Kiefer
 Steen
 Saint Phalle
 Zorn
-Steichen
 Johns
+Steichen
 Wood
-Talbot
-Capa
 Kusama
+Capa
+Talbot
 Caillebotte
 Wyspiański
 Wyspianski
 Alma-Tadema
-Burne-Jones
 Ai Weiwei
+Burne-Jones
 Shishkin
 Homer
 Witkiewicz
-Edelfelt
 Lissitzky
+Edelfelt
 Lippi
 Beckmann
 Trumbull
@@ -264,70 +264,72 @@ Grunewald
 Albers
 Schwitters
 Larsson
-Doisneau
 Bartholdi
+Doisneau
 Serra
 Demnig
 French
-Tissot
-Bronzino
 Beardsley
+Tissot
 Levitan
+Bronzino
 Salgado
 Guercino
 Orozco
 Oldenburg
-La Tour
 Klein
+La Tour
 Corinth
-Metzinger
 Kuniyoshi
-Leutze
-Tatlin
+Metzinger
 Martin
+Tatlin
+Leutze
 Giulio Romano
 Surikov
 Dubuffet
+Noguchi
 West
 Jordaens
-Noguchi
 Koons
 Chardin
 Lysippos
 Moholy-Nagy
-Eakins
 Paik
+Eakins
 Runge
 Giordano
 Vuillard
-Menzel
 Vasarely
-Gude
+Menzel
 Utamaro
+Gude
 Macke
 Vernet
 Soutine
-Pontormo
 Giger
+Pontormo
 Antonello
-Goncharova
 Polykleitos
-Stuart
+Goncharova
 Balthus
-Cortona
+Stuart
 Lawrence
+Cortona
 Hunt
+Christo
+Jeanne-Claude
 Wright
 Mengs
-Kramskoi
 Mapplethorpe
-Pisanello
+Kramskoi
 Emin
+Pisanello
 Sherman
 Kustodiev
 Kapoor
-Girodet
 Vereshchagin
+Girodet
 Vallotton
 Ruisdael
 Vrubel
@@ -337,14 +339,14 @@ Rigaud
 Denis
 Martini
 Leighton
-Vigeland
 Gill
+Vigeland
 Andrea del Sarto
 Kauffmann
 Maillol
 Bellotto
-Kneller
 Carrington
+Kneller
 Cabanel
 Scheffer
 Puvis de Chavannes
@@ -354,8 +356,8 @@ Tiffany
 Barlach
 Tenniel
 Delaroche
-Gros
 Yoshitoshi
+Gros
 Tinguely
 Lempicka
 Giambologna
@@ -364,23 +366,23 @@ Gerard
 Kentridge
 Newton
 Rodchenko
-Honthorst
 Miller
+Honthorst
 Tropinin
-Signorelli
 Benois
+Signorelli
 Wyeth
+Kuindzhi
 Chassériau
 Chasseriau
-Kuindzhi
-Altdorfer
 Hodler
+Altdorfer
 Metsys
 Delvaux
 Pinturicchio
+Perov
 Rude
 Russolo
-Perov
 Bourdelle
 Utrillo
 Domenichino
@@ -391,17 +393,18 @@ Champaigne
 Ciurlionis
 Balla
 Bernard
-Tidemand
+Limbourg
 Bazille
+Tidemand
 Stuck
 Krohg
 Lin
 Gormley
 Murakami
 Bakst
-Chicago
 Fontana
 Bonheur
+Chicago
 Polenov
 David d'Angers
 Schmidt-Rottluff
@@ -417,64 +420,64 @@ Krøyer
 Kroyer
 Soulages
 Malczewski
-Feininger
 Breker
 af Klint
+Feininger
 Weston
-Pollaiuolo
 Hepworth
+Pollaiuolo
 Sebastiano del Piombo
 Gozzoli
+Maar
 Kupka
 Rops
-Maar
-Bellows
 Husain
+Bellows
 Teniers
-Greuze
 Corbijn
+Greuze
+Avedon
 Höch
 Hoch
-Avedon
 Ardon
-Palmer
-Itten
 Modersohn-Becker
+Itten
+Palmer
 Pozzo
 Bourke-White
 Stella
 Okamoto
-Jawlensky
 Beaton
-Eckersberg
+Jawlensky
 Schongauer
+Eckersberg
 Parks
 Rouault
-Gleizes
-Korovin
 Sharaku
-Bonington
+Korovin
+Gleizes
 Valadon
+Bonington
 LeWitt
 Mukhina
 Campin
-Lhote
 Curtis
 Remington
+Lhote
 Masson
 Portinari
-Gillray
 Anguissola
-Della Robbia
+Gillray
 Tanguy
 Roslin
-Wiertz
+Della Robbia
 Kubin
 Polke
-Nachtwey
+Wiertz
 Rosa
-Lorenzetti
 Fantin-Latour
+Lorenzetti
+Nachtwey
 Vouet
 Callot
 Brown
@@ -489,8 +492,8 @@ Nesterov
 Baldung
 Frankenthaler
 Castiglione
-Van der Goes
 Matta
+Van der Goes
 Ivanov
 Riemenschneider
 Newman
@@ -499,24 +502,24 @@ Catlin
 Gorky
 Twombly
 Crivelli
-Fortuny
 Epstein
+Fortuny
+Arbus
 Rusiñol
 Rusinol
-Veit
 Kunisada
-Hartley
 Atget
-Arbus
+Hartley
+Veit
 Tamayo
 Hollar
 Casas
 Guardi
-Oteiza
-Stoss
 Turrell
-Kiprensky
+Stoss
+Oteiza
 Cameron
+Kiprensky
 Nauman
 Hamilton
 Barceló
@@ -532,12 +535,12 @@ Varo
 Marquet
 Heckel
 Segantini
-Klinger
-Daubigny
 Foujita
+Klinger
 Judd
-Bewick
+Daubigny
 Van Dongen
+Bewick
 Dou
 Quentin de La Tour
 Pisano
@@ -554,9 +557,9 @@ Severini
 Copley
 Monti
 Francesco di Giorgio
-Lucas van Leyden
-Borglum
 Gilot
+Borglum
+Lucas van Leyden
 Tsereteli
 Kittelsen
 Jorn
@@ -564,8 +567,8 @@ César
 Cesar
 Melozzo
 Carr
-Schlemmer
 Lowry
+Schlemmer
 Lely
 De Hooch
 Evans
@@ -573,40 +576,40 @@ Zhao Mengfu
 Guttuso
 Boldini
 Rowlandson
-Milles
 Beksiński
 Beksinski
+Milles
 Werner
 Bloch
 Goltzius
 Panini
 Robert
-Crane
-Hine
-Ter Borch
 Goldin
+Hine
+Crane
+Ter Borch
 Borovikovsky
 Saryan
 Lam
 Makovsky
 Bouts
-Beato
 Topor
+Beato
 Münter
 Munter
 Close
-Van Goyen
 Collier
 Pirosmani
+Van Goyen
+Chihuly
 Pyle
 Sérusier
 Serusier
-Chihuly
 Cahun
 Munari
 Laurens
-Moser
 Korda
+Moser
 Mi Fu
 Castagno
 Bauer
@@ -615,3 +618,8 @@ Arman
 Pechstein
 Bell
 Simberg
+Oppenheim
+Krasner
+Gabo
+Riley
+Perry
