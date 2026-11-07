@@ -29,7 +29,7 @@
 import { anagram } from "./anagram.js";
 import { CharSet } from "./charset.js";
 import { caseClose, mirrorSet, shiftSet } from "./letters.js";
-import { Builder, complement, intersect, mapLabels, minimize, removeEpsilons, reverse, trim } from "./nfa.js";
+import { Builder, complement, determinize, intersect, mapLabels, minimize, removeEpsilons, reverse, trim } from "./nfa.js";
 import { parse, PatternError } from "./parser.js";
 import { replace } from "./replace.js";
 import { atLeast, exactly, rotate } from "./rotate.js";
@@ -72,11 +72,23 @@ function splitDfa(split) {
   return splitCache.get(split);
 }
 
+// the word list's automaton ignoring case, made deterministic again (since words differing only
+// in case now share edges) the first time it's needed for each list, as that takes a noticeable
+// time for a large list (about 0.6 s for 200,000 words)
+const caselessCache = new WeakMap();
+function caselessWords(words) {
+  if (!caselessCache.has(words)) caselessCache.set(words, determinize(mapLabels(words, caseClose)));
+  return caselessCache.get(words);
+}
+
 // options: { caseless } makes every character comparison case-insensitive, and { words }
 // is the word list's automaton, which @ matches (see wordsAutomaton in wordlist.js)
 export function compile(ast, options = {}) {
-  // @ on its own is the word list's automaton, which is already deterministic
-  if (ast.type === "words" && options.words && !options.caseless) return options.words;
+  // @ on its own is the word list's automaton, which is already deterministic, as is (?i:@)
+  if (options.words) {
+    if (ast.type === "words") return options.caseless ? caselessWords(options.words) : options.words;
+    if (ast.type === "modifier" && ast.flag === "i" && ast.node.type === "words") return caselessWords(options.words);
+  }
   if (!options.names) options = { ...options, names: definitions(ast) };
   const b = new Builder();
   const start = b.state();
@@ -99,7 +111,7 @@ function build(b, node, from, options) {
       return embed(b, named(node.name, options), from);
     case "words": {
       if (!options.words) throw new PatternError("No word list loaded: load one below to use @", ...node.span);
-      return embed(b, options.caseless ? mapLabels(options.words, caseClose) : options.words, from);
+      return embed(b, options.caseless ? caselessWords(options.words) : options.words, from);
     }
     case "class": {
       // a negated shorthand like \D inside a class is the complement of its (case-closed) set
