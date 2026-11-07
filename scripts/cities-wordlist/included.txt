@@ -1,0 +1,5 @@
+# Names that cities-wordlist.py adds to cities, after its filters, as "GeoNames name: name". The
+# GeoNames name must belong to exactly one city in the list.
+
+Beijing: Peking
+Québec: Quebec City

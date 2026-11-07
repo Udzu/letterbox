@@ -1,0 +1,41 @@
+# English names in GeoNames that cities-wordlist.py leaves out: misspellings, nicknames that
+# aren't flagged as colloquial, translations, and names that aren't the city's own.
+
+Abu Dhabi Island and Internal Islands City
+Alexandria
+Antioch on Sarus
+Ariel
+Bokaro Steel City
+Brezhnev
+Bruni
+Catherinoslav
+Cawnporne
+City of Cebu
+Culaba
+District of Columbia
+Dniproslav
+Fort Royal
+Ft Worth
+Gold
+Indhur
+Jo'anna
+Karanchi
+Kuibyschew
+Macelo
+Methville
+Molotov
+Montgomery
+New Guatemala
+Novorosiynsk
+Okla city
+Saint Anna de Chaves
+Santa Catherina
+Santa Cruz
+Sicheslav
+St.-Petersburg
+Syd
+Territory of Columbia
+Turmeric city
+Wanshien
+White House
+Zion
