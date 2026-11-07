@@ -213,7 +213,7 @@
     <span id="at-info" class="note"></span>
     <input type="file" id="at-file" accept=".txt,text/plain" hidden>
   </div>
-  <p id="words-help">Load a text file with one word or phrase per line, or one of the <a href="wordlists.html">ready-made lists</a>, to list the ones the pattern matches. Click a match to add it to the test strings and see how it matches. <code>@</code> in the pattern stands for any word in the list, or in the @ list if one is loaded: for example, with English as the word list and US state codes as the @ list, <code>(?i:@+)</code> finds words made of state codes. The lists are kept in this browser only (and the word list is shared with the other pages).</p>
+  <p id="words-help">Load a text file with one word or phrase per line, or a <a href="wordlists.html">ready-made list</a>, to see which words the pattern matches. Click a match to add it to the test strings and see how it matches. The @ list specifies what <code>@</code> stands for in a pattern. Both lists are kept in this browser.</p>
   <div id="matches-info"></div>
   <div id="matches"></div>
 
@@ -226,7 +226,7 @@
       <tr><td><code>[abc]</code> <code>[a-z]</code> <code>[^a-z]</code></td><td>character classes (<code>[]</code> matches nothing)</td></tr>
       <tr><td><code>\d</code> <code>\w</code> <code>\s</code></td><td>an ASCII digit; an ASCII letter or digit, or <code>_</code>; ASCII whitespace. <code>\D</code>, <code>\W</code> and <code>\S</code> are the opposites, and all of these work inside classes too, as in <code>[\d_]</code></td></tr>
       <tr><td><code>\p{L}</code> <code>\P{L}</code></td><td>a character with or without a Unicode property, as in JavaScript (<code>\p{Lu}</code> is an uppercase letter, <code>\p{Script=Greek}</code> a Greek character)</td></tr>
-      <tr><td><code>@</code></td><td>any word in the word list, if one is loaded</td></tr>
+      <tr><td><code>@</code></td><td>any word in the @ list, or in the word list if no @ list is loaded</td></tr>
       <tr><td><code>\Q...\E</code></td><td>the characters in between, taken literally (<code>\Qe.g.\E</code> matches <i>e.g.</i>)</td></tr>
       <tr class="heading"><th colspan="2">Repetition and sequence</th></tr>
       <tr><td><code>P*</code> <code>P+</code> <code>P?</code></td><td>0 or more; 1 or more; 0 or 1</td></tr>
