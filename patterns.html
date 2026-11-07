@@ -61,13 +61,14 @@
   #tests, #tests-backdrop { min-height: 7.5em; }
   .error-span { background: #fdd; text-decoration: underline wavy #d00; text-decoration-skip-ink: none; }
   .error-span:empty::after { content: " "; }
+  #restore { margin: 0 0 6px; }
   #error { color: #d00; margin: 6px 0 0; min-height: 1.4em; }
 
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
   #info { color: #666; }
   #toggle-diagram { margin-left: auto; }
-  #toggle-diagram, #copy-link { font: inherit; font-size: 0.9rem; }
+  #toggle-diagram, #copy-link, #reset { font: inherit; font-size: 0.9rem; }
   #view-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
   #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
   #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
@@ -159,6 +160,7 @@
     <textarea id="pattern" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Pattern"></textarea>
   </div>
   <div id="error" role="status"></div>
+  <p id="restore" class="note" hidden></p>
 
   <div id="toolbar">
     <select id="view" aria-label="Diagram">
@@ -171,6 +173,7 @@
     <span id="info"><span id="stats"></span><span id="lengths"></span></span>
     <button id="toggle-diagram" aria-controls="diagram" aria-expanded="true">Hide diagram</button>
     <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram settings">Copy link</button>
+    <button id="reset" title="Go back to the example pattern and test strings, and the default diagram (undo brings your text back)">Reset</button>
   </div>
   <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
@@ -4139,12 +4142,12 @@
     return [...groups.values()].map((group2) => {
       if (group2.length === 1) return group2[0];
       const ps = parts(group2[0]);
-      const shared = ps[fromEnd ? ps.length - 1 : 0];
+      const shared2 = ps[fromEnd ? ps.length - 1 : 0];
       const rests = group2.map((n) => {
         const p = parts(n);
         return cat(fromEnd ? p.slice(0, -1) : p.slice(1));
       });
-      return fromEnd ? cat([alt(rests), shared]) : cat([shared, alt(rests)]);
+      return fromEnd ? cat([alt(rests), shared2]) : cat([shared2, alt(rests)]);
     });
   }
   function rep(x, min, max) {
@@ -6316,9 +6319,65 @@
   var drawLarge = false;
   var diagramHidden = false;
   var buildLarge = false;
-  try {
-    for (const key of ["patterns", "patterns-busy"]) localStorage.removeItem(key);
-  } catch {
+  var STORAGE_KEY = "patterns";
+  function load() {
+    try {
+      const saved = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(STORAGE_KEY)) };
+      return { ...saved, view: saved.view in VIEWS ? saved.view : DEFAULTS.view };
+    } catch {
+      return DEFAULTS;
+    }
+  }
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        // a pattern that wasn't restored stays saved until another is typed (see guarded)
+        pattern: unrestored ?? patternInput.value,
+        tests: testsInput.value,
+        view: viewSelect.value,
+        hidden: diagramHidden
+      }));
+    } catch {
+    }
+  }
+  var BUSY_KEY = "patterns-busy";
+  var busy = 0;
+  var unrestored = null;
+  function guarded(f) {
+    if (busy++ === 0) setBusy(true);
+    try {
+      return f();
+    } finally {
+      if (--busy === 0) setBusy(false);
+    }
+  }
+  function setBusy(value) {
+    try {
+      if (value) localStorage.setItem(BUSY_KEY, "1");
+      else localStorage.removeItem(BUSY_KEY);
+    } catch {
+    }
+  }
+  function stoppedLastTime() {
+    try {
+      return localStorage.getItem(BUSY_KEY) !== null;
+    } catch {
+      return false;
+    }
+  }
+  function offerRestore(pattern) {
+    unrestored = pattern;
+    $("restore").hidden = false;
+    $("restore").innerHTML = `The last pattern wasn't restored, because the page stopped responding while working on it. <button id="restore-anyway">Restore anyway</button>`;
+    $("restore-anyway").addEventListener("click", () => {
+      patternInput.value = pattern;
+      dismissRestore();
+      schedule();
+    });
+  }
+  function dismissRestore() {
+    unrestored = null;
+    $("restore").hidden = true;
   }
   function escapeHtml(s) {
     return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -6328,6 +6387,7 @@
     textarea.style.height = `${textarea.scrollHeight}px`;
   }
   async function update() {
+    save();
     const pattern = patternInput.value;
     autosize(patternInput);
     $("error").textContent = "";
@@ -6339,11 +6399,14 @@
     let message = null;
     let askToBuild = false;
     try {
-      compiled = compile2(pattern, { words: atAutomaton() });
-      withStateLimit(limitFor(compiled), () => {
-        $("lengths").textContent = describeLengths(matchLengths(compiled));
-        if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
-        else nfa = VIEWS[viewSelect.value](compiled);
+      const words = atAutomaton();
+      guarded(() => {
+        compiled = compile2(pattern, { words });
+        withStateLimit(limitFor(compiled), () => {
+          $("lengths").textContent = describeLengths(matchLengths(compiled));
+          if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
+          else nfa = VIEWS[viewSelect.value](compiled);
+        });
       });
     } catch (e) {
       if (e instanceof PatternError) {
@@ -6395,7 +6458,7 @@
     }
     const viz = await vizReady;
     if (drawn !== nfa || diagramHidden) return;
-    const svg = viz.renderSVGElement(toDot(drawn));
+    const svg = guarded(() => viz.renderSVGElement(toDot(drawn)));
     for (const g of svg.querySelectorAll("g.node")) {
       const state = Number(g.querySelector("title")?.textContent);
       if (Number.isInteger(state)) {
@@ -6466,7 +6529,7 @@
     }
     let result;
     try {
-      result = explainFor.explain(text);
+      result = guarded(() => explainFor.explain(text));
     } catch (e) {
       if (e instanceof TooComplexToExplain || e instanceof TooManyStatesError) return note("Too complex to explain.");
       throw e;
@@ -6537,7 +6600,7 @@
   }
   function showRegex(target, limits) {
     if (target !== compiled) return;
-    const result = toRegex(target, limits);
+    const result = guarded(() => toRegex(target, limits));
     $("regex-line").classList.remove("stale");
     $("regex").textContent = result.regex ?? "";
     $("copy-regex").textContent = "Copy";
@@ -6580,6 +6643,7 @@
     button.setAttribute("aria-expanded", String(!diagramHidden));
     $("diagram").hidden = diagramHidden;
     if (!diagramHidden && nfa !== null && !$("diagram").hasChildNodes()) draw(nfa);
+    save();
   }
   function copyLink() {
     const state = { pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value, hidden: diagramHidden };
@@ -6599,7 +6663,7 @@
   function addExamples() {
     if (compiled === null) return;
     const lines = testsInput.value.split("\n");
-    const result = withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) }));
+    const result = guarded(() => withStateLimit(limitFor(compiled), () => examples(compiled, { exclude: new Set(lines) })));
     const existing = testsInput.value.replace(/\n+$/, "");
     if (result.examples.length) {
       testsInput.focus();
@@ -6753,7 +6817,9 @@
     for (let i = 0; i < list.words.length; i += MATCH_CHUNK) {
       if (i > 0) await new Promise((resolve) => setTimeout(resolve));
       if (target !== compiled || list !== wordList) return;
-      for (let j = i; j < Math.min(i + MATCH_CHUNK, list.words.length); j++) if (test(list.words[j])) found.push(list.words[j]);
+      guarded(() => {
+        for (let j = i; j < Math.min(i + MATCH_CHUNK, list.words.length); j++) if (test(list.words[j])) found.push(list.words[j]);
+      });
     }
     showMatches(found);
   }
@@ -6811,17 +6877,43 @@
     });
   }
   function onCursor() {
+    save();
     updateTests();
     highlightCurrent();
     showExplanation();
   }
-  var initial = readShared(location.search, VIEWS, DEFAULTS.view) ?? DEFAULTS;
-  patternInput.value = initial.pattern;
+  var shared = readShared(location.search, VIEWS, DEFAULTS.view);
+  var initial = shared ?? load();
+  if (shared) history.replaceState(null, "", location.pathname + location.hash);
+  if (!shared && stoppedLastTime() && initial.pattern !== DEFAULTS.pattern) {
+    patternInput.value = DEFAULTS.pattern;
+    offerRestore(initial.pattern);
+  } else {
+    patternInput.value = initial.pattern;
+  }
+  setBusy(false);
   testsInput.value = initial.tests;
   viewSelect.value = initial.view;
   if (initial.hidden) toggleDiagram();
+  function reset() {
+    dismissRestore();
+    for (const [box, text] of [[testsInput, DEFAULTS.tests], [patternInput, DEFAULTS.pattern]]) {
+      box.focus();
+      box.select();
+      edit(box, text);
+    }
+    viewSelect.value = DEFAULTS.view;
+    showViewHelp();
+    if (diagramHidden) toggleDiagram();
+    $("examples-note").textContent = "";
+    drawLarge = false;
+    buildLarge = false;
+    showAllMatches = false;
+    schedule();
+  }
   patternInput.addEventListener("input", () => {
     if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
+    dismissRestore();
     drawLarge = false;
     buildLarge = false;
     showAllMatches = false;
@@ -6844,6 +6936,7 @@
   $("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));
   $("copy-link").addEventListener("click", copyLink);
   $("toggle-diagram").addEventListener("click", toggleDiagram);
+  $("reset").addEventListener("click", reset);
   for (const slot of Object.values(SLOTS)) {
     $(slot.load).addEventListener("click", () => $(slot.file).click());
     $(slot.file).addEventListener("change", () => loadListFile(slot));
