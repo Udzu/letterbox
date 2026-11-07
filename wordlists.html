@@ -19,12 +19,16 @@
   #lists ul { list-style: none; margin: 0; padding: 0; }
   #lists ul + ul { margin-top: 32px; }
   #lists li { margin: 0 -8px; padding: 12px 8px; border-bottom: 1px solid #ddd; }
-  #lists li.current { background: #eef8ee; }
+  /* the word list's row is shaded green, and the @ list's blue, unless it's also the word list */
+  #lists li.at { background: #eef4fc; }
+  #lists li.loaded { background: #eef8ee; }
   #lists li:last-child { border-bottom: none; }
   .title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .name { font-size: 1.2rem; font-weight: 600; }
   .size { color: #888; margin-right: 8px; }
-  .loaded { font-size: 0.85rem; color: #080; border: 1px solid #080; border-radius: 4px; padding: 0 4px; }
+  /* pressed buttons are coloured like the shading of their rows */
+  button.load[aria-pressed=true] { background: #080; border: 1px solid #080; border-radius: 3px; color: #fff; }
+  button.at[aria-pressed=true] { background: #06c; border: 1px solid #06c; border-radius: 3px; color: #fff; }
   .description { margin: 4px 0 0; color: #444; }
   .attribution { margin: 4px 0 0; color: #888; font-size: 0.85rem; }
   .attribution a { color: #888; }
@@ -39,7 +43,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <b>Wordlists</b> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Word lists for the <a href="anagrams.html">Anagrams</a>, <a href="pangrams.html">Pangrams</a> and <a href="patterns.html">Patterns</a> pages. Load one to use it on those pages straight away (it replaces any list already loaded), or download it as a text file to load later. Unlike the other pages, this one needs an internet connection.</p>
+  <p class="intro">Word lists for the <a href="anagrams.html">Anagrams</a>, <a href="pangrams.html">Pangrams</a> and <a href="patterns.html">Patterns</a> pages. Load one to use it on those pages straight away (it replaces any list already loaded), or download it as a text file to load later. The <b>@</b> button loads a list as the Patterns page's @ list instead, which is what <code>@</code> in a pattern stands for. Unlike the other pages, this one needs an internet connection.</p>
   <div id="lists"></div>
 </main>
 <script type="application/json" id="lists-data">
@@ -109,7 +113,25 @@ ${stripped}` : stripped;
 
   // src/wordlists/page.js
   var LISTS = JSON.parse(document.getElementById("lists-data").textContent);
-  var DB = { name: "patterns", store: "wordlist", key: "list" };
+  var DB = { name: "patterns", store: "wordlist" };
+  var SLOTS = {
+    words: {
+      key: "list",
+      rowClass: "loaded",
+      button: "load",
+      label: () => "Load",
+      title: (on) => on ? "Unload the word list from the Anagrams, Pangrams and Patterns pages" : "Load as the word list on the Anagrams, Pangrams and Patterns pages, replacing the one they use now",
+      current: null
+    },
+    at: {
+      key: "at-list",
+      rowClass: "at",
+      button: "at",
+      label: () => "@",
+      title: (on) => on ? "Stop using this as the @ list on the Patterns page, so @ stands for the word list again" : "Load as the @ list on the Patterns page, so @ stands for these words (matches still come from the word list)",
+      current: null
+    }
+  };
   function openDb() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB.name, 1);
@@ -118,20 +140,21 @@ ${stripped}` : stripped;
       request.onerror = () => reject(request.error);
     });
   }
-  async function storeWordList(value) {
+  async function storeList(slot, value) {
     const db = await openDb();
     await new Promise((resolve, reject) => {
       const tx = db.transaction(DB.store, "readwrite");
-      tx.objectStore(DB.store).put(value, DB.key);
+      if (value === null) tx.objectStore(DB.store).delete(slot.key);
+      else tx.objectStore(DB.store).put(value, slot.key);
       tx.oncomplete = resolve;
       tx.onerror = () => reject(tx.error);
     });
   }
-  async function fetchWordList() {
+  async function fetchList(slot) {
     try {
       const db = await openDb();
       return await new Promise((resolve, reject) => {
-        const request = db.transaction(DB.store).objectStore(DB.store).get(DB.key);
+        const request = db.transaction(DB.store).objectStore(DB.store).get(slot.key);
         request.onsuccess = () => resolve(request.result ?? null);
         request.onerror = () => reject(request.error);
       });
@@ -150,21 +173,40 @@ ${stripped}` : stripped;
     return texts.get(list.file);
   }
   var rows = /* @__PURE__ */ new Map();
-  function markLoaded(name) {
+  function markSlot(slot, name) {
+    slot.current = name;
     for (const [file, row] of rows) {
-      row.badge.hidden = file !== name;
-      row.li.classList.toggle("current", file === name);
+      const on = file === name;
+      const button = row.buttons[slot.button];
+      row.li.classList.toggle(slot.rowClass, on);
+      button.textContent = slot.label(on);
+      button.title = slot.title(on);
+      button.setAttribute("aria-pressed", on);
     }
   }
   async function refreshLoaded() {
-    const stored = await fetchWordList();
-    markLoaded(stored?.name ?? null);
+    for (const slot of Object.values(SLOTS)) markSlot(slot, (await fetchList(slot))?.name ?? null);
   }
   function setStatus(row, message, error = false) {
     row.status.textContent = message;
     row.status.classList.toggle("error", error);
   }
-  async function load(list, row) {
+  function toggle(list, row, slot) {
+    if (slot.current === list.file) unload(row, slot);
+    else load(list, row, slot);
+  }
+  async function unload(row, slot) {
+    try {
+      await storeList(slot, null);
+    } catch {
+      setStatus(row, "This browser wouldn't unload the list.", true);
+      return;
+    }
+    markSlot(slot, null);
+    for (const other of rows.values()) setStatus(other, "");
+    setStatus(row, slot === SLOTS.words ? "Unloaded. Reload any of the other pages that are already open to see it." : "No longer the @ list, so @ on the Patterns page stands for the word list again. Reload Patterns if it's already open.");
+  }
+  async function load(list, row, slot) {
     setStatus(row, "Loading\u2026");
     let text;
     try {
@@ -174,14 +216,15 @@ ${stripped}` : stripped;
       return;
     }
     try {
-      await storeWordList({ name: list.file, text });
+      await storeList(slot, { name: list.file, text });
     } catch {
       setStatus(row, "This browser won't store the list, but you can download it and load it on each page instead.", true);
       return;
     }
-    markLoaded(list.file);
+    markSlot(slot, list.file);
     for (const other of rows.values()) setStatus(other, "");
-    setStatus(row, `Loaded ${count(wordCount(text), "word")}. Reload any of the other pages that are already open to see it.`);
+    const words = count(wordCount(text), "word");
+    setStatus(row, slot === SLOTS.words ? `Loaded ${words}. Reload any of the other pages that are already open to see it.` : `Loaded ${words} as the @ list, so @ on the Patterns page stands for these words. Reload Patterns if it's already open.`);
   }
   async function download(list, row) {
     let text;
@@ -225,14 +268,11 @@ ${stripped}` : stripped;
       group = { kind: list.kind, ul: element("ul") };
       listsBox.append(group.ul);
     }
-    const loadButton = element("button", "", "Load");
-    loadButton.title = "Use this list on the other pages";
+    const buttons = { load: element("button", "load"), at: element("button", "at") };
     const downloadButton = element("button", "", "Download");
     downloadButton.title = `Save the list as ${list.file}`;
-    const badge = element("span", "loaded", "Loaded");
-    badge.hidden = true;
     const title = element("div", "title");
-    title.append(element("span", "name", list.name), element("span", "size", count(list.size, "word")), loadButton, downloadButton, badge);
+    title.append(element("span", "name", list.name), element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
     const status = element("p", "status");
     status.setAttribute("aria-live", "polite");
     const li = element("li");
@@ -240,11 +280,13 @@ ${stripped}` : stripped;
     if (list.attribution) li.append(linkify(list.attribution));
     li.append(status);
     group.ul.append(li);
-    const row = { li, badge, status };
+    const row = { li, buttons, status };
     rows.set(list.file, row);
-    loadButton.addEventListener("click", () => load(list, row));
+    buttons.load.addEventListener("click", () => toggle(list, row, SLOTS.words));
+    buttons.at.addEventListener("click", () => toggle(list, row, SLOTS.at));
     downloadButton.addEventListener("click", () => download(list, row));
   }
+  for (const slot of Object.values(SLOTS)) markSlot(slot, null);
   refreshLoaded();
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") refreshLoaded();

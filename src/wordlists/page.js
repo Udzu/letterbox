@@ -1,5 +1,6 @@
-// The Wordlists page: the lists in wordlists/, each of which can be loaded into the shared word
-// list slot used by the Anagrams, Pangrams and Patterns pages, or downloaded. Either way the
+// The Wordlists page: the lists in wordlists/, each of which can be loaded as the word list
+// shared by the Anagrams, Pangrams and Patterns pages, or as the @ list that @ stands for on the
+// Patterns page, or downloaded. Whichever it is, the
 // list is stripped of comments and blank lines (apart from a downloaded list's attribution, which
 // the other pages skip), so a downloaded list loads with the same words.
 
@@ -9,8 +10,33 @@ import { downloadText, stripList, wordCount } from "./lists.js";
 // written into the page by the build
 const LISTS = JSON.parse(document.getElementById("lists-data").textContent);
 
-// the word list entry shared by the Anagrams, Pangrams and Patterns pages
-const DB = { name: "patterns", store: "wordlist", key: "list" };
+// the stored entries for the word list shared by the Anagrams, Pangrams and Patterns pages, and
+// for the Patterns page's @ list
+const DB = { name: "patterns", store: "wordlist" };
+// Each slot's button on a list's row loads it there, or unloads it if it's already there,
+// and shows as pressed while it is.
+const SLOTS = {
+  words: {
+    key: "list",
+    rowClass: "loaded",
+    button: "load",
+    label: () => "Load",
+    title: (on) => on
+      ? "Unload the word list from the Anagrams, Pangrams and Patterns pages"
+      : "Load as the word list on the Anagrams, Pangrams and Patterns pages, replacing the one they use now",
+    current: null,
+  },
+  at: {
+    key: "at-list",
+    rowClass: "at",
+    button: "at",
+    label: () => "@",
+    title: (on) => on
+      ? "Stop using this as the @ list on the Patterns page, so @ stands for the word list again"
+      : "Load as the @ list on the Patterns page, so @ stands for these words (matches still come from the word list)",
+    current: null,
+  },
+};
 
 function openDb() {
   return new Promise((resolve, reject) => {
@@ -22,21 +48,22 @@ function openDb() {
 }
 
 // unlike on the other pages, failing to store a list is an error worth reporting
-async function storeWordList(value) {
+async function storeList(slot, value) {
   const db = await openDb();
   await new Promise((resolve, reject) => {
     const tx = db.transaction(DB.store, "readwrite");
-    tx.objectStore(DB.store).put(value, DB.key);
+    if (value === null) tx.objectStore(DB.store).delete(slot.key);
+    else tx.objectStore(DB.store).put(value, slot.key);
     tx.oncomplete = resolve;
     tx.onerror = () => reject(tx.error);
   });
 }
 
-async function fetchWordList() {
+async function fetchList(slot) {
   try {
     const db = await openDb();
     return await new Promise((resolve, reject) => {
-      const request = db.transaction(DB.store).objectStore(DB.store).get(DB.key);
+      const request = db.transaction(DB.store).objectStore(DB.store).get(slot.key);
       request.onsuccess = () => resolve(request.result ?? null);
       request.onerror = () => reject(request.error);
     });
@@ -57,20 +84,24 @@ async function listText(list) {
   return texts.get(list.file);
 }
 
-const rows = new Map(); // file -> { li, badge, status }
+const rows = new Map(); // file -> { li, buttons: { load, at }, status }
 
-// show which list (if any) is in the shared slot; null if none, or not one of these
-function markLoaded(name) {
+// show which list (if any) is in a slot: name is null if none, or one not on this page
+function markSlot(slot, name) {
+  slot.current = name;
   for (const [file, row] of rows) {
-    row.badge.hidden = file !== name;
-    row.li.classList.toggle("current", file === name);
+    const on = file === name;
+    const button = row.buttons[slot.button];
+    row.li.classList.toggle(slot.rowClass, on);
+    button.textContent = slot.label(on);
+    button.title = slot.title(on);
+    button.setAttribute("aria-pressed", on);
   }
 }
 
-// a list loaded or cleared elsewhere (on another page, or in another tab) shows up on return
+// lists loaded or cleared elsewhere (on another page, or in another tab) show up on return
 async function refreshLoaded() {
-  const stored = await fetchWordList();
-  markLoaded(stored?.name ?? null);
+  for (const slot of Object.values(SLOTS)) markSlot(slot, (await fetchList(slot))?.name ?? null);
 }
 
 function setStatus(row, message, error = false) {
@@ -78,7 +109,27 @@ function setStatus(row, message, error = false) {
   row.status.classList.toggle("error", error);
 }
 
-async function load(list, row) {
+// the slot's button: load the list there, or unload it if it's there already
+function toggle(list, row, slot) {
+  if (slot.current === list.file) unload(row, slot);
+  else load(list, row, slot);
+}
+
+async function unload(row, slot) {
+  try {
+    await storeList(slot, null);
+  } catch {
+    setStatus(row, "This browser wouldn't unload the list.", true);
+    return;
+  }
+  markSlot(slot, null);
+  for (const other of rows.values()) setStatus(other, "");
+  setStatus(row, slot === SLOTS.words
+    ? "Unloaded. Reload any of the other pages that are already open to see it."
+    : "No longer the @ list, so @ on the Patterns page stands for the word list again. Reload Patterns if it's already open.");
+}
+
+async function load(list, row, slot) {
   setStatus(row, "Loading…");
   let text;
   try {
@@ -88,14 +139,17 @@ async function load(list, row) {
     return;
   }
   try {
-    await storeWordList({ name: list.file, text });
+    await storeList(slot, { name: list.file, text });
   } catch {
     setStatus(row, "This browser won't store the list, but you can download it and load it on each page instead.", true);
     return;
   }
-  markLoaded(list.file);
+  markSlot(slot, list.file);
   for (const other of rows.values()) setStatus(other, "");
-  setStatus(row, `Loaded ${count(wordCount(text), "word")}. Reload any of the other pages that are already open to see it.`);
+  const words = count(wordCount(text), "word");
+  setStatus(row, slot === SLOTS.words
+    ? `Loaded ${words}. Reload any of the other pages that are already open to see it.`
+    : `Loaded ${words} as the @ list, so @ on the Patterns page stands for these words. Reload Patterns if it's already open.`);
 }
 
 async function download(list, row) {
@@ -146,14 +200,11 @@ for (const list of LISTS) {
     group = { kind: list.kind, ul: element("ul") };
     listsBox.append(group.ul);
   }
-  const loadButton = element("button", "", "Load");
-  loadButton.title = "Use this list on the other pages";
+  const buttons = { load: element("button", "load"), at: element("button", "at") };
   const downloadButton = element("button", "", "Download");
   downloadButton.title = `Save the list as ${list.file}`;
-  const badge = element("span", "loaded", "Loaded");
-  badge.hidden = true;
   const title = element("div", "title");
-  title.append(element("span", "name", list.name), element("span", "size", count(list.size, "word")), loadButton, downloadButton, badge);
+  title.append(element("span", "name", list.name), element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
   const status = element("p", "status");
   status.setAttribute("aria-live", "polite");
   const li = element("li");
@@ -162,13 +213,15 @@ for (const list of LISTS) {
   li.append(status);
   group.ul.append(li);
 
-  const row = { li, badge, status };
+  const row = { li, buttons, status };
   rows.set(list.file, row);
-  loadButton.addEventListener("click", () => load(list, row));
+  buttons.load.addEventListener("click", () => toggle(list, row, SLOTS.words));
+  buttons.at.addEventListener("click", () => toggle(list, row, SLOTS.at));
   downloadButton.addEventListener("click", () => download(list, row));
 }
 
 // a list loaded from this page (or a file with the same name) is marked as loaded
+for (const slot of Object.values(SLOTS)) markSlot(slot, null);
 refreshLoaded();
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") refreshLoaded();
