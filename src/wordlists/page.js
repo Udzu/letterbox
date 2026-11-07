@@ -4,7 +4,7 @@
 // list is stripped of comments and blank lines (apart from a downloaded list's attribution, which
 // the other pages skip), so a downloaded list loads with the same words.
 
-import { downloadText, stripList, wordCount } from "./lists.js";
+import { attributionParts, downloadText, stripList, wordCount } from "./lists.js";
 
 // [{ file, name, description, kind, attribution?, size }], general lists first and then by name,
 // written into the page by the build
@@ -176,16 +176,15 @@ function element(tag, className, text) {
   return el;
 }
 
-// text with its web addresses turned into links (leaving out punctuation that ends a sentence
-// or closes brackets around them)
-function linkify(text) {
+// an attribution, with its [text](url) links as links
+function attributionElement(attribution) {
   const p = element("p", "attribution");
-  for (const [i, part] of text.split(/(https?:\/\/\S*[^\s.,;:)])/).entries()) {
-    if (i % 2 === 0) {
-      p.append(part);
+  for (const part of attributionParts(attribution)) {
+    if (part.href === undefined) {
+      p.append(part.text);
     } else {
-      const a = element("a", "", part);
-      a.href = part;
+      const a = element("a", "", part.text);
+      a.href = part.href;
       p.append(a);
     }
   }
@@ -209,7 +208,7 @@ for (const list of LISTS) {
   status.setAttribute("aria-live", "polite");
   const li = element("li");
   li.append(title, element("p", "description", list.description));
-  if (list.attribution) li.append(linkify(list.attribution));
+  if (list.attribution) li.append(attributionElement(list.attribution));
   li.append(status);
   group.ul.append(li);
 

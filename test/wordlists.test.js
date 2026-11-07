@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { parseWords } from "../src/patterns/wordlist.js";
-import { downloadText, readList, sortLists, stripList, wordCount } from "../src/wordlists/lists.js";
+import { attributionParts, downloadText, plainAttribution, readList, sortLists, stripList, wordCount } from "../src/wordlists/lists.js";
 
 const HEADER = "# name: Animals\n# description: Some animals.\n\n";
 
@@ -42,6 +42,20 @@ test("sortLists puts general lists first, then sorts by name", () => {
     { name: "Dutch", kind: "general" },
   ];
   assert.deepEqual(sortLists(lists).map((list) => list.name), ["Dutch", "English", "Chemical elements", "Chemical symbols", "countries"]);
+});
+
+test("attribution links are [text](url)", () => {
+  const text = "From [a zoo](https://zoo.example/) under [CC BY-SA](https://cc.example/by-sa/), (really).";
+  assert.deepEqual(attributionParts(text), [
+    { text: "From " },
+    { text: "a zoo", href: "https://zoo.example/" },
+    { text: " under " },
+    { text: "CC BY-SA", href: "https://cc.example/by-sa/" },
+    { text: ", (really)." },
+  ]);
+  assert.equal(plainAttribution(text), "From a zoo (https://zoo.example/) under CC BY-SA (https://cc.example/by-sa/), (really).");
+  assert.deepEqual(attributionParts("No links [here] (or here)."), [{ text: "No links [here] (or here)." }]);
+  assert.equal(downloadText("cat\n", "From [a zoo](https://zoo.example/)."), "# From a zoo (https://zoo.example/).\n\ncat\n");
 });
 
 test("downloadText keeps the attribution in a comment the other pages skip", () => {

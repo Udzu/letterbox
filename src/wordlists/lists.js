@@ -5,7 +5,9 @@
 // and blank lines are dropped. The file starts with a header of "# key: value" comments,
 // ended by a blank line, giving the list's name and description. Optionally, it gives the
 // list's kind, "general" (such as a whole language) or "topic" (the default), and an
-// attribution, which is shown on the page and kept at the top of downloaded copies:
+// attribution, which is shown on the page and kept at the top of downloaded copies. Links in
+// an attribution are written [text](url): the page links the text, and downloads spell out the
+// address as text (url).
 //
 //   # name: Countries
 //   # description: Sovereign states and dependent territories.
@@ -23,10 +25,30 @@ export function stripList(text) {
   return words.length === 0 ? "" : words.join("\n") + "\n";
 }
 
+const LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
+
+// an attribution as a list of pieces, each { text } or a link { text, href }
+export function attributionParts(attribution) {
+  const parts = [];
+  let last = 0;
+  for (const match of attribution.matchAll(LINK)) {
+    if (match.index > last) parts.push({ text: attribution.slice(last, match.index) });
+    parts.push({ text: match[1], href: match[2] });
+    last = match.index + match[0].length;
+  }
+  if (last < attribution.length) parts.push({ text: attribution.slice(last) });
+  return parts;
+}
+
+// an attribution as plain text, with each link's address in brackets after it
+export function plainAttribution(attribution) {
+  return attribution.replace(LINK, "$1 ($2)");
+}
+
 // A list as downloaded: its words, after a comment with its attribution if it has one. The
 // other pages skip # lines at the top of a file, so this loads with the same words.
 export function downloadText(stripped, attribution) {
-  return attribution ? `# ${attribution}\n\n${stripped}` : stripped;
+  return attribution ? `# ${plainAttribution(attribution)}\n\n${stripped}` : stripped;
 }
 
 // the number of distinct words in a stripped list, counted the way the other pages count them

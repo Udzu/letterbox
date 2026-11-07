@@ -49,12 +49,20 @@
 <script type="application/json" id="lists-data">
 [
   {
+    "file": "common-english.txt",
+    "name": "Common English",
+    "description": "English words used about once per million words or more, most common first, without phrases.",
+    "kind": "general",
+    "attribution": "Adapted from the [Crossword Nexus ranked Wiktionary word list](https://crosswordnexus.com/wiki/downloadwiki.php), filtered and ordered by [wordfreq](https://github.com/rspeer/wordfreq) frequency, with one- and two-letter words added. Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from [Wiktionary](https://en.wiktionary.org/) and wordfreq's data.",
+    "size": 21689
+  },
+  {
     "file": "english.txt",
     "name": "English",
     "description": "General English words and phrases from Wiktionary, roughly most common first.",
     "kind": "general",
-    "attribution": "Adapted from the Crossword Nexus ranked Wiktionary word list (https://crosswordnexus.com/wiki/downloadwiki.php), with scores removed. Wiktionary content is licensed under CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), and so is this list.",
-    "size": 210417
+    "attribution": "Adapted from the [Crossword Nexus ranked Wiktionary word list](https://crosswordnexus.com/wiki/downloadwiki.php), with scores removed and common one- and two-letter words added. Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from [Wiktionary](https://en.wiktionary.org/).",
+    "size": 210474
   },
   {
     "file": "elements.txt",
@@ -102,8 +110,23 @@
     const words = text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !line.startsWith("#"));
     return words.length === 0 ? "" : words.join("\n") + "\n";
   }
+  var LINK = /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g;
+  function attributionParts(attribution) {
+    const parts = [];
+    let last = 0;
+    for (const match of attribution.matchAll(LINK)) {
+      if (match.index > last) parts.push({ text: attribution.slice(last, match.index) });
+      parts.push({ text: match[1], href: match[2] });
+      last = match.index + match[0].length;
+    }
+    if (last < attribution.length) parts.push({ text: attribution.slice(last) });
+    return parts;
+  }
+  function plainAttribution(attribution) {
+    return attribution.replace(LINK, "$1 ($2)");
+  }
   function downloadText(stripped, attribution) {
-    return attribution ? `# ${attribution}
+    return attribution ? `# ${plainAttribution(attribution)}
 
 ${stripped}` : stripped;
   }
@@ -248,14 +271,14 @@ ${stripped}` : stripped;
     if (text !== void 0) el.textContent = text;
     return el;
   }
-  function linkify(text) {
+  function attributionElement(attribution) {
     const p = element("p", "attribution");
-    for (const [i, part] of text.split(/(https?:\/\/\S*[^\s.,;:)])/).entries()) {
-      if (i % 2 === 0) {
-        p.append(part);
+    for (const part of attributionParts(attribution)) {
+      if (part.href === void 0) {
+        p.append(part.text);
       } else {
-        const a = element("a", "", part);
-        a.href = part;
+        const a = element("a", "", part.text);
+        a.href = part.href;
         p.append(a);
       }
     }
@@ -277,7 +300,7 @@ ${stripped}` : stripped;
     status.setAttribute("aria-live", "polite");
     const li = element("li");
     li.append(title, element("p", "description", list.description));
-    if (list.attribution) li.append(linkify(list.attribution));
+    if (list.attribution) li.append(attributionElement(list.attribution));
     li.append(status);
     group.ul.append(li);
     const row = { li, buttons, status };
