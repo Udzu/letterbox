@@ -1,0 +1,255 @@
+<!doctype html>
+<!-- Generated from src/wordlists/wordlists.template.html by scripts/build.mjs: do not edit -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wordlists</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main { max-width: 900px; margin: 0 auto; }
+  .intro { margin: 0 0 24px; color: #666; }
+  .intro a { color: #06c; }
+  #lists ul { list-style: none; margin: 0; padding: 0; }
+  #lists ul + ul { margin-top: 32px; }
+  #lists li { margin: 0 -8px; padding: 12px 8px; border-bottom: 1px solid #ddd; }
+  #lists li.current { background: #eef8ee; }
+  #lists li:last-child { border-bottom: none; }
+  .title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .name { font-size: 1.2rem; font-weight: 600; }
+  .size { color: #888; margin-right: 8px; }
+  .loaded { font-size: 0.85rem; color: #080; border: 1px solid #080; border-radius: 4px; padding: 0 4px; }
+  .description { margin: 4px 0 0; color: #444; }
+  .attribution { margin: 4px 0 0; color: #888; font-size: 0.85rem; }
+  .attribution a { color: #888; }
+  .status { margin: 4px 0 0; color: #666; font-size: 0.95rem; }
+  .status:empty { display: none; }
+  .status.error { color: #d00; }
+  nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <b>Wordlists</b> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
+<main>
+  <p class="intro">Word lists for the <a href="anagrams.html">Anagrams</a>, <a href="pangrams.html">Pangrams</a> and <a href="patterns.html">Patterns</a> pages. Load one to use it on those pages straight away (it replaces any list already loaded), or download it as a text file to load later. Unlike the other pages, this one needs an internet connection.</p>
+  <div id="lists"></div>
+</main>
+<script type="application/json" id="lists-data">
+[
+  {
+    "file": "english.txt",
+    "name": "English",
+    "description": "General English words and phrases from Wiktionary, roughly most common first.",
+    "kind": "general",
+    "attribution": "Adapted from the Crossword Nexus ranked Wiktionary word list (https://crosswordnexus.com/wiki/downloadwiki.php), with scores removed. Wiktionary content is licensed under CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), and so is this list.",
+    "size": 210417
+  },
+  {
+    "file": "elements.txt",
+    "name": "Chemical elements",
+    "description": "The 118 chemical elements, with alternative spellings and the Latin names behind some of their symbols.",
+    "kind": "topic",
+    "size": 134
+  },
+  {
+    "file": "element-symbols.txt",
+    "name": "Chemical symbols",
+    "description": "The symbols of the 118 chemical elements, such as He and Na, in their usual capitalisation.",
+    "kind": "topic",
+    "size": 118
+  },
+  {
+    "file": "countries.txt",
+    "name": "Countries",
+    "description": "Sovereign states and dependent territories, with common alternative and former names.",
+    "kind": "topic",
+    "size": 290
+  },
+  {
+    "file": "us-state-codes.txt",
+    "name": "US state codes",
+    "description": "The two-letter postal codes of the 50 US states, DC and the inhabited territories, such as CA and NY.",
+    "kind": "topic",
+    "size": 56
+  },
+  {
+    "file": "us-states.txt",
+    "name": "US states",
+    "description": "The 50 US states, with the District of Columbia and the five inhabited territories.",
+    "kind": "topic",
+    "size": 59
+  }
+]
+</script>
+<script>
+(() => {
+  // src/wordlists/lists.js
+  var REQUIRED = ["name", "description"];
+  var KEYS = [...REQUIRED, "kind", "attribution"];
+  function stripList(text) {
+    const words = text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !line.startsWith("#"));
+    return words.length === 0 ? "" : words.join("\n") + "\n";
+  }
+  function downloadText(stripped, attribution) {
+    return attribution ? `# ${attribution}
+
+${stripped}` : stripped;
+  }
+  function wordCount(stripped) {
+    return new Set(stripped.split("\n").filter((line) => line !== "").map((line) => line.normalize("NFC"))).size;
+  }
+
+  // src/wordlists/page.js
+  var LISTS = JSON.parse(document.getElementById("lists-data").textContent);
+  var DB = { name: "patterns", store: "wordlist", key: "list" };
+  function openDb() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB.name, 1);
+      request.onupgradeneeded = () => request.result.createObjectStore(DB.store);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+  async function storeWordList(value) {
+    const db = await openDb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(DB.store, "readwrite");
+      tx.objectStore(DB.store).put(value, DB.key);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+  async function fetchWordList() {
+    try {
+      const db = await openDb();
+      return await new Promise((resolve, reject) => {
+        const request = db.transaction(DB.store).objectStore(DB.store).get(DB.key);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error);
+      });
+    } catch {
+      return null;
+    }
+  }
+  var count = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
+  var texts = /* @__PURE__ */ new Map();
+  async function listText(list) {
+    if (!texts.has(list.file)) {
+      const response = await fetch(`wordlists/${encodeURIComponent(list.file)}`);
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+      texts.set(list.file, stripList(await response.text()));
+    }
+    return texts.get(list.file);
+  }
+  var rows = /* @__PURE__ */ new Map();
+  function markLoaded(name) {
+    for (const [file, row] of rows) {
+      row.badge.hidden = file !== name;
+      row.li.classList.toggle("current", file === name);
+    }
+  }
+  async function refreshLoaded() {
+    const stored = await fetchWordList();
+    markLoaded(stored?.name ?? null);
+  }
+  function setStatus(row, message, error = false) {
+    row.status.textContent = message;
+    row.status.classList.toggle("error", error);
+  }
+  async function load(list, row) {
+    setStatus(row, "Loading\u2026");
+    let text;
+    try {
+      text = await listText(list);
+    } catch (e) {
+      setStatus(row, `Couldn't fetch the list (${e.message}).`, true);
+      return;
+    }
+    try {
+      await storeWordList({ name: list.file, text });
+    } catch {
+      setStatus(row, "This browser won't store the list, but you can download it and load it on each page instead.", true);
+      return;
+    }
+    markLoaded(list.file);
+    for (const other of rows.values()) setStatus(other, "");
+    setStatus(row, `Loaded ${count(wordCount(text), "word")}. Reload any of the other pages that are already open to see it.`);
+  }
+  async function download(list, row) {
+    let text;
+    try {
+      text = await listText(list);
+    } catch (e) {
+      setStatus(row, `Couldn't fetch the list (${e.message}).`, true);
+      return;
+    }
+    setStatus(row, "");
+    const url = URL.createObjectURL(new Blob([downloadText(text, list.attribution)], { type: "text/plain;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = list.file;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  function element(tag, className, text) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== void 0) el.textContent = text;
+    return el;
+  }
+  function linkify(text) {
+    const p = element("p", "attribution");
+    for (const [i, part] of text.split(/(https?:\/\/\S*[^\s.,;:)])/).entries()) {
+      if (i % 2 === 0) {
+        p.append(part);
+      } else {
+        const a = element("a", "", part);
+        a.href = part;
+        p.append(a);
+      }
+    }
+    return p;
+  }
+  var listsBox = document.getElementById("lists");
+  var group = null;
+  for (const list of LISTS) {
+    if (group?.kind !== list.kind) {
+      group = { kind: list.kind, ul: element("ul") };
+      listsBox.append(group.ul);
+    }
+    const loadButton = element("button", "", "Load");
+    loadButton.title = "Use this list on the other pages";
+    const downloadButton = element("button", "", "Download");
+    downloadButton.title = `Save the list as ${list.file}`;
+    const badge = element("span", "loaded", "Loaded");
+    badge.hidden = true;
+    const title = element("div", "title");
+    title.append(element("span", "name", list.name), element("span", "size", count(list.size, "word")), loadButton, downloadButton, badge);
+    const status = element("p", "status");
+    status.setAttribute("aria-live", "polite");
+    const li = element("li");
+    li.append(title, element("p", "description", list.description));
+    if (list.attribution) li.append(linkify(list.attribution));
+    li.append(status);
+    group.ul.append(li);
+    const row = { li, badge, status };
+    rows.set(list.file, row);
+    loadButton.addEventListener("click", () => load(list, row));
+    downloadButton.addEventListener("click", () => download(list, row));
+  }
+  refreshLoaded();
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") refreshLoaded();
+  });
+})();
+</script>
+</body>
+</html>

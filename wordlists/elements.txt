@@ -1,0 +1,167 @@
+# name: Chemical elements
+# description: The 118 chemical elements, with alternative spellings and the Latin names behind some of their symbols.
+
+# ==============================
+# IUPAC names, by atomic number
+# ==============================
+
+# Period 1
+hydrogen
+helium
+
+# Period 2
+lithium
+beryllium
+boron
+carbon
+nitrogen
+oxygen
+fluorine
+neon
+
+# Period 3
+sodium
+magnesium
+aluminium
+silicon
+phosphorus
+sulfur
+chlorine
+argon
+
+# Period 4
+potassium
+calcium
+scandium
+titanium
+vanadium
+chromium
+manganese
+iron
+cobalt
+nickel
+copper
+zinc
+gallium
+germanium
+arsenic
+selenium
+bromine
+krypton
+
+# Period 5
+rubidium
+strontium
+yttrium
+zirconium
+niobium
+molybdenum
+technetium
+ruthenium
+rhodium
+palladium
+silver
+cadmium
+indium
+tin
+antimony
+tellurium
+iodine
+xenon
+
+# Period 6
+caesium
+barium
+lanthanum
+cerium
+praseodymium
+neodymium
+promethium
+samarium
+europium
+gadolinium
+terbium
+dysprosium
+holmium
+erbium
+thulium
+ytterbium
+lutetium
+hafnium
+tantalum
+tungsten
+rhenium
+osmium
+iridium
+platinum
+gold
+mercury
+thallium
+lead
+bismuth
+polonium
+astatine
+radon
+
+# Period 7
+francium
+radium
+actinium
+thorium
+protactinium
+uranium
+neptunium
+plutonium
+americium
+curium
+berkelium
+californium
+einsteinium
+fermium
+mendelevium
+nobelium
+lawrencium
+rutherfordium
+dubnium
+seaborgium
+bohrium
+hassium
+meitnerium
+darmstadtium
+roentgenium
+copernicium
+nihonium
+flerovium
+moscovium
+livermorium
+tennessine
+oganesson
+
+# ======================
+# Alternative spellings
+# ======================
+
+aluminum
+cesium
+sulphur
+
+# ========================
+# Former and Latin names
+# ========================
+
+# Latin (and German) names behind the symbols Na, K, Fe, Cu, Ag, Sn, Sb, Au, Hg, Pb, W
+natrium
+kalium
+ferrum
+cuprum
+argentum
+stannum
+stibium
+aurum
+hydrargyrum
+plumbum
+wolfram
+
+# Former English names
+columbium
+quicksilver

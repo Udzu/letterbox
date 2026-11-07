@@ -127,7 +127,7 @@
 </style>
 </head>
 <body>
-<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <b>Anagrams</b> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <b>Anagrams</b> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
   <input id="anagrist" type="text" placeholder="Anagrist..." autocomplete="off" spellcheck="false" autofocus>
   <div id="editor">
@@ -146,7 +146,7 @@
     <span id="words-info-list" class="note"></span>
     <input type="file" id="words-file" accept=".txt,text/plain" hidden>
   </div>
-  <p id="words-help">Load a text file with one word or phrase per line to list the ones that can be made from the missing letters, longest first. Click one to add it to the anagram. The list is kept in this browser only (but shared with the other pages).</p>
+  <p id="words-help">Load a text file with one word or phrase per line, or one of the <a href="wordlists.html">ready-made lists</a>, to list the ones that can be made from the missing letters, longest first. Click one to add it to the anagram. The list is kept in this browser only (but shared with the other pages).</p>
   <div id="words-info"></div>
   <div id="words"></div>
   <div id="attempts-header">
@@ -418,11 +418,14 @@
     }
   }
 
-  // one word or phrase per line, as on the Patterns page
+  // one word or phrase per line, skipping # lines at the top, as on the Patterns page
   function parseWords(text) {
     const words = new Set();
+    let header = true;
     for (const line of text.split("\n")) {
       const word = line.replace(/\r$/, "").normalize("NFC");
+      if (header && (word === "" || word.startsWith("#"))) continue;
+      header = false;
       if (word !== "") words.add(word);
     }
     return [...words];
