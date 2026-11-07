@@ -66,6 +66,7 @@ Q1268: Chopin                       # Frédéric Chopin
 Q191775: Cimarosa                   # Domenico Cimarosa
 Q297137: Čiurlionis                 # Mikalojus Konstantinas Čiurlionis
 Q193673: Clementi                   # Muzio Clementi
+Q739229: Coleridge-Taylor           # Samuel Coleridge-Taylor
 Q192185: Copland                    # Aaron Copland
 Q164475: Corelli                    # Arcangelo Corelli
 Q450620: Corigliano                 # John Corigliano
@@ -226,6 +227,7 @@ Q207390: Ponchielli                 # Amilcare Ponchielli
 Q312788: Porpora                    # Nicola Porpora
 Q191408: Poulenc                    # Francis Poulenc
 Q108278: Praetorius                 # Michael Praetorius
+Q520522: Price                      # Florence Price
 Q49481: Prokofiev                   # Sergei Prokofiev
 Q7311: Puccini                      # Giacomo Puccini
 Q9695: Purcell                      # Henry Purcell
@@ -250,6 +252,7 @@ Q319396: Rózsa                      # Miklós Rózsa
 Q87567: Rubinstein                  # Anton Rubinstein
 Q505614: Rutter                     # John Rutter
 Q241432: Saariaho                   # Kaija Saariaho
+Q726953: Saint-Georges              # Joseph Bologne, Chevalier de Saint-Georges
 Q150445: Saint-Saëns                # Camille Saint-Saëns
 Q51088: Salieri                     # Antonio Salieri
 Q204503: Sarasate                   # Pablo de Sarasate
