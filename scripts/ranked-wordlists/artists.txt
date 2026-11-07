@@ -1,0 +1,598 @@
+# name: Artists
+# description: Painters, sculptors, printmakers and photographers, by the names they're usually known by, most prominent first. Names with accents are followed by their unaccented forms.
+# kind: culture
+# attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
+
+# Chosen from Wikidata's painters, sculptors, printmakers and photographers (with at least five
+# works credited to them, apart from photographers), leaving out people mainly known for other
+# things, such as writers and film directors who also painted. Artists who share a name each
+# have a line, but the name is only listed once.
+
+Q158080: Abakanowicz            # Magdalena Abakanowicz
+Q47496: Abramović               # Marina Abramović
+Q60809: Adams                   # Ansel Adams
+Q160115: Ai Weiwei              # Ai Weiwei
+Q181568: Aivazovsky             # Ivan Aivazovsky
+Q170071: Albers                 # Josef Albers
+Q240526: Alma-Tadema            # Lawrence Alma-Tadema
+Q153746: Altdorfer              # Albrecht Altdorfer
+Q5571: Andrea del Sarto         # Andrea del Sarto
+Q236038: Anguissola             # Sofonisba Anguissola
+Q5594: Antonello                # Antonello da Messina
+Q152793: Appel                  # Karel Appel
+Q234608: Arbus                  # Diane Arbus
+Q157578: Archipenko             # Alexander Archipenko
+Q7751: Arcimboldo               # Giuseppe Arcimboldo
+Q631835: Ardon                  # Mordecai Ardon
+Q367973: Arman                  # Arman
+Q153739: Arp                    # Jean Arp
+Q322030: Atget                  # Eugène Atget
+Q182882: Audubon                # John James Audubon
+Q305497: Avedon                 # Richard Avedon
+Q154340: Bacon                  # Francis Bacon
+Q214666: Bakst                  # Léon Bakst
+Q164696: Baldung                # Hans Baldung Grien
+Q368254: Balla                  # Giacomo Balla
+Q325925: Balthus                # Balthus
+Q133600: Banksy                 # Banksy
+Q561930: Barceló                # Miquel Barceló
+Q156890: Barlach                # Ernst Barlach
+Q223274: Bartholdi              # Frédéric Auguste Bartholdi
+Q164775: Baselitz               # Georg Baselitz
+Q155407: Basquiat               # Jean-Michel Basquiat
+Q214043: Bauer                  # John Bauer
+Q207298: Bazille                # Frédéric Bazille
+Q272566: Beardsley              # Aubrey Beardsley
+Q318352: Beato                  # Felice Beato
+Q697096: Beaton                 # Cecil Beaton
+Q164683: Beckmann               # Max Beckmann
+Q334875: Behzād                 # Kamāl ud-Dīn Behzād
+Q169246: Beksiński              # Zdzisław Beksiński
+Q255294: Bell                   # Vanessa Bell
+Q290407: Bellini                # Gentile Bellini
+Q17169: Bellini                 # Giovanni Bellini
+Q164688: Bellotto               # Bernardo Bellotto
+Q167132: Bellows                # George Bellows
+Q319861: Benois                 # Alexandre Benois
+Q264193: Bernard                # Émile Bernard
+Q160538: Bernini                # Gian Lorenzo Bernini
+Q153965: Beuys                  # Joseph Beuys
+Q437594: Bewick                 # Thomas Bewick
+Q77132: Bierstadt               # Albert Bierstadt
+Q41513: Blake                   # William Blake
+Q547055: Bloch                  # Carl Bloch
+Q152797: Boccioni               # Umberto Boccioni
+Q362003: Boldini                # Giovanni Boldini
+Q241732: Bonheur                # Rosa Bonheur
+Q380395: Bonington              # Richard Parkes Bonington
+Q26408: Bonnard                 # Pierre Bonnard
+Q170259: Bonnat                 # Léon Bonnat
+Q336432: Borglum                # Gutzon Borglum
+Q262098: Borovikovsky           # Vladimir Borovikovsky
+Q130531: Bosch                  # Hieronymus Bosch
+Q272877: Botero                 # Fernando Botero
+Q5669: Botticelli               # Sandro Botticelli
+Q180932: Boucher                # François Boucher
+Q212600: Boudin                 # Eugène Louis Boudin
+Q483992: Bouguereau             # William-Adolphe Bouguereau
+Q314350: Bourdelle              # Antoine Bourdelle
+Q159409: Bourgeois              # Louise Bourgeois
+Q238364: Bourke-White           # Margaret Bourke-White
+Q313561: Bouts                  # Dieric Bouts
+Q187850: Brady                  # Mathew Benjamin Brady
+Q153793: Braque                 # Georges Braque
+Q61055: Breker                  # Arno Breker
+Q7803: Bronzino                 # Bronzino
+Q319843: Brown                  # Ford Madox Brown
+Q43270: Bruegel, Brueghel       # Pieter Brueghel the Elder
+Q209050: Brueghel               # Jan Brueghel the Elder
+Q255828: Brueghel               # Pieter Brueghel the Younger
+Q4768: Bryullov                 # Karl Bryullov
+Q153048: Brâncuși               # Constantin Brâncuși
+Q216406: Burne-Jones            # Edward Burne-Jones
+Q123071: Böcklin                # Arnold Böcklin
+Q310437: Cabanel                # Alexandre Cabanel
+Q219634: Cahun                  # Claude Cahun
+Q295144: Caillebotte            # Gustave Caillebotte
+Q151580: Calder                 # Alexander Calder
+Q460124: Callot                 # Jacques Callot
+Q230120: Cameron                # Julia Margaret Cameron
+Q80442: Campin                  # Robert Campin
+Q182664: Canaletto              # Giovanni Antonio Canal
+Q5547: Canova                   # Antonio Canova
+Q152524: Capa                   # Robert Capa
+Q42207: Caravaggio              # Caravaggio
+Q5581: Carpaccio                # Vittore Carpaccio
+Q289624: Carr                   # Emily Carr
+Q7824: Carracci                 # Annibale Carracci
+Q233207: Carrington             # Leonora Carrington
+Q168496: Carrà                  # Carlo Carrà
+Q156567: Cartier-Bresson        # Henri Cartier-Bresson
+Q725681: Casas                  # Ramon Casas
+Q173223: Cassatt                # Mary Cassatt
+Q240737: Castagno               # Andrea del Castagno
+Q458671: Castiglione            # Giuseppe Castiglione
+Q455133: Catlin                 # George Catlin
+Q190116: Cellini                # Benvenuto Cellini
+Q93284: Chagall                 # Marc Chagall
+Q314814: Champaigne             # Philippe de Champaigne
+Q207447: Chardin                # Jean-Baptiste-Siméon Chardin
+Q342467: Chassériau             # Théodore Chassériau
+Q441440: Chicago                # Judy Chicago
+Q613380: Chihuly                # Dale Chihuly
+Q156736: Chillida               # Eduardo Chillida
+Q366212: Church                 # Frederic Edwin Church
+Q15790: Cimabue                 # Cimabue
+Q120582: Claudel                # Camille Claudel
+Q453883: Close                  # Chuck Close
+Q334001: Cole                   # Thomas Cole
+Q453972: Collier                # John Collier
+Q159297: Constable              # John Constable
+Q316016: Copley                 # John Singleton Copley
+Q349842: Corbijn                # Anton Corbijn
+Q157610: Corinth                # Lovis Corinth
+Q148475: Corot                  # Jean-Baptiste Camille Corot
+Q8457: Correggio                # Antonio da Correggio
+Q333323: Cortona                # Pietro da Cortona
+Q34618: Courbet                 # Gustave Courbet
+Q191748: Cranach                # Lucas Cranach the Elder
+Q170339: Cranach                # Lucas Cranach the Younger
+Q660917: Crane                  # Walter Crane
+Q348024: Crivelli               # Carlo Crivelli
+Q360466: Cruikshank             # George Cruikshank
+Q433128: Curtis                 # Edward S. Curtis
+Q445065: César                  # César Baldaccini
+Q35548: Cézanne                 # Paul Cézanne
+Q131405: Daguerre               # Louis Daguerre
+Q164735: Dahl                   # Johan Christian Dahl
+Q5577: Dalí                     # Salvador Dalí
+Q252357: Daubigny               # Charles-François Daubigny
+Q187506: Daumier                # Honoré Daumier
+Q83155: David                   # Jacques-Louis David
+Q364498: David d'Angers         # David d'Angers
+Q156622: De Chirico             # Giorgio de Chirico
+Q314889: De Hooch               # Pieter de Hooch
+Q132305: De Kooning             # Willem de Kooning
+Q46373: Degas                   # Edgar Degas
+Q33477: Delacroix               # Eugène Delacroix
+Q322582: Delaroche              # Paul Delaroche
+Q33978: Delaunay                # Robert Delaunay
+Q232972: Delaunay               # Sonia Delaunay
+Q194977: Della Robbia           # Luca della Robbia
+Q164712: Delvaux                # Paul Delvaux
+Q195796: Demnig                 # Gunter Demnig
+Q440369: Denis                  # Maurice Denis
+Q156272: Derain                 # André Derain
+Q153104: Dix                    # Otto Dix
+Q154599: Doisneau               # Robert Doisneau
+Q320118: Domenichino            # Domenichino
+Q37562: Donatello               # Donatello
+Q6682: Doré                     # Gustave Doré
+Q335927: Dou                    # Gerrit Dou
+Q170076: Dubuffet               # Jean Dubuffet
+Q15792: Duccio                  # Duccio di Buoninsegna
+Q5912: Duchamp                  # Marcel Duchamp
+Q45205: Dufy                    # Raoul Dufy
+Q5580: Dürer                    # Albrecht Dürer
+Q214905: Eakins                 # Thomas Eakins
+Q363823: Eckersberg             # Christoffer Wilhelm Eckersberg
+Q356644: Edelfelt               # Albert Edelfelt
+Q301: El Greco                  # El Greco
+Q241185: Emin                   # Tracey Emin
+Q158840: Ensor                  # James Ensor
+Q354779: Epstein                # Jacob Epstein
+Q154842: Ernst                  # Max Ernst
+Q1470: Escher                   # M. C. Escher
+Q363308: Evans                  # Walker Evans
+Q310715: Fantin-Latour          # Henri Fantin-Latour
+Q158255: Feininger              # Lyonel Feininger
+Q312392: Fontana                # Lucio Fontana
+Q380052: Fortuny                # Mariano Fortuny Marsal
+Q261846: Foujita                # Tsuguharu Foujita
+Q311398: Fouquet                # Jean Fouquet
+Q5664: Fra Angelico             # Fra Angelico
+Q7780: Fra Bartolomeo           # Fra Bartolomeo
+Q127171: Fragonard              # Jean-Honoré Fragonard
+Q434425: Francesco di Giorgio   # Francesco di Giorgio
+Q235281: Frankenthaler          # Helen Frankenthaler
+Q720910: French                 # Daniel Chester French
+Q154594: Freud                  # Lucian Freud
+Q104884: Friedrich              # Caspar David Friedrich
+Q122382: Fuseli                 # Henry Fuseli
+Q192720: Gainsborough           # Thomas Gainsborough
+Q170068: Gallen-Kallela         # Akseli Gallen-Kallela
+Q37693: Gauguin                 # Paul Gauguin
+Q312393: Gentile da Fabriano    # Gentile da Fabriano
+Q212657: Gentileschi            # Artemisia Gentileschi
+Q367360: Gentileschi            # Orazio Gentileschi
+Q208125: Ghiberti               # Lorenzo Ghiberti
+Q191423: Ghirlandaio            # Domenico Ghirlandaio
+Q157194: Giacometti             # Alberto Giacometti
+Q220136: Giambologna            # Giambologna
+Q312640: Giger                  # H. R. Giger
+Q551426: Gill                   # Eric Gill
+Q520806: Gillray                # James Gillray
+Q540665: Gilot                  # Françoise Gilot
+Q332494: Giordano               # Luca Giordano
+Q8459: Giorgione                # Giorgione
+Q7814: Giotto                   # Giotto
+Q433434: Girodet                # Anne-Louis Girodet
+Q215305: Giulio Romano          # Giulio Romano
+Q711903: Gleizes                # Albert Gleizes
+Q234279: Goldin                 # Nan Goldin
+Q165367: Goltzius               # Hendrik Goltzius
+Q232391: Goncharova             # Natalia Goncharova
+Q165648: Gorky                  # Arshile Gorky
+Q360371: Gormley                # Antony Gormley
+Q5432: Goya                     # Francisco Goya
+Q248615: Gozzoli                # Benozzo Gozzoli
+Q347139: Greuze                 # Jean-Baptiste Greuze
+Q151152: Gris                   # Juan Gris
+Q216999: Gros                   # Antoine-Jean Gros
+Q107194: Grosz                  # George Grosz
+Q154338: Grünewald              # Matthias Grünewald
+Q318769: Guardi                 # Francesco Guardi
+Q701669: Gude                   # Hans Gude
+Q334262: Guercino               # Guercino
+Q381277: Guttuso                # Renato Guttuso
+Q163543: Gérard                 # François Gérard
+Q184212: Géricault              # Théodore Géricault
+Q212499: Gérôme                 # Jean-Léon Gérôme
+Q167654: Hals                   # Frans Hals
+Q159465: Hamilton               # Richard Hamilton
+Q485635: Haring                 # Keith Haring
+Q553259: Hartley                # Marsden Hartley
+Q223725: Hayez                  # Francesco Hayez
+Q156700: Heckel                 # Erich Heckel
+Q234109: Hepworth               # Barbara Hepworth
+Q347194: Hine                   # Lewis Hine
+Q200798: Hiroshige              # Utagawa Hiroshige
+Q294326: Hirst                  # Damien Hirst
+Q159907: Hockney                # David Hockney
+Q214564: Hodler                 # Ferdinand Hodler
+Q171344: Hogarth                # William Hogarth
+Q5586: Hokusai                  # Katsushika Hokusai
+Q48319: Holbein                 # Hans Holbein the Younger
+Q448555: Hollar                 # Wenceslaus Hollar
+Q344838: Homer                  # Winslow Homer
+Q314548: Honthorst              # Gerard van Honthorst
+Q203401: Hopper                 # Edward Hopper
+Q318741: Houdon                 # Jean-Antoine Houdon
+Q151836: Hundertwasser          # Friedensreich Hundertwasser
+Q211763: Hunt                   # William Holman Hunt
+Q558522: Husain                 # M. F. Husain
+Q463411: Höch                   # Hannah Höch
+Q23380: Ingres                  # Jean-Auguste-Dominique Ingres
+Q123138: Itten                  # Johannes Itten
+Q76829: Ivanov                  # Alexander Ivanov
+Q156426: Jawlensky              # Alexej von Jawlensky
+Q155057: Johns                  # Jasper Johns
+Q270658: Jordaens               # Jacob Jordaens
+Q83578: Jorn                    # Asger Jorn
+Q250293: Judd                   # Donald Judd
+Q5588: Kahlo                    # Frida Kahlo
+Q61064: Kandinsky               # Wassily Kandinsky
+Q327293: Kapoor                 # Anish Kapoor
+Q123098: Kauffmann              # Angelica Kauffmann
+Q666092: Kentridge              # William Kentridge
+Q170344: Kiefer                 # Anselm Kiefer
+Q367120: Kiprensky              # Orest Kiprensky
+Q229272: Kirchner               # Ernst Ludwig Kirchner
+Q380085: Kittelsen              # Theodor Kittelsen
+Q44007: Klee                    # Paul Klee
+Q154335: Klein                  # Yves Klein
+Q34661: Klimt                   # Gustav Klimt
+Q44252: Klinger                 # Max Klinger
+Q436267: af Klint               # Hilma af Klint
+Q65317: Kneller                 # Godfrey Kneller
+Q154260: Kokoschka              # Oskar Kokoschka
+Q142472: Kollwitz               # Käthe Kollwitz
+Q297525: Koons                  # Jeff Koons
+Q215938: Korda                  # Alberto Korda
+Q437792: Korovin                # Konstantin Korovin
+Q207758: Kramskoi               # Ivan Kramskoi
+Q334200: Krohg                  # Christian Krohg
+Q365068: Krøyer                 # Peder Severin Krøyer
+Q558054: Kubin                  # Alfred Kubin
+Q353628: Kuindzhi               # Arkhip Kuindzhi
+Q467427: Kunisada               # Utagawa Kunisada
+Q317736: Kuniyoshi              # Utagawa Kuniyoshi
+Q167414: Kupka                  # František Kupka
+Q231121: Kusama                 # Yayoi Kusama
+Q313275: Kustodiev              # Boris Kustodiev
+Q203371: La Tour                # Georges de La Tour
+Q465342: Lam                    # Wifredo Lam
+Q230673: Lange                  # Dorothea Lange
+Q187310: Larsson                # Carl Larsson
+Q233088: Laurencin              # Marie Laurencin
+Q708568: Laurens                # Jean-Paul Laurens
+Q355566: Lawrence               # Jacob Lawrence
+Q312096: Lawrence               # Thomas Lawrence
+Q271676: Le Brun                # Charles Le Brun
+Q225283: Leibovitz              # Annie Leibovitz
+Q160252: Leighton               # Frederic Leighton
+Q161336: Lely                   # Peter Lely
+Q229351: Lempicka               # Tamara de Lempicka
+Q762: Leonardo, da Vinci        # Leonardo da Vinci
+Q452321: Leutze                 # Emanuel Leutze
+Q211356: Levitan                # Isaac Levitan
+Q780102: Lewis                  # Wyndham Lewis
+Q168587: LeWitt                 # Sol LeWitt
+Q463065: Lhote                  # André Lhote
+Q151679: Lichtenstein           # Roy Lichtenstein
+Q158062: Liebermann             # Max Liebermann
+Q235063: Lin                    # Maya Lin
+Q296265: Lippi                  # Filippino Lippi
+Q205148: Lippi                  # Filippo Lippi
+Q152233: Lissitzky              # El Lissitzky
+Q211562: Lorenzetti             # Ambrogio Lorenzetti
+Q214074: Lorrain                # Claude Lorrain
+Q310973: Lotto                  # Lorenzo Lotto
+Q1354277: Lowry                 # L. S. Lowry
+Q320980: Lucas van Leyden       # Lucas van Leyden
+Q192222: Lysippos               # Lysippos
+Q157183: Léger                  # Fernand Léger
+Q1257924: López                 # Antonio López García
+Q236161: Maar                   # Dora Maar
+Q33981: Macke                   # August Macke
+Q7836: Magritte                 # René Magritte
+Q153920: Maillol                # Aristide Maillol
+Q460337: Makovsky               # Konstantin Makovsky
+Q448189: Malczewski             # Jacek Malczewski
+Q130777: Malevich               # Kazimir Malevich
+Q46139: Man Ray                 # Man Ray
+Q40599: Manet                   # Édouard Manet
+Q5681: Mantegna                 # Andrea Mantegna
+Q312786: Mapplethorpe           # Robert Mapplethorpe
+Q44054: Marc                    # Franz Marc
+Q267858: Marquet                # Albert Marquet
+Q937096: Martin                 # John Martin
+Q221043: Martini                # Simone Martini
+Q5811: Masaccio                 # Masaccio
+Q312529: Masson                 # André Masson
+Q189117: Matejko                # Jan Matejko
+Q5589: Matisse                  # Henri Matisse
+Q450236: Matta                  # Roberto Matta
+Q314579: Melozzo                # Melozzo da Forlì
+Q106851: Memling                # Hans Memling
+Q76718: Mengs                   # Anton Raphael Mengs
+Q164961: Menzel                 # Adolph von Menzel
+Q62530: Merian                  # Maria Sibylla Merian
+Q57968: Merian                  # Matthäus Merian
+Q314275: Metsys                 # Quinten Metsys
+Q313096: Metzinger              # Jean Metzinger
+Q313828: Meštrović              # Ivan Meštrović
+Q320129: Mi Fu                  # Mi Fu
+Q5592: Michelangelo             # Michelangelo
+Q159606: Millais                # John Everett Millais
+Q265131: Miller                 # Lee Miller
+Q48548: Milles                  # Carl Milles
+Q148458: Millet                 # Jean-François Millet
+Q152384: Miró                   # Joan Miró
+Q234370: Modersohn-Becker       # Paula Modersohn-Becker
+Q120993: Modigliani             # Amedeo Modigliani
+Q160448: Moholy-Nagy            # László Moholy-Nagy
+Q151803: Mondrian               # Piet Mondrian
+Q296: Monet                     # Claude Monet
+Q18169099: Monti                # Paolo Monti
+Q151097: Moore                  # Henry Moore
+Q309618: Morandi                # Giorgio Morandi
+Q203828: Moreau                 # Gustave Moreau
+Q105320: Morisot                # Berthe Morisot
+Q182589: Morris                 # William Morris
+Q45055: Moser                   # Koloman Moser
+Q146691: Mucha                  # Alphonse Mucha
+Q234601: Mukhina                # Vera Mukhina
+Q708028: Munari                 # Bruno Munari
+Q41406: Munch                   # Edvard Munch
+Q352437: Murakami               # Takashi Murakami
+Q192062: Murillo                # Bartolomé Esteban Murillo
+Q190568: Muybridge              # Eadweard Muybridge
+Q192211: Myron                  # Myron
+Q463978: Münter                 # Gabriele Münter
+Q437013: Nachtwey               # James Nachtwey
+Q40116: Nadar                   # Nadar
+Q168665: Nauman                 # Bruce Nauman
+Q318427: Nesterov               # Mikhail Nesterov
+Q374504: Newman                 # Barnett Newman
+Q57395: Newton                  # Helmut Newton
+Q442628: Noguchi                # Isamu Noguchi
+Q152788: Nolde                  # Emil Nolde
+Q46408: O'Keeffe                # Georgia O'Keeffe
+Q983942: Okamoto                # Tarō Okamoto
+Q156731: Oldenburg              # Claes Oldenburg
+Q117012: Ono                    # Yoko Ono
+Q332041: Orozco                 # José Clemente Orozco
+Q616169: Oteiza                 # Jorge Oteiza
+Q158056: Paik                   # Nam June Paik
+Q982251: Palmer                 # Samuel Palmer
+Q286670: Panini                 # Giovanni Paolo Panini
+Q165397: Paolozzi               # Eduardo Paolozzi
+Q365682: Parks                  # Gordon Parks
+Q9348: Parmigianino             # Parmigianino
+Q454945: Peale                  # Charles Willson Peale
+Q162105: Pechstein              # Max Pechstein
+Q315237: Perov                  # Vasily Perov
+Q5827: Perugino                 # Pietro Perugino
+Q177302: Phidias                # Phidias
+Q157321: Picabia                # Francis Picabia
+Q5593: Picasso                  # Pablo Picasso
+Q5822: Piero della Francesca    # Piero della Francesca
+Q280851: Piero di Cosimo        # Piero di Cosimo
+Q5591: Pinturicchio             # Pinturicchio
+Q316307: Piranesi               # Giovanni Battista Piranesi
+Q310896: Pirosmani              # Niko Pirosmani
+Q311082: Pisanello              # Pisanello
+Q364413: Pisano                 # Nicola Pisano
+Q134741: Pissarro               # Camille Pissarro
+Q318393: Polenov                # Vasily Polenov
+Q376062: Polke                  # Sigmar Polke
+Q318640: Pollaiuolo             # Antonio del Pollaiuolo
+Q37571: Pollock                 # Jackson Pollock
+Q193422: Polykleitos            # Polykleitos
+Q207929: Pontormo               # Pontormo
+Q319532: Portinari              # Candido Portinari
+Q41554: Poussin                 # Nicolas Poussin
+Q380103: Pozzo                  # Andrea Pozzo
+Q105290: Praxiteles             # Praxiteles
+Q101516: Prokudin-Gorskii       # Sergei Prokudin-Gorskii
+Q216873: Puvis de Chavannes     # Pierre Puvis de Chavannes
+Q525713: Pyle                   # Howard Pyle
+Q314655: Quentin de La Tour     # Maurice Quentin de La Tour
+Q1375979: Raden Saleh           # Raden Saleh
+Q5597: Raphael                  # Raphael
+Q164358: Rauschenberg           # Robert Rauschenberg
+Q333453: Ravi Varma             # Raja Ravi Varma
+Q154349: Redon                  # Odilon Redon
+Q5598: Rembrandt                # Rembrandt
+Q560787: Remington              # Frederic Remington
+Q109061: Reni                   # Guido Reni
+Q39931: Renoir                  # Pierre-Auguste Renoir
+Q172911: Repin                  # Ilya Repin
+Q194402: Reynolds               # Joshua Reynolds
+Q297838: Ribera                 # Jusepe de Ribera
+Q164351: Richter                # Gerhard Richter
+Q44723: Riemenschneider         # Tilman Riemenschneider
+Q49898: Rigaud                  # Hyacinthe Rigaud
+Q171128: Rivera                 # Diego Rivera
+Q548205: Robert                 # Hubert Robert
+Q271884: Rockwell               # Norman Rockwell
+Q312631: Rodchenko              # Alexander Rodchenko
+Q30755: Rodin                   # Auguste Rodin
+Q208993: Roerich                # Nicholas Roerich
+Q378129: Rops                   # Félicien Rops
+Q359421: Rosa                   # Salvator Rosa
+Q315102: Roslin                 # Alexander Roslin
+Q186748: Rossetti               # Dante Gabriel Rossetti
+Q312617: Rosso Fiorentino       # Rosso Fiorentino
+Q160149: Rothko                 # Mark Rothko
+Q156128: Rouault                # Georges Rouault
+Q156386: Rousseau               # Henri Rousseau
+Q310025: Rousseau               # Théodore Rousseau
+Q318584: Rowlandson             # Thomas Rowlandson
+Q5599: Rubens                   # Peter Paul Rubens
+Q838: Rublev                    # Andrei Rublev
+Q346491: Rude                   # François Rude
+Q213612: Ruisdael               # Jacob van Ruisdael
+Q166585: Runge                  # Philipp Otto Runge
+Q366930: Rusiñol                # Santiago Rusiñol i Prats
+Q434916: Russolo                # Luigi Russolo
+Q168704: Saint Phalle           # Niki de Saint Phalle
+Q770625: Saint-Gaudens          # Augustus Saint-Gaudens
+Q358158: Salgado                # Sebastião Salgado
+Q202267: Sansovino              # Jacopo Sansovino
+Q155626: Sargent                # John Singer Sargent
+Q718409: Saryan                 # Martiros Saryan
+Q436726: Scheffer               # Ary Scheffer
+Q44032: Schiele                 # Egon Schiele
+Q236985: Schjerfbeck            # Helene Schjerfbeck
+Q458816: Schlemmer              # Oskar Schlemmer
+Q161143: Schmidt-Rottluff       # Karl Schmidt-Rottluff
+Q345379: Schnabel               # Julian Schnabel
+Q155575: Schongauer             # Martin Schongauer
+Q155158: Schwitters             # Kurt Schwitters
+Q285423: Sebastiano del Piombo  # Sebastiano del Piombo
+Q379300: Segantini              # Giovanni Segantini
+Q217128: Serov                  # Valentin Serov
+Q321245: Serra                  # Richard Serra
+Q34013: Seurat                  # Georges Seurat
+Q169984: Severini               # Gino Severini
+Q361174: Sharaku                # Sharaku
+Q229455: Sherman                # Cindy Sherman
+Q193064: Shishkin               # Ivan Shishkin
+Q151573: Signac                 # Paul Signac
+Q7031: Signorelli               # Luca Signorelli
+Q263080: Simberg                # Hugo Simberg
+Q315647: Siqueiros              # David Alfaro Siqueiros
+Q175130: Sisley                 # Alfred Sisley
+Q351746: Sorolla                # Joaquín Sorolla
+Q708631: Soulages               # Pierre Soulages
+Q160141: Soutine                # Chaïm Soutine
+Q164979: Spitzweg               # Carl Spitzweg
+Q205863: Steen                  # Jan Steen
+Q313899: Steichen               # Edward Steichen
+Q375268: Stella                 # Frank Stella
+Q313055: Stieglitz              # Alfred Stieglitz
+Q163800: Stoss                  # Veit Stoss
+Q41402: Stuart                  # Gilbert Stuart
+Q381728: Stubbs                 # George Stubbs
+Q45006: Stuck                   # Franz von Stuck
+Q110228: Surikov                # Vasily Surikov
+Q326606: Sérusier               # Paul Sérusier
+Q299565: Talbot                 # William Henry Fox Talbot
+Q690790: Tamayo                 # Rufino Tamayo
+Q164720: Tanguy                 # Yves Tanguy
+Q310320: Tatlin                 # Vladimir Tatlin
+Q335022: Teniers                # David Teniers the Younger
+Q457881: Tenniel                # John Tenniel
+Q346808: Ter Borch              # Gerard ter Borch
+Q47812: Thorvaldsen             # Bertel Thorvaldsen
+Q365544: Tidemand               # Adolph Tidemand
+Q186202: Tiepolo                # Giovanni Battista Tiepolo
+Q312950: Tiffany                # Louis Comfort Tiffany
+Q163938: Tinguely               # Jean Tinguely
+Q9319: Tintoretto               # Jacopo Tintoretto
+Q381248: Tissot                 # James Tissot
+Q47551: Titian                  # Titian
+Q550806: Topor                  # Roland Topor
+Q82445: Toulouse-Lautrec        # Henri de Toulouse-Lautrec
+Q434561: Tropinin               # Vasily Andreevich Tropinin
+Q369263: Trumbull               # John Trumbull
+Q1358703: Tsereteli             # Zurab Tsereteli
+Q159758: Turner                 # J. M. W. Turner
+Q740966: Turrell                # James Turrell
+Q159566: Twombly                # Cy Twombly
+Q158099: Tàpies                 # Antoni Tàpies
+Q192488: Uccello                # Paolo Uccello
+Q272045: Utamaro                # Kitagawa Utamaro
+Q108301: Utrillo                # Maurice Utrillo
+Q156889: Valadon                # Suzanne Valadon
+Q123740: Vallotton              # Félix Vallotton
+Q215251: Van der Goes           # Hugo van der Goes
+Q68631: Van der Weyden          # Rogier van der Weyden
+Q160422: Van Doesburg           # Theo van Doesburg
+Q170345: Van Dongen             # Kees van Dongen
+Q150679: Van Dyck               # Anthony van Dyck
+Q102272: Van Eyck               # Jan van Eyck
+Q5582: Van Gogh                 # Vincent van Gogh
+Q315996: Van Goyen              # Jan van Goyen
+Q235275: Varo                   # Remedios Varo
+Q154448: Vasarely               # Victor Vasarely
+Q128027: Vasari                 # Giorgio Vasari
+Q204138: Vasnetsov              # Viktor Vasnetsov
+Q548914: Veit                   # Philipp Veit
+Q297: Velázquez                 # Diego Velázquez
+Q127017: Vereshchagin           # Vasily Vereshchagin
+Q41264: Vermeer                 # Johannes Vermeer
+Q161145: Vernet                 # Horace Vernet
+Q315819: Vernet                 # Joseph Vernet
+Q9440: Veronese                 # Paolo Veronese
+Q183458: Verrocchio             # Andrea del Verrocchio
+Q213956: Vigeland               # Gustav Vigeland
+Q213163: Vigée Le Brun          # Élisabeth Louise Vigée Le Brun
+Q241098: Vlaminck               # Maurice de Vlaminck
+Q326226: Vostell                # Wolf Vostell
+Q317920: Vouet                  # Simon Vouet
+Q215100: Vrubel                 # Mikhail Vrubel
+Q239394: Vuillard               # Édouard Vuillard
+Q5603: Warhol                   # Andy Warhol
+Q212754: Waterhouse             # John William Waterhouse
+Q183221: Watteau                # Jean-Antoine Watteau
+Q77324: Werner                  # Anton von Werner
+Q313498: West                   # Benjamin West
+Q346988: Weston                 # Edward Weston
+Q203643: Whistler               # James McNeill Whistler
+Q352978: Wiertz                 # Antoine Wiertz
+Q168659: Winterhalter           # Franz Xaver Winterhalter
+Q381238: Witkiewicz             # Stanisław Ignacy Witkiewicz
+Q217434: Wood                   # Grant Wood
+Q214062: Wright                 # Joseph Wright of Derby
+Q316325: Wyeth                  # Andrew Wyeth
+Q312627: Wyspiański             # Stanisław Wyspiański
+Q467337: Yoshitoshi             # Yoshitoshi
+Q160172: Zadkine                # Ossip Zadkine
+Q197461: Zhao Mengfu            # Zhao Mengfu
+Q206820: Zorn                   # Anders Zorn
+Q209615: Zurbarán               # Francisco de Zurbarán
+Q454568: Čapek                  # Josef Čapek
+Q297137: Čiurlionis             # Mikalojus Konstantinas Čiurlionis
