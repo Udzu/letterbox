@@ -24,6 +24,8 @@
   .size { color: #888; margin-right: 8px; }
   .loaded { font-size: 0.85rem; color: #080; border: 1px solid #080; border-radius: 4px; padding: 0 4px; }
   .description { margin: 4px 0 0; color: #444; }
+  .attribution { margin: 4px 0 0; color: #888; font-size: 0.85rem; }
+  .attribution a { color: #888; }
   .status { margin: 4px 0 0; color: #666; font-size: 0.95rem; }
   .status:empty { display: none; }
   .status.error { color: #d00; }
@@ -45,15 +47,29 @@
     "name": "Countries",
     "description": "Sovereign states and dependent territories, with common alternative and former names.",
     "size": 290
+  },
+  {
+    "file": "english.txt",
+    "name": "English",
+    "description": "General English words and phrases from Wiktionary, roughly most common first.",
+    "attribution": "Adapted from the Crossword Nexus ranked Wiktionary word list (https://crosswordnexus.com/wiki/downloadwiki.php), with scores removed. Wiktionary content is licensed under CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), and so is this list.",
+    "size": 210417
   }
 ]
 </script>
 <script>
 (() => {
   // src/wordlists/lists.js
+  var REQUIRED = ["name", "description"];
+  var KEYS = [...REQUIRED, "attribution"];
   function stripList(text) {
     const words = text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !line.startsWith("#"));
     return words.length === 0 ? "" : words.join("\n") + "\n";
+  }
+  function downloadText(stripped, attribution) {
+    return attribution ? `# ${attribution}
+
+${stripped}` : stripped;
   }
   function wordCount(stripped) {
     return new Set(stripped.split("\n").filter((line) => line !== "").map((line) => line.normalize("NFC"))).size;
@@ -138,7 +154,7 @@
       return;
     }
     setStatus(row, "");
-    const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+    const url = URL.createObjectURL(new Blob([downloadText(text, list.attribution)], { type: "text/plain;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;
     a.download = list.file;
@@ -150,6 +166,19 @@
     if (className) el.className = className;
     if (text !== void 0) el.textContent = text;
     return el;
+  }
+  function linkify(text) {
+    const p = element("p", "attribution");
+    for (const [i, part] of text.split(/(https?:\/\/\S*[^\s.,;:)])/).entries()) {
+      if (i % 2 === 0) {
+        p.append(part);
+      } else {
+        const a = element("a", "", part);
+        a.href = part;
+        p.append(a);
+      }
+    }
+    return p;
   }
   var listsBox = document.getElementById("lists");
   for (const list of LISTS) {
@@ -164,7 +193,9 @@
     const status = element("p", "status");
     status.setAttribute("aria-live", "polite");
     const li = element("li");
-    li.append(title, element("p", "description", list.description), status);
+    li.append(title, element("p", "description", list.description));
+    if (list.attribution) li.append(linkify(list.attribution));
+    li.append(status);
     listsBox.append(li);
     const row = { badge, status };
     rows.set(list.file, row);

@@ -3,7 +3,8 @@
 //
 // A list file has one word or phrase per line. Lines starting with # are comments, and they
 // and blank lines are dropped. The file starts with a header of "# key: value" comments,
-// ended by a blank line, giving the list's name and description:
+// ended by a blank line, giving the list's name and description, and optionally an
+// attribution, which is shown on the page and kept at the top of downloaded copies:
 //
 //   # name: Countries
 //   # description: Sovereign states and dependent territories.
@@ -11,12 +12,19 @@
 //   Afghanistan
 //   ...
 
-const KEYS = ["name", "description"];
+const REQUIRED = ["name", "description"];
+const KEYS = [...REQUIRED, "attribution"];
 
 // the list's words, one per line, without comments, blank lines or surrounding spaces
 export function stripList(text) {
   const words = text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !line.startsWith("#"));
   return words.length === 0 ? "" : words.join("\n") + "\n";
+}
+
+// A list as downloaded: its words, after a comment with its attribution if it has one. The
+// other pages skip # lines at the top of a file, so this loads with the same words.
+export function downloadText(stripped, attribution) {
+  return attribution ? `# ${attribution}\n\n${stripped}` : stripped;
 }
 
 // the number of distinct words in a stripped list, counted the way the other pages count them
@@ -35,15 +43,15 @@ export function readList(text) {
     const match = /^# (\w+): (.*\S)$/.exec(lines[i]);
     if (!match) throw new Error(`line ${i + 1}: expected "# key: value" in the header, or a blank line to end it`);
     const [, key, value] = match;
-    if (!KEYS.includes(key)) throw new Error(`line ${i + 1}: unknown header key "${key}" (expected ${KEYS.join(" or ")})`);
+    if (!KEYS.includes(key)) throw new Error(`line ${i + 1}: unknown header key "${key}" (expected ${KEYS.join(", ")})`);
     if (key in meta) throw new Error(`line ${i + 1}: repeated header key "${key}"`);
     meta[key] = value;
   }
-  for (const key of KEYS) {
+  for (const key of REQUIRED) {
     if (!(key in meta)) throw new Error(`missing header key "${key}"`);
   }
   for (let j = i; j < lines.length; j++) {
     if (/^\s|\s$/.test(lines[j])) throw new Error(`line ${j + 1}: leading or trailing space in ${JSON.stringify(lines[j])}`);
   }
-  return { name: meta.name, description: meta.description, size: wordCount(stripList(text)) };
+  return { ...meta, size: wordCount(stripList(text)) };
 }

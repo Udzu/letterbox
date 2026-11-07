@@ -4299,8 +4299,11 @@
   // src/patterns/wordlist.js
   function parseWords(text) {
     const words = /* @__PURE__ */ new Set();
+    let header = true;
     for (const line of text.split("\n")) {
       const word = line.replace(/\r$/, "").normalize("NFC");
+      if (header && (word === "" || word.startsWith("#"))) continue;
+      header = false;
       if (word !== "") words.add(word);
     }
     return [...words];

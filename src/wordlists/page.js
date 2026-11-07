@@ -1,10 +1,11 @@
 // The Wordlists page: the lists in wordlists/, each of which can be loaded into the shared word
 // list slot used by the Anagrams, Pangrams and Patterns pages, or downloaded. Either way the
-// list is stripped of comments and blank lines, so a downloaded list loads with the same words.
+// list is stripped of comments and blank lines (apart from a downloaded list's attribution, which
+// the other pages skip), so a downloaded list loads with the same words.
 
-import { stripList, wordCount } from "./lists.js";
+import { downloadText, stripList, wordCount } from "./lists.js";
 
-// [{ file, name, description, size }], sorted by name, written into the page by the build
+// [{ file, name, description, attribution?, size }], sorted by name, written into the page by the build
 const LISTS = JSON.parse(document.getElementById("lists-data").textContent);
 
 // the word list entry shared by the Anagrams, Pangrams and Patterns pages
@@ -96,7 +97,7 @@ async function download(list, row) {
     return;
   }
   setStatus(row, "");
-  const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+  const url = URL.createObjectURL(new Blob([downloadText(text, list.attribution)], { type: "text/plain;charset=utf-8" }));
   const a = document.createElement("a");
   a.href = url;
   a.download = list.file;
@@ -109,6 +110,22 @@ function element(tag, className, text) {
   if (className) el.className = className;
   if (text !== undefined) el.textContent = text;
   return el;
+}
+
+// text with its web addresses turned into links (leaving out punctuation that ends a sentence
+// or closes brackets around them)
+function linkify(text) {
+  const p = element("p", "attribution");
+  for (const [i, part] of text.split(/(https?:\/\/\S*[^\s.,;:)])/).entries()) {
+    if (i % 2 === 0) {
+      p.append(part);
+    } else {
+      const a = element("a", "", part);
+      a.href = part;
+      p.append(a);
+    }
+  }
+  return p;
 }
 
 const listsBox = document.getElementById("lists");
@@ -124,7 +141,9 @@ for (const list of LISTS) {
   const status = element("p", "status");
   status.setAttribute("aria-live", "polite");
   const li = element("li");
-  li.append(title, element("p", "description", list.description), status);
+  li.append(title, element("p", "description", list.description));
+  if (list.attribution) li.append(linkify(list.attribution));
+  li.append(status);
   listsBox.append(li);
 
   const row = { badge, status };

@@ -5,10 +5,15 @@ import { Builder, closure, markDeterministic } from "./nfa.js";
 
 // The words in a list's text: each non-empty line, without a trailing \r, normalised to NFC
 // like everything else. Spaces are kept, so a list can hold phrases. Duplicates are dropped.
+// Lines starting with # at the top (and blank lines among them) are skipped, so a list
+// can start with a note, such as the attribution on some lists from the Wordlists page.
 export function parseWords(text) {
   const words = new Set();
+  let header = true;
   for (const line of text.split("\n")) {
     const word = line.replace(/\r$/, "").normalize("NFC");
+    if (header && (word === "" || word.startsWith("#"))) continue;
+    header = false;
     if (word !== "") words.add(word);
   }
   return [...words];

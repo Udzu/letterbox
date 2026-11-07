@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { parseWords } from "../src/patterns/wordlist.js";
-import { readList, stripList, wordCount } from "../src/wordlists/lists.js";
+import { downloadText, readList, stripList, wordCount } from "../src/wordlists/lists.js";
 
 const HEADER = "# name: Animals\n# description: Some animals.\n\n";
 
@@ -22,11 +22,22 @@ test("readList reads the header and counts the words", () => {
   assert.deepEqual(readList(HEADER.replaceAll("\n", "\r\n") + "cat\r\n"), { name: "Animals", description: "Some animals.", size: 1 });
 });
 
+test("readList reads an optional attribution", () => {
+  const text = "# name: Animals\n# description: Some animals.\n# attribution: From a zoo.\n\ncat\n";
+  assert.deepEqual(readList(text), { name: "Animals", description: "Some animals.", attribution: "From a zoo.", size: 1 });
+});
+
+test("downloadText keeps the attribution in a comment the other pages skip", () => {
+  assert.equal(downloadText("cat\ndog\n", "From a zoo."), "# From a zoo.\n\ncat\ndog\n");
+  assert.equal(downloadText("cat\ndog\n", undefined), "cat\ndog\n");
+  assert.deepEqual(parseWords(downloadText("cat\ndog\n", "From a zoo.")), ["cat", "dog"]);
+});
+
 test("readList rejects bad headers and stray spaces", () => {
   const rejects = (text, message) => assert.throws(() => readList(text), { message: new RegExp(message) }, JSON.stringify(text));
   rejects("cat\n", 'expected "# key: value"');
   rejects("# name: Animals\n\ncat\n", 'missing header key "description"');
-  rejects("# name: Animals\n# description: x\n# colour: red\n\ncat\n", 'unknown header key "colour"');
+  rejects("# name: Animals\n# description: x\n# colour: red\n\ncat\n", 'unknown header key "colour" \\(expected name, description, attribution\\)');
   rejects("# name: Animals\n# name: Pets\n# description: x\n\ncat\n", 'repeated header key "name"');
   rejects("# name: Animals\n# description: x\n# ====\n\ncat\n", 'line 3: expected "# key: value"');
   rejects("# name: \n# description: x\n\ncat\n", "line 1:");
@@ -40,6 +51,9 @@ test("every list in wordlists/ is well formed", async () => {
   assert.ok(files.length > 0);
   for (const file of files) {
     const text = await readFile(new URL(file, dir), "utf8");
-    assert.doesNotThrow(() => readList(text), file);
+    let list;
+    assert.doesNotThrow(() => (list = readList(text)), file);
+    // a downloaded copy loads into the other pages with the words the page says it has
+    assert.equal(parseWords(downloadText(stripList(text), list.attribution)).length, list.size, file);
   }
 });

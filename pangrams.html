@@ -342,11 +342,14 @@
     }
   }
 
-  // one word or phrase per line, as on the Patterns page
+  // one word or phrase per line, skipping # lines at the top, as on the Patterns page
   function parseWords(text) {
     const words = new Set();
+    let header = true;
     for (const line of text.split("\n")) {
       const word = line.replace(/\r$/, "").normalize("NFC");
+      if (header && (word === "" || word.startsWith("#"))) continue;
+      header = false;
       if (word !== "") words.add(word);
     }
     return [...words];

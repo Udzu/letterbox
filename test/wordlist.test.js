@@ -13,6 +13,12 @@ test("parseWords", () => {
   assert.deepEqual(parseWords("\r\n\r\n"), []);
 });
 
+test("parseWords skips # lines at the top, but not later", () => {
+  assert.deepEqual(parseWords("# note\r\n\r\n# more\ncat\n#tag\n"), ["cat", "#tag"]);
+  assert.deepEqual(parseWords("cat\n# not a comment\n"), ["cat", "# not a comment"]);
+  assert.deepEqual(parseWords("# only a note\n"), []);
+});
+
 test("matcher agrees with matches", () => {
   const rand = seededRandom(29);
   const alphabet = ["a", "b", "é", "😀"];
