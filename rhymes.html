@@ -22,6 +22,8 @@
     font-size: 1.2rem;
     font-family: inherit;
   }
+  #options { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 10px; }
+  #options label { cursor: pointer; }
   #status { margin: 12px 0 0; color: #666; }
   #status:empty { display: none; }
   #status.error { color: #d00; }
@@ -47,8 +49,12 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <b>Rhymes</b> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Find perfect rhymes in General American English: words and phrases that sound the same from the last stressed vowel on, but different just before it (so <i>bread</i> and <i>said</i> rhyme with <i>head</i>, but <i>behead</i> doesn't). Click a rhyme to look it up. Unlike most of the other pages, this one needs an internet connection.</p>
+  <p class="intro">Find perfect rhymes in General American English: words and phrases that sound the same from the last stressed vowel on, but different just before it. Click a rhyme to look it up. Unlike most of the other pages, this one needs an internet connection.</p>
   <input id="word" type="text" placeholder="Word or phrase..." autocomplete="off" spellcheck="false" autofocus>
+  <div id="options">
+    <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> Allow the same onset</label>
+    <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> Allow different onsets after the stress</label>
+  </div>
   <p id="status"></p>
   <div id="prons"></div>
   <p id="summary"></p>
@@ -179,15 +185,35 @@
     });
     return ps.map((x, i) => (marks.get(i) ?? "") + (x.p === " " ? " " : !x.stress && UNSTRESSED[x.p] ? UNSTRESSED[x.p] : IPA[x.p])).join("");
   }
+  function splitCluster(cluster) {
+    const space = cluster.lastIndexOf(" ");
+    if (space >= 0) return [cluster.slice(0, space).replaceAll(" ", ""), cluster.slice(space + 1)];
+    let k = 0;
+    while (k < cluster.length - 1 && !ONSETS.has(cluster.slice(k))) k++;
+    if (cluster.slice(k) === "N") k++;
+    return [cluster.slice(0, k), cluster.slice(k)];
+  }
   function rhymeParts(pron) {
     const ps = phonemes(pron);
     let start2 = ps.findLastIndex((x) => x.stress === 1);
     if (start2 < 0) start2 = ps.findLastIndex((x) => VOWELS.has(x.p));
     let onset = "";
     for (let i = start2 - 1; i >= 0 && !VOWELS.has(ps[i].p) && ps[i].p !== " "; i--) onset = ps[i].p + onset;
-    const rhyme = ps.slice(start2).filter((x) => x.p !== " ").map((x, i) => i > 0 && x.stress === 0 && "IUV".includes(x.p) ? "V" : x.p).join("");
-    const tail = ps.slice(start2).map((x) => x.p + (x.stress || "")).join("");
-    return { rhyme, onset, ipa: toIpa(tail) };
+    const tail = ps.slice(start2);
+    const vowel = (x, i) => i > 0 && x.stress === 0 && "IUV".includes(x.p) ? "V" : x.p;
+    const rhyme = tail.filter((x) => x.p !== " ").map(vowel).join("");
+    let loose = "";
+    let cluster = "";
+    tail.forEach((x, i) => {
+      if (!VOWELS.has(x.p)) {
+        cluster += x.p;
+        return;
+      }
+      loose += splitCluster(cluster)[0] + vowel(x, i);
+      cluster = "";
+    });
+    loose += cluster.replaceAll(" ", "");
+    return { rhyme, loose, onset, ipa: toIpa(tail.map((x) => x.p + (x.stress || "")).join("")) };
   }
   function parsePronunciations(text) {
     const entries = [];
@@ -210,13 +236,16 @@
       this.entries = entries;
       this.byWord = /* @__PURE__ */ new Map();
       this.byRhyme = /* @__PURE__ */ new Map();
+      this.byLoose = /* @__PURE__ */ new Map();
+      const add = (map, key, value) => {
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(value);
+      };
       for (const entry of entries) {
-        const key = lookupKey(entry.word);
-        if (!this.byWord.has(key)) this.byWord.set(key, []);
-        this.byWord.get(key).push(entry);
-        const { rhyme, onset } = rhymeParts(entry.pron);
-        if (!this.byRhyme.has(rhyme)) this.byRhyme.set(rhyme, []);
-        this.byRhyme.get(rhyme).push({ entry, onset });
+        add(this.byWord, lookupKey(entry.word), entry);
+        const { rhyme, loose, onset } = rhymeParts(entry.pron);
+        add(this.byRhyme, rhyme, { entry, onset });
+        add(this.byLoose, loose, { entry, onset });
       }
     }
     // A word's pronunciations, best first: those written the way it was typed, then the ones with the
@@ -228,14 +257,19 @@
       const seen = /* @__PURE__ */ new Set();
       return sorted.filter((entry) => !seen.has(entry.pron) && seen.add(entry.pron));
     }
-    // The perfect rhymes for an entry's pronunciation, alphabetically: other words with the same
-    // rhyme but a different onset (so not head and behead, or homophones).
-    perfect(entry) {
-      const { rhyme, onset } = rhymeParts(entry.pron);
+    // The rhymes for an entry's pronunciation, alphabetically: other words with the same rhyme. By
+    // default these are perfect rhymes, with a different onset (so not head and behead, or homophones)
+    // and the same consonants throughout the rhyme. Options:
+    // - sameOnset: allow the same onset too
+    // - looseOnsets: allow different consonants at the start of the syllables after the stressed one
+    //   (so hip-hop and flip-flop)
+    find(entry, { sameOnset = false, looseOnsets = false } = {}) {
+      const parts = rhymeParts(entry.pron);
+      const candidates = looseOnsets ? this.byLoose.get(parts.loose) : this.byRhyme.get(parts.rhyme);
       const self = lookupKey(entry.word);
       const words = /* @__PURE__ */ new Set();
-      for (const other of this.byRhyme.get(rhyme) ?? []) {
-        if (other.onset !== onset && lookupKey(other.entry.word) !== self) words.add(other.entry.word);
+      for (const other of candidates ?? []) {
+        if ((sameOnset || other.onset !== parts.onset) && lookupKey(other.entry.word) !== self) words.add(other.entry.word);
       }
       return [...words].sort(compareWords);
     }
@@ -245,6 +279,7 @@
 
   // src/rhymes/page.js
   var WORD_KEY = "rhymes-word";
+  var OPTIONS_KEY = "rhymes-options";
   var SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)" };
   var input = document.getElementById("word");
   var status = document.getElementById("status");
@@ -252,6 +287,7 @@
   var summary = document.getElementById("summary");
   var results = document.getElementById("results");
   var attribution = document.getElementById("attribution");
+  var OPTIONS = { sameOnset: document.getElementById("same-onset"), looseOnsets: document.getElementById("loose-onsets") };
   var rhymes = null;
   var shown = { word: null, choices: [], choice: 0 };
   function load(name) {
@@ -305,9 +341,11 @@
     results.replaceChildren();
     const entry = shown.choices[shown.choice];
     if (!entry) return;
-    const words = rhymes.perfect(entry);
+    const options = Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
+    const words = rhymes.find(entry, options);
     const { ipa } = rhymeParts(entry.pron);
-    summary.textContent = `${words.length === 0 ? "No" : words.length.toLocaleString("en")} perfect rhyme${words.length === 1 ? "" : "s"} on /${ipa}/`;
+    const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
+    summary.textContent = `${words.length === 0 ? "No" : words.length.toLocaleString("en")} ${perfect}rhyme${words.length === 1 ? "" : "s"} on /${ipa}/`;
     if (words.length === 0) return;
     results.append(el("div", { className: "list" }, words.map((word) => el("span", { className: "rhyme", textContent: word, tabIndex: 0 }))));
   }
@@ -357,6 +395,17 @@
     clearTimeout(timer);
     timer = setTimeout(update, 150);
   });
+  try {
+    const saved = JSON.parse(load(OPTIONS_KEY) || "{}");
+    for (const [name, box] of Object.entries(OPTIONS)) box.checked = saved[name] === true;
+  } catch (e) {
+  }
+  for (const box of Object.values(OPTIONS)) {
+    box.addEventListener("change", () => {
+      save(OPTIONS_KEY, JSON.stringify(Object.fromEntries(Object.entries(OPTIONS).map(([name, b]) => [name, b.checked]))));
+      if (rhymes) showRhymes();
+    });
+  }
   window.addEventListener("popstate", () => {
     input.value = hashWord();
     update();

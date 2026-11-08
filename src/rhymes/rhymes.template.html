@@ -21,6 +21,8 @@
     font-size: 1.2rem;
     font-family: inherit;
   }
+  #options { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 10px; }
+  #options label { cursor: pointer; }
   #status { margin: 12px 0 0; color: #666; }
   #status:empty { display: none; }
   #status.error { color: #d00; }
@@ -46,8 +48,12 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <b>Rhymes</b> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Find perfect rhymes in General American English: words and phrases that sound the same from the last stressed vowel on, but different just before it (so <i>bread</i> and <i>said</i> rhyme with <i>head</i>, but <i>behead</i> doesn't). Click a rhyme to look it up. Unlike most of the other pages, this one needs an internet connection.</p>
+  <p class="intro">Find perfect rhymes in General American English: words and phrases that sound the same from the last stressed vowel on, but different just before it. Click a rhyme to look it up. Unlike most of the other pages, this one needs an internet connection.</p>
   <input id="word" type="text" placeholder="Word or phrase..." autocomplete="off" spellcheck="false" autofocus>
+  <div id="options">
+    <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> Allow the same onset</label>
+    <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> Allow different onsets after the stress</label>
+  </div>
   <p id="status"></p>
   <div id="prons"></div>
   <p id="summary"></p>

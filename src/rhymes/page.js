@@ -4,6 +4,7 @@ import { attributionParts } from "../wordlists/lists.js";
 import { Rhymes, parsePronunciations, rhymeParts, toIpa } from "./rhymes.js";
 
 const WORD_KEY = "rhymes-word";
+const OPTIONS_KEY = "rhymes-options";
 const SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)" };
 
 const input = document.getElementById("word");
@@ -12,6 +13,8 @@ const prons = document.getElementById("prons");
 const summary = document.getElementById("summary");
 const results = document.getElementById("results");
 const attribution = document.getElementById("attribution");
+// option name -> its tickbox
+const OPTIONS = { sameOnset: document.getElementById("same-onset"), looseOnsets: document.getElementById("loose-onsets") };
 
 let rhymes = null;
 let shown = { word: null, choices: [], choice: 0 };
@@ -68,9 +71,11 @@ function showRhymes() {
   results.replaceChildren();
   const entry = shown.choices[shown.choice];
   if (!entry) return;
-  const words = rhymes.perfect(entry);
+  const options = Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
+  const words = rhymes.find(entry, options);
   const { ipa } = rhymeParts(entry.pron);
-  summary.textContent = `${words.length === 0 ? "No" : words.length.toLocaleString("en")} perfect rhyme${words.length === 1 ? "" : "s"} on /${ipa}/`;
+  const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
+  summary.textContent = `${words.length === 0 ? "No" : words.length.toLocaleString("en")} ${perfect}rhyme${words.length === 1 ? "" : "s"} on /${ipa}/`;
   if (words.length === 0) return;
   results.append(el("div", { className: "list" }, words.map((word) => el("span", { className: "rhyme", textContent: word, tabIndex: 0 }))));
 }
@@ -126,6 +131,17 @@ input.addEventListener("input", () => {
   clearTimeout(timer);
   timer = setTimeout(update, 150);
 });
+
+try {
+  const saved = JSON.parse(load(OPTIONS_KEY) || "{}");
+  for (const [name, box] of Object.entries(OPTIONS)) box.checked = saved[name] === true;
+} catch (e) {}
+for (const box of Object.values(OPTIONS)) {
+  box.addEventListener("change", () => {
+    save(OPTIONS_KEY, JSON.stringify(Object.fromEntries(Object.entries(OPTIONS).map(([name, b]) => [name, b.checked]))));
+    if (rhymes) showRhymes();
+  });
+}
 
 window.addEventListener("popstate", () => {
   input.value = hashWord();
