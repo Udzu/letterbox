@@ -66,28 +66,31 @@ export function splitCluster(cluster) {
 //   nothing has primary stress), ignoring word breaks, differences between unstressed ɪ, ʊ and ə,
 //   and between secondary stress and none
 // - loose: the rhyme without the consonants that start the syllables after the stressed one
-// - onset: the consonants just before the rhyme, within its word
+// - onset: the consonants just before the rhyme that start its syllable (so s in quicksilver, as in
+//   silver, but br in bread), or all of them at the start of a word
 // - ipa: the rhyme in IPA
 export function rhymeParts(pron) {
   const ps = phonemes(pron);
   let start = ps.findLastIndex((x) => x.stress === 1);
   if (start < 0) start = ps.findLastIndex((x) => VOWELS.has(x.p));
-  let onset = "";
-  for (let i = start - 1; i >= 0 && !VOWELS.has(ps[i].p) && ps[i].p !== " "; i--) onset = ps[i].p + onset;
+  let cluster = "";
+  let i = start - 1;
+  for (; i >= 0 && !VOWELS.has(ps[i].p) && ps[i].p !== " "; i--) cluster = ps[i].p + cluster;
+  const onset = i < 0 || ps[i].p === " " ? cluster : splitCluster(cluster)[1];
   const tail = ps.slice(start);
   const vowel = (x, i) => (i > 0 && x.stress === 0 && "IUV".includes(x.p) ? "V" : x.p);
   const rhyme = tail.filter((x) => x.p !== " ").map(vowel).join("");
   let loose = "";
-  let cluster = "";
-  tail.forEach((x, i) => {
+  let between = "";
+  tail.forEach((x, k) => {
     if (!VOWELS.has(x.p)) {
-      cluster += x.p;
+      between += x.p;
       return;
     }
-    loose += splitCluster(cluster)[0] + vowel(x, i);
-    cluster = "";
+    loose += splitCluster(between)[0] + vowel(x, k);
+    between = "";
   });
-  loose += cluster.replaceAll(" ", "");
+  loose += between.replaceAll(" ", "");
   return { rhyme, loose, onset, ipa: toIpa(tail.map((x) => x.p + (x.stress || "")).join("")) };
 }
 

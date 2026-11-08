@@ -34,6 +34,11 @@ orange\tA1rVnJ\tU\t46
 Orange\tA1rInJ\tU\t46
 orange\tO1rnJ\tU\t46
 the\tDV\tC\t77
+silver\tsI1lvR\tCUE\t48
+quicksilver\tkwI1ksI1lvR\tC\t29
+gilver\tgI1lvR\tC\t0
+tsunami\ttsunA1mi\tC\t40
+salami\tsVlA1mi\tC\t40
 `;
 
 const { attribution, entries } = parsePronunciations(DATA);
@@ -42,7 +47,7 @@ const entry = (word, pron) => entries.find((e) => e.word === word && (!pron || e
 
 test("parses the header and entries", () => {
   assert.equal(attribution, "From [somewhere](https://example.com).");
-  assert.equal(entries.length, 28);
+  assert.equal(entries.length, 33);
   assert.deepEqual(entries[0], { word: "head", pron: "hE1d", sources: "CU", zipf: 50 });
 });
 
@@ -66,6 +71,16 @@ test("finds the rhyme and onset", () => {
   assert.deepEqual(rhymeParts("Y1s kri2m"), { rhyme: "Yskrim", loose: "Ysim", onset: "", ipa: "ˈaɪs ˌkɹim" });
   // with no primary stress, the last vowel
   assert.equal(rhymeParts("DV").rhyme, "V");
+});
+
+test("the onset is the consonants that start the syllable", () => {
+  assert.equal(rhymeParts("kwI1ksI1lvR").onset, "s");
+  assert.equal(rhymeParts("IntrE1st").onset, "tr");
+  assert.equal(rhymeParts("tsunA1mi").onset, "n");
+  assert.equal(rhymeParts("tsu1").onset, "ts");
+  assert.equal(rhymeParts("Y1s kri2m").onset, "");
+  assert.deepEqual(rhymes.find(entry("silver")), ["gilver"]);
+  assert.deepEqual(rhymes.find(entry("silver"), { sameOnset: true }), ["gilver", "quicksilver"]);
 });
 
 test("perfect rhymes have a different onset", () => {
