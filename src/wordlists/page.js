@@ -4,7 +4,7 @@
 // list is stripped of comments and blank lines (apart from a downloaded list's attribution, which
 // the other pages skip), so a downloaded list loads with the same words.
 
-import { attributionParts, downloadText, stripList, wordCount } from "./lists.js";
+import { TOPICS, attributionParts, downloadText, stripList, wordCount } from "./lists.js";
 
 // [{ file, name, description, tag?, attribution?, size }], general lists first and then by name,
 // written into the page by the build
@@ -191,13 +191,49 @@ function attributionElement(attribution) {
   return p;
 }
 
-// one <ul> for the general lists and another for the topic and untagged lists after them
+// Between the general lists and the topic and untagged lists after them, a badge for each topic
+// in use and an "other" badge for untagged lists: pressing one shows only the lists it's for,
+// and pressing it again shows them all.
 const listsBox = document.getElementById("lists");
+const filterBox = element("div", "filters");
+filterBox.setAttribute("role", "group");
+filterBox.setAttribute("aria-label", "Show only lists about");
+const filters = new Map(); // filter -> button
+let filter = null;
+const filterOf = (list) => list.tag ?? "other";
+const counts = new Map(); // filter -> number of lists
+for (const list of LISTS) {
+  if (list.tag !== "general") counts.set(filterOf(list), (counts.get(filterOf(list)) ?? 0) + 1);
+}
+for (const name of [...TOPICS, "other"].filter((name) => counts.has(name))) {
+  const button = element("button", `badge ${name}`, `${name} (${counts.get(name)})`);
+  button.setAttribute("aria-pressed", "false");
+  button.addEventListener("click", () => setFilter(filter === name ? null : name));
+  filters.set(name, button);
+  filterBox.append(button);
+}
+const filtered = []; // [{ list, li }] for the lists the filter applies to
+
+function setFilter(name) {
+  filter = name;
+  for (const [key, button] of filters) {
+    button.setAttribute("aria-pressed", String(key === name));
+    button.title = key === name ? "Show all the lists" : `Show only the ${key === "other" ? "untagged" : key} lists`;
+  }
+  filterBox.classList.toggle("active", name !== null);
+  for (const { list, li } of filtered) li.hidden = name !== null && filterOf(list) !== name;
+  // the last row shown has no border under it
+  const shown = filtered.filter(({ li }) => !li.hidden);
+  for (const { li } of filtered) li.classList.toggle("last", li === shown.at(-1)?.li);
+}
+
+// one <ul> for the general lists and another, after the badges, for the other lists
 let group = null;
 for (const list of LISTS) {
   const general = list.tag === "general";
   if (group?.general !== general) {
     group = { general, ul: element("ul") };
+    if (!general) listsBox.append(filterBox);
     listsBox.append(group.ul);
   }
   const buttons = { load: element("button", "load"), at: element("button", "at") };
@@ -214,6 +250,7 @@ for (const list of LISTS) {
   if (list.attribution) li.append(attributionElement(list.attribution));
   li.append(status);
   group.ul.append(li);
+  if (!general) filtered.push({ list, li });
 
   const row = { li, buttons, status };
   rows.set(list.file, row);
@@ -221,6 +258,8 @@ for (const list of LISTS) {
   buttons.at.addEventListener("click", () => toggle(list, row, SLOTS.at));
   downloadButton.addEventListener("click", () => download(list, row));
 }
+
+setFilter(null);
 
 // a list loaded from this page (or a file with the same name) is marked as loaded
 for (const slot of Object.values(SLOTS)) markSlot(slot, null);
