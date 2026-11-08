@@ -139,6 +139,36 @@ far away\tfA1r Vwe1\tW\t40
   assert.ok(COMMON > RARE);
 });
 
+test("the cot-caught merger makes ɔ the same as ɑ, except before r", () => {
+  const r = new Rhymes(parsePronunciations(`
+caught\tkO1t\tC\t49
+cot\tkA1t\tC\t32
+taught\ttO1t\tC\t40
+hot\thA1t\tC\t55
+horse\thO1rs\tC\t50
+farce\tfA1rs\tC\t30
+course\tkO1rs\tC\t55
+Gloucester\tglA1stR\tC\t35
+Gloucester\tglO1stR\tU\t35
+Foster\tfO1stR\tC\t40
+coster\tkA1stR\tC\t10
+boy\tbQ1\tC\t55
+bah\tbA1\tC\t30
+`).entries);
+  const find = (w, o) => r.find(r.pronunciations(w)[0], o);
+  assert.deepEqual(find("caught"), ["taught"]);
+  // cot and caught become homophones, so they aren't perfect rhymes
+  assert.deepEqual(find("caught", { cotCaught: true }), ["hot", "taught"]);
+  assert.deepEqual(find("caught", { cotCaught: true, sameOnset: true }), ["cot", "hot", "taught"]);
+  assert.deepEqual(find("hot", { cotCaught: true }), ["caught", "cot", "taught"]);
+  assert.deepEqual(find("horse", { cotCaught: true }), ["course"]);
+  assert.deepEqual(find("boy", { cotCaught: true }), []);
+  assert.deepEqual(r.pronunciationGroups("Gloucester").length, 2);
+  assert.deepEqual(r.pronunciationGroups("Gloucester", { cotCaught: true }).map((g) => g.others.length), [1]);
+  assert.deepEqual(find("Gloucester", { cotCaught: true }), ["coster", "Foster"]);
+  assert.deepEqual(find("Gloucester", { cotCaught: true, looseOnsets: true }), ["coster", "Foster"]);
+});
+
 test("looks words up regardless of case and apostrophes", () => {
   assert.equal(lookupKey("  Rock’n  Roll "), "rock'n roll");
   assert.deepEqual(rhymes.pronunciations("Polish").map((e) => e.word), ["Polish", "polish"]);

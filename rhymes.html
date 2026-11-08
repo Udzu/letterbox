@@ -59,6 +59,7 @@
   <div id="options">
     <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> Allow the same onset</label>
     <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> Allow different onsets after the stress</label>
+    <label title="Treat the vowels of cot and caught as the same, as many North Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> Merge <i>cot</i> and <i>caught</i></label>
   </div>
   <p id="status"></p>
   <div id="prons"></div>
@@ -240,6 +241,13 @@
   var lookupKey = (word) => word.trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'").toLowerCase();
   var COMMON = 30;
   var RARE = 20;
+  var MERGERS = {
+    cotCaught: (key) => key.replace(/O(?!r)/g, "A")
+  };
+  function merge(key, mergers = {}) {
+    return Object.entries(MERGERS).reduce((k, [name, f]) => mergers[name] ? f(k) : k, key);
+  }
+  var ALL_MERGERS = Object.fromEntries(Object.keys(MERGERS).map((name) => [name, true]));
   var Rhymes = class {
     constructor(entries) {
       this.entries = entries;
@@ -254,8 +262,9 @@
       for (const entry of entries) {
         add(this.byWord, lookupKey(entry.word), entry);
         const { rhyme, loose, onset } = rhymeParts(entry.pron);
-        add(this.byRhyme, rhyme, { entry, onset });
-        add(this.byLoose, loose, { entry, onset });
+        const item = { entry, rhyme, loose, onset };
+        add(this.byRhyme, merge(rhyme, ALL_MERGERS), item);
+        add(this.byLoose, merge(loose, ALL_MERGERS), item);
         this.frequency.set(entry.word, Math.max(this.frequency.get(entry.word) ?? 0, entry.zipf));
       }
     }
@@ -268,13 +277,14 @@
       const seen = /* @__PURE__ */ new Set();
       return sorted.filter((entry) => !seen.has(entry.pron) && seen.add(entry.pron));
     }
-    // A word's pronunciations (as given by pronunciations), grouped when they have the same rhymes:
-    // [{ entry, others }], where entry is the first in its group and others are the rest.
-    pronunciationGroups(word) {
+    // A word's pronunciations (as given by pronunciations), grouped when they have the same rhymes
+    // (with the mergers chosen, as for find): [{ entry, others }], where entry is the first in its group
+    // and others are the rest.
+    pronunciationGroups(word, options = {}) {
       const groups = /* @__PURE__ */ new Map();
       for (const entry of this.pronunciations(word)) {
         const { rhyme, onset } = rhymeParts(entry.pron);
-        const key = `${onset}|${rhyme}`;
+        const key = `${onset}|${merge(rhyme, options)}`;
         if (groups.has(key)) groups.get(key).others.push(entry);
         else groups.set(key, { entry, others: [] });
       }
@@ -286,12 +296,17 @@
     // - sameOnset: allow the same onset too
     // - looseOnsets: allow different consonants at the start of the syllables after the stressed one
     //   (so hip-hop and flip-flop)
-    find(entry, { sameOnset = false, looseOnsets = false } = {}) {
+    // - any of the MERGERS, such as cotCaught: treat those sounds as the same
+    find(entry, options = {}) {
+      const { sameOnset = false, looseOnsets = false } = options;
       const parts = rhymeParts(entry.pron);
-      const candidates = looseOnsets ? this.byLoose.get(parts.loose) : this.byRhyme.get(parts.rhyme);
+      const field = looseOnsets ? "loose" : "rhyme";
+      const target = merge(parts[field], options);
+      const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(merge(parts[field], ALL_MERGERS));
       const self = lookupKey(entry.word);
       const words = /* @__PURE__ */ new Set();
       for (const other of candidates ?? []) {
+        if (merge(other[field], options) !== target) continue;
         if ((sameOnset || other.onset !== parts.onset) && lookupKey(other.entry.word) !== self) words.add(other.entry.word);
       }
       return [...words].sort(compareWords);
@@ -334,7 +349,12 @@
   var summary = document.getElementById("summary");
   var results = document.getElementById("results");
   var attribution = document.getElementById("attribution");
-  var OPTIONS = { sameOnset: document.getElementById("same-onset"), looseOnsets: document.getElementById("loose-onsets") };
+  var OPTIONS = {
+    sameOnset: document.getElementById("same-onset"),
+    looseOnsets: document.getElementById("loose-onsets"),
+    cotCaught: document.getElementById("cot-caught")
+  };
+  var currentOptions = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
   var rhymes = null;
   var shown = { word: null, choices: [], choice: 0 };
   function load(name) {
@@ -386,7 +406,7 @@
     results.replaceChildren();
     const entry = shown.choices[shown.choice]?.entry;
     if (!entry) return;
-    const options = Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
+    const options = currentOptions();
     const bands = rhymes.arrange(rhymes.find(entry, options));
     const count = Object.values(bands).reduce((n, items) => n + items.length, 0);
     const { ipa } = rhymeParts(entry.pron);
@@ -419,7 +439,7 @@
     save(WORD_KEY, word);
     if (hashWord() !== word.trim()) history[push ? "pushState" : "replaceState"](null, "", hashFor(word));
     if (word.trim() === shown.word) return;
-    shown = { word: word.trim(), choices: rhymes.pronunciationGroups(word), choice: 0 };
+    shown = { word: word.trim(), choices: rhymes.pronunciationGroups(word, currentOptions()), choice: 0 };
     summary.textContent = "";
     if (!shown.word) {
       prons.replaceChildren();
@@ -457,8 +477,14 @@
   }
   for (const box of Object.values(OPTIONS)) {
     box.addEventListener("change", () => {
-      save(OPTIONS_KEY, JSON.stringify(Object.fromEntries(Object.entries(OPTIONS).map(([name, b]) => [name, b.checked]))));
-      if (rhymes) showRhymes();
+      save(OPTIONS_KEY, JSON.stringify(currentOptions()));
+      if (!rhymes) return;
+      const chosen = shown.choices[shown.choice];
+      const entries = chosen ? [chosen.entry, ...chosen.others] : [];
+      shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
+      shown.choice = Math.max(0, shown.choices.findIndex((g) => entries.includes(g.entry) || g.others.some((e) => entries.includes(e))));
+      showPronunciations();
+      showRhymes();
     });
   }
   window.addEventListener("popstate", () => {

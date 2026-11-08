@@ -118,13 +118,28 @@ export const lookupKey = (word) => word.trim().replace(/\s+/g, " ").replace(/[�
 export const COMMON = 30;
 export const RARE = 20;
 
+// Sound mergers that some speakers have, each as a function on rhymes (strings of phoneme codes,
+// without stress digits) that makes the merged sounds the same:
+// - cotCaught: ɔ is the same as ɑ (caught and cot), except before r (horse isn't hearse or hard)
+export const MERGERS = {
+  cotCaught: (key) => key.replace(/O(?!r)/g, "A"),
+};
+
+// a rhyme with the given mergers applied ({ cotCaught: true, ... })
+export function merge(key, mergers = {}) {
+  return Object.entries(MERGERS).reduce((k, [name, f]) => (mergers[name] ? f(k) : k), key);
+}
+const ALL_MERGERS = Object.fromEntries(Object.keys(MERGERS).map((name) => [name, true]));
+
 // A rhyming dictionary over a list of entries.
 export class Rhymes {
   constructor(entries) {
     this.entries = entries;
     this.byWord = new Map(); // lookup key -> entries
-    this.byRhyme = new Map(); // rhyme -> [{ entry, onset }]
-    this.byLoose = new Map(); // loose rhyme -> [{ entry, onset }]
+    // rhymes and loose rhymes with every merger applied -> [{ entry, rhyme, loose, onset }], from which
+    // find picks the ones that match with the mergers chosen
+    this.byRhyme = new Map();
+    this.byLoose = new Map();
     this.frequency = new Map(); // word -> highest Zipf frequency (× 10) of its entries
     const add = (map, key, value) => {
       if (!map.has(key)) map.set(key, []);
@@ -133,8 +148,9 @@ export class Rhymes {
     for (const entry of entries) {
       add(this.byWord, lookupKey(entry.word), entry);
       const { rhyme, loose, onset } = rhymeParts(entry.pron);
-      add(this.byRhyme, rhyme, { entry, onset });
-      add(this.byLoose, loose, { entry, onset });
+      const item = { entry, rhyme, loose, onset };
+      add(this.byRhyme, merge(rhyme, ALL_MERGERS), item);
+      add(this.byLoose, merge(loose, ALL_MERGERS), item);
       this.frequency.set(entry.word, Math.max(this.frequency.get(entry.word) ?? 0, entry.zipf));
     }
   }
@@ -149,13 +165,14 @@ export class Rhymes {
     return sorted.filter((entry) => !seen.has(entry.pron) && seen.add(entry.pron));
   }
 
-  // A word's pronunciations (as given by pronunciations), grouped when they have the same rhymes:
-  // [{ entry, others }], where entry is the first in its group and others are the rest.
-  pronunciationGroups(word) {
+  // A word's pronunciations (as given by pronunciations), grouped when they have the same rhymes
+  // (with the mergers chosen, as for find): [{ entry, others }], where entry is the first in its group
+  // and others are the rest.
+  pronunciationGroups(word, options = {}) {
     const groups = new Map();
     for (const entry of this.pronunciations(word)) {
       const { rhyme, onset } = rhymeParts(entry.pron);
-      const key = `${onset}|${rhyme}`;
+      const key = `${onset}|${merge(rhyme, options)}`;
       if (groups.has(key)) groups.get(key).others.push(entry);
       else groups.set(key, { entry, others: [] });
     }
@@ -168,12 +185,17 @@ export class Rhymes {
   // - sameOnset: allow the same onset too
   // - looseOnsets: allow different consonants at the start of the syllables after the stressed one
   //   (so hip-hop and flip-flop)
-  find(entry, { sameOnset = false, looseOnsets = false } = {}) {
+  // - any of the MERGERS, such as cotCaught: treat those sounds as the same
+  find(entry, options = {}) {
+    const { sameOnset = false, looseOnsets = false } = options;
     const parts = rhymeParts(entry.pron);
-    const candidates = looseOnsets ? this.byLoose.get(parts.loose) : this.byRhyme.get(parts.rhyme);
+    const field = looseOnsets ? "loose" : "rhyme";
+    const target = merge(parts[field], options);
+    const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(merge(parts[field], ALL_MERGERS));
     const self = lookupKey(entry.word);
     const words = new Set();
     for (const other of candidates ?? []) {
+      if (merge(other[field], options) !== target) continue;
       if ((sameOnset || other.onset !== parts.onset) && lookupKey(other.entry.word) !== self) words.add(other.entry.word);
     }
     return [...words].sort(compareWords);

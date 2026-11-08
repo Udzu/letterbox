@@ -16,7 +16,12 @@ const summary = document.getElementById("summary");
 const results = document.getElementById("results");
 const attribution = document.getElementById("attribution");
 // option name -> its tickbox
-const OPTIONS = { sameOnset: document.getElementById("same-onset"), looseOnsets: document.getElementById("loose-onsets") };
+const OPTIONS = {
+  sameOnset: document.getElementById("same-onset"),
+  looseOnsets: document.getElementById("loose-onsets"),
+  cotCaught: document.getElementById("cot-caught"),
+};
+const currentOptions = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
 
 let rhymes = null;
 let shown = { word: null, choices: [], choice: 0 };
@@ -77,7 +82,7 @@ function showRhymes() {
   results.replaceChildren();
   const entry = shown.choices[shown.choice]?.entry;
   if (!entry) return;
-  const options = Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
+  const options = currentOptions();
   const bands = rhymes.arrange(rhymes.find(entry, options));
   const count = Object.values(bands).reduce((n, items) => n + items.length, 0);
   const { ipa } = rhymeParts(entry.pron);
@@ -113,7 +118,7 @@ function update({ push = false } = {}) {
   save(WORD_KEY, word);
   if (hashWord() !== word.trim()) history[push ? "pushState" : "replaceState"](null, "", hashFor(word));
   if (word.trim() === shown.word) return;
-  shown = { word: word.trim(), choices: rhymes.pronunciationGroups(word), choice: 0 };
+  shown = { word: word.trim(), choices: rhymes.pronunciationGroups(word, currentOptions()), choice: 0 };
   summary.textContent = "";
   if (!shown.word) {
     prons.replaceChildren();
@@ -154,8 +159,15 @@ try {
 } catch (e) {}
 for (const box of Object.values(OPTIONS)) {
   box.addEventListener("change", () => {
-    save(OPTIONS_KEY, JSON.stringify(Object.fromEntries(Object.entries(OPTIONS).map(([name, b]) => [name, b.checked]))));
-    if (rhymes) showRhymes();
+    save(OPTIONS_KEY, JSON.stringify(currentOptions()));
+    if (!rhymes) return;
+    // mergers can change which pronunciations have the same rhymes: regroup, keeping the one chosen
+    const chosen = shown.choices[shown.choice];
+    const entries = chosen ? [chosen.entry, ...chosen.others] : [];
+    shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
+    shown.choice = Math.max(0, shown.choices.findIndex((g) => entries.includes(g.entry) || g.others.some((e) => entries.includes(e))));
+    showPronunciations();
+    showRhymes();
   });
 }
 
