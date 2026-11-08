@@ -39,37 +39,41 @@ function el(tag, props = {}, children = []) {
   return node;
 }
 
-const sourcesTitle = (entry) => `From ${[...entry.sources].map((s) => SOURCES[s]).join(", ")}`;
+const sourcesTitle = (entries) => entries.map((e) => `/${toIpa(e.pron)}/ from ${[...e.sources].map((s) => SOURCES[s]).join(", ")}`).join("\n");
+
+// A group of pronunciations with the same rhymes: the first, and the others as "also" (with their
+// spelling if it's different).
+function groupLabel({ entry, others }) {
+  const parts = [el("span", { className: "word", textContent: entry.word }), " ", el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })];
+  if (others.length) {
+    const also = others.map((e) => (e.word === entry.word ? "" : `${e.word} `) + `/${toIpa(e.pron)}/`).join(", ");
+    parts.push(" ", el("span", { className: "also", textContent: `(also ${also})` }));
+  }
+  return parts;
+}
 
 function showPronunciations() {
   const { choices, choice } = shown;
   prons.replaceChildren();
   if (choices.length === 1) {
-    const [entry] = choices;
-    prons.append(el("p", { className: "single", title: sourcesTitle(entry) }, [
-      el("span", { className: "word", textContent: entry.word }), " ",
-      el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` }),
-    ]));
+    const [group] = choices;
+    prons.append(el("p", { className: "single", title: sourcesTitle([group.entry, ...group.others]) }, groupLabel(group)));
   } else if (choices.length > 1) {
     prons.append(el("p", { className: "hint", textContent: "Pronunciation:" }));
-    choices.forEach((entry, i) => {
+    choices.forEach((group, i) => {
       const radio = el("input", { type: "radio", name: "pron", value: String(i), checked: i === choice });
       radio.addEventListener("change", () => {
         shown.choice = i;
         showRhymes();
       });
-      prons.append(el("label", { title: sourcesTitle(entry) }, [
-        radio, " ",
-        el("span", { className: "word", textContent: entry.word }), " ",
-        el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` }),
-      ]));
+      prons.append(el("label", { title: sourcesTitle([group.entry, ...group.others]) }, [radio, " ", ...groupLabel(group)]));
     });
   }
 }
 
 function showRhymes() {
   results.replaceChildren();
-  const entry = shown.choices[shown.choice];
+  const entry = shown.choices[shown.choice]?.entry;
   if (!entry) return;
   const options = Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
   const words = rhymes.find(entry, options);
@@ -97,7 +101,7 @@ function update({ push = false } = {}) {
   save(WORD_KEY, word);
   if (hashWord() !== word.trim()) history[push ? "pushState" : "replaceState"](null, "", hashFor(word));
   if (word.trim() === shown.word) return;
-  shown = { word: word.trim(), choices: rhymes.pronunciations(word), choice: 0 };
+  shown = { word: word.trim(), choices: rhymes.pronunciationGroups(word), choice: 0 };
   summary.textContent = "";
   if (!shown.word) {
     prons.replaceChildren();

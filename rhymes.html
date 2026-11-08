@@ -33,6 +33,7 @@
   #prons label { display: block; padding: 2px 0; cursor: pointer; }
   .word { font-weight: 600; }
   .ipa { color: #444; }
+  .also { color: #888; }
   #summary { margin: 16px 0 8px; font-size: 1.1rem; }
   #summary:empty { display: none; }
   #results .list { display: flex; flex-wrap: wrap; gap: 4px 16px; }
@@ -257,6 +258,18 @@
       const seen = /* @__PURE__ */ new Set();
       return sorted.filter((entry) => !seen.has(entry.pron) && seen.add(entry.pron));
     }
+    // A word's pronunciations (as given by pronunciations), grouped when they have the same rhymes:
+    // [{ entry, others }], where entry is the first in its group and others are the rest.
+    pronunciationGroups(word) {
+      const groups = /* @__PURE__ */ new Map();
+      for (const entry of this.pronunciations(word)) {
+        const { rhyme, onset } = rhymeParts(entry.pron);
+        const key = `${onset}|${rhyme}`;
+        if (groups.has(key)) groups.get(key).others.push(entry);
+        else groups.set(key, { entry, others: [] });
+      }
+      return [...groups.values()];
+    }
     // The rhymes for an entry's pronunciation, alphabetically: other words with the same rhyme. By
     // default these are perfect rhymes, with a different onset (so not head and behead, or homophones)
     // and the same consonants throughout the rhyme. Options:
@@ -308,38 +321,36 @@
     node.append(...children);
     return node;
   }
-  var sourcesTitle = (entry) => `From ${[...entry.sources].map((s) => SOURCES[s]).join(", ")}`;
+  var sourcesTitle = (entries) => entries.map((e) => `/${toIpa(e.pron)}/ from ${[...e.sources].map((s) => SOURCES[s]).join(", ")}`).join("\n");
+  function groupLabel({ entry, others }) {
+    const parts = [el("span", { className: "word", textContent: entry.word }), " ", el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })];
+    if (others.length) {
+      const also = others.map((e) => (e.word === entry.word ? "" : `${e.word} `) + `/${toIpa(e.pron)}/`).join(", ");
+      parts.push(" ", el("span", { className: "also", textContent: `(also ${also})` }));
+    }
+    return parts;
+  }
   function showPronunciations() {
     const { choices, choice } = shown;
     prons.replaceChildren();
     if (choices.length === 1) {
-      const [entry] = choices;
-      prons.append(el("p", { className: "single", title: sourcesTitle(entry) }, [
-        el("span", { className: "word", textContent: entry.word }),
-        " ",
-        el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })
-      ]));
+      const [group] = choices;
+      prons.append(el("p", { className: "single", title: sourcesTitle([group.entry, ...group.others]) }, groupLabel(group)));
     } else if (choices.length > 1) {
       prons.append(el("p", { className: "hint", textContent: "Pronunciation:" }));
-      choices.forEach((entry, i) => {
+      choices.forEach((group, i) => {
         const radio = el("input", { type: "radio", name: "pron", value: String(i), checked: i === choice });
         radio.addEventListener("change", () => {
           shown.choice = i;
           showRhymes();
         });
-        prons.append(el("label", { title: sourcesTitle(entry) }, [
-          radio,
-          " ",
-          el("span", { className: "word", textContent: entry.word }),
-          " ",
-          el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })
-        ]));
+        prons.append(el("label", { title: sourcesTitle([group.entry, ...group.others]) }, [radio, " ", ...groupLabel(group)]));
       });
     }
   }
   function showRhymes() {
     results.replaceChildren();
-    const entry = shown.choices[shown.choice];
+    const entry = shown.choices[shown.choice]?.entry;
     if (!entry) return;
     const options = Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
     const words = rhymes.find(entry, options);
@@ -364,7 +375,7 @@
     save(WORD_KEY, word);
     if (hashWord() !== word.trim()) history[push ? "pushState" : "replaceState"](null, "", hashFor(word));
     if (word.trim() === shown.word) return;
-    shown = { word: word.trim(), choices: rhymes.pronunciations(word), choice: 0 };
+    shown = { word: word.trim(), choices: rhymes.pronunciationGroups(word), choice: 0 };
     summary.textContent = "";
     if (!shown.word) {
       prons.replaceChildren();

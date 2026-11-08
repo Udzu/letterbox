@@ -140,6 +140,19 @@ export class Rhymes {
     return sorted.filter((entry) => !seen.has(entry.pron) && seen.add(entry.pron));
   }
 
+  // A word's pronunciations (as given by pronunciations), grouped when they have the same rhymes:
+  // [{ entry, others }], where entry is the first in its group and others are the rest.
+  pronunciationGroups(word) {
+    const groups = new Map();
+    for (const entry of this.pronunciations(word)) {
+      const { rhyme, onset } = rhymeParts(entry.pron);
+      const key = `${onset}|${rhyme}`;
+      if (groups.has(key)) groups.get(key).others.push(entry);
+      else groups.set(key, { entry, others: [] });
+    }
+    return [...groups.values()];
+  }
+
   // The rhymes for an entry's pronunciation, alphabetically: other words with the same rhyme. By
   // default these are perfect rhymes, with a different onset (so not head and behead, or homophones)
   // and the same consonants throughout the rhyme. Options:

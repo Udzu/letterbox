@@ -44,7 +44,27 @@ class IPA(unittest.TestCase):
         self.assertEqual(ipa("kæt"), ["ka1t"])
         self.assertEqual(ipa("ðə"), ["DV"])
         with self.assertRaises(Unparsed):
-            ipa("kæti")
+            ipa("kætoʊ")
+
+    def test_guessed_stress(self):
+        self.assertEqual(ipa("flʌfi"), ["flV1fi"])
+        self.assertEqual(ipa("sæŋkʃɪnz"), ["sa1NkSInz"])
+        self.assertEqual(ipa("skeɪ.lɚ"), ["ske1lR"])
+        self.assertEqual(ipa("ɚli"), ["R1li"])
+        self.assertEqual(ipa("tɪkəlɚ faɪl"), ["tI1kVlR fY1l"])
+        with self.assertRaises(Unparsed):
+            ipa("bɑɹloʊ")
+        # from another pronunciation of the word with as many vowels
+        self.assertEqual(sorted(encode(p) for p in from_ipa("bɑɹloʊ", "Barlow", [("1", "0")])), ["bA1rlo"])
+        with self.assertRaises(Unparsed):
+            from_ipa("bɑɹloʊ", "Barlow", [("1",), ("0", "1", "0")])
+
+    def test_raising_and_r(self):
+        self.assertEqual(ipa("mʌʊs"), ["mW1s"])
+        self.assertEqual(ipa("wʌɪ(ə)ɹ"), ["wY1R", "wY1r"])
+        self.assertEqual(ipa("ðɛɚ"), ["DE1r"])
+        self.assertEqual(ipa("ɪɚ"), ["I1r"])
+        self.assertEqual(ipa("ˈwiː.ɚ"), ["wi1R"])
 
     def test_optional(self):
         self.assertEqual(ipa("ˈɪn(t)ʃ"), ["I1nC", "I1nS"])

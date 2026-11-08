@@ -31,7 +31,7 @@ from wordfreq import zipf_frequency
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE / "rhymes-data"))
 from phonemes import (Unparsed, encode, from_arpabet, from_enpr, from_ipa, guess_th, ipa_bodies,  # noqa: E402
-                      is_vowel, uk_to_us)
+                      is_vowel, stress_pattern, uk_to_us)
 
 KAIKKI, CMUDICT = sys.argv[1:3]
 REPORT = Path(sys.argv[3]) if len(sys.argv) > 3 else None
@@ -49,7 +49,7 @@ NEUTRAL_TAGS = {"rare", "dated", "also", "unstressed", "stressed", "colloquial",
 NOT_WORDS = {"prefix", "suffix", "infix", "interfix", "circumfix", "affix", "symbol", "character", "punct"}
 # A note is fine if every part of it is: General American features, or not about accent at all
 OK_NOTE = re.compile(
-    r"General American|US|Canada|rhotic|(without )?t-flapping|(without )?/æ/ raising( before /ɡ/)?|"
+    r"General American|US|Canada|rhotic|(without )?t-flapping|without /æ/ raising( before /ɡ/)?|"
     r"weak vowel (merger|distinction)|(weak|strong|stressed|unstressed) form|(when )?(un)?stressed|"
     r"in fast speech|some speakers|spelling pronunciation|hyperforeign|anglicized|"
     r"(non-|no )yod-coalescence|yod-dropping|(accents with )?foot–strut split|without the trap–bath split|"
@@ -101,6 +101,7 @@ unparsed = []  # (word, source, transcription, reason)
 wikt = defaultdict(lambda: defaultdict(set))  # word -> pron -> sources
 uk_bodies = defaultdict(list)  # word -> RP transcriptions
 enprs = defaultdict(list)  # word -> enPR strings
+unstressed = []  # (word, source, transcription) with no stress marks, to try again with more to go on
 notes = Counter()
 
 with gzip.open(KAIKKI, "rt", encoding="utf-8") as f:
@@ -133,11 +134,15 @@ with gzip.open(KAIKKI, "rt", encoding="utf-8") as f:
                 if c == "uk":
                     uk_bodies[word].append(body)
                     continue
+                body = mixed_to_us(body) if c == "mixed" else body
                 try:
-                    for p in from_ipa(mixed_to_us(body) if c == "mixed" else body, word):
+                    for p in from_ipa(body, word):
                         wikt[word][p].add("W" if c == "mixed" else c)
                 except Unparsed as x:
-                    unparsed.append((word, c, body, str(x)))
+                    if str(x) == "no stress":
+                        unstressed.append((word, "W" if c == "mixed" else c, body))
+                    else:
+                        unparsed.append((word, c, body, str(x)))
 
 
 def loose(pron):
@@ -145,20 +150,6 @@ def loose(pron):
     secondary stress vs none."""
     return tuple("AH0" if p in ("IH0", "UH0") else p[:-1] + "0" if is_vowel(p) and p[-1] == "2" else p for p in pron)
 
-
-# enPR: pick the reading of each "th" that matches the word's IPA, or else guess from the spelling
-for word, items in enprs.items():
-    known = {loose(p) for p in wikt[word]}
-    for s in items:
-        try:
-            readings = from_enpr(s)
-            converted = [(r, from_ipa(r, word)) for r in readings]
-            match = [ps for r, ps in converted if any(loose(p) in known for p in ps)]
-            ps = match[0] if match else dict(converted)[guess_th(word, readings)]
-            for p in ps:
-                wikt[word][p].add("E")
-        except Unparsed as x:
-            unparsed.append((word, "E", s, str(x)))
 
 # --- Read CMUdict
 
@@ -170,6 +161,53 @@ for line in open(CMUDICT, encoding="utf-8"):
     if pron not in cmu[w]:
         cmu[w].append(pron)
 
+
+# British pronunciations converted to General American, or None if they can't be
+@cache
+def converted_uk(word, body):
+    try:
+        return from_ipa(uk_to_us(body, word), word)
+    except Unparsed:
+        return None
+
+
+# --- Transcriptions with no stress marks: if the stress can't be guessed from the vowels, use the
+# stress pattern of other pronunciations of the word (from CMUdict, Wiktionary, or British ones)
+
+def patterns(word):
+    prons = list(cmu.get(word.lower(), []))
+    for w in wikt_forms.get(word.lower(), []):
+        prons += wikt.get(w, {})
+    for body in uk_bodies.get(word, []):
+        prons += converted_uk(word, body) or []
+    return [stress_pattern(p) for p in prons]
+
+
+wikt_forms = defaultdict(list)
+for w in list(wikt):
+    wikt_forms[w.lower()].append(w)
+for word, source, body in unstressed:
+    try:
+        for p in from_ipa(body, word, patterns(word)):
+            wikt[word][p].add(source)
+        stats["stress from other pronunciations"] += 1
+    except Unparsed as x:
+        unparsed.append((word, source, body, str(x)))
+
+# enPR: pick the reading of each "th" that matches the word's IPA, or else guess from the spelling
+for word, items in enprs.items():
+    known = {loose(p) for p in wikt.get(word, {})}
+    for s in items:
+        try:
+            readings = from_enpr(s)
+            converted = [(r, from_ipa(r, word, patterns(word))) for r in readings]
+            match = [ps for r, ps in converted if any(loose(p) in known for p in ps)]
+            ps = match[0] if match else dict(converted)[guess_th(word, readings)]
+            for p in ps:
+                wikt[word][p].add("E")
+        except Unparsed as x:
+            unparsed.append((word, "E", s, str(x)))
+
 # British-only words: convert, if nothing else gives an American pronunciation
 uk_failed = []
 for word, bodies in uk_bodies.items():
@@ -177,7 +215,7 @@ for word, bodies in uk_bodies.items():
         continue
     for body in bodies:
         try:
-            for p in from_ipa(uk_to_us(body, word), word):
+            for p in from_ipa(uk_to_us(body, word), word, patterns(word)):
                 wikt[word][p].add("B")
         except Unparsed as x:
             uk_failed.append((word, body, str(x)))
@@ -194,7 +232,8 @@ for path in [WORDLISTS / "english.txt"] + sorted(WORDLISTS.glob("*.txt")):
                 forms.append(w)
 wikt_forms = defaultdict(list)
 for w in wikt:
-    wikt_forms[w.lower()].append(w)
+    if wikt[w]:
+        wikt_forms[w.lower()].append(w)
 
 entries = defaultdict(lambda: defaultdict(set))  # form -> pron -> sources
 for w, prons in wikt.items():

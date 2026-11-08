@@ -29,6 +29,10 @@ hip hop\thI1p hA2p\tW\t40
 happy\tha1pi\tCU\t54
 daddy\tda1di\tCU\t44
 Orange\tO1rVnJ\tC\t46
+orange\tO1rInJ\tE\t46
+orange\tA1rVnJ\tU\t46
+Orange\tA1rInJ\tU\t46
+orange\tO1rnJ\tU\t46
 the\tDV\tC\t77
 `;
 
@@ -38,7 +42,7 @@ const entry = (word, pron) => entries.find((e) => e.word === word && (!pron || e
 
 test("parses the header and entries", () => {
   assert.equal(attribution, "From [somewhere](https://example.com).");
-  assert.equal(entries.length, 24);
+  assert.equal(entries.length, 28);
   assert.deepEqual(entries[0], { word: "head", pron: "hE1d", sources: "CU", zipf: 50 });
 });
 
@@ -104,6 +108,12 @@ test("looks words up regardless of case and apostrophes", () => {
   assert.deepEqual(rhymes.pronunciations("read").map((e) => e.pron), ["ri1d", "rE1d"]);
   assert.deepEqual(rhymes.pronunciations("xyzzy"), []);
   // a pronunciation shared by two spellings is only given once, for the one typed
-  assert.deepEqual(rhymes.pronunciations("Orange").map((e) => e.word), ["Orange"]);
-  assert.deepEqual(rhymes.pronunciations("orange").map((e) => e.word), ["orange"]);
+  assert.deepEqual(rhymes.pronunciations("Orange").map((e) => e.word + " " + e.pron), ["Orange O1rVnJ", "Orange A1rInJ", "orange O1rInJ", "orange A1rVnJ", "orange O1rnJ"]);
+  assert.deepEqual(rhymes.pronunciations("orange").map((e) => e.pron), ["O1rVnJ", "O1rInJ", "A1rVnJ", "O1rnJ", "A1rInJ"]);
+});
+
+test("groups pronunciations that have the same rhymes", () => {
+  const groups = rhymes.pronunciationGroups("orange").map((g) => [g.entry.pron, ...g.others.map((e) => e.pron)]);
+  assert.deepEqual(groups, [["O1rVnJ", "O1rInJ"], ["A1rVnJ", "A1rInJ"], ["O1rnJ"]]);
+  assert.deepEqual(rhymes.pronunciationGroups("polish").map((g) => g.others.length), [0, 0]);
 });

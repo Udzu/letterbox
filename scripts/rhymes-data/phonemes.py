@@ -77,13 +77,45 @@ def normalise(pron):
     return tuple(out)
 
 
-def add_stress(pron):
-    """Stress the only full vowel of each word of a pronunciation that has no stress marks at all, or
-    return None if some word has several full vowels."""
+def stress_pattern(pron):
+    """The stress digits of a pronunciation's vowels, such as ("1", "0") for happy."""
+    return tuple(p[-1] for p in pron if is_vowel(p))
+
+
+def _stressable(word):
+    """The index of the vowel to stress in a word with no stress marks: its only full vowel, ignoring
+    first a final i or ɪ (happy, sanctions), and then any ɪ, ʊ or ɚ (scalar), or the first of these if
+    that's all there is (tickler). Returns -1 if the word
+    only has schwas (a function word in a phrase), or None if it can't tell."""
+    vs = [i for i, x in enumerate(word) if is_vowel(x)]
+    full = [i for i in vs if word[i] != "AH0"]
+    if not full:
+        return -1
+    last = vs[-1]
+    no_final = [i for i in full if not (i == last and word[i][:-1] in ("IY", "IH"))]
+    no_weak = [i for i in no_final if word[i][:-1] not in ("IH", "UH", "ER")]
+    for candidates in (full, no_final, no_weak):
+        if len(candidates) == 1:
+            return candidates[0]
+        if not candidates:  # only weak vowels (tickler): English tends to stress the first
+            return (no_final or full)[0]
+    return None
+
+
+def add_stress(pron, patterns=()):
+    """Stress a pronunciation that has no stress marks at all. If exactly one of the stress patterns
+    given (from other pronunciations of the word) has as many vowels, use it; otherwise stress what
+    looks like the only full vowel of each word. Returns None if neither works."""
     if any(is_vowel(p) and p[-1] in "12" for p in pron):
         return pron
-    words = []
-    cur = []
+    vowels = [i for i, p in enumerate(pron) if is_vowel(p)]
+    fits = {pt for pt in patterns if len(pt) == len(vowels) and "1" in pt}
+    if len(fits) == 1:
+        out = list(pron)
+        for i, d in zip(vowels, fits.pop()):
+            out[i] = out[i][:-1] + d
+        return tuple(out)
+    words, cur = [], []
     for p in pron:
         if p == " ":
             words.append(cur)
@@ -92,11 +124,11 @@ def add_stress(pron):
             cur.append(p)
     words.append(cur)
     for w in words:
-        full = [i for i, x in enumerate(w) if is_vowel(x) and x != "AH0"]
-        if len(full) > 1:
+        k = _stressable(w)
+        if k is None:
             return None
-        if full:
-            w[full[0]] = w[full[0]][:-1] + "1"
+        if k >= 0:
+            w[k] = w[k][:-1] + "1"
     return tuple(p for k, w in enumerate(words) for p in ([" "] if k else []) + w)
 
 
@@ -113,6 +145,8 @@ IPA_VOWELS = [
     ("ɛəɹ", "EH R"), ("eəɹ", "EH R"), ("ɔəɹ", "AO R"), ("oəɹ", "AO R"), ("ʊəɹ", "UH R"), ("ɪəɹ", "IH R"),
     ("ɝ", "ER"), ("ɚ", "ER"), ("ɜɹ", "ER"), ("ɜ", "ER"),
     ("eɪ", "EY"), ("ei", "EY"), ("aɪ", "AY"), ("ai", "AY"), ("aj", "AY"), ("ɑɪ", "AY"), ("äɪ", "AY"),
+    ("ʌʊ", "AW"), ("æʊ", "AW"), ("ɐʊ", "AW"), ("ʌɪ", "AY"), ("ɐɪ", "AY"),  # Canadian raising
+    ("ɛɚ", "EH R"), ("eɚ", "EH R"), ("ɪɚ", "IH R"), ("ʊɚ", "UH R"), ("ɔɚ", "AO R"), ("oɚ", "AO R"),
     ("aʊ", "AW"), ("au", "AW"), ("ɔɪ", "OY"), ("oɪ", "OY"), ("oʊ", "OW"), ("ou", "OW"),
     ("i", "IY"), ("ɪ", "IH"), ("e", "EH"), ("ɛ", "EH"), ("æ", "AE"), ("ɑ", "AA"), ("a", "AA"), ("ä", "AA"),
     ("ɔ", "AO"), ("o", "OW"), ("ʊ", "UH"), ("u", "UW"), ("ʌ", "AH"), ("ə", "AH"),
@@ -125,7 +159,7 @@ IPA_CONSONANTS = [
     ("x", "K"), ("ʔ", "T"),
 ]
 IPA_TOKENS = sorted(IPA_VOWELS + IPA_CONSONANTS, key=lambda t: -len(t[0]))
-IPA_DROP = set("ːˑ̯͜͡ʰ̥̪̞̝̠̟̬ʷ̻̆̊͆̚.ˠ|")  # narrow detail that doesn't change the phoneme
+IPA_DROP = set("ːˑ̯͜͡ʰ̥̪̞̝̠̟̬ʷ̻̆̊͆̚ˠ|")  # narrow detail that doesn't change the phoneme
 IPA_REPLACE = [("⁽", "("), ("⁾", ")"), ("₍", "("), ("₎", ")"), ("‿", " "), ("ɝɹ", "ɝ"), ("ɚɹ", "ɚ"),
                ("ɫ", "l"), ("ʍ", "w"), ("ɨ", "ɪ"), ("ᵻ", "ɪ"), ("ɪ̈", "ɪ"), ("ɘ", "ə"), ("ɱ", "m"),
                ("ɹ̩", "ɚ"), ("ɻ", "ɹ"), ("ɒ", "ɑ"), ("ʧ", "tʃ"), ("ʤ", "dʒ")]
@@ -150,8 +184,9 @@ def expand_optional(s, limit=4):
             for c in choices]
 
 
-def from_ipa(body, word=""):
-    """Convert one phonemic IPA transcription (without slashes) to a list of pronunciations."""
+def from_ipa(body, word="", patterns=()):
+    """Convert one phonemic IPA transcription (without slashes) to a list of pronunciations. If it has
+    no stress marks, the stress patterns of other pronunciations of the word can help (add_stress)."""
     if body.startswith("-") or body.endswith("-"):
         raise Unparsed("fragment")
     s = re.sub(r"\([ɹr]\)", "ɹ", body)  # optional r means "in rhotic accents"
@@ -167,6 +202,8 @@ def from_ipa(body, word=""):
             c = v[i]
             if c in "ˈˌ":
                 stress = "1" if c == "ˈ" else "2"
+                i += 1
+            elif c == ".":  # syllable break: symbols on either side don't combine
                 i += 1
             elif c == " ":
                 if pron and pron[-1] != " ":
@@ -189,7 +226,7 @@ def from_ipa(body, word=""):
             pron.pop()
         if not any(is_vowel(p) for p in pron):
             raise Unparsed("no vowel")
-        stressed = add_stress(tuple(pron))
+        stressed = add_stress(tuple(pron), patterns)
         if stressed is None:
             raise Unparsed("no stress")
         out.append(normalise(tuple("AH2" if p == "AH3" else p for p in stressed)))
