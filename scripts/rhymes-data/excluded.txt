@@ -1,0 +1,6 @@
+# Pronunciations to leave out of the Rhymes data, one per line: a word and a pronunciation in the
+# data file's codes, separated by a tab, or just a word to leave it out altogether.
+
+biology	bYA2lVJi1
+biology	bYA2lJi1
+plough	plo1

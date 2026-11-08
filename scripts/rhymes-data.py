@@ -81,6 +81,10 @@ def classify(word, sound, kind):
     if tags & DROP_TAGS or {"Early", "Modern"} <= tags:  # Early Modern English
         return "dropped: obsolete/archaic/dialectal"
     tags -= {"Early", "Modern"}
+    if "phoneme" in tags:  # the sounds a letter can stand for, not how it's said
+        return "dropped: phoneme"
+    if "unstressed" in tags or re.search(r"\bweak form|\bunstressed", sound.get("note", "")):
+        return "dropped: weak form"
     if any("merger" in t for t in tags):
         return "dropped: merger"
     if not note_ok(sound.get("note", "")):
@@ -122,7 +126,7 @@ with gzip.open(KAIKKI, "rt", encoding="utf-8") as f:
         if e.get("lang_code") != "en" or e.get("pos") in NOT_WORDS:
             continue
         word = e["word"]
-        if word.startswith("-") or word.endswith("-"):
+        if word.startswith("-") or word.endswith("-") or not re.match(r"[^\W_]|['’]", word):
             continue
         seen = set()
         for sound in e.get("sounds", []):
@@ -170,6 +174,9 @@ for line in open(CMUDICT, encoding="utf-8"):
     w, p = line.split(" ", 1)
     w = re.sub(r"\(\d+\)$", "", w)
     pron = from_arpabet(p.split("#")[0].strip())
+    if pron is None:
+        stats["CMUdict: no stress"] += 1
+        continue
     if pron not in cmu[w]:
         cmu[w].append(pron)
 
@@ -251,9 +258,33 @@ entries = defaultdict(lambda: defaultdict(set))  # form -> pron -> sources
 for w, prons in wikt.items():
     for p, srcs in prons.items():
         entries[w][p] |= srcs
+# the names of the letters, in phoneme codes, for spotting CMUdict's readings of initialisms
+LETTER_NAMES = {
+    "a": ["e"], "b": ["bi"], "c": ["si"], "d": ["di"], "e": ["i"], "f": ["Ef"], "g": ["Ji"], "h": ["eC"], "i": ["Y"],
+    "j": ["Je"], "k": ["ke"], "l": ["El"], "m": ["Em"], "n": ["En"], "o": ["o"], "p": ["pi"], "q": ["kju"], "r": ["Ar"],
+    "s": ["Es"], "t": ["ti"], "u": ["ju"], "v": ["vi"], "w": ["dVbVlju", "dVbVju", "dVbju"], "x": ["Eks"], "y": ["wY"],
+    "z": ["zi"],
+}
+
+
+def spelled_out(word, pron):
+    """Whether a pronunciation is the names of the word's letters (CMUdict's dak for DAK)."""
+    if len(word) < 2 or not word.isalpha() or not word.isascii():
+        return False
+    target = re.sub("[12 ]", "", encode(pron))
+    options = [""]
+    for c in word:
+        options = [o + n for o in options for n in LETTER_NAMES[c]]
+    return target in options
+
+
 for lw, prons in cmu.items():
     forms = wikt_forms.get(lw, [])
     for p in prons:
+        if spelled_out(lw, p):  # CMUdict writes initialisms in lowercase too
+            entries[lw.upper()][p].add("C")
+            stats["CMUdict initialisms moved to uppercase"] += 1
+            continue
         matching = [w for w in forms if any(loose(q) == loose(p) for q in wikt[w])]
         if not matching:
             candidates = forms + [f for f in list_forms.get(lw, []) if f not in forms]
@@ -264,6 +295,27 @@ for lw, prons in cmu.items():
                 matching = [ranked[0] if ranked else candidates[0]]
         for w in matching:
             entries[w][p].add("C")
+
+# --- Hand-made exclusions: rhymes-data/excluded.txt has lines "word<TAB>pronunciation" (in the data
+# file's codes), or just "word" to leave a word out altogether
+
+for line in open(HERE / "rhymes-data" / "excluded.txt", encoding="utf-8"):
+    line = line.rstrip("\n")
+    if not line or line.startswith("#"):
+        continue
+    w, _, code = line.partition("\t")
+    if w not in entries:
+        print(f"excluded.txt: no word {w!r}", file=sys.stderr)
+    elif not code:
+        del entries[w]
+    else:
+        dropped = [p for p in entries[w] if encode(p) == code]
+        if not dropped:
+            print(f"excluded.txt: no pronunciation {code} for {w!r}", file=sys.stderr)
+        for p in dropped:
+            del entries[w][p]
+        if not entries[w]:
+            del entries[w]
 
 # --- Merge pronunciations that differ only in secondary stress vs none, preferring CMUdict's
 
@@ -299,8 +351,37 @@ for w, _, srcs in rows:
     sources[w] |= set(srcs)
 
 
-def frequency(w):
+CODE_VOWELS = set("AaVOWYEReIioQUu")
+
+
+def rhyme_key(pron):
+    """The rhyme of an encoded pronunciation, as the page compares them: from the last primary-stressed
+    vowel (or the last vowel), without word breaks, stress, or differences between unstressed ɪ/ʊ/ə."""
+    ps = []  # [phoneme, stress]
+    for c in pron:
+        if c in "12":
+            ps[-1][1] = c
+        elif c != " ":
+            ps.append([c, "0" if c in CODE_VOWELS else ""])
+    vowels = [i for i, (c, _) in enumerate(ps) if c in CODE_VOWELS]
+    primary = [i for i in vowels if ps[i][1] == "1"]
+    start = primary[-1] if primary else vowels[-1] if vowels else 0
+    return "".join("V" if i > start and st == "0" and c in "IUV" else c for i, (c, st) in enumerate(ps) if i >= start)
+
+
+# A word's pronunciations that only come from weaker sources (untagged Wiktionary, enPR or converted
+# British) and that rhyme differently from all of its CMUdict or US Wiktionary ones are usually for a
+# rare sense (math as a Hindu monastery, be as a Cyrillic letter), so they're capped as rare too.
+strong_rhymes = defaultdict(set)
+for w, p, srcs in rows:
+    if set(srcs) & {"C", "U"}:
+        strong_rhymes[w].add(rhyme_key(p))
+
+
+def frequency(w, p, srcs):
     if w not in ENGLISH and ((w != w.lower() and w.lower() in entries) or sources[w] == {"C"}):
+        return min(zipf(w), RARE_CAP)
+    if strong_rhymes[w] and not set(srcs) & {"C", "U"} and rhyme_key(p) not in strong_rhymes[w]:
         return min(zipf(w), RARE_CAP)
     return zipf(w)
 
@@ -309,13 +390,13 @@ rows.sort(key=lambda r: (r[0].lower(), r[0], r[1]))
 OUT.parent.mkdir(exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as o:
     print("""# name: Pronunciations
-# description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10 (capped at 15 for capitalised forms of lowercase words and for words only in CMUdict, unless they're in the English word list).
+# description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10 (capped at 15 for capitalised forms of lowercase words and for words only in CMUdict, unless they're in the English word list, and for pronunciations only from weaker sources that rhyme differently from the word's CMUdict or US ones).
 # attribution: From the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (BSD licence) and [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)), with frequencies from [wordfreq](https://github.com/rspeer/wordfreq). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.
 # phonemes: vowels A ɑ, a æ, V ʌ/ə, O ɔ, W aʊ, Y aɪ, E ɛ, R ɝ/ɚ, e eɪ, I ɪ, i i, o oʊ, Q ɔɪ, U ʊ, u u (followed by 1 for primary stress, 2 for secondary); consonants b C=tʃ d D=ð f g h J=dʒ k l m n N=ŋ p r s S=ʃ t T=θ v w j z Z=ʒ; space between words
 # sources: C CMUdict, U Wiktionary (US), W Wiktionary (untagged), E Wiktionary enPR, B Wiktionary (British, converted)
 """, file=o)
     for w, p, s in rows:
-        print(f"{w}\t{p}\t{s}\t{frequency(w)}", file=o)
+        print(f"{w}\t{p}\t{s}\t{frequency(w, p, s)}", file=o)
 
 # --- Report
 

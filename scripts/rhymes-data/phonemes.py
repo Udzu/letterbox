@@ -136,7 +136,16 @@ def add_stress(pron, patterns=()):
 
 
 def from_arpabet(s):
-    return normalise(tuple(s.split()))
+    """A CMUdict pronunciation, or None for the few with several vowels and no stress at all. If one
+    only has secondary stress, the first secondary stress becomes primary."""
+    pron = list(s.split())
+    vowels = [i for i, p in enumerate(pron) if is_vowel(p)]
+    if len(vowels) > 1 and not any(pron[i].endswith("1") for i in vowels):
+        secondary = [i for i in vowels if pron[i].endswith("2")]
+        if not secondary:
+            return None
+        pron[secondary[0]] = pron[secondary[0]][:-1] + "1"
+    return normalise(tuple(pron))
 
 
 # --- Wiktionary IPA
@@ -152,7 +161,7 @@ IPA_VOWELS = [
     ("ɔ", "AO"), ("o", "OW"), ("ʊ", "UH"), ("u", "UW"), ("ʌ", "AH"), ("ə", "AH"),
 ]
 IPA_CONSONANTS = [
-    ("tʃ", "CH"), ("dʒ", "JH"), ("l̩", "AH0 L"), ("n̩", "AH0 N"), ("m̩", "AH0 M"), ("ŋ̍", "AH0 NG"),
+    ("tʃ", "CH"), ("dʒ", "JH"), ("l̩", "AH L"), ("n̩", "AH N"), ("m̩", "AH M"), ("ŋ̍", "AH NG"),
     ("p", "P"), ("b", "B"), ("t", "T"), ("d", "D"), ("k", "K"), ("ɡ", "G"), ("g", "G"), ("f", "F"),
     ("v", "V"), ("θ", "TH"), ("ð", "DH"), ("s", "S"), ("z", "Z"), ("ʃ", "SH"), ("ʒ", "ZH"), ("h", "HH"),
     ("m", "M"), ("n", "N"), ("ŋ", "NG"), ("l", "L"), ("ɹ", "R"), ("r", "R"), ("j", "Y"), ("w", "W"),

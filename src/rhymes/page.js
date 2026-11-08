@@ -83,7 +83,7 @@ function showRhymes() {
   const entry = shown.choices[shown.choice]?.entry;
   if (!entry) return;
   const options = currentOptions();
-  const bands = rhymes.arrange(rhymes.find(entry, options));
+  const bands = rhymes.arrange(rhymes.matches(entry, options));
   const count = Object.values(bands).reduce((n, items) => n + items.length, 0);
   const { ipa } = rhymeParts(entry.pron);
   const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
