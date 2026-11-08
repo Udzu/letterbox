@@ -1,0 +1,320 @@
+# name: Musical instruments
+# description: Instruments from around the world, alphabetically. Names with accents are followed by their unaccented forms.
+# tag: culture
+
+accordion
+acoustic guitar
+agogô
+agogo
+alpenhorn
+alphorn
+alto saxophone
+angklung
+archlute
+aulos
+autoharp
+bağlama
+baglama
+bagpipe
+bagpipes
+balafon
+balalaika
+bandoneón
+bandoneon
+bandura
+bandurria
+banjo
+bansuri
+baritone horn
+baritone saxophone
+barrel organ
+bass clarinet
+bass drum
+bass guitar
+basset horn
+bassoon
+bayan
+bell
+berimbau
+biwa
+bodhrán
+bodhran
+bombard
+bones
+bongo
+bouzouki
+bugle
+bullroarer
+cabasa
+cajón
+cajon
+calliope
+carillon
+carnyx
+castanets
+cavaquinho
+celesta
+cello
+charango
+chimes
+cimbalom
+cittern
+clarinet
+classical guitar
+claves
+clavichord
+concertina
+conch
+conga
+contrabass
+contrabassoon
+cor anglais
+cornet
+cornett
+cowbell
+crotales
+crumhorn
+crwth
+cuatro
+cuíca
+cuica
+cymbal
+daf
+darbuka
+davul
+dhol
+dholak
+didgeridoo
+didjeridu
+dizi
+djembe
+dombra
+domra
+double bass
+doumbek
+drum
+drum kit
+drum machine
+drum set
+duduk
+dulcian
+dulcimer
+dutar
+electric bass
+electric guitar
+electric piano
+English horn
+erhu
+euphonium
+fiddle
+fife
+flageolet
+flexatone
+flugelhorn
+flügelhorn
+flute
+fortepiano
+frame drum
+French horn
+gadulka
+gayageum
+ghatam
+gittern
+glass harmonica
+glockenspiel
+gong
+grand piano
+güiro
+guiro
+guitar
+guitarrón
+guitarron
+guqin
+gusle
+gusli
+guzheng
+handbell
+handpan
+Hardanger fiddle
+harmonica
+harmonium
+harp
+harpsichord
+helicon
+hi-hat
+hichiriki
+horn
+hurdy-gurdy
+janggu
+jaw harp
+Jew's harp
+kalimba
+kamancheh
+kanjira
+kantele
+kanun
+kaval
+kayagum
+kazoo
+kemenche
+kendang
+kettledrum
+keyboard
+keytar
+khaen
+kithara
+kobyz
+kobza
+komuz
+kora
+koto
+lute
+lyre
+mandola
+mandolin
+maraca
+marimba
+mbira
+mellophone
+melodica
+monochord
+morin khuur
+mouth organ
+mridangam
+music box
+musical saw
+nadaswaram
+ney
+nyckelharpa
+oboe
+oboe d'amore
+ocarina
+ondes Martenot
+ophicleide
+organ
+oud
+pan flute
+pandeiro
+panpipes
+pedal steel guitar
+penny whistle
+piano
+pianoforte
+piccolo
+pipa
+pipe organ
+player piano
+post horn
+psaltery
+pump organ
+qanun
+quena
+rainstick
+ratchet
+rattle
+rebab
+rebec
+recorder
+reed organ
+resonator guitar
+riq
+ruan
+rubab
+sackbut
+sanshin
+santoor
+santur
+sanxian
+sarangi
+sarod
+sax
+saxhorn
+saxophone
+saz
+serpent
+setar
+shakuhachi
+shamisen
+shawm
+shehnai
+shekere
+sheng
+shō
+sho
+shofar
+siku
+sistrum
+sitar
+sleigh bells
+slide whistle
+slit drum
+snare drum
+soprano saxophone
+sousaphone
+spinet
+spoons
+squeezebox
+steel drum
+steel guitar
+steelpan
+suona
+surdo
+synthesizer
+tabla
+tabor
+taiko
+talking drum
+tam-tam
+tamborim
+tambourine
+tambura
+tanbur
+tanpura
+tar
+tárogató
+tarogato
+tenor saxophone
+theorbo
+theremin
+thumb piano
+timbales
+timpani
+tin whistle
+tiple
+tom-tom
+tombak
+triangle
+trombone
+trumpet
+tuba
+tubular bells
+udu
+uilleann pipes
+ukelele
+ukulele
+upright bass
+upright piano
+valiha
+veena
+vibraphone
+vielle
+vihuela
+vina
+viol
+viola
+viola da gamba
+violin
+violoncello
+virginals
+vuvuzela
+Wagner tuba
+washboard
+whip
+whistle
+wind chime
+woodblock
+xiao
+xylophone
+yangqin
+zither
+zurna
