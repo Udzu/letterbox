@@ -30,7 +30,6 @@ Q1339: Bach                         # Johann Sebastian Bach
 Q107277: Bach                       # Wilhelm Friedemann Bach
 Q185040: Balakirev                  # Mily Alexeyevich Balakirev
 Q216870: Barber                     # Samuel Barber
-Q111074: Barry                      # John Barry
 Q83326: Bartók                      # Béla Bartók
 Q143198: Bax                        # Arnold Bax
 Q235699: Beach                      # Amy Beach
@@ -91,7 +90,6 @@ Q139223: Davies                     # Peter Maxwell Davies
 Q4700: Debussy                      # Claude Debussy
 Q207951: Delibes                    # Léo Delibes
 Q312698: Delius                     # Frederick Delius
-Q313362: Desplat                    # Alexandre Desplat
 Q78522: Dittersdorf                 # Carl Ditters von Dittersdorf
 Q78532: Dohnányi                    # Ernő Dohnányi
 Q101698: Donizetti                  # Gaetano Donizetti
@@ -106,7 +104,6 @@ Q7298: Dvořák                       # Antonín Dvořák
 Q6309766: Eastman                   # Julius Eastman
 Q83182: Einaudi                     # Ludovico Einaudi
 Q78704: Eisler                      # Hanns Eisler
-Q193338: Elfman                     # Danny Elfman
 Q179631: Elgar                      # Edward Elgar
 Q77177: Enescu, Enesco              # Georges Enescou
 Q316820: Erkel                      # Ferenc Erkel
@@ -131,7 +128,6 @@ Q25872: Glazunov                    # Alexander Glazounov
 Q316795: Glière                     # Reinhold Glière
 Q181885: Glinka                     # Michael Glinka
 Q130759: Gluck                      # Christoph Willibald von Gluck
-Q235077: Goldsmith                  # Jerry Goldsmith
 Q294568: Górecki                    # Henryk Mikolaj Górecki
 Q313667: Gossec                     # François Joseph Gossec
 Q550701: Gottschalk                 # Louis Moreau Gottschalk
@@ -156,17 +152,14 @@ Q296804: Herrmann                   # Bernard Herrmann
 Q289468: Higdon                     # Jennifer Higdon
 Q70991: Hildegard, Bingen           # Hildegard of Bingen
 Q57244: Hindemith                   # Paul Hindemith
-Q275900: Hisaishi                   # Joe Hisaishi
 Q200867: Holst                      # Gustav Holst
 Q123164: Honegger                   # Arthur Honegger
-Q106221: Horner                     # James Horner
 Q151953: Hummel                     # Johann Nepomuk Hummel
 Q55010: Humperdinck                 # Engelbert Humperdinck
 Q296828: Ibert                      # Jacques Ibert
 Q313584: d'Indy                     # Vincent d'Indy
 Q309648: Ives                       # Charles Ives
 Q184933: Janáček                    # Leoš Janáček
-Q105487: Jarre                      # Maurice Jarre
 Q333168: Jenkins                    # Karl Jenkins
 Q191499: Joplin                     # Scott Joplin
 Q143100: Josquin, Desprez           # Josquin des Prez
@@ -187,14 +180,12 @@ Q158436: Krenek                     # Ernst Krenek
 Q48184: Kurtág                      # György Kurtág
 Q224002: Lalo                       # Edouard Lalo
 Q154792: Lassus, Lasso              # Orlande de Lassus
-Q313281: Legrand                    # Michel Legrand
 Q191917: Lehár                      # Franz Lehár
 Q189015: Leoncavallo                # Ruggero Leoncavallo
 Q467914: Leontovych                 # Mykola Leontovych
 Q504426: Liatoshynsky               # Borys Liatoshynsky
 Q154331: Ligeti                     # György Ligeti
 Q41309: Liszt                       # Franz Liszt
-Q180975: Lloyd Webber               # Andrew Lloyd Webber
 Q124772: Locatelli                  # Pietro Locatelli
 Q158899: Loewe                      # Carl Loewe
 Q154203: Lortzing                   # Albert Lortzing
@@ -285,7 +276,6 @@ Q505614: Rutter                     # John Rutter
 Q241432: Saariaho                   # Kaija Saariaho
 Q726953: Saint-Georges              # Joseph Bologne, Chevalier de Saint-Georges
 Q150445: Saint-Saëns                # Camille Saint-Saëns
-Q345494: Sakamoto                   # Ryuichi Sakamoto
 Q51088: Salieri                     # Antonio Salieri
 Q204503: Sarasate                   # Pablo de Sarasate
 Q187192: Satie                      # Erik Satie
@@ -300,7 +290,6 @@ Q153643: Schütz                     # Heinrich Schütz
 Q185647: Scriabin, Skryabin         # Alexander Scriabin
 Q15430653: Shaw                     # Caroline Shaw
 Q165706: Shchedrin                  # Rodion Shchedrin
-Q207773: Shore                      # Howard Shore
 Q80135: Shostakovich                # Dmitri Shostakovich
 Q45682: Sibelius                    # Jean Sibelius
 Q48173: Smetana                     # Bedřich Smetana
@@ -342,7 +331,6 @@ Q297717: Thomas                     # Ambroise Thomas
 Q544485: Thomson                    # Virgil Thomson
 Q356499: Tippett                    # Michael Tippett
 Q207532: Torelli                    # Giuseppe Torelli
-Q153172: Vangelis                   # Vangelis
 Q57247: Varèse                      # Edgard Varèse
 Q368449: Vasks                      # Pēteris Vasks
 Q207947: Vaughan Williams           # Ralph Vaughan Williams
@@ -367,4 +355,3 @@ Q152880: Xenakis                    # Iannis Xenakis
 Q312857: Ysaÿe                      # Eugène Ysaÿe
 Q157777: Zelenka                    # Jan Dismas Zelenka
 Q78524: Zemlinsky                   # Alexander von Zemlinsky
-Q76364: Zimmer                      # Hans Zimmer
