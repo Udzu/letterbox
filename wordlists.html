@@ -18,11 +18,17 @@
   .intro a { color: #06c; }
   #lists ul { list-style: none; margin: 0; padding: 0; }
   #lists ul + ul { margin-top: 32px; }
+  /* the topic badges between the general and other lists, which filter the other lists */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 8px; }
+  .filters button.badge { border: 1px solid transparent; font: inherit; font-size: 0.9rem; padding: 2px 12px; cursor: pointer; }
+  .filters.active button.badge[aria-pressed=false] { opacity: 0.45; }
+  .filters button.badge[aria-pressed=true] { border-color: currentColor; }
   #lists li { margin: 0 -8px; padding: 12px 8px; border-bottom: 1px solid #ddd; }
   /* the word list's row is shaded green, and the @ list's blue, unless it's also the word list */
   #lists li.at { background: #eef4fc; }
   #lists li.loaded { background: #eef8ee; }
-  #lists li:last-child { border-bottom: none; }
+  #lists li:last-child, #lists li.last { border-bottom: none; }
+  #lists li[hidden] { display: none; }
   .title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .name { font-size: 1.2rem; font-weight: 600; }
   .size { color: #888; margin-right: 8px; }
@@ -32,6 +38,7 @@
   .badge.geography { background: #fcecd9; color: #8a4b00; }
   .badge.politics { background: #f3f0c4; color: #5f5600; }
   .badge.science { background: #efe6fa; color: #5b2f94; }
+  .badge.other { background: #eee; color: #555; }
   /* pressed buttons are coloured like the shading of their rows */
   button.load[aria-pressed=true] { background: #080; border: 1px solid #080; border-radius: 3px; color: #fff; }
   button.at[aria-pressed=true] { background: #06c; border: 1px solid #06c; border-radius: 3px; color: #fff; }
@@ -346,11 +353,41 @@ ${stripped}` : stripped;
     return p;
   }
   var listsBox = document.getElementById("lists");
+  var filterBox = element("div", "filters");
+  filterBox.setAttribute("role", "group");
+  filterBox.setAttribute("aria-label", "Show only lists about");
+  var filters = /* @__PURE__ */ new Map();
+  var filter = null;
+  var filterOf = (list) => list.tag ?? "other";
+  var counts = /* @__PURE__ */ new Map();
+  for (const list of LISTS) {
+    if (list.tag !== "general") counts.set(filterOf(list), (counts.get(filterOf(list)) ?? 0) + 1);
+  }
+  for (const name of [...TOPICS, "other"].filter((name2) => counts.has(name2))) {
+    const button = element("button", `badge ${name}`, `${name} (${counts.get(name)})`);
+    button.setAttribute("aria-pressed", "false");
+    button.addEventListener("click", () => setFilter(filter === name ? null : name));
+    filters.set(name, button);
+    filterBox.append(button);
+  }
+  var filtered = [];
+  function setFilter(name) {
+    filter = name;
+    for (const [key, button] of filters) {
+      button.setAttribute("aria-pressed", String(key === name));
+      button.title = key === name ? "Show all the lists" : `Show only the ${key === "other" ? "untagged" : key} lists`;
+    }
+    filterBox.classList.toggle("active", name !== null);
+    for (const { list, li } of filtered) li.hidden = name !== null && filterOf(list) !== name;
+    const shown = filtered.filter(({ li }) => !li.hidden);
+    for (const { li } of filtered) li.classList.toggle("last", li === shown.at(-1)?.li);
+  }
   var group = null;
   for (const list of LISTS) {
     const general = list.tag === "general";
     if (group?.general !== general) {
       group = { general, ul: element("ul") };
+      if (!general) listsBox.append(filterBox);
       listsBox.append(group.ul);
     }
     const buttons = { load: element("button", "load"), at: element("button", "at") };
@@ -367,12 +404,14 @@ ${stripped}` : stripped;
     if (list.attribution) li.append(attributionElement(list.attribution));
     li.append(status);
     group.ul.append(li);
+    if (!general) filtered.push({ list, li });
     const row = { li, buttons, status };
     rows.set(list.file, row);
     buttons.load.addEventListener("click", () => toggle(list, row, SLOTS.words));
     buttons.at.addEventListener("click", () => toggle(list, row, SLOTS.at));
     downloadButton.addEventListener("click", () => download(list, row));
   }
+  setFilter(null);
   for (const slot of Object.values(SLOTS)) markSlot(slot, null);
   refreshLoaded();
   document.addEventListener("visibilitychange", () => {
