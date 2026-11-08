@@ -66,12 +66,15 @@
 
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
-  #ignore-case-label { white-space: nowrap; }
-  #info { color: #666; }
+  #ignore { white-space: nowrap; }
+  #ignore label + label { margin-left: 6px; }
+  /* the info wraps within its own space (between its parts) before the buttons wrap to another line */
+  #info { color: #666; flex: 1 1 12em; }
+  #stats, #lengths { white-space: nowrap; }
   #toggle-diagram { margin-left: auto; }
   #toggle-diagram, #copy-link, #reset { font: inherit; font-size: 0.9rem; }
   #view-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
-  #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
+  #stats:not(:empty) + #lengths:not(:empty)::before { content: "· "; }
   #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
   #regex-line .label { color: #666; }
   #regex { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: break-all; }
@@ -166,7 +169,9 @@
   <p id="restore" class="note" hidden></p>
 
   <div id="toolbar">
-    <label id="ignore-case-label" title="Match the whole pattern ignoring case, as if it were inside (?i:...)"><input type="checkbox" id="ignore-case"> Ignore case</label>
+    <span id="ignore" role="group" aria-label="Ignore">Ignore:
+      <label title="Match the whole pattern ignoring case, as if it were inside (?i:...)"><input type="checkbox" id="ignore-case">case</label>
+      <label title="Match the whole pattern ignoring accents, as if it were inside (?d:...)"><input type="checkbox" id="ignore-accents">accents</label></span>
     <select id="view" aria-label="Diagram">
       <option value="raw">Thompson NFA</option>
       <option value="trimmed">Trimmed NFA</option>
@@ -174,10 +179,10 @@
       <option value="dfa">DFA</option>
       <option value="min">Minimal DFA</option>
     </select>
-    <span id="info"><span id="stats"></span><span id="lengths"></span></span>
+    <span id="info"><span id="stats"></span> <span id="lengths"></span></span>
     <button id="toggle-diagram" aria-controls="diagram" aria-expanded="true">Hide diagram</button>
     <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram settings">Copy link</button>
-    <button id="reset" title="Go back to the example pattern and test strings, matching case, and the default diagram (undo brings your text back)">Reset</button>
+    <button id="reset" title="Go back to the example pattern and test strings, matching case and accents, and the default diagram (undo brings your text back)">Reset</button>
   </div>
   <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
@@ -257,7 +262,7 @@
       <tr class="heading"><th colspan="2">Names</th></tr>
       <tr><td><code>(?&lt;v&gt;P)</code> <code>(?&amp;v)</code></td><td>P, named v; P again (the same pattern, not the same text). <code>(?&lt;v&gt;P){0}</code> names P without matching it (<code>(?&lt;c&gt;[^aeiou])[aeiou](?&amp;c)</code> matches <i>cat</i>)</td></tr>
       <tr class="heading"><th colspan="2">Modifiers and transformations</th></tr>
-      <tr><td><code>(?i:P)</code></td><td>P ignoring case (<code>(?i:the)</code> matches <i>The</i> and <i>THE</i>); <i>Ignore case</i> does this for the whole pattern</td></tr>
+      <tr><td><code>(?i:P)</code> <code>(?d:P)</code></td><td>P ignoring case; ignoring accents (<code>(?i:the)</code> matches <i>THE</i>, <code>(?d:cafe)</code> matches <i>café</i>); the <i>Ignore</i> tickboxes do these for the whole pattern</td></tr>
       <tr><td><code>(?cn:P)</code> <code>(?c:P)</code> <code>(?c-:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25; in Atbash, with the alphabet reversed (<code>(?c1:hal)</code> matches <i>ibm</i>, <code>(?c-:hold)</code> matches <i>slow</i>)</td></tr>
       <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
@@ -4292,12 +4297,13 @@
   }
 
   // src/patterns/share.js
-  function shareQuery({ pattern, tests, view, hidden = false, caseless = false }, defaultView) {
+  function shareQuery({ pattern, tests, view, hidden = false, caseless = false, accentless = false }, defaultView) {
     const params = new URLSearchParams({ p: pattern });
     if (tests.trim() !== "") params.set("t", tests);
     if (view !== defaultView) params.set("v", view);
     if (hidden) params.set("h", "1");
     if (caseless) params.set("i", "1");
+    if (accentless) params.set("d", "1");
     return `?${params}`;
   }
   function readShared(search2, views, defaultView) {
@@ -4310,7 +4316,8 @@
       tests: (params.get("t") ?? "").replace(/\r\n?/g, "\n"),
       view: view !== null && Object.hasOwn(views, view) ? view : defaultView,
       hidden: params.get("h") === "1",
-      caseless: params.get("i") === "1"
+      caseless: params.get("i") === "1",
+      accentless: params.get("d") === "1"
     };
   }
 
@@ -4490,6 +4497,8 @@
   var MODIFIERS = {
     i: { count: "none" },
     //     case-insensitive
+    d: { count: "none" },
+    //     accent-insensitive
     r: { count: "none" },
     //     reversed
     c: { count: "optional" },
@@ -5268,6 +5277,39 @@
     }
     return extra.length ? set2.union(CharSet.from(extra)) : set2;
   }
+  var DECOMPOSING_LIMIT = 131072;
+  var UNDECOMPOSED = { \u00F8: "o", \u00D8: "O", \u0142: "l", \u0141: "L", \u0111: "d", \u0110: "D", \u0131: "i", \u0127: "h", \u0126: "H", \u0167: "t", \u0166: "T" };
+  var MARKS_G = /\p{M}/gu;
+  var accentTable = null;
+  function buildAccentTable() {
+    const bases = /* @__PURE__ */ new Map();
+    const add = (cp, base) => {
+      if (!bases.has(base)) bases.set(base, [base]);
+      bases.get(base).push(cp);
+    };
+    for (let cp = 0; cp < DECOMPOSING_LIMIT; cp++) {
+      if (cp >= 55296 && cp <= 57343) continue;
+      const c = String.fromCodePoint(cp);
+      const base = c.normalize("NFD").replace(MARKS_G, "");
+      const bcp = base.codePointAt(0);
+      if (base !== c && base !== "" && base.length === String.fromCodePoint(bcp).length) add(cp, bcp);
+    }
+    for (const [c, base] of Object.entries(UNDECOMPOSED)) add(c.codePointAt(0), base.codePointAt(0));
+    const classOf = /* @__PURE__ */ new Map();
+    for (const members of bases.values()) for (const cp of members) classOf.set(cp, members);
+    return { accented: [...classOf.keys()].sort((x, y) => x - y), classOf };
+  }
+  function accentClose(set2) {
+    accentTable ??= buildAccentTable();
+    const { accented, classOf } = accentTable;
+    const extra = [];
+    for (const [lo, hi] of set2.ranges) {
+      for (let i = lowerBound2(accented, lo); i < accented.length && accented[i] <= hi; i++) {
+        for (const cp of classOf.get(accented[i])) extra.push([cp, cp]);
+      }
+    }
+    return extra.length ? set2.union(CharSet.from(extra)) : set2;
+  }
   var ALPHABETS = ["a", "A"].map((c) => c.codePointAt(0));
   function shiftSet(set2, n) {
     const shift = (n % 26 + 26) % 26;
@@ -5544,16 +5586,39 @@
     if (!splitCache.has(split)) splitCache.set(split, minimize(compile(parse(split))));
     return splitCache.get(split);
   }
-  var caselessCache = /* @__PURE__ */ new WeakMap();
-  function caselessWords(words) {
-    if (!caselessCache.has(words)) caselessCache.set(words, determinize(mapLabels(words, caseClose)));
-    return caselessCache.get(words);
+  var FOLDS = { i: "caseless", d: "accentless" };
+  function closeSet(set2, { caseless, accentless }) {
+    if (accentless) set2 = accentClose(set2);
+    return caseless ? caseClose(set2) : set2;
+  }
+  var foldedCache = /* @__PURE__ */ new WeakMap();
+  function foldedWords(words, fold) {
+    const i = (fold.caseless ? 1 : 0) + (fold.accentless ? 2 : 0) - 1;
+    if (i < 0) return words;
+    if (!foldedCache.has(words)) foldedCache.set(words, [null, null, null]);
+    const cache = foldedCache.get(words);
+    if (!cache[i]) {
+      const closed = /* @__PURE__ */ new Map();
+      const close = (set2) => {
+        const key = set2.ranges.join(";");
+        if (!closed.has(key)) closed.set(key, closeSet(set2, fold));
+        return closed.get(key);
+      };
+      cache[i] = determinize(mapLabels(words, close));
+    }
+    return cache[i];
+  }
+  function foldedAt(ast) {
+    const fold = {};
+    while (ast.type === "modifier" && ast.flag in FOLDS) {
+      fold[FOLDS[ast.flag]] = true;
+      ast = ast.node;
+    }
+    return ast.type === "words" ? fold : null;
   }
   function compile(ast, options = {}) {
-    if (options.words) {
-      if (ast.type === "words") return options.caseless ? caselessWords(options.words) : options.words;
-      if (ast.type === "modifier" && ast.flag === "i" && ast.node.type === "words") return caselessWords(options.words);
-    }
+    const fold = options.words && foldedAt(ast);
+    if (fold) return foldedWords(options.words, { caseless: options.caseless || fold.caseless, accentless: options.accentless || fold.accentless });
     if (!options.names) options = { ...options, names: definitions(ast) };
     const b = new Builder();
     const start = b.state();
@@ -5561,7 +5626,7 @@
     return b.build(start, [end]);
   }
   function build(b, node2, from, options) {
-    const chars = (set2) => options.caseless ? caseClose(set2) : set2;
+    const chars = (set2) => closeSet(set2, options);
     switch (node2.type) {
       case "empty":
         return from;
@@ -5574,7 +5639,7 @@
         return embed(b, named(node2.name, options), from);
       case "words": {
         if (!options.words) throw new PatternError("No word list loaded: load one below to use @", ...node2.span);
-        return embed(b, options.caseless ? caselessWords(options.words) : options.words, from);
+        return embed(b, foldedWords(options.words, options), from);
       }
       case "class": {
         const shorthands = (node2.shorthands ?? []).map((sh) => shorthand(sh, chars));
@@ -5623,22 +5688,23 @@
     const set2 = chars(shorthandSet({ ...sh, negated: false }));
     return sh.negated ? set2.complement() : set2;
   }
+  var NO_FOLD = Object.freeze({ caseless: false, accentless: false });
   function definitions(ast) {
     const names = /* @__PURE__ */ new Map();
-    const visit = (node2, caseless) => {
-      if (node2.type === "define") names.set(node2.name, { node: node2.node, caseless, nfa: null });
-      if (node2.type === "modifier" && node2.flag === "i") caseless = true;
-      if (node2.type === "split") visit(node2.split, false);
+    const visit = (node2, fold) => {
+      if (node2.type === "define") names.set(node2.name, { node: node2.node, fold, nfa: null });
+      if (node2.type === "modifier" && node2.flag in FOLDS) fold = { ...fold, [FOLDS[node2.flag]]: true };
+      if (node2.type === "split") visit(node2.split, NO_FOLD);
       for (const child of [node2.node, node2.left, node2.right, node2.find, node2.insert, ...node2.items ?? []]) {
-        if (child) visit(child, caseless);
+        if (child) visit(child, fold);
       }
     };
-    visit(ast, false);
+    visit(ast, NO_FOLD);
     return names;
   }
   function named(name, options) {
     const entry = options.names.get(name);
-    entry.nfa ??= compile(entry.node, { ...options, caseless: entry.caseless });
+    entry.nfa ??= compile(entry.node, { ...options, ...entry.fold });
     return entry.nfa;
   }
   function step(b, from, label) {
@@ -5650,7 +5716,8 @@
     const { flag, count: count2 } = node2;
     switch (flag) {
       case "i":
-        return build(b, node2.node, from, { ...options, caseless: true });
+      case "d":
+        return build(b, node2.node, from, { ...options, [FOLDS[flag]]: true });
       case "r":
         return embed(b, reverse(compile(node2.node, options)), from);
       case "c": {
@@ -5754,26 +5821,26 @@
   function explainer(ast, { words, nfa: nfa2 } = {}) {
     const names = definitions(ast);
     const automata = /* @__PURE__ */ new Map();
-    if (nfa2) automata.set(ast, [lazyDfa(nfa2), null]);
+    if (nfa2) automata.set(ast, [lazyDfa(nfa2), null, null, null]);
     const ctx = { names, words, automata, steps: 0, splits: /* @__PURE__ */ new Map() };
     return (string) => {
       ctx.steps = 0;
       ctx.serial = 0;
       const cells = [...string].map((c, i) => ({ col: { key: [i], ch: c.codePointAt(0), synthetic: false }, ch: c.codePointAt(0) }));
-      if (!matches2(ctx, ast, cells, false)) return null;
-      return explain(ctx, ast, cells, false);
+      if (!matches2(ctx, ast, cells, NO_FOLD)) return null;
+      return explain(ctx, ast, cells, NO_FOLD);
     };
   }
   function tick(ctx, n = 1) {
     ctx.steps += n;
     if (ctx.steps > BUDGET) throw new TooComplexToExplain();
   }
-  function automaton(ctx, node2, caseless) {
-    let pair = ctx.automata.get(node2);
-    if (!pair) ctx.automata.set(node2, pair = [null, null]);
-    const i = caseless ? 1 : 0;
-    pair[i] ??= lazyDfa(compile(node2, { words: ctx.words, names: ctx.names, caseless }));
-    return pair[i];
+  function automaton(ctx, node2, fold) {
+    let byFold = ctx.automata.get(node2);
+    if (!byFold) ctx.automata.set(node2, byFold = [null, null, null, null]);
+    const i = (fold.caseless ? 1 : 0) + (fold.accentless ? 2 : 0);
+    byFold[i] ??= lazyDfa(compile(node2, { words: ctx.words, names: ctx.names, ...fold }));
+    return byFold[i];
   }
   function walk(ctx, dfa, from, chars) {
     let d = from;
@@ -5784,18 +5851,18 @@
     }
     return d;
   }
-  function matches2(ctx, node2, cells, caseless) {
-    const dfa = automaton(ctx, node2, caseless);
+  function matches2(ctx, node2, cells, fold) {
+    const dfa = automaton(ctx, node2, fold);
     return dfa.accepts(walk(ctx, dfa, dfa.start, cells.map((c) => c.ch)));
   }
   function splitAutomaton(ctx, split) {
     if (!ctx.splits.has(split)) ctx.splits.set(split, lazyDfa(compile(typeof split === "string" ? parse(split) : split)));
     return ctx.splits.get(split);
   }
-  function explain(ctx, node2, cells, caseless) {
+  function explain(ctx, node2, cells, fold) {
     tick(ctx);
     const tree = (children = [], extra = {}) => ({ node: node2, cells, children, ...extra });
-    const sub = (child, part, ci = caseless) => explain(ctx, child, part, ci);
+    const sub = (child, part, ci = fold) => explain(ctx, child, part, ci);
     switch (node2.type) {
       case "empty":
       case "char":
@@ -5809,57 +5876,59 @@
         return tree([sub(node2.node, cells)]);
       case "ref": {
         const entry = ctx.names.get(node2.name);
-        return tree([sub(entry.node, cells, entry.caseless)], { name: node2.name });
+        return tree([sub(entry.node, cells, entry.fold)], { name: node2.name });
       }
       case "alt":
-        return tree([sub(node2.items.find((item) => matches2(ctx, item, cells, caseless)), cells)]);
+        return tree([sub(node2.items.find((item) => matches2(ctx, item, cells, fold)), cells)]);
       case "and":
         return tree(node2.items.map((item) => sub(item, cells)));
       case "concat": {
-        const parts2 = splitConcat(ctx, node2.items, cells, caseless);
+        const parts2 = splitConcat(ctx, node2.items, cells, fold);
         return tree(parts2.map((part, i) => sub(node2.items[i], part)));
       }
       case "repeat": {
-        const parts2 = splitRepeat(ctx, node2, cells, caseless);
+        const parts2 = splitRepeat(ctx, node2, cells, fold);
         return tree(parts2.map((part) => sub(node2.node, part)));
       }
       case "spatial": {
         const { op } = node2;
         if (op in SPLITS) {
-          const [left, right] = weaveSearch(ctx, splitAutomaton(ctx, SPLITS[op]), node2, cells, caseless);
+          const [left, right] = weaveSearch(ctx, splitAutomaton(ctx, SPLITS[op]), node2, cells, fold);
           return tree([sub(node2.left, left), sub(node2.right, right)]);
         }
         const split = op.startsWith("-") ? SPLITS[op.slice(1)] : swap2(SPLITS[op.slice(2)]);
-        const [whole, removed] = unweaveSearch(ctx, splitAutomaton(ctx, split), node2.left, node2.right, cells, caseless);
+        const [whole, removed] = unweaveSearch(ctx, splitAutomaton(ctx, split), node2.left, node2.right, cells, fold);
         return tree([sub(node2.left, whole), sub(node2.right, removed)]);
       }
       case "split": {
         const split = splitAutomaton(ctx, node2.split);
         if (!node2.unweave) {
-          const [left, right] = weaveSearch(ctx, split, node2, cells, caseless);
+          const [left, right] = weaveSearch(ctx, split, node2, cells, fold);
           return tree([sub(node2.left, left), sub(node2.right, right)]);
         }
-        const [whole, removed] = unweaveSearch(ctx, split, node2.left, node2.right, cells, caseless);
+        const [whole, removed] = unweaveSearch(ctx, split, node2.left, node2.right, cells, fold);
         return tree([sub(node2.left, whole), sub(node2.right, removed)]);
       }
       case "slice": {
-        const [whole] = unweaveSearch(ctx, splitAutomaton(ctx, sliceSplit(node2)), node2.node, null, cells, caseless);
+        const [whole] = unweaveSearch(ctx, splitAutomaton(ctx, sliceSplit(node2)), node2.node, null, cells, fold);
         return tree([sub(node2.node, whole)]);
       }
       case "replace":
-        return tree(replaceSearch(ctx, node2, cells, caseless).map(([child, part]) => sub(child, part)));
+        return tree(replaceSearch(ctx, node2, cells, fold).map(([child, part]) => sub(child, part)));
       case "modifier":
-        return tree([modifier2(ctx, node2, cells, caseless)]);
+        return tree([modifier2(ctx, node2, cells, fold)]);
       default:
         throw new Error(`Unknown node type ${node2.type}`);
     }
   }
-  function modifier2(ctx, node2, cells, caseless) {
+  function modifier2(ctx, node2, cells, fold) {
     const inner = node2.node;
-    const sub = (part, ci = caseless) => explain(ctx, inner, part, ci);
+    const sub = (part, ci = fold) => explain(ctx, inner, part, ci);
     switch (node2.flag) {
       case "i":
-        return sub(cells, true);
+        return sub(cells, { ...fold, caseless: true });
+      case "d":
+        return sub(cells, { ...fold, accentless: true });
       case "r":
         return sub(reorder(cells, [...cells].reverse()));
       case "c": {
@@ -5867,7 +5936,7 @@
         const shifts = node2.count === null ? Array.from({ length: 25 }, (_, i) => i + 1) : [node2.count];
         for (const n of shifts) {
           const shifted = cells.map(({ col, ch }) => ({ col, ch: shiftSet(CharSet.of(ch), -n).ranges[0][0] }));
-          if (matches2(ctx, inner, shifted, caseless)) return sub(shifted);
+          if (matches2(ctx, inner, shifted, fold)) return sub(shifted);
         }
         break;
       }
@@ -5878,7 +5947,7 @@
         for (const k of ks) {
           if (k < 1 || k > n - 1) continue;
           const rotated = reorder(cells, [...cells.slice(k), ...cells.slice(0, k)]);
-          if (matches2(ctx, inner, rotated, caseless)) return sub(rotated);
+          if (matches2(ctx, inner, rotated, fold)) return sub(rotated);
         }
         break;
       }
@@ -5890,21 +5959,21 @@
             const swapped = [...cells];
             [swapped[i], swapped[j]] = [cells[j], cells[i]];
             const moved = reorder(cells, swapped);
-            if (matches2(ctx, inner, moved, caseless)) return sub(moved);
+            if (matches2(ctx, inner, moved, fold)) return sub(moved);
           }
         }
         break;
       }
       case "a":
-        return sub(anagramSearch(ctx, inner, cells, caseless));
+        return sub(anagramSearch(ctx, inner, cells, fold));
     }
     throw new Error(`No explanation for modifier ${node2.flag}`);
   }
   function reorder(cells, moved) {
     return cells.map(({ col }, i) => ({ col, ch: moved[i].ch }));
   }
-  function anagramSearch(ctx, node2, cells, caseless) {
-    const dfa = automaton(ctx, node2, caseless);
+  function anagramSearch(ctx, node2, cells, fold) {
+    const dfa = automaton(ctx, node2, fold);
     const chars = [...new Set(cells.map((c) => c.ch))];
     const left = chars.map((ch) => cells.filter((c) => c.ch === ch).length);
     const path = search(
@@ -5922,16 +5991,16 @@
     const unused = new Map(chars.map((ch) => [ch, cells.filter((c) => c.ch === ch)]));
     return reorder(cells, path.map((ch) => unused.get(ch).shift()));
   }
-  function splitConcat(ctx, items, cells, caseless) {
+  function splitConcat(ctx, items, cells, fold) {
     const n = cells.length;
     const failed = /* @__PURE__ */ new Set();
     const go = (i, start) => {
-      if (i === items.length - 1) return matches2(ctx, items[i], cells.slice(start), caseless) ? [cells.slice(start)] : null;
+      if (i === items.length - 1) return matches2(ctx, items[i], cells.slice(start), fold) ? [cells.slice(start)] : null;
       const key = i * (n + 1) + start;
       if (failed.has(key)) return null;
       for (let end = n; end >= start; end--) {
         const part = cells.slice(start, end);
-        if (!matches2(ctx, items[i], part, caseless)) continue;
+        if (!matches2(ctx, items[i], part, fold)) continue;
         const rest = go(i + 1, end);
         if (rest) return [part, ...rest];
       }
@@ -5940,7 +6009,7 @@
     };
     return go(0, 0);
   }
-  function splitRepeat(ctx, { node: node2, min, max }, cells, caseless) {
+  function splitRepeat(ctx, { node: node2, min, max }, cells, fold) {
     const n = cells.length;
     const failed = /* @__PURE__ */ new Set();
     const go = (count2, start) => {
@@ -5950,7 +6019,7 @@
       if (failed.has(key)) return null;
       for (let end = n; end >= start + (count2 < min ? 0 : 1); end--) {
         const part = cells.slice(start, end);
-        if (!matches2(ctx, node2, part, caseless)) continue;
+        if (!matches2(ctx, node2, part, fold)) continue;
         const rest = go(count2 + 1, end);
         if (rest) return [part, ...rest];
       }
@@ -5982,9 +6051,9 @@
     }
     return null;
   }
-  function weaveSearch(ctx, split, { left, right }, cells, caseless) {
-    const a = automaton(ctx, left, caseless);
-    const b = automaton(ctx, right, caseless);
+  function weaveSearch(ctx, split, { left, right }, cells, fold) {
+    const a = automaton(ctx, left, fold);
+    const b = automaton(ctx, right, fold);
     const n = cells.length;
     const path = search(
       ctx,
@@ -6011,9 +6080,9 @@
     if (!path) throw new Error("No split found");
     return [cells.filter((_, i) => path[i] === "L"), cells.filter((_, i) => path[i] === "R")];
   }
-  function unweaveSearch(ctx, split, whole, removed, cells, caseless) {
-    const a = automaton(ctx, whole, caseless);
-    const b = removed ? automaton(ctx, removed, caseless) : null;
+  function unweaveSearch(ctx, split, whole, removed, cells, fold) {
+    const a = automaton(ctx, whole, fold);
+    const b = removed ? automaton(ctx, removed, fold) : null;
     const n = cells.length;
     const path = search(
       ctx,
@@ -6053,9 +6122,9 @@
     }
     return [wholeCells, removedCells];
   }
-  function replaceSearch(ctx, node2, cells, caseless) {
-    const a = automaton(ctx, node2.node, caseless);
-    const b = automaton(ctx, node2.find, caseless);
+  function replaceSearch(ctx, node2, cells, fold) {
+    const a = automaton(ctx, node2.node, fold);
+    const b = automaton(ctx, node2.find, fold);
     const n = cells.length;
     const chars = cells.map((c) => c.ch);
     let afterX = a.start;
@@ -6065,7 +6134,7 @@
       if (node2.strict && i === 0) continue;
       for (let j = i; j <= n - (node2.strict ? 1 : 0); j++) {
         const c = cells.slice(i, j);
-        if (!matches2(ctx, node2.insert, c, caseless)) continue;
+        if (!matches2(ctx, node2.insert, c, fold)) continue;
         const y = chars.slice(j);
         const path = search(
           ctx,
@@ -6264,9 +6333,9 @@
 
   // src/patterns/index.js
   var WORDS_FACTOR = 10;
-  function compile2(pattern, { words, caseless = false } = {}) {
+  function compile2(pattern, { words, caseless = false, accentless = false } = {}) {
     const normalized = pattern.normalize("NFC");
-    const ast = parseWith(normalized, caseless);
+    const ast = parseWith(normalized, { caseless, accentless });
     const usesWords = words !== void 0 && containsWords(ast);
     const limit = stateLimit2(ast, words);
     try {
@@ -6279,16 +6348,19 @@
       throw e;
     }
   }
-  function parseWith(normalized, caseless) {
-    const ast = parse(normalized);
-    return caseless ? { type: "modifier", flag: "i", count: null, node: ast, span: [0, normalized.length] } : ast;
+  function parseWith(normalized, { caseless, accentless }) {
+    let ast = parse(normalized);
+    const wrap = (flag) => ({ type: "modifier", flag, count: null, node: ast, span: [0, normalized.length] });
+    if (accentless) ast = wrap("d");
+    if (caseless) ast = wrap("i");
+    return ast;
   }
   function stateLimit2(ast, words) {
     return MAX_STATES + (words !== void 0 && containsWords(ast) ? WORDS_FACTOR * words.size : 0);
   }
-  function explainer2(pattern, { words, nfa: nfa2, caseless = false } = {}) {
+  function explainer2(pattern, { words, nfa: nfa2, caseless = false, accentless = false } = {}) {
     const normalized = pattern.normalize("NFC");
-    const ast = parseWith(normalized, caseless);
+    const ast = parseWith(normalized, { caseless, accentless });
     const limit = Math.max(stateLimit2(ast, words), nfa2 ? limitFor(nfa2) : 0);
     const explain2 = explainer(ast, { words, nfa: nfa2 });
     return (string) => withStateLimit(limit, () => {
@@ -6327,12 +6399,13 @@
   var SHOWN_MATCHES = 1e3;
   var MAX_MATCH_COLUMN = 32;
   var LARGE_WORD_LIST = 2e4;
-  var DEFAULTS = { pattern: "cow^ox", tests: "cowox\ncoxow\nocxow\ncwoox", view: "epsfree", caseless: false };
+  var DEFAULTS = { pattern: "cow^ox", tests: "cowox\ncoxow\nocxow\ncwoox", view: "epsfree", caseless: false, accentless: false };
   var $ = (id) => document.getElementById(id);
   var patternInput = $("pattern");
   var testsInput = $("tests");
   var viewSelect = $("view");
   var caselessBox = $("ignore-case");
+  var accentlessBox = $("ignore-accents");
   var vizReady = instance();
   var nfa = null;
   var compiled = null;
@@ -6356,7 +6429,8 @@
         tests: testsInput.value,
         view: viewSelect.value,
         hidden: diagramHidden,
-        caseless: caselessBox.checked
+        caseless: caselessBox.checked,
+        accentless: accentlessBox.checked
       }));
     } catch {
     }
@@ -6422,7 +6496,7 @@
     try {
       const words = atAutomaton();
       guarded(() => {
-        compiled = compile2(pattern, { words, caseless: caselessBox.checked });
+        compiled = compile2(pattern, { words, caseless: caselessBox.checked, accentless: accentlessBox.checked });
         withStateLimit(limitFor(compiled), () => {
           $("lengths").textContent = describeLengths(matchLengths(compiled));
           if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
@@ -6546,7 +6620,15 @@
     const note = (message) => `<p class="note">${escapeHtml(message)}</p>`;
     if (text === void 0) return note("Put the cursor on a test string to see which part of the pattern matched each character.");
     if (explainFor?.compiled !== compiled) {
-      explainFor = { compiled, explain: explainer2(patternInput.value, { words: atAutomaton(), nfa: compiled, caseless: caselessBox.checked }) };
+      explainFor = {
+        compiled,
+        explain: explainer2(patternInput.value, {
+          words: atAutomaton(),
+          nfa: compiled,
+          caseless: caselessBox.checked,
+          accentless: accentlessBox.checked
+        })
+      };
     }
     let result;
     try {
@@ -6672,7 +6754,8 @@
       tests: testsInput.value,
       view: viewSelect.value,
       hidden: diagramHidden,
-      caseless: caselessBox.checked
+      caseless: caselessBox.checked,
+      accentless: accentlessBox.checked
     };
     copyText($("copy-link"), location.href.replace(/[?#].*/s, "") + shareQuery(state, DEFAULTS.view));
   }
@@ -6924,6 +7007,7 @@
   testsInput.value = initial.tests;
   viewSelect.value = initial.view;
   caselessBox.checked = initial.caseless === true;
+  accentlessBox.checked = initial.accentless === true;
   if (initial.hidden) toggleDiagram();
   function reset() {
     dismissRestore();
@@ -6934,6 +7018,7 @@
     }
     viewSelect.value = DEFAULTS.view;
     caselessBox.checked = DEFAULTS.caseless;
+    accentlessBox.checked = DEFAULTS.accentless;
     showViewHelp();
     if (diagramHidden) toggleDiagram();
     $("examples-note").textContent = "";
@@ -6962,11 +7047,13 @@
     buildLarge = false;
     schedule();
   });
-  caselessBox.addEventListener("change", () => {
-    buildLarge = false;
-    showAllMatches = false;
-    schedule();
-  });
+  for (const box of [caselessBox, accentlessBox]) {
+    box.addEventListener("change", () => {
+      buildLarge = false;
+      showAllMatches = false;
+      schedule();
+    });
+  }
   $("add-examples").addEventListener("click", addExamples);
   $("clear-tests").addEventListener("click", clearTests);
   $("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));

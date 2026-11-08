@@ -1,14 +1,16 @@
 // Links that share a pattern, its test strings and the diagram view, as query parameters:
 // p (the pattern), t (the test strings, omitted when empty), v (the view, omitted when it's
-// the default), h=1 (when the diagram is hidden) and i=1 (when case is ignored).
+// the default), h=1 (when the diagram is hidden), i=1 (when case is ignored) and d=1 (when
+// accents are ignored).
 
 // the query string (with its "?") for a link to the given state
-export function shareQuery({ pattern, tests, view, hidden = false, caseless = false }, defaultView) {
+export function shareQuery({ pattern, tests, view, hidden = false, caseless = false, accentless = false }, defaultView) {
   const params = new URLSearchParams({ p: pattern });
   if (tests.trim() !== "") params.set("t", tests);
   if (view !== defaultView) params.set("v", view);
   if (hidden) params.set("h", "1");
   if (caseless) params.set("i", "1");
+  if (accentless) params.set("d", "1");
   return `?${params}`;
 }
 
@@ -25,5 +27,6 @@ export function readShared(search, views, defaultView) {
     view: view !== null && Object.hasOwn(views, view) ? view : defaultView,
     hidden: params.get("h") === "1",
     caseless: params.get("i") === "1",
+    accentless: params.get("d") === "1",
   };
 }

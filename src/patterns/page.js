@@ -34,13 +34,14 @@ const MATCH_CHUNK = 5000; // words checked between pauses that keep the page res
 const SHOWN_MATCHES = 1000;
 const MAX_MATCH_COLUMN = 32; // characters, before a long match wraps
 const LARGE_WORD_LIST = 20000; // above this, patterns using @ take a second or more
-const DEFAULTS = { pattern: "cow^ox", tests: "cowox\ncoxow\nocxow\ncwoox", view: "epsfree", caseless: false };
+const DEFAULTS = { pattern: "cow^ox", tests: "cowox\ncoxow\nocxow\ncwoox", view: "epsfree", caseless: false, accentless: false };
 
 const $ = (id) => document.getElementById(id);
 const patternInput = $("pattern");
 const testsInput = $("tests");
 const viewSelect = $("view");
 const caselessBox = $("ignore-case"); // ignore case throughout, as if in (?i:...)
+const accentlessBox = $("ignore-accents"); // ignore accents throughout, as if in (?d:...)
 
 const vizReady = instance();
 let nfa = null; // the NFA currently drawn, if any
@@ -68,7 +69,7 @@ function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       // a pattern that wasn't restored stays saved until another is typed (see guarded)
       pattern: unrestored ?? patternInput.value, tests: testsInput.value, view: viewSelect.value, hidden: diagramHidden,
-      caseless: caselessBox.checked,
+      caseless: caselessBox.checked, accentless: accentlessBox.checked,
     }));
   } catch {
     // storage may be unavailable, e.g. in private windows
@@ -152,7 +153,7 @@ async function update() {
   try {
     const words = atAutomaton(); // outside the pattern's guard, since it has its own
     guarded(() => {
-      compiled = compile(pattern, { words, caseless: caselessBox.checked });
+      compiled = compile(pattern, { words, caseless: caselessBox.checked, accentless: accentlessBox.checked });
       withStateLimit(limitFor(compiled), () => {
         $("lengths").textContent = describeLengths(matchLengths(compiled));
         if (SLOW_VIEWS.has(viewSelect.value) && compiled.size > MAX_QUICK_DFA_SOURCE && !buildLarge) askToBuild = true;
@@ -300,7 +301,12 @@ function explanationHtml(text) {
   const note = (message) => `<p class="note">${escapeHtml(message)}</p>`;
   if (text === undefined) return note("Put the cursor on a test string to see which part of the pattern matched each character.");
   if (explainFor?.compiled !== compiled) {
-    explainFor = { compiled, explain: explainer(patternInput.value, { words: atAutomaton(), nfa: compiled, caseless: caselessBox.checked }) };
+    explainFor = {
+      compiled,
+      explain: explainer(patternInput.value, {
+        words: atAutomaton(), nfa: compiled, caseless: caselessBox.checked, accentless: accentlessBox.checked,
+      }),
+    };
   }
   let result;
   try {
@@ -438,7 +444,8 @@ function toggleDiagram() {
 
 function copyLink() {
   const state = {
-    pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value, hidden: diagramHidden, caseless: caselessBox.checked,
+    pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value, hidden: diagramHidden,
+    caseless: caselessBox.checked, accentless: accentlessBox.checked,
   };
   copyText($("copy-link"), location.href.replace(/[?#].*/s, "") + shareQuery(state, DEFAULTS.view));
 }
@@ -745,10 +752,11 @@ setBusy(false);
 testsInput.value = initial.tests;
 viewSelect.value = initial.view;
 caselessBox.checked = initial.caseless === true;
+accentlessBox.checked = initial.accentless === true;
 if (initial.hidden) toggleDiagram(); // nothing is drawn yet, so this only hides it
 
-// Back to the default pattern, test strings and view, with the diagram showing and case
-// mattering. The text is
+// Back to the default pattern, test strings and view, with the diagram showing and case and
+// accents mattering. The text is
 // replaced as an edit, so undo brings it back.
 function reset() {
   dismissRestore();
@@ -759,6 +767,7 @@ function reset() {
   }
   viewSelect.value = DEFAULTS.view;
   caselessBox.checked = DEFAULTS.caseless;
+  accentlessBox.checked = DEFAULTS.accentless;
   showViewHelp();
   if (diagramHidden) toggleDiagram();
   $("examples-note").textContent = "";
@@ -789,11 +798,13 @@ viewSelect.addEventListener("change", () => {
   buildLarge = false;
   schedule();
 });
-caselessBox.addEventListener("change", () => {
-  buildLarge = false;
-  showAllMatches = false;
-  schedule();
-});
+for (const box of [caselessBox, accentlessBox]) {
+  box.addEventListener("change", () => {
+    buildLarge = false;
+    showAllMatches = false;
+    schedule();
+  });
+}
 $("add-examples").addEventListener("click", addExamples);
 $("clear-tests").addEventListener("click", clearTests);
 $("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));

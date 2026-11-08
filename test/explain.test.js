@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compile as compileAst, definitions } from "../src/patterns/compile.js";
+import { compile as compileAst, definitions, NO_FOLD } from "../src/patterns/compile.js";
 import { examples } from "../src/patterns/examples.js";
 import { explainer, layout, sliceSplit, TooComplexToExplain } from "../src/patterns/explain.js";
 import { compile, explainer as explainPattern, matches } from "../src/patterns/index.js";
@@ -13,22 +13,27 @@ const words = wordsAutomaton(WORDS);
 
 // Checks that every node of an explanation matches the characters it's given, and that
 // operands that share the string between them do so exactly.
-function verify(tree, ast, caseless = false, names = definitions(ast)) {
+function verify(tree, ast, fold = NO_FOLD, names = definitions(ast)) {
   const { node, cells, children } = tree;
   const text = String.fromCodePoint(...cells.map((c) => c.ch));
-  const nfa = compileAst(node, { words, names, caseless });
+  const nfa = compileAst(node, { words, names, ...fold });
   assert.ok(matches(nfa, text), `${format(node)} should match ${JSON.stringify(text)}`);
   const cols = (cs) => cs.map((c) => c.col);
   if (node.type === "concat") assert.deepEqual(cols(children.flatMap((c) => c.cells)), cols(cells));
   if (node.type === "and" || node.type === "alt") for (const c of children) assert.deepEqual(cols(c.cells), cols(cells));
   if (node.type === "spatial" && !node.op.includes("-")) {
-    const sorted = (cs) => [...cs].sort((x, y) => x.key[0] - y.key[0]);
+    // columns in order of their keys, compared part by part (a synthetic column 0.0 comes after 0)
+    const order = (x, y) => {
+      for (let i = 0; i < Math.min(x.key.length, y.key.length); i++) if (x.key[i] !== y.key[i]) return x.key[i] - y.key[i];
+      return x.key.length - y.key.length;
+    };
+    const sorted = (cs) => [...cs].sort(order);
     assert.deepEqual(sorted(cols(children.flatMap((c) => c.cells))), sorted(cols(cells)));
   }
-  const inner = node.type === "modifier" && node.flag === "i" ? true : caseless;
+  const flags = { i: "caseless", d: "accentless" };
+  const inner = node.type === "modifier" && node.flag in flags ? { ...fold, [flags[node.flag]]: true } : fold;
   for (const child of children) {
-    const ci = node.type === "ref" ? names.get(node.name).caseless : inner;
-    verify(child, ast, ci, names);
+    verify(child, ast, node.type === "ref" ? names.get(node.name).fold : inner, names);
   }
 }
 
@@ -103,6 +108,18 @@ test("ignoring case throughout explains like (?i:...), without a row of its own"
     [0, "@@", "CarPet"], [1, "@", "Car"], [1, "@", "Pet"],
   ]);
   assert.equal(explainPattern("@@", { words })("CarPet"), null);
+});
+
+test("ignoring accents throughout explains like (?d:...)", () => {
+  const accented = wordsAutomaton(["café", "crème"]);
+  const explain = explainPattern("@@", { words: accented, accentless: true });
+  const { rows } = explain("cafecreme");
+  assert.deepEqual(rows.map((r) => [r.depth, r.label, [...r.chars.values()].join("")]), [
+    [0, "@@", "cafecreme"], [1, "@", "cafe"], [1, "@", "creme"],
+  ]);
+  assert.equal(explainPattern("@@", { words: accented })("cafecreme"), null);
+  assert.equal(explainPattern("@@", { words: accented, accentless: true })("CAFEcreme"), null);
+  assert.ok(explainPattern("@@", { words: accented, accentless: true, caseless: true })("CAFEcreme"));
 });
 
 test("both operands of & are shown", () => {

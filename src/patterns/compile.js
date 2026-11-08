@@ -4,6 +4,8 @@
 // Modifiers:
 //   (?i:A)   case-insensitive: every character comparison inside A ignores case, so (?i:!a)
 //            matches neither a nor A (see letters.js)
+//   (?d:A)   accent-insensitive: every character comparison inside A ignores accents, so
+//            (?d:e) matches é and (?d:é) matches e (see letters.js)
 //   (?r:A)   A reversed
 //   (?cn:A)  A with its ASCII letters shifted n places along the alphabet, as in a Caesar
 //            cipher; (?c:A) is any of the shifts from 1 to 25, and (?c-:A) is Atbash, with the
@@ -28,7 +30,7 @@
 
 import { anagram } from "./anagram.js";
 import { CharSet } from "./charset.js";
-import { caseClose, mirrorSet, shiftSet } from "./letters.js";
+import { accentClose, caseClose, mirrorSet, shiftSet } from "./letters.js";
 import { Builder, complement, determinize, intersect, mapLabels, minimize, removeEpsilons, reverse, trim } from "./nfa.js";
 import { parse, PatternError } from "./parser.js";
 import { replace } from "./replace.js";
@@ -72,23 +74,55 @@ function splitDfa(split) {
   return splitCache.get(split);
 }
 
-// the word list's automaton ignoring case, made deterministic again (since words differing only
-// in case now share edges) the first time it's needed for each list, as that takes a noticeable
-// time for a large list (about 0.6 s for 200,000 words)
-const caselessCache = new WeakMap();
-function caselessWords(words) {
-  if (!caselessCache.has(words)) caselessCache.set(words, determinize(mapLabels(words, caseClose)));
-  return caselessCache.get(words);
+// the modifiers that change how characters compare, and the options they set
+const FOLDS = { i: "caseless", d: "accentless" };
+
+// a character set, widened to the characters that match it ignoring case or accents
+function closeSet(set, { caseless, accentless }) {
+  if (accentless) set = accentClose(set);
+  return caseless ? caseClose(set) : set;
 }
 
-// options: { caseless } makes every character comparison case-insensitive, and { words }
-// is the word list's automaton, which @ matches (see wordsAutomaton in wordlist.js)
-export function compile(ast, options = {}) {
-  // @ on its own is the word list's automaton, which is already deterministic, as is (?i:@)
-  if (options.words) {
-    if (ast.type === "words") return options.caseless ? caselessWords(options.words) : options.words;
-    if (ast.type === "modifier" && ast.flag === "i" && ast.node.type === "words") return caselessWords(options.words);
+// The word list's automaton ignoring case or accents (or both), made deterministic again (since
+// words differing only in case or accents now share edges) the first time it's needed for each
+// list, as that takes a noticeable time for a large list (about 0.6 s for 200,000 words).
+const foldedCache = new WeakMap(); // words → [ignoring case, ignoring accents, ignoring both]
+function foldedWords(words, fold) {
+  const i = (fold.caseless ? 1 : 0) + (fold.accentless ? 2 : 0) - 1;
+  if (i < 0) return words;
+  if (!foldedCache.has(words)) foldedCache.set(words, [null, null, null]);
+  const cache = foldedCache.get(words);
+  if (!cache[i]) {
+    // most labels are single letters, used on many edges, so each is widened once
+    const closed = new Map();
+    const close = (set) => {
+      const key = set.ranges.join(";");
+      if (!closed.has(key)) closed.set(key, closeSet(set, fold));
+      return closed.get(key);
+    };
+    cache[i] = determinize(mapLabels(words, close));
   }
+  return cache[i];
+}
+
+// a modifier node like (?i:@) or (?d:(?i:@)) around @, with the options it sets, or null
+function foldedAt(ast) {
+  const fold = {};
+  while (ast.type === "modifier" && ast.flag in FOLDS) {
+    fold[FOLDS[ast.flag]] = true;
+    ast = ast.node;
+  }
+  return ast.type === "words" ? fold : null;
+}
+
+// options: { caseless } and { accentless } make every character comparison case- or
+// accent-insensitive, and { words } is the word list's automaton, which @ matches (see
+// wordsAutomaton in wordlist.js)
+export function compile(ast, options = {}) {
+  // @ on its own is the word list's automaton, which is already deterministic, as are (?i:@)
+  // and (?d:@), made once
+  const fold = options.words && foldedAt(ast);
+  if (fold) return foldedWords(options.words, { caseless: options.caseless || fold.caseless, accentless: options.accentless || fold.accentless });
   if (!options.names) options = { ...options, names: definitions(ast) };
   const b = new Builder();
   const start = b.state();
@@ -98,7 +132,7 @@ export function compile(ast, options = {}) {
 
 function build(b, node, from, options) {
   // a character or class's set, before any negation
-  const chars = (set) => (options.caseless ? caseClose(set) : set);
+  const chars = (set) => closeSet(set, options);
   switch (node.type) {
     case "empty":
       return from;
@@ -111,7 +145,7 @@ function build(b, node, from, options) {
       return embed(b, named(node.name, options), from);
     case "words": {
       if (!options.words) throw new PatternError("No word list loaded: load one below to use @", ...node.span);
-      return embed(b, options.caseless ? caselessWords(options.words) : options.words, from);
+      return embed(b, foldedWords(options.words, options), from);
     }
     case "class": {
       // a negated shorthand like \D inside a class is the complement of its (case-closed) set
@@ -167,26 +201,27 @@ function shorthand(sh, chars) {
 
 // Named patterns (see the parser) are compiled once, with the modifiers where they're
 // defined, as in PCRE, so a name always means the same thing. This finds each definition
-// and whether it's inside (?i:...); names are checked to be unique and not to refer to
-// themselves when parsing.
+// and whether it's inside (?i:...) or (?d:...), as its `fold`: { caseless, accentless };
+// names are checked to be unique and not to refer to themselves when parsing.
+export const NO_FOLD = Object.freeze({ caseless: false, accentless: false });
 export function definitions(ast) {
   const names = new Map();
-  const visit = (node, caseless) => {
-    if (node.type === "define") names.set(node.name, { node: node.node, caseless, nfa: null });
-    if (node.type === "modifier" && node.flag === "i") caseless = true;
+  const visit = (node, fold) => {
+    if (node.type === "define") names.set(node.name, { node: node.node, fold, nfa: null });
+    if (node.type === "modifier" && node.flag in FOLDS) fold = { ...fold, [FOLDS[node.flag]]: true };
     // a custom split's split part isn't affected by modifiers
-    if (node.type === "split") visit(node.split, false);
+    if (node.type === "split") visit(node.split, NO_FOLD);
     for (const child of [node.node, node.left, node.right, node.find, node.insert, ...(node.items ?? [])]) {
-      if (child) visit(child, caseless);
+      if (child) visit(child, fold);
     }
   };
-  visit(ast, false);
+  visit(ast, NO_FOLD);
   return names;
 }
 
 function named(name, options) {
   const entry = options.names.get(name);
-  entry.nfa ??= compile(entry.node, { ...options, caseless: entry.caseless });
+  entry.nfa ??= compile(entry.node, { ...options, ...entry.fold });
   return entry.nfa;
 }
 
@@ -200,7 +235,8 @@ function modifier(b, node, from, options) {
   const { flag, count } = node;
   switch (flag) {
     case "i":
-      return build(b, node.node, from, { ...options, caseless: true });
+    case "d":
+      return build(b, node.node, from, { ...options, [FOLDS[flag]]: true });
     case "r":
       return embed(b, reverse(compile(node.node, options)), from);
     case "c": {

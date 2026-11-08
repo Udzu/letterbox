@@ -20,7 +20,7 @@
 // layout(tree, pattern) turns a tree into rows for display (see there).
 
 import { CharSet } from "./charset.js";
-import { compile, definitions, SPLITS } from "./compile.js";
+import { compile, definitions, NO_FOLD, SPLITS } from "./compile.js";
 import { mirrorSet, shiftSet } from "./letters.js";
 import { parse } from "./parser.js";
 import { lazyDfa } from "./wordlist.js";
@@ -42,15 +42,15 @@ const R = "R".codePointAt(0);
 // whole pattern's automaton if it's already compiled
 export function explainer(ast, { words, nfa } = {}) {
   const names = definitions(ast);
-  const automata = new Map(); // node → [dfa, dfa ignoring case]
-  if (nfa) automata.set(ast, [lazyDfa(nfa), null]);
+  const automata = new Map(); // node → [dfa, ignoring case, ignoring accents, ignoring both]
+  if (nfa) automata.set(ast, [lazyDfa(nfa), null, null, null]);
   const ctx = { names, words, automata, steps: 0, splits: new Map() };
   return (string) => {
     ctx.steps = 0;
     ctx.serial = 0;
     const cells = [...string].map((c, i) => ({ col: { key: [i], ch: c.codePointAt(0), synthetic: false }, ch: c.codePointAt(0) }));
-    if (!matches(ctx, ast, cells, false)) return null;
-    return explain(ctx, ast, cells, false);
+    if (!matches(ctx, ast, cells, NO_FOLD)) return null;
+    return explain(ctx, ast, cells, NO_FOLD);
   };
 }
 
@@ -59,12 +59,13 @@ function tick(ctx, n = 1) {
   if (ctx.steps > BUDGET) throw new TooComplexToExplain();
 }
 
-function automaton(ctx, node, caseless) {
-  let pair = ctx.automata.get(node);
-  if (!pair) ctx.automata.set(node, (pair = [null, null]));
-  const i = caseless ? 1 : 0;
-  pair[i] ??= lazyDfa(compile(node, { words: ctx.words, names: ctx.names, caseless }));
-  return pair[i];
+// fold is { caseless, accentless }, from the (?i:...) and (?d:...) the node is inside
+function automaton(ctx, node, fold) {
+  let byFold = ctx.automata.get(node);
+  if (!byFold) ctx.automata.set(node, (byFold = [null, null, null, null]));
+  const i = (fold.caseless ? 1 : 0) + (fold.accentless ? 2 : 0);
+  byFold[i] ??= lazyDfa(compile(node, { words: ctx.words, names: ctx.names, ...fold }));
+  return byFold[i];
 }
 
 // run a lazy DFA over code points, returning its state (or dead)
@@ -78,8 +79,8 @@ function walk(ctx, dfa, from, chars) {
   return d;
 }
 
-function matches(ctx, node, cells, caseless) {
-  const dfa = automaton(ctx, node, caseless);
+function matches(ctx, node, cells, fold) {
+  const dfa = automaton(ctx, node, fold);
   return dfa.accepts(walk(ctx, dfa, dfa.start, cells.map((c) => c.ch)));
 }
 
@@ -89,10 +90,10 @@ function splitAutomaton(ctx, split) {
   return ctx.splits.get(split);
 }
 
-function explain(ctx, node, cells, caseless) {
+function explain(ctx, node, cells, fold) {
   tick(ctx);
   const tree = (children = [], extra = {}) => ({ node, cells, children, ...extra });
-  const sub = (child, part, ci = caseless) => explain(ctx, child, part, ci);
+  const sub = (child, part, ci = fold) => explain(ctx, child, part, ci);
   switch (node.type) {
     case "empty":
     case "char":
@@ -106,58 +107,60 @@ function explain(ctx, node, cells, caseless) {
       return tree([sub(node.node, cells)]);
     case "ref": {
       const entry = ctx.names.get(node.name);
-      return tree([sub(entry.node, cells, entry.caseless)], { name: node.name });
+      return tree([sub(entry.node, cells, entry.fold)], { name: node.name });
     }
     case "alt":
-      return tree([sub(node.items.find((item) => matches(ctx, item, cells, caseless)), cells)]);
+      return tree([sub(node.items.find((item) => matches(ctx, item, cells, fold)), cells)]);
     case "and":
       return tree(node.items.map((item) => sub(item, cells)));
     case "concat": {
-      const parts = splitConcat(ctx, node.items, cells, caseless);
+      const parts = splitConcat(ctx, node.items, cells, fold);
       return tree(parts.map((part, i) => sub(node.items[i], part)));
     }
     case "repeat": {
-      const parts = splitRepeat(ctx, node, cells, caseless);
+      const parts = splitRepeat(ctx, node, cells, fold);
       return tree(parts.map((part) => sub(node.node, part)));
     }
     case "spatial": {
       const { op } = node;
       if (op in SPLITS) {
-        const [left, right] = weaveSearch(ctx, splitAutomaton(ctx, SPLITS[op]), node, cells, caseless);
+        const [left, right] = weaveSearch(ctx, splitAutomaton(ctx, SPLITS[op]), node, cells, fold);
         return tree([sub(node.left, left), sub(node.right, right)]);
       }
       const split = op.startsWith("-") ? SPLITS[op.slice(1)] : swap(SPLITS[op.slice(2)]);
-      const [whole, removed] = unweaveSearch(ctx, splitAutomaton(ctx, split), node.left, node.right, cells, caseless);
+      const [whole, removed] = unweaveSearch(ctx, splitAutomaton(ctx, split), node.left, node.right, cells, fold);
       return tree([sub(node.left, whole), sub(node.right, removed)]);
     }
     case "split": {
       const split = splitAutomaton(ctx, node.split);
       if (!node.unweave) {
-        const [left, right] = weaveSearch(ctx, split, node, cells, caseless);
+        const [left, right] = weaveSearch(ctx, split, node, cells, fold);
         return tree([sub(node.left, left), sub(node.right, right)]);
       }
-      const [whole, removed] = unweaveSearch(ctx, split, node.left, node.right, cells, caseless);
+      const [whole, removed] = unweaveSearch(ctx, split, node.left, node.right, cells, fold);
       return tree([sub(node.left, whole), sub(node.right, removed)]);
     }
     case "slice": {
-      const [whole] = unweaveSearch(ctx, splitAutomaton(ctx, sliceSplit(node)), node.node, null, cells, caseless);
+      const [whole] = unweaveSearch(ctx, splitAutomaton(ctx, sliceSplit(node)), node.node, null, cells, fold);
       return tree([sub(node.node, whole)]);
     }
     case "replace":
-      return tree(replaceSearch(ctx, node, cells, caseless).map(([child, part]) => sub(child, part)));
+      return tree(replaceSearch(ctx, node, cells, fold).map(([child, part]) => sub(child, part)));
     case "modifier":
-      return tree([modifier(ctx, node, cells, caseless)]);
+      return tree([modifier(ctx, node, cells, fold)]);
     default:
       throw new Error(`Unknown node type ${node.type}`);
   }
 }
 
-function modifier(ctx, node, cells, caseless) {
+function modifier(ctx, node, cells, fold) {
   const inner = node.node;
-  const sub = (part, ci = caseless) => explain(ctx, inner, part, ci);
+  const sub = (part, ci = fold) => explain(ctx, inner, part, ci);
   switch (node.flag) {
     case "i":
-      return sub(cells, true);
+      return sub(cells, { ...fold, caseless: true });
+    case "d":
+      return sub(cells, { ...fold, accentless: true });
     case "r":
       return sub(reorder(cells, [...cells].reverse()));
     case "c": {
@@ -166,7 +169,7 @@ function modifier(ctx, node, cells, caseless) {
       const shifts = node.count === null ? Array.from({ length: 25 }, (_, i) => i + 1) : [node.count];
       for (const n of shifts) {
         const shifted = cells.map(({ col, ch }) => ({ col, ch: shiftSet(CharSet.of(ch), -n).ranges[0][0] }));
-        if (matches(ctx, inner, shifted, caseless)) return sub(shifted);
+        if (matches(ctx, inner, shifted, fold)) return sub(shifted);
       }
       break;
     }
@@ -178,7 +181,7 @@ function modifier(ctx, node, cells, caseless) {
       for (const k of ks) {
         if (k < 1 || k > n - 1) continue;
         const rotated = reorder(cells, [...cells.slice(k), ...cells.slice(0, k)]);
-        if (matches(ctx, inner, rotated, caseless)) return sub(rotated);
+        if (matches(ctx, inner, rotated, fold)) return sub(rotated);
       }
       break;
     }
@@ -191,13 +194,13 @@ function modifier(ctx, node, cells, caseless) {
           const swapped = [...cells];
           [swapped[i], swapped[j]] = [cells[j], cells[i]];
           const moved = reorder(cells, swapped);
-          if (matches(ctx, inner, moved, caseless)) return sub(moved);
+          if (matches(ctx, inner, moved, fold)) return sub(moved);
         }
       }
       break;
     }
     case "a":
-      return sub(anagramSearch(ctx, inner, cells, caseless));
+      return sub(anagramSearch(ctx, inner, cells, fold));
   }
   throw new Error(`No explanation for modifier ${node.flag}`);
 }
@@ -211,8 +214,8 @@ function reorder(cells, moved) {
 // (?a:A): an order of the cells that A matches, found by choosing one character at a time.
 // Cells with the same character are interchangeable, so the search tracks how many of each
 // are left, and the cells are then used in their original order.
-function anagramSearch(ctx, node, cells, caseless) {
-  const dfa = automaton(ctx, node, caseless);
+function anagramSearch(ctx, node, cells, fold) {
+  const dfa = automaton(ctx, node, fold);
   const chars = [...new Set(cells.map((c) => c.ch))];
   const left = chars.map((ch) => cells.filter((c) => c.ch === ch).length);
   const path = search(
@@ -232,16 +235,16 @@ function anagramSearch(ctx, node, cells, caseless) {
 }
 
 // Divide cells between concatenated items, giving each item as much as possible in turn.
-function splitConcat(ctx, items, cells, caseless) {
+function splitConcat(ctx, items, cells, fold) {
   const n = cells.length;
   const failed = new Set();
   const go = (i, start) => {
-    if (i === items.length - 1) return matches(ctx, items[i], cells.slice(start), caseless) ? [cells.slice(start)] : null;
+    if (i === items.length - 1) return matches(ctx, items[i], cells.slice(start), fold) ? [cells.slice(start)] : null;
     const key = i * (n + 1) + start;
     if (failed.has(key)) return null;
     for (let end = n; end >= start; end--) {
       const part = cells.slice(start, end);
-      if (!matches(ctx, items[i], part, caseless)) continue;
+      if (!matches(ctx, items[i], part, fold)) continue;
       const rest = go(i + 1, end);
       if (rest) return [part, ...rest];
     }
@@ -253,7 +256,7 @@ function splitConcat(ctx, items, cells, caseless) {
 
 // Divide cells into repetitions, each as long as possible. Only the required repetitions
 // can be empty.
-function splitRepeat(ctx, { node, min, max }, cells, caseless) {
+function splitRepeat(ctx, { node, min, max }, cells, fold) {
   const n = cells.length;
   const failed = new Set();
   const go = (count, start) => {
@@ -263,7 +266,7 @@ function splitRepeat(ctx, { node, min, max }, cells, caseless) {
     if (failed.has(key)) return null;
     for (let end = n; end >= start + (count < min ? 0 : 1); end--) {
       const part = cells.slice(start, end);
-      if (!matches(ctx, node, part, caseless)) continue;
+      if (!matches(ctx, node, part, fold)) continue;
       const rest = go(count + 1, end);
       if (rest) return [part, ...rest];
     }
@@ -302,9 +305,9 @@ function search(ctx, start, key, moves, isGoal) {
 
 // A separating operator or custom split: which cells go to the left operand (L) and which to
 // the right (R), so that the split accepts the labelling and each operand its cells.
-function weaveSearch(ctx, split, { left, right }, cells, caseless) {
-  const a = automaton(ctx, left, caseless);
-  const b = automaton(ctx, right, caseless);
+function weaveSearch(ctx, split, { left, right }, cells, fold) {
+  const a = automaton(ctx, left, fold);
+  const b = automaton(ctx, right, fold);
   const n = cells.length;
   const path = search(
     ctx,
@@ -336,9 +339,9 @@ function weaveSearch(ctx, split, { left, right }, cells, caseless) {
 // whose R part (characters not in the string) is a string of `removed` (or anything, if
 // it's null). Returns [whole's cells, removed's cells], where the removed characters are
 // new synthetic cells.
-function unweaveSearch(ctx, split, whole, removed, cells, caseless) {
-  const a = automaton(ctx, whole, caseless);
-  const b = removed ? automaton(ctx, removed, caseless) : null;
+function unweaveSearch(ctx, split, whole, removed, cells, fold) {
+  const a = automaton(ctx, whole, fold);
+  const b = removed ? automaton(ctx, removed, fold) : null;
   const n = cells.length;
   const path = search(
     ctx,
@@ -380,9 +383,9 @@ function unweaveSearch(ctx, split, whole, removed, cells, caseless) {
 }
 
 // (?z:A/B/C): the string is xcy, and xby is in A. Tries x shortest first, then c.
-function replaceSearch(ctx, node, cells, caseless) {
-  const a = automaton(ctx, node.node, caseless);
-  const b = automaton(ctx, node.find, caseless);
+function replaceSearch(ctx, node, cells, fold) {
+  const a = automaton(ctx, node.node, fold);
+  const b = automaton(ctx, node.find, fold);
   const n = cells.length;
   const chars = cells.map((c) => c.ch);
   let afterX = a.start;
@@ -392,7 +395,7 @@ function replaceSearch(ctx, node, cells, caseless) {
     if (node.strict && i === 0) continue;
     for (let j = i; j <= n - (node.strict ? 1 : 0); j++) {
       const c = cells.slice(i, j);
-      if (!matches(ctx, node.insert, c, caseless)) continue;
+      if (!matches(ctx, node.insert, c, fold)) continue;
       const y = chars.slice(j);
       const path = search(
         ctx,
