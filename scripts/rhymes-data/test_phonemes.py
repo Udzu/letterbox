@@ -143,6 +143,12 @@ class EnPR(unittest.TestCase):
         self.assertEqual(enpr("wo͝ofʹər", "woofer"), ["wU1fR"])
         self.assertEqual(enpr("wûrd", "word"), ["wR1d"])
 
+    def test_fragment(self):
+        with self.assertRaises(Unparsed):
+            from_enpr("-năzh")
+        with self.assertRaises(Unparsed):
+            from_enpr("ĕs-")
+
     def test_th(self):
         self.assertEqual(enpr("fä'thər", "father"), ["fA1DR"])
         self.assertEqual(enpr("brēth", "breathe"), ["bri1D"])

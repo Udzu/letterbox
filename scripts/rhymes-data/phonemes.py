@@ -307,6 +307,8 @@ ENPR_SECONDARY = "″ʺ"
 
 def from_enpr(enpr):
     """Convert enPR to IPA, one string for each reading of "th" (enPR writes θ and ð the same)."""
+    if re.match(r"\s*[-—‒]|.*-\s*$", enpr):
+        raise Unparsed("fragment")
     s = enpr.replace("th", "TH")
     out, last_vowel, i = [], None, 0
     while i < len(s):

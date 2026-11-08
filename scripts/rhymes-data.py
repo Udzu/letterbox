@@ -45,7 +45,7 @@ UK_TAGS = {"Received-Pronunciation", "UK", "British", "England", "Southern-Engla
 DROP_TAGS = {"obsolete", "archaic", "dialectal"}
 NEUTRAL_TAGS = {"rare", "dated", "also", "unstressed", "stressed", "colloquial", "uncommon", "sometimes",
                 "nonstandard", "proscribed", "phoneme", "letter", "name", "standard", "Standard", "informal",
-                "emphatic", "common", "casual", "weak", "strong", "careful", "Modern", "Early", "rhotic"}
+                "emphatic", "common", "casual", "weak", "strong", "careful", "rhotic"}
 NOT_WORDS = {"prefix", "suffix", "infix", "interfix", "circumfix", "affix", "symbol", "character", "punct"}
 # A note is fine if every part of it is: General American features, or not about accent at all
 OK_NOTE = re.compile(
@@ -56,8 +56,19 @@ OK_NOTE = re.compile(
     r"(Mary–marry–merry|horse–hoarse|wine–whine|father–bother) merger|without the (?!foot)[^ ]+ (merger|split)|"
     r"emphatic|careful|casual|common|rare|more common|less common|uncommon|also|sometimes|traditional|older|newer")
 RHOTIC = re.compile("[ɹrɾɚɝɻ˞]")
-UK_CLUE = re.compile("ɒ|əʊ|ɛə|ɪə|ʊə|ɐ|[ɜɑɔɛ]ː(?![ɹr])")
+# ɑː only looks British in BATH words (dance, path): elsewhere it's PALM (spa), and a lost r is caught
+# by comparing with the spelling instead
+UK_CLUE = re.compile("ɒ|əʊ|ɛə|ɪə|ʊə|ɐ|ɑː(?=[fθs]|n[stdʃ]|mp)")
 US_CLUE = re.compile("ɚ|ɝ|oʊ|ɹ̩|˞")
+
+
+def non_rhotic(word, ipa):
+    """Whether a transcription has fewer r sounds after vowels than the spelling has r's after vowels
+    (not counting r's before a vowel letter, which non-rhotic accents keep)."""
+    spelt = len(re.findall("r+(?![aeiouy])", word.lower()))
+    t = re.sub("[()ːˑ.ˈˌ̯ ]", "", ipa)
+    heard = len(re.findall("[ɚɝ˞]", t)) + len(re.findall("[ɹr](?![aeiouyæɑɒɔəɛɪʊʌɜɐøœɵʉɨ])", t))
+    return heard < spelt
 
 
 def note_ok(note):
@@ -67,8 +78,9 @@ def note_ok(note):
 def classify(word, sound, kind):
     """One of U, W, E, uk (a candidate for conversion), or a reason for leaving it out."""
     tags = set(sound.get("tags", []))
-    if tags & DROP_TAGS:
+    if tags & DROP_TAGS or {"Early", "Modern"} <= tags:  # Early Modern English
         return "dropped: obsolete/archaic/dialectal"
+    tags -= {"Early", "Modern"}
     if any("merger" in t for t in tags):
         return "dropped: merger"
     if not note_ok(sound.get("note", "")):
@@ -83,7 +95,7 @@ def classify(word, sound, kind):
     if kind == "enpr":
         return "E"
     ipa = sound["ipa"]
-    uk = bool(UK_CLUE.search(ipa)) or (re.search("r(?![aeiouy])", word.lower()) and not RHOTIC.search(ipa))
+    uk = bool(UK_CLUE.search(ipa)) or non_rhotic(word, ipa)
     us = bool(US_CLUE.search(ipa))
     return "uk" if uk and not us else "mixed" if uk else "W"
 
