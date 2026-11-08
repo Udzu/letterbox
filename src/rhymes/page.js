@@ -5,6 +5,8 @@ import { Rhymes, parsePronunciations, rhymeParts, toIpa } from "./rhymes.js";
 
 const WORD_KEY = "rhymes-word";
 const OPTIONS_KEY = "rhymes-options";
+// the sections rhymes are shown in (see Rhymes.arrange), and their headings
+const BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
 const SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)" };
 
 const input = document.getElementById("word");
@@ -76,12 +78,22 @@ function showRhymes() {
   const entry = shown.choices[shown.choice]?.entry;
   if (!entry) return;
   const options = Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
-  const words = rhymes.find(entry, options);
+  const bands = rhymes.arrange(rhymes.find(entry, options));
+  const count = Object.values(bands).reduce((n, items) => n + items.length, 0);
   const { ipa } = rhymeParts(entry.pron);
   const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
-  summary.textContent = `${words.length === 0 ? "No" : words.length.toLocaleString("en")} ${perfect}rhyme${words.length === 1 ? "" : "s"} on /${ipa}/`;
-  if (words.length === 0) return;
-  results.append(el("div", { className: "list" }, words.map((word) => el("span", { className: "rhyme", textContent: word, tabIndex: 0 }))));
+  summary.textContent = `${count === 0 ? "No" : count.toLocaleString("en")} ${perfect}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
+  for (const [band, title] of Object.entries(BANDS)) {
+    const items = bands[band];
+    if (items.length === 0) continue;
+    const heading = el("h2", {}, [`${title} `, el("span", { className: "count", textContent: `(${items.length.toLocaleString("en")})` })]);
+    results.append(el("section", { className: band }, [heading, el("div", { className: "list" }, items.map((item) => el("span", {
+      className: "rhyme",
+      textContent: item.word,
+      tabIndex: 0,
+      title: item.variants.length ? `Also ${item.variants.join(", ")}` : "",
+    })))]));
+  }
 }
 
 // the word is kept in the address (rhymes.html#word), so it can be linked to
