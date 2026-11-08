@@ -1,5 +1,5 @@
 # name: Artists
-# description: Surnames of visual artists, most prominent first. Names with accents are followed by their unaccented forms.
+# description: Surnames of painters, sculptors, printmakers and photographers, most prominent first.
 # tag: culture
 # attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
 
@@ -11,10 +11,8 @@ Van Gogh
 Raphael
 Rembrandt
 Dalí
-Dali
 Warhol
 Dürer
-Durer
 Goya
 Rubens
 Matisse
@@ -22,7 +20,6 @@ Kahlo
 Monet
 Hokusai
 Cézanne
-Cezanne
 Blake
 Caravaggio
 Delacroix
@@ -31,7 +28,6 @@ Gauguin
 Renoir
 Manet
 Velázquez
-Velazquez
 Botticelli
 Kandinsky
 Vermeer
@@ -45,7 +41,6 @@ Vasari
 Degas
 Giotto
 Miró
-Miro
 Toulouse-Lautrec
 Ono
 El Greco
@@ -67,7 +62,6 @@ Repin
 Magritte
 Van Eyck
 Doré
-Dore
 Modigliani
 Donatello
 Ingres
@@ -84,7 +78,6 @@ Constable
 Man Ray
 Tintoretto
 Géricault
-Gericault
 Moore
 Corot
 Aivazovsky
@@ -108,11 +101,9 @@ Mantegna
 Veronese
 Beuys
 Gérôme
-Gerome
 Lichtenstein
 Hopper
 Brâncuși
-Brancusi
 Rothko
 Cassatt
 Tiepolo
@@ -120,7 +111,6 @@ Daumier
 Whistler
 Murillo
 Léger
-Leger
 Hals
 Phidias
 Hiroshige
@@ -145,14 +135,12 @@ Millet
 Dix
 Muybridge
 Abramović
-Abramovic
 Arp
 Fragonard
 Banksy
 Van der Weyden
 Bonnard
 Zurbarán
-Zurbaran
 Hayez
 Daguerre
 Signac
@@ -211,7 +199,6 @@ Ensor
 Delaunay
 Siqueiros
 Tàpies
-Tapies
 Ravi Varma
 Waterhouse
 Correggio
@@ -236,7 +223,6 @@ Capa
 Talbot
 Caillebotte
 Wyspiański
-Wyspianski
 Alma-Tadema
 Ai Weiwei
 Burne-Jones
@@ -250,17 +236,14 @@ Beckmann
 Trumbull
 Piranesi
 Vigée Le Brun
-Vigee Le Brun
 Duccio
 Serov
 Chillida
 Botero
 Böcklin
-Bocklin
 Baselitz
 Parmigianino
 Grünewald
-Grunewald
 Albers
 Schwitters
 Larsson
@@ -351,7 +334,6 @@ Cabanel
 Scheffer
 Puvis de Chavannes
 Meštrović
-Mestrovic
 Tiffany
 Barlach
 Tenniel
@@ -362,7 +344,6 @@ Tinguely
 Lempicka
 Giambologna
 Gérard
-Gerard
 Kentridge
 Newton
 Rodchenko
@@ -374,7 +355,6 @@ Signorelli
 Wyeth
 Kuindzhi
 Chassériau
-Chasseriau
 Hodler
 Altdorfer
 Metsys
@@ -390,7 +370,6 @@ Lotto
 Myron
 Champaigne
 Čiurlionis
-Ciurlionis
 Balla
 Bernard
 Limbourg
@@ -411,13 +390,10 @@ Schmidt-Rottluff
 Winterhalter
 Brady
 Čapek
-Capek
 Carpaccio
 Raden Saleh
 Carrà
-Carra
 Krøyer
-Kroyer
 Soulages
 Malczewski
 Breker
@@ -438,7 +414,6 @@ Corbijn
 Greuze
 Avedon
 Höch
-Hoch
 Ardon
 Modersohn-Becker
 Itten
@@ -506,7 +481,6 @@ Epstein
 Fortuny
 Arbus
 Rusiñol
-Rusinol
 Kunisada
 Atget
 Hartley
@@ -523,9 +497,7 @@ Kiprensky
 Nauman
 Hamilton
 Barceló
-Barcelo
 López
-Lopez
 Houdon
 Zadkine
 Archipenko
@@ -551,7 +523,6 @@ Sansovino
 Paolozzi
 Schjerfbeck
 Behzād
-Behzad
 Abakanowicz
 Severini
 Copley
@@ -564,7 +535,6 @@ Tsereteli
 Kittelsen
 Jorn
 César
-Cesar
 Melozzo
 Carr
 Lowry
@@ -577,7 +547,6 @@ Guttuso
 Boldini
 Rowlandson
 Beksiński
-Beksinski
 Milles
 Werner
 Bloch
@@ -596,7 +565,6 @@ Bouts
 Topor
 Beato
 Münter
-Munter
 Close
 Collier
 Pirosmani
@@ -604,7 +572,6 @@ Van Goyen
 Chihuly
 Pyle
 Sérusier
-Serusier
 Cahun
 Munari
 Laurens

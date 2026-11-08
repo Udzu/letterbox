@@ -1,5 +1,5 @@
 # name: Classical composers
-# description: Surnames of classical composers, most prominent first. Names with accents are followed by their unaccented forms.
+# description: Surnames of classical composers, most prominent first.
 # tag: culture
 # attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
 
@@ -16,7 +16,6 @@ Verdi
 Mahler
 Liszt
 Dvořák
-Dvorak
 Puccini
 Schubert
 Stravinsky
@@ -34,10 +33,8 @@ Rachmaninov
 Ravel
 Prokofiev
 Bartók
-Bartok
 Schoenberg
 Schönberg
-Schonberg
 Bernstein
 Gershwin
 Grieg
@@ -46,7 +43,6 @@ Morricone
 Hildegard
 Bingen
 Saint-Saëns
-Saint-Saens
 Rimsky-Korsakov
 Paganini
 Sibelius
@@ -73,7 +69,6 @@ Boulez
 Scriabin
 Skryabin
 Fauré
-Faure
 Lully
 Purcell
 Copland
@@ -99,7 +94,6 @@ Holst
 Horner
 Weill
 Janáček
-Janacek
 Paderewski
 Meyerbeer
 Orff
@@ -111,20 +105,16 @@ Massenet
 Webern
 Previn
 Pärt
-Part
 Xenakis
 Elfman
 Sousa
 Kodály
-Kodaly
 Milhaud
 Falla
 Piazzolla
 Villa-Lobos
 Lutosławski
-Lutoslawski
 Lehár
-Lehar
 Shore
 Joplin
 Cherubini
@@ -142,7 +132,6 @@ Goldsmith
 Buxtehude
 Busoni
 Schütz
-Schutz
 Moniuszko
 Mascagni
 Bruch
@@ -160,7 +149,6 @@ Enescu
 Enesco
 Pergolesi
 Albéniz
-Albeniz
 Respighi
 Reger
 Czerny
@@ -169,7 +157,6 @@ Schnittke
 Charpentier
 Alkan
 Varèse
-Varese
 Leoncavallo
 Desplat
 Sullivan
@@ -191,20 +178,16 @@ Gubaidulina
 Albinoni
 Wolf
 Martinů
-Martinu
 Barber
 Kálmán
-Kalman
 Dukas
 Henze
 Nono
 Tallis
 Korngold
 Górecki
-Gorecki
 Takemitsu
 Halévy
-Halevy
 Hajibeyov
 Sor
 Humperdinck
@@ -214,7 +197,6 @@ Granados
 Saariaho
 Steiner
 Kurtág
-Kurtag
 Berwald
 Clementi
 Walton
@@ -230,7 +212,6 @@ Praetorius
 Gesualdo
 Nyman
 Rózsa
-Rozsa
 Loewe
 Gabrieli
 Peri
@@ -242,22 +223,17 @@ Dowland
 Cimarosa
 Paisiello
 Méhul
-Mehul
 Tartini
 Riley
 Kreisler
 Eisler
 Tárrega
-Tarrega
 Kagel
 Gade
 Cowell
 Ysaÿe
-Ysaye
 Suppé
-Suppe
 Čiurlionis
-Ciurlionis
 Antheil
 Komitas
 Ponchielli
@@ -279,7 +255,6 @@ Porpora
 Sweelinck
 Ockeghem
 Glière
-Gliere
 MacDowell
 Giordano
 Davies
@@ -297,7 +272,6 @@ Lalo
 Kabalevsky
 Beach
 Pérotin
-Perotin
 Thomas
 Jenkins
 Roussel
@@ -308,16 +282,13 @@ Galuppi
 Cavalli
 Arensky
 Grétry
-Gretry
 Dargomyzhsky
 Alfvén
-Alfven
 Fux
 Suk
 Mercadante
 Chausson
 Adès
-Ades
 Lortzing
 Arne
 Myaskovsky
@@ -330,13 +301,11 @@ Stanford
 Boulanger
 Quantz
 Dohnányi
-Dohnanyi
 Onslow
 Allegri
 Sviridov
 Koechlin
 Dupré
-Dupre
 Corigliano
 Reinecke
 Weinberg
@@ -363,7 +332,6 @@ Parry
 Minkus
 Boieldieu
 Mysliveček
-Myslivecek
 Nicolai
 Herbert
 Tailleferre
@@ -380,7 +348,6 @@ Liatoshynsky
 Saint-Georges
 Smyth
 Süssmayr
-Sussmayr
 Vasks
 Chin
 Castelnuovo-Tedesco

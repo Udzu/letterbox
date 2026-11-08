@@ -1,5 +1,5 @@
 # name: Cities
-# description: Cities of half a million people or more, capitals, and smaller cities with articles in most major Wikipedias, largest first, with English and former names. Names with accents are followed by their unaccented forms.
+# description: Cities of half a million people or more, capitals, and smaller cities with articles in most major Wikipedias, largest first.
 # tag: geography
 # attribution: Adapted from [GeoNames](https://www.geonames.org/), with famous cities found using [Wikidata](https://www.wikidata.org/). Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), like GeoNames' data.
 
@@ -24,7 +24,6 @@ Xi'an
 Mumbai
 Bombay
 São Paulo
-Sao Paulo
 Mexico City
 Hangzhou
 Karachi
@@ -61,10 +60,8 @@ Hanoi
 Taipei
 Lima
 Bogotá
-Bogota
 Dalian
 Lüda
-Luda
 Luta
 Hong Kong
 Baghdad
@@ -127,7 +124,6 @@ Bamako
 Riyadh
 Fuzhou
 Ürümqi
-Urumqi
 Urumchi
 Dihua
 New Taipei City
@@ -158,7 +154,6 @@ Berlin
 Tangshan
 Rawalpindi
 Lüliang
-Luliang
 Durban
 Port Natal
 Anshan
@@ -167,7 +162,6 @@ Busan
 Madrid
 Pyongyang
 P'yŏngyang
-P'yongyang
 Pune
 Datong
 Bursa
@@ -249,11 +243,9 @@ Lubumbashi
 Manaus
 Lusaka
 Brasília
-Brasilia
 Zhuhai
 Santo Domingo
 Lomé
-Lome
 Multan
 Havana
 Depok
@@ -264,7 +256,6 @@ Qingyang
 Port Harcourt
 Pretoria
 Córdoba
-Cordoba
 Mbuji-Mayi
 Aleppo
 Kunshan
@@ -272,7 +263,6 @@ Zunyi
 La Paz
 Lianyungang
 Medellín
-Medellin
 Puning
 Indore
 Brazzaville
@@ -309,7 +299,6 @@ Thane
 Thana
 Iztapalapa
 Diyarbakır
-Diyarbakir
 Santa Cruz de la Sierra
 Vadodara
 Adana
@@ -336,7 +325,6 @@ Budapest
 Qingyuan
 Tai'an
 Rasapūdipalem
-Rasapudipalem
 Pimpri-Chinchwad
 Caloocan
 Warsaw
@@ -372,14 +360,10 @@ Kisangani
 Manila
 Wuhu
 Santiago de Querétaro
-Santiago de Queretaro
 Querétaro City
-Queretaro City
 Dazhou
 León de los Aldama
-Leon de los Aldama
 León
-Leon
 Makkah
 Makkah al Mukarramah
 Mecca
@@ -404,26 +388,22 @@ Monrovia
 Putian
 Kawasaki
 Goiânia
-Goiania
 San Antonio
 Kobe
 Jinzhou
 Stockholm
 Ciudad Juárez
-Ciudad Juarez
 Cần Thơ
 Can Tho
 Munich
 Khulna
 Belém
-Belem
 Yekaterinburg
 Ekaterinburg
 Porto Alegre
 Manhattan
 Nashik
 Asunción
-Asuncion
 Yiwu
 Zapopan
 Makassar
@@ -472,7 +452,6 @@ The Bronx
 Bronx
 Guankou
 Huế
-Hue
 Milan
 Najafgarh
 Lianjiang
@@ -501,7 +480,6 @@ Madinah
 Medina
 Al-Madinah al-Munawwarah
 Yaoundé
-Yaounde
 Batam
 Qinzhou
 Luohe
@@ -521,7 +499,6 @@ Qingpu
 Montevideo
 Xuchang
 Kalyān
-Kalyan
 Zigong
 Nizhniy Novgorod
 Nizhny Novgorod
@@ -539,7 +516,6 @@ Kazan'
 Jining
 Barquisimeto
 Shubrā al Khaymah
-Shubra al Khaymah
 Putuo
 Port-au-Prince
 Suwon
@@ -548,7 +524,6 @@ Jinzhong
 Callao
 Meerut
 Virār
-Virar
 Nowrangapur
 Karbala
 Changzhi
@@ -561,7 +536,6 @@ Srinagar
 Barranquilla
 Chelyabinsk
 Mérida
-Merida
 Hiroshima
 Santiago de los Caballeros
 Shymkent
@@ -653,7 +627,6 @@ Xianyang
 Mexicali
 Pointe-Noire
 Maceió
-Maceio
 Campinas
 Sanya
 Rangpur
@@ -667,7 +640,6 @@ Raipur
 Changwon
 Longyan
 Köln
-Koln
 Cologne
 Dublin
 Tiruchirappalli
@@ -722,7 +694,6 @@ Austin
 Managua
 Bengbu
 Salé
-Sale
 Jerusalem
 Al-Quds
 Chandigarh
@@ -746,7 +717,6 @@ Chinkiang
 Enugu
 Rosario
 Sulţānah
-Sultanah
 Huludao
 Hubballi
 Hubli
@@ -759,13 +729,11 @@ Nay Pyi Taw
 Naypyitaw
 Naypyidaw
 Eskişehir
-Eskisehir
 Mysuru
 Mysore
 Chengde
 Salem
 São Luís
-Sao Luis
 Maranham
 Seongnam
 Cartagena
@@ -787,7 +755,6 @@ Quzhou
 Blantyre
 Donetsk
 Abū Ghurayb
-Abu Ghurayb
 Abu Ghraib
 Bishkek
 Qom
@@ -796,7 +763,6 @@ Natal
 Pingxiang
 Malang
 Cancún
-Cancun
 Indianapolis
 Gurugram
 Gurgaon
@@ -834,7 +800,6 @@ Kanayannur
 Tegucigalpa
 Bucheon
 Thanh Hóa
-Thanh Hoa
 Turin
 Al Ain City
 Al Ain
@@ -846,30 +811,25 @@ Ulaanbaatar
 Weihai
 Takeo
 Nova Iguaçu
-Nova Iguacu
 Cochabamba
 Ahvaz
 Ahvāz
 Vientiane
 São Bernardo do Campo
-Sao Bernardo do Campo
 Shangyu
 Xinyu
 Pietermaritzburg
 Yibin
 Naucalpan de Juárez
-Naucalpan de Juarez
 Naucalpan
 Kampung Baru Subang
 Bouaké
-Bouake
 Taicang
 San Francisco
 Sakai
 Jinshan
 Chenzhou
 João Pessoa
-Joao Pessoa
 Bukavu
 Kraków
 Krakow
@@ -880,7 +840,6 @@ Bangui
 Hermosillo
 Bhayandar
 Culiacán
-Culiacan
 Petaling Jaya
 Anqing
 Anking
@@ -893,9 +852,7 @@ Niigata
 Muscat
 Zarqa
 Çankaya
-Cankaya
 Küçükçekmece
-Kucukcekmece
 Hamamatsu
 Kolwezi
 Vinh
@@ -907,7 +864,6 @@ Chuzhou
 Seattle
 Port Said
 Cúcuta
-Cucuta
 Homs
 Hums
 Xuancheng
@@ -928,7 +884,6 @@ Ipoh
 Qinhuangdao
 Benghazi
 Uberlândia
-Uberlandia
 Alīgarh
 Aligarh
 Shaoyang
@@ -950,13 +905,11 @@ Cagayan de Oro
 Ma'anshan
 Shah Alam
 Bağcılar
-Bagcilar
 Shizuishan
 Kumamoto
 Oyo
 Serang
 Torreón
-Torreon
 Deyang
 Abeokuta
 Al Ḩudaydah
@@ -968,7 +921,6 @@ Osasco
 Kikolo
 Maianga
 São José dos Campos
-Sao Jose dos Campos
 Aihara
 Evaton
 Valenzuela
@@ -976,12 +928,10 @@ Muzaffarābād
 Muzaffarabad
 Okayama
 San Luis Potosí
-San Luis Potosi
 Aguascalientes
 General Santos
 Zhumadian
 Morādābād
-Moradabad
 Sagamihara
 Mississauga
 Lviv
@@ -1002,7 +952,6 @@ Battagram
 Santo Domingo Este
 Suez
 Ribeirão Preto
-Ribeirao Preto
 Agadir
 Sarajevo
 Balikpapan
@@ -1059,14 +1008,12 @@ Athens
 Zagreb
 Leshan
 Santo André
-Santo Andre
 Vancouver
 Rizhao
 Helsinki
 Helsingfors
 Cheonan
 Acapulco de Juárez
-Acapulco de Juarez
 Acapulco
 Dongcun
 Banjarmasin
@@ -1091,7 +1038,6 @@ Palermo
 Izhevsk
 Colombo
 Maturín
-Maturin
 Amravati
 Lingyuan
 Detroit
@@ -1099,7 +1045,6 @@ Mingguang
 Osogbo
 Bikaner
 Jaboatão dos Guararapes
-Jaboatao dos Guararapes
 Hoji ya Henda
 Las Vegas
 Hwaseong
@@ -1147,14 +1092,11 @@ Suizhou
 Villa Nueva
 Khabarovsk
 Cuiabá
-Cuiaba
 Arusha
 Feira de Santana
 Las Piñas
-Las Pinas
 Chizhou
 Coyoacán
-Coyoacan
 Stuttgart
 Ya'an
 Cuttack
@@ -1174,7 +1116,6 @@ Benoni
 Vladivostok
 Tuxtla
 Tuxtla Gutiérrez
-Tuxtla Gutierrez
 Kryvyy Rih
 Kryvyi Rih
 Sanming
@@ -1199,9 +1140,7 @@ Rasht
 Mar del Plata
 Essen
 Al Maḩallah al Kubrá
-Al Mahallah al Kubra
 Málaga
-Malaga
 Shekhupura
 Yingkou
 Eiko
@@ -1209,7 +1148,6 @@ Newchwang
 Zhangzhou
 Reynosa
 Thuận An
-Thuan An
 Dortmund
 Baltimore
 Pelentong
@@ -1218,15 +1156,12 @@ Londrina
 Bucaramanga
 Genoa
 Hachiōji
-Hachioji
 Malacca
 Nha Trang
 Kerman
 Orūmīyeh
-Orumiyeh
 Urmia
 Bahçelievler
-Bahcelievler
 Tanta
 Jammu
 Iskandar Puteri
@@ -1238,7 +1173,6 @@ Dongsheng
 Gujrat
 Tomsk
 Ümraniye
-Umraniye
 Shihezi
 Nakuru
 Hamilton
@@ -1269,7 +1203,6 @@ Bloemfontein
 Sheffield
 Santiago de Cuba
 Cuautitlán Izcalli
-Cuautitlan Izcalli
 Benguela
 Chuxiong
 Balbala
@@ -1291,12 +1224,9 @@ Ogbia
 Jiamusi
 Korla
 Kolhāpur
-Kolhapur
 Porto Velho
 San Miguel de Tucumán
-San Miguel de Tucuman
 Tucumán
-Tucuman
 Kuantan
 Sevastopol
 Sebastopol
@@ -1308,7 +1238,6 @@ Kota Kuala Muda
 Sungai Petani
 Xinzhou
 Kotō
-Koto
 Kalaburagi
 Gulbarga
 Kalaburgi
@@ -1351,7 +1280,6 @@ Québec
 Quebec
 Quebec City
 Cuauhtémoc
-Cuauhtemoc
 Shangluo
 Himeji
 Ibagué
@@ -1363,7 +1291,6 @@ Hamadān
 Hamadan
 Qionghai
 Aparecida de Goiânia
-Aparecida de Goiania
 Cangzhou
 Mohammadpur
 Surakarta
@@ -1373,16 +1300,13 @@ Beihai
 Van
 Sacramento
 Thủ Đức
-Thu Duc
 Üsküdar
-Uskudar
 Skutari
 Scutari
 Penza
 Kandahār
 Kandahar
 Mazār-e Sharīf
-Mazar-e Sharif
 Mazari Sharif
 Hengshui
 Dehradun
@@ -1407,13 +1331,11 @@ Loni
 Siliguri
 Nuremberg
 Niterói
-Niteroi
 Ujjain
 Hannover
 Hanover
 Edinburgh
 Macapá
-Macapa
 Xianning
 Toulouse
 Thembisa
@@ -1433,7 +1355,6 @@ Naberezhnye Chelny
 Lipetsk
 Kikwit
 Florianópolis
-Florianopolis
 Banan
 Newcastle
 Tuen Mun
@@ -1453,7 +1374,6 @@ Asansol
 Arāk
 Arak
 Maipú
-Maipu
 Homyel'
 Homyel
 Aktobe
@@ -1491,7 +1411,6 @@ Vernoleninsk
 Mykolaiv
 Staten Island
 Ḩamāh
-Hamah
 Hama
 Colorado Springs
 Virginia Beach
@@ -1558,7 +1477,6 @@ Florence
 Cleveland
 New Orleans
 Malmö
-Malmo
 Wuppertal
 Ulan-Ude
 Maseru
@@ -1582,7 +1500,6 @@ Orlando
 Bielefeld
 Ganja
 Gǝncǝ
-Gence
 Bonn
 Bydgoszcz
 Smolensk
@@ -1598,7 +1515,6 @@ Saransk
 Varna
 Reading
 Constanţa
-Constanta
 Constanța
 New Delhi
 Thessaloníki
@@ -1611,7 +1527,6 @@ Catania
 Cincinnati
 Santa Ana
 Münster
-Munster
 Mannheim
 Pittsburgh
 Graz
@@ -1622,6 +1537,7 @@ Valladolid
 Swansea
 Newcastle upon Tyne
 Newcastle-on-Tyne
+Merida
 Grozny
 Groznyy
 Białystok
@@ -1641,14 +1557,12 @@ Katowice
 Cluj-Napoca
 Haifa
 Århus
-Arhus
 Aarhus
 Brighton
 Karlsruhe
 Port Moresby
 Chernihiv
 Valparaíso
-Valparaiso
 Newark
 Ostrava
 Madison
@@ -1664,7 +1578,6 @@ Khmelnytskyi
 Khmel'nyts'kyy
 Ljubljana
 Gijón
-Gijon
 Derby
 Gelsenkirchen
 Cherkasy
@@ -1679,7 +1592,6 @@ Porto-Novo
 Chernivtsi
 Jersey City
 Mönchengladbach
-Monchengladbach
 Zhytomyr
 Tampere
 Fort Wayne
@@ -1698,13 +1610,10 @@ Vantaa
 Porto
 Kiel
 Timişoara
-Timisoara
 Timișoara
 A Coruña
-A Coruna
 The Groyne
 Niš
-Nis
 Montpellier
 City of Westminster
 Chemnitz
@@ -1744,12 +1653,10 @@ Regina
 Ternopil
 Blagoveshchensk
 Košice
-Kosice
 Sucre
 Cork
 Paramaribo
 Concepción
-Concepcion
 Mainz
 Velikiy Novgorod
 Novgorod
@@ -1778,7 +1685,6 @@ Novi Sad
 Huntsville
 Des Moines
 Lübeck
-Lubeck
 Santa Cruz de Tenerife
 Tenerife
 Burgas
@@ -1804,28 +1710,21 @@ Parma
 Akron
 Kassel
 Almería
-Almeria
 İzmit
-Izmit
 Reims
 Laayoune
 El Aaiún
-El Aaiun
 Durrës
-Durres
 Montgomery
 Liège
-Liege
 Prato
 Alcalá de Henares
-Alcala de Henares
 Braga
 Providence
 Batumi
 Bat'umi
 Beersheba
 Biʾr as-Sabʿ
-Bi'r as-Sab'
 Be'er Sheva
 Le Havre
 Donostia / San Sebastián
@@ -1838,7 +1737,6 @@ Breda
 Fort Lauderdale
 Oradea
 Saarbrücken
-Saarbrucken
 Reggio Calabria
 Petropavlovsk-Kamchatsky
 Petropavlovsk-Kamchatskiy
@@ -1855,7 +1753,6 @@ Saint-Étienne
 Saint-Etienne
 Santander
 Klaipėda
-Klaipeda
 Reggio nell'Emilia
 Reggio Emilia
 Sioux Falls
@@ -1863,18 +1760,14 @@ Sunderland
 Toulon
 Angers
 Pátra
-Patra
 Patras
 Pátrai
-Patrai
 Darmstadt
 Ashkelon
 Ashquelon
 Ashqelon
 Linköping
-Linkoping
 Osnabrück
-Osnabruck
 Piraeus
 Bournemouth
 Sidon
@@ -1891,14 +1784,12 @@ Hebron
 Dijon
 Grenoble
 Sāmarrā'
-Samarra'
 Samarra
 Salzburg
 Livorno
 Tiraspol
 York
 Örebro
-Orebro
 Malabo
 Port Louis
 Saint-Denis
@@ -1913,22 +1804,18 @@ Dili
 Split
 Cagliari
 Jyväskylä
-Jyvaskyla
 Rimini
 Nîmes
-Nimes
 Dundee
 Clermont-Ferrand
 Bridgeport
 Kragujevac
 Manama
 Lárisa
-Larisa
 Larissa
 Aix-en-Provence
 Cambridge
 Pécs
-Pecs
 Blackpool
 Salamanca
 Le Mans
@@ -1955,7 +1842,6 @@ Port Darwin
 Lausanne
 Praia
 Irákleion
-Irakleion
 Heraklion
 Foggia
 Apeldoorn
@@ -1963,7 +1849,6 @@ Tyre
 Kutaisi
 Sibiu
 Würzburg
-Wurzburg
 Đồng Hới
 Dong Hoi
 Dunedin
@@ -1972,21 +1857,16 @@ Innsbruck
 Ferrara
 New Haven
 Umeå
-Umea
 Zwolle
 Al Bayḑā'
 Al Bayda'
 Győr
-Gyor
 Besançon
-Besancon
 Västerås
-Vasteras
 Topeka
 Salerno
 Kuopio
 Bălţi
-Balti
 Willemstad
 Leeuwarden
 Monza
@@ -1994,7 +1874,6 @@ Metz
 Wolfsburg
 Maastricht
 Göttingen
-Gottingen
 Bern
 Berne
 Lahti
@@ -2018,19 +1897,15 @@ Billings
 Ann Arbor
 Cadiz
 Forlì
-Forli
 Orléans
-Orleans
 Rouen
 Sri Jayewardenepura Kotte
 Kotte
 Sri Jayawardenepura Kotte
 Vlorë
-Vlore
 Balkh
 Springfield
 Jönköping
-Jonkoping
 Lansing
 Reutlingen
 Vicenza
@@ -2063,14 +1938,12 @@ Erlangen
 Limerick
 Novara
 Székesfehérvár
-Szekesfehervar
 Bath
 Albany
 Leuven
 Elbasan
 Arezzo
 Klagenfurt am Wörthersee
-Klagenfurt am Worthersee
 Klagenfurt
 Girona
 Udine
@@ -2084,7 +1957,6 @@ Lugo
 Schwerin
 Maribor
 Cáceres
-Caceres
 Shkodër
 Shkoder
 Mons
@@ -2094,9 +1966,7 @@ Alkmaar
 Aksum
 Axum
 Norrköping
-Norrkoping
 České Budějovice
-Ceske Budejovice
 La Spezia
 Santa Monica
 Nouméa
@@ -2105,7 +1975,6 @@ Magadan
 Esslingen
 Esslingen am Neckar
 Tübingen
-Tubingen
 Alessandria
 Sassari
 Tartu
@@ -2129,7 +1998,6 @@ Timbuktu
 Ceuta
 Pori
 Prešov
-Presov
 Pontevedra
 Pau
 Lucca
@@ -2149,13 +2017,11 @@ Joensuu
 Daugavpils
 Szombathely
 Luleå
-Lulea
 Nazareth
 Natserat
 Suva
 Gary
 Shūsh
-Shush
 Susa
 Yalta
 La Rochelle
@@ -2169,17 +2035,14 @@ Bismarck
 Gela
 Moroni
 Banská Bystrica
-Banska Bystrica
 Cannes
 Calais
 Pistoia
 Bayreuth
 Borås
-Boras
 Växjö
 Vaxjo
 Lüneburg
-Luneburg
 Cremona
 Wilmington
 Faro
@@ -2187,7 +2050,6 @@ Bamberg
 Bitola
 Assen
 Liepāja
-Liepaja
 Zadar
 Zara
 Palo Alto
@@ -2220,17 +2082,13 @@ Matera
 Kuwait City
 Kuwait
 Veliko Tŭrnovo
-Veliko Turnovo
 Veliko Tarnovo
 Carson City
 Racibórz
-Raciborz
 Benevento
 Korçë
-Korce
 Lorient
 Ávila
-Avila
 Frankfurt (Oder)
 Baden-Baden
 Ushuaia
@@ -2251,19 +2109,16 @@ Ajaccio
 Siena
 Arles
 São Tomé
-Sao Tome
 Acre
 Akre
 'Akko
 Akko
 Universitäts- und Hansestadt Greifswald
-Universitats- und Hansestadt Greifswald
 Greifswald
 Wetzlar
 Albi
 Pula
 Jūrmala
-Jurmala
 St John's
 Segovia
 Venice
@@ -2299,7 +2154,6 @@ Tikrīt
 Tikrit
 Ohrid
 Tromsø
-Tromso
 Dover
 Auxerre
 Bastia
@@ -2308,7 +2162,6 @@ Apia
 Tarawa
 South Tarawa
 Pärnu
-Parnu
 Kópavogur
 Kopavogur
 Dachau
@@ -2333,22 +2186,18 @@ Sion
 Agen
 L'Aquila
 Neuchâtel
-Neuchatel
 Monaco
 Ventspils
 Agrigento
 Thívai
-Thivai
 Thebes
 Fairbanks
 Helena
 Hafnarfjörður
 Hafnarfjordur
 Šibenik
-Sibenik
 Baalbek
 Kórinthos
-Korinthos
 Corinth
 Fatehpur Sīkri
 Fatehpur Sikri
@@ -2374,25 +2223,19 @@ Alice Springs
 Koper
 Majuro
 Saint-Dié-des-Vosges
-Saint-Die-des-Vosges
 Saint-Dié
-Saint-Die
 Kingstown
 Carthage
 Chios
 Scio
 Chíos
 Gjirokastër
-Gjirokaster
 Visby
 Quedlinburg
 Nuku'alofa
 Sankt Pölten
-Sankt Polten
 St. Pölten
-St. Polten
 Saint Pölten
-Saint Polten
 Verdun
 Aarau
 Byblos
@@ -2409,7 +2252,6 @@ Akureyri
 Albertville
 Augusta
 Chichén-Itzá
-Chichen-Itza
 Chichen Itza
 Viljandi
 Roseau
@@ -2422,17 +2264,14 @@ Cetinje
 Nuuk
 Pierre
 Wādī Mūsá
-Wadi Musa
 Petra
 Belmopan
 Avarua
 Tórshavn
-Torshavn
 Basseterre
 Pago Pago
 Basse-Terre
 Archaía Olympía
-Archaia Olympia
 Ancient Olympia
 Davos
 Mariehamn
@@ -2466,7 +2305,6 @@ Assisi
 Cockburn Town
 San Gimignano
 Mikínai
-Mikinai
 Mycenae
 Mykines
 Delphi
@@ -2492,7 +2330,6 @@ Heligoland
 Mata-Utu
 Yaren
 Hagåtña
-Hagatna
 Vatican City
 Vatican
 Jamestown
@@ -2500,7 +2337,6 @@ Alofi
 West Island
 Adamstown
 Port-aux-Français
-Port-aux-Francais
 Grytviken
 Angkor Thum
 Ngerulmud
