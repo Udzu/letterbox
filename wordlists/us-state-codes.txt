@@ -1,6 +1,6 @@
 # name: US state codes
 # description: The two-letter postal codes of the 50 US states, DC and the inhabited territories, such as CA and NY.
-# kind: geography
+# tag: geography
 
 # 50 states, in order of state name
 AL

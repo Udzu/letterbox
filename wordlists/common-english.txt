@@ -1,6 +1,6 @@
 # name: Common English
 # description: English words used about once per million words or more, including common proper nouns, most common first.
-# kind: general
+# tag: general
 # attribution: Adapted from [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)) and [ENABLE](https://github.com/dolph/dictionary), filtered and ordered by [wordfreq](https://github.com/rspeer/wordfreq) frequency, and excluding some name and abbreviation overlaps. Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.
 
 the

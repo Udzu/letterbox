@@ -1,6 +1,6 @@
 # name: Countries
 # description: Sovereign states and dependent territories, with common alternative and former names.
-# kind: geography
+# tag: geography
 
 # ================
 # Sovereign states

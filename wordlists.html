@@ -58,7 +58,7 @@
     "file": "common-english.txt",
     "name": "Common English",
     "description": "English words used about once per million words or more, including common proper nouns, most common first.",
-    "kind": "general",
+    "tag": "general",
     "attribution": "Adapted from [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)) and [ENABLE](https://github.com/dolph/dictionary), filtered and ordered by [wordfreq](https://github.com/rspeer/wordfreq) frequency, and excluding some name and abbreviation overlaps. Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.",
     "size": 25449
   },
@@ -66,7 +66,7 @@
     "file": "english.txt",
     "name": "English",
     "description": "General English words, including common proper nouns, most common first (phrases are a separate list).",
-    "kind": "general",
+    "tag": "general",
     "attribution": "Adapted from [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)) and [ENABLE](https://github.com/dolph/dictionary), filtered and ordered by [wordfreq](https://github.com/rspeer/wordfreq) frequency, and excluding some name and abbreviation overlaps. Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.",
     "size": 207227
   },
@@ -74,7 +74,7 @@
     "file": "english-phrases.txt",
     "name": "English phrases",
     "description": "English phrases, idioms and hyphenated words from Wiktionary, in alphabetical order.",
-    "kind": "general",
+    "tag": "general",
     "attribution": "Adapted from [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary.",
     "size": 166102
   },
@@ -82,7 +82,7 @@
     "file": "artists.txt",
     "name": "Artists",
     "description": "Painters, sculptors, printmakers and photographers, by the names they're usually known by, most prominent first. Names with accents are followed by their unaccented forms.",
-    "kind": "culture",
+    "tag": "culture",
     "attribution": "Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.",
     "size": 620
   },
@@ -90,21 +90,21 @@
     "file": "elements.txt",
     "name": "Chemical elements",
     "description": "The 118 chemical elements, with alternative spellings and the Latin names behind some of their symbols.",
-    "kind": "science",
+    "tag": "science",
     "size": 134
   },
   {
     "file": "element-symbols.txt",
     "name": "Chemical symbols",
     "description": "The symbols of the 118 chemical elements, such as He and Na, in their usual capitalisation.",
-    "kind": "science",
+    "tag": "science",
     "size": 118
   },
   {
     "file": "cities.txt",
     "name": "Cities",
     "description": "Cities of half a million people or more, capitals, and smaller cities with articles in most major Wikipedias, largest first, with English and former names. Names with accents are followed by their unaccented forms.",
-    "kind": "geography",
+    "tag": "geography",
     "attribution": "Adapted from [GeoNames](https://www.geonames.org/), with famous cities found using [Wikidata](https://www.wikidata.org/). Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), like GeoNames' data.",
     "size": 2501
   },
@@ -112,7 +112,7 @@
     "file": "composers.txt",
     "name": "Classical composers",
     "description": "Surnames of classical composers, most prominent first. Names with accents are followed by their unaccented forms.",
-    "kind": "culture",
+    "tag": "culture",
     "attribution": "Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.",
     "size": 395
   },
@@ -120,36 +120,42 @@
     "file": "countries.txt",
     "name": "Countries",
     "description": "Sovereign states and dependent territories, with common alternative and former names.",
-    "kind": "geography",
+    "tag": "geography",
     "size": 290
   },
   {
     "file": "political-systems.txt",
     "name": "Political systems and ideologies",
     "description": "Forms of government and political ideologies, most prominent first.",
-    "kind": "politics",
+    "tag": "politics",
     "attribution": "From Wikipedia's lists of [forms of government](https://en.wikipedia.org/wiki/List_of_forms_of_government) and [ideologies](https://en.wikipedia.org/wiki/List_of_political_ideologies), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.",
     "size": 209
+  },
+  {
+    "file": "scrabble-twos.txt",
+    "name": "Two-letter Scrabble words",
+    "description": "The 107 North American (NWL) two-letter words, then the 20 more in Collins (CSW).",
+    "size": 127
   },
   {
     "file": "us-presidents.txt",
     "name": "US presidents",
     "description": "Surnames of the presidents of the United States, in order of their first terms.",
-    "kind": "politics",
+    "tag": "politics",
     "size": 40
   },
   {
     "file": "us-state-codes.txt",
     "name": "US state codes",
     "description": "The two-letter postal codes of the 50 US states, DC and the inhabited territories, such as CA and NY.",
-    "kind": "geography",
+    "tag": "geography",
     "size": 56
   },
   {
     "file": "us-states.txt",
     "name": "US states",
     "description": "The 50 US states, with the District of Columbia and the five inhabited territories.",
-    "kind": "geography",
+    "tag": "geography",
     "size": 59
   }
 ]
@@ -157,10 +163,10 @@
 <script>
 (() => {
   // src/wordlists/lists.js
-  var REQUIRED = ["name", "description", "kind"];
-  var KEYS = [...REQUIRED, "attribution"];
+  var REQUIRED = ["name", "description"];
+  var KEYS = [...REQUIRED, "tag", "attribution"];
   var TOPICS = ["culture", "geography", "politics", "science"];
-  var KINDS = ["general", ...TOPICS];
+  var TAGS = ["general", ...TOPICS];
   function stripList(text) {
     const words = text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !line.startsWith("#"));
     return words.length === 0 ? "" : words.join("\n") + "\n";
@@ -342,7 +348,7 @@ ${stripped}` : stripped;
   var listsBox = document.getElementById("lists");
   var group = null;
   for (const list of LISTS) {
-    const general = list.kind === "general";
+    const general = list.tag === "general";
     if (group?.general !== general) {
       group = { general, ul: element("ul") };
       listsBox.append(group.ul);
@@ -352,7 +358,7 @@ ${stripped}` : stripped;
     downloadButton.title = `Save the list as ${list.file}`;
     const title = element("div", "title");
     title.append(element("span", "name", list.name));
-    if (!general) title.append(element("span", `badge ${list.kind}`, list.kind));
+    if (list.tag && !general) title.append(element("span", `badge ${list.tag}`, list.tag));
     title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
     const status = element("p", "status");
     status.setAttribute("aria-live", "polite");

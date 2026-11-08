@@ -10,7 +10,7 @@ ranked-wordlists/, without its .txt (all of them if none are given), and is writ
 the same name in wordlists/; run npm run build afterwards to update the Wordlists page.
 
 A list's file in ranked-wordlists/, which is edited by hand, starts with the header for the word
-list (its # name:, # description:, # kind: and optional # attribution: lines), which is copied as it
+list (its # name:, # description:, # tag: and optional # attribution: lines), which is copied as it
 is. Each line after that is a Wikidata item, then the words to list for it, separated by commas,
 and optionally a comment after a #:
 
@@ -40,7 +40,7 @@ PAGERANK_WEIGHT = 0.75
 QRANK, DANKER, *NAMES = sys.argv[1:]
 HERE = Path(__file__).parent / "ranked-wordlists"
 OUT = Path(__file__).parent.parent / "wordlists"
-HEADER = re.compile(r"# (name|description|kind|attribution): ")
+HEADER = re.compile(r"# (name|description|tag|attribution): ")
 
 # --- Lists: name -> (header, {Wikidata item: [word]})
 

@@ -1,6 +1,6 @@
 # name: US presidents
 # description: Surnames of the presidents of the United States, in order of their first terms.
-# kind: politics
+# tag: politics
 
 Washington
 Adams

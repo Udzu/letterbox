@@ -221,7 +221,7 @@ DESCRIPTION = ("Cities of half a million people or more, capitals, and smaller c
 ATTRIBUTION = ("Adapted from [GeoNames](https://www.geonames.org/), with famous cities found using"
                " [Wikidata](https://www.wikidata.org/). Licensed under"
                " [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), like GeoNames' data.")
-header = f"# name: Cities\n# description: {DESCRIPTION}\n# kind: geography\n# attribution: {ATTRIBUTION}\n\n"
+header = f"# name: Cities\n# description: {DESCRIPTION}\n# tag: geography\n# attribution: {ATTRIBUTION}\n\n"
 (OUT / "cities.txt").write_text(header + "\n".join(words) + "\n", encoding="utf-8")
 smaller = sum(1 for g in cities if cities[g][0] < MIN_POPULATION and places[g][5] != "PPLC")
 print(f"cities: {len(cities):,} cities ({smaller:,} smaller famous ones), {len(words):,} words")
