@@ -191,9 +191,10 @@ function attributionElement(attribution) {
   return p;
 }
 
-// Between the general lists and the topic and untagged lists after them, a badge for each topic
-// in use and an "other" badge for untagged lists: pressing one shows only the lists it's for,
-// and pressing it again shows them all.
+// Between the general lists and the topic and untagged lists after them, an "all" badge, then a
+// badge for each topic in use and an "other" badge for untagged lists, each with its number of
+// lists: pressing a topic or "other" shows only the lists it's for, and pressing it again or
+// pressing "all" shows them all.
 const listsBox = document.getElementById("lists");
 const filterBox = element("div", "filters");
 filterBox.setAttribute("role", "group");
@@ -205,6 +206,10 @@ const counts = new Map(); // filter -> number of lists
 for (const list of LISTS) {
   if (list.tag !== "general") counts.set(filterOf(list), (counts.get(filterOf(list)) ?? 0) + 1);
 }
+const allButton = element("button", "badge all", `all (${[...counts.values()].reduce((a, b) => a + b, 0)})`);
+allButton.title = "Show all the lists";
+allButton.addEventListener("click", () => setFilter(null));
+filterBox.append(allButton);
 for (const name of [...TOPICS, "other"].filter((name) => counts.has(name))) {
   const button = element("button", `badge ${name}`, `${name} (${counts.get(name)})`);
   button.setAttribute("aria-pressed", "false");
@@ -216,6 +221,7 @@ const filtered = []; // [{ list, li }] for the lists the filter applies to
 
 function setFilter(name) {
   filter = name;
+  allButton.setAttribute("aria-pressed", String(name === null));
   for (const [key, button] of filters) {
     button.setAttribute("aria-pressed", String(key === name));
     button.title = key === name ? "Show all the lists" : `Show only the ${key === "other" ? "untagged" : key} lists`;

@@ -21,6 +21,8 @@
   .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 8px; }
   .filters button.badge { border: 1px solid transparent; font: inherit; font-size: 0.9rem; padding: 2px 12px; cursor: pointer; }
   .filters.active button.badge[aria-pressed=false] { opacity: 0.45; }
+  /* "all" is outlined rather than coloured, so it doesn't look like another topic */
+  .filters button.badge.all { background: #fff; color: #333; border-color: #bbb; }
   .filters button.badge[aria-pressed=true] { border-color: currentColor; }
   #lists li { margin: 0 -8px; padding: 12px 8px; border-bottom: 1px solid #ddd; }
   /* the word list's row is shaded green, and the @ list's blue, unless it's also the word list */
