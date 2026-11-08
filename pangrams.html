@@ -163,8 +163,13 @@
     cells[ch] = cell;
   }
 
-  // letters of the alphabet in a piece of text, with accents stripped (é → e)
-  const alphabetLetters = text => [...text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()].filter(ch => ALPHABET.includes(ch));
+  // Letters that don't decompose into a base letter and accents, and what they count as. The
+  // single letters are the ones the Patterns page's (?d:...) also treats as unaccented; the
+  // Anagrams page has the same table.
+  const UNDECOMPOSED = { ø: "o", ł: "l", đ: "d", ı: "i", ħ: "h", ŧ: "t", æ: "ae", œ: "oe", ß: "ss" };
+  // letters of the alphabet in a piece of text, with accents stripped (é → e, æ → ae)
+  const alphabetLetters = text => [...text.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")]
+    .flatMap(ch => [...(UNDECOMPOSED[ch] ?? ch)]).filter(ch => ALPHABET.includes(ch));
 
   function analyse(text) {
     const counts = Object.fromEntries([...ALPHABET].map(ch => [ch, 0]));

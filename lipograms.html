@@ -183,8 +183,13 @@
     setTimeout(() => { copyButton.textContent = "Copy to clipboard"; }, 1500);
   });
 
-  // case-insensitive and accent-insensitive form of a character (É → e)
-  const fold = ch => ch.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  // Letters that don't decompose into a base letter and accents, and what they count as. The
+  // single letters are the ones the Patterns page's (?d:...) also treats as unaccented; the
+  // Anagrams and Pangrams pages have the same table.
+  const UNDECOMPOSED = { ø: "o", ł: "l", đ: "d", ı: "i", ħ: "h", ŧ: "t", æ: "ae", œ: "oe", ß: "ss" };
+  // the case-insensitive and accent-insensitive letters a character counts as (É → e), which
+  // can be two for letters like œ (so œ breaks a lipogram in e)
+  const fold = ch => [...ch.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")].flatMap(c => [...(UNDECOMPOSED[c] ?? c)]);
   const escape = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   function load(key, fallback) {
@@ -403,8 +408,7 @@
     const avoided = new Map();
     for (const ch of avoid.value) {
       if (/\s/.test(ch)) continue;
-      const f = fold(ch);
-      if (f !== "" && !avoided.has(f)) avoided.set(f, 0);
+      for (const f of fold(ch)) if (!avoided.has(f)) avoided.set(f, 0);
     }
 
     const words = findWords(text.value);
@@ -419,9 +423,9 @@
       if (bad && index === bad.start) html += `<span class="pilish-bad">`;
       if (bad && index === bad.end) html += `</span>`;
       index += ch.length;
-      const f = fold(ch);
-      if (avoided.has(f)) {
-        avoided.set(f, avoided.get(f) + 1);
+      const hits = fold(ch).filter(f => avoided.has(f));
+      if (hits.length > 0) {
+        for (const f of hits) avoided.set(f, avoided.get(f) + 1);
         total++;
         html += `<span class="bad">${escape(ch)}</span>`;
       } else {

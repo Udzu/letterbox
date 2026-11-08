@@ -166,13 +166,15 @@
   const backdrop = document.getElementById("backdrop");
   const summary = document.getElementById("summary");
 
-  // case-insensitive and accent-insensitive form of a character (É → e)
-  const fold = ch => ch.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
-  // folded form if the character is a letter or number, otherwise null
-  const key = ch => {
-    const f = fold(ch);
-    return /^[\p{L}\p{N}]+$/u.test(f) ? f : null;
-  };
+  // Letters that don't decompose into a base letter and accents, and what they count as. The
+  // single letters are the ones the Patterns page's (?d:...) also treats as unaccented; the
+  // Pangrams page has the same table.
+  const UNDECOMPOSED = { ø: "o", ł: "l", đ: "d", ı: "i", ħ: "h", ŧ: "t", æ: "ae", œ: "oe", ß: "ss" };
+  // case-insensitive and accent-insensitive form of a character (É → e, Æ → ae)
+  const fold = ch => [...ch.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")].map(c => UNDECOMPOSED[c] ?? c).join("");
+  // the letters and numbers a character counts as: usually one, none for punctuation, and two
+  // for letters like æ and ß
+  const keys = ch => [...fold(ch)].filter(c => /[\p{L}\p{N}]/u.test(c));
   const escape = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const sorted = chars => chars.sort((a, b) => a.localeCompare(b)).join("");
 
@@ -193,24 +195,24 @@
   function analyse(anagristText, anagramText) {
     const available = new Map();
     for (const ch of anagristText) {
-      const k = key(ch);
-      if (k !== null) available.set(k, (available.get(k) || 0) + 1);
+      for (const k of keys(ch)) available.set(k, (available.get(k) || 0) + 1);
     }
 
     // use up available letters in reading order; anything beyond that is extra
     let html = "";
     const extra = [];
+    // (a character that counts as two letters, like æ, is extra if either of them is)
     for (const ch of anagramText) {
-      const k = key(ch);
-      if (k === null) {
-        html += escape(ch);
-      } else if (available.get(k) > 0) {
-        available.set(k, available.get(k) - 1);
-        html += escape(ch);
-      } else {
-        extra.push(k);
-        html += `<span class="bad">${escape(ch)}</span>`;
+      let bad = false;
+      for (const k of keys(ch)) {
+        if (available.get(k) > 0) {
+          available.set(k, available.get(k) - 1);
+        } else {
+          extra.push(k);
+          bad = true;
+        }
       }
+      html += bad ? `<span class="bad">${escape(ch)}</span>` : escape(ch);
     }
 
     const missing = [];
@@ -433,17 +435,17 @@
 
   // letter counts for each word, worked out once when the list is loaded
   function makeWordList(name, words) {
-    const keys = new Map();
+    const keysOf = new Map();
     const entries = [];
     for (const word of words) {
       const counts = new Map();
       let length = 0;
       for (const ch of word) {
-        if (!keys.has(ch)) keys.set(ch, key(ch));
-        const k = keys.get(ch);
-        if (k === null) continue;
-        counts.set(k, (counts.get(k) || 0) + 1);
-        length++;
+        if (!keysOf.has(ch)) keysOf.set(ch, keys(ch));
+        for (const k of keysOf.get(ch)) {
+          counts.set(k, (counts.get(k) || 0) + 1);
+          length++;
+        }
       }
       if (length > 0) entries.push({ word, counts: [...counts], length });
     }
@@ -480,7 +482,7 @@
   function renderWords(missing) {
     const available = new Map();
     for (const k of missing) available.set(k, (available.get(k) || 0) + 1);
-    const filterKeys = [...new Set([...filterInput.value].map(key).filter(k => k !== null))];
+    const filterKeys = [...new Set([...filterInput.value].flatMap(keys))];
     const filter = sorted([...filterKeys]);
     const found = [];
     for (const entry of wordList.entries) {
