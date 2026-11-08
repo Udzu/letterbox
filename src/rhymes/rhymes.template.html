@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rhymes</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main { max-width: 900px; margin: 0 auto; }
+  .intro { margin: 0 0 24px; color: #666; }
+  #word {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    font-size: 1.2rem;
+    font-family: inherit;
+  }
+  #status { margin: 12px 0 0; color: #666; }
+  #status:empty { display: none; }
+  #status.error { color: #d00; }
+  #prons { margin-top: 12px; }
+  #prons p { margin: 0 0 4px; }
+  #prons .hint { color: #666; }
+  #prons label { display: block; padding: 2px 0; cursor: pointer; }
+  .word { font-weight: 600; }
+  .ipa { color: #444; }
+  #summary { margin: 16px 0 8px; font-size: 1.1rem; }
+  #summary:empty { display: none; }
+  #results .list { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  #results:not(:empty) { border: 1px solid #999; padding: 6px 8px; }
+  #results .rhyme { cursor: pointer; white-space: pre; }
+  #results .rhyme:hover, #results .rhyme:focus { text-decoration: underline; }
+  .attribution { margin: 24px 0 0; color: #888; font-size: 0.85rem; }
+  .attribution a { color: #888; }
+  nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <b>Rhymes</b> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
+<main>
+  <p class="intro">Find perfect rhymes in General American English: words and phrases that sound the same from the last stressed vowel on, but different just before it (so <i>bread</i> and <i>said</i> rhyme with <i>head</i>, but <i>behead</i> doesn't). Click a rhyme to look it up. Unlike most of the other pages, this one needs an internet connection.</p>
+  <input id="word" type="text" placeholder="Word or phrase..." autocomplete="off" spellcheck="false" autofocus>
+  <p id="status"></p>
+  <div id="prons"></div>
+  <p id="summary"></p>
+  <div id="results"></div>
+  <p class="attribution" id="attribution"></p>
+</main>
+<!-- @inline page.js -->
+</body>
+</html>
