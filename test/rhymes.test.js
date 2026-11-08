@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { Rhymes, lookupKey, parsePronunciations, rhymeParts, splitCluster, toIpa } from "../src/rhymes/rhymes.js";
+import { COMMON, RARE, Rhymes, lookupKey, parsePronunciations, rhymeParts, splitCluster, toIpa } from "../src/rhymes/rhymes.js";
 
 const DATA = `# name: Pronunciations
 # attribution: From [somewhere](https://example.com).
@@ -114,6 +114,29 @@ test("options allow the same onset, and different onsets after the stress", () =
   assert.deepEqual(rhymes.find(entry("hip-hop"), { looseOnsets: true }), ["flip-flop"]);
   assert.deepEqual(rhymes.find(entry("hip-hop"), { looseOnsets: true, sameOnset: true }), ["flip-flop", "hip hop"]);
   assert.deepEqual(rhymes.find(entry("happy"), { looseOnsets: true }), ["daddy"]);
+});
+
+test("arranges rhymes by frequency, with phrases apart", () => {
+  const r = new Rhymes(parsePronunciations(`
+day\tde1\tC\t60
+may\tme1\tC\t60
+May\tme1\tC\t60
+a\te1\tC\t74
+a.\te1\tC\t74
+A\te1\tC\t15
+Bray\tbre1\tC\t25
+fray\tfre1\tC\t25
+sley\tsle1\tC\t0
+one-way\twV1nwe1\tC\t50
+far away\tfA1r Vwe1\tW\t40
+`).entries);
+  const bands = r.arrange(r.find(r.pronunciations("day")[0]));
+  const show = (items) => items.map((i) => [i.word, ...i.variants].join("/"));
+  assert.deepEqual(show(bands.common), ["a/a./A", "may/May"]);
+  assert.deepEqual(show(bands.uncommon), ["Bray", "fray"]);
+  assert.deepEqual(show(bands.rare), ["sley"]);
+  assert.deepEqual(show(bands.phrases), ["far away", "one-way"]);
+  assert.ok(COMMON > RARE);
 });
 
 test("looks words up regardless of case and apostrophes", () => {

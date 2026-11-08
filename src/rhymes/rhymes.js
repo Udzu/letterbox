@@ -114,6 +114,10 @@ export function parsePronunciations(text) {
 // a word as looked up: case and the kind of apostrophe don't matter
 export const lookupKey = (word) => word.trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'").toLowerCase();
 
+// Zipf frequencies (× 10) at or above which a word counts as common, and below which it's rare
+export const COMMON = 30;
+export const RARE = 20;
+
 // A rhyming dictionary over a list of entries.
 export class Rhymes {
   constructor(entries) {
@@ -121,6 +125,7 @@ export class Rhymes {
     this.byWord = new Map(); // lookup key -> entries
     this.byRhyme = new Map(); // rhyme -> [{ entry, onset }]
     this.byLoose = new Map(); // loose rhyme -> [{ entry, onset }]
+    this.frequency = new Map(); // word -> highest Zipf frequency (× 10) of its entries
     const add = (map, key, value) => {
       if (!map.has(key)) map.set(key, []);
       map.get(key).push(value);
@@ -130,6 +135,7 @@ export class Rhymes {
       const { rhyme, loose, onset } = rhymeParts(entry.pron);
       add(this.byRhyme, rhyme, { entry, onset });
       add(this.byLoose, loose, { entry, onset });
+      this.frequency.set(entry.word, Math.max(this.frequency.get(entry.word) ?? 0, entry.zipf));
     }
   }
 
@@ -171,6 +177,30 @@ export class Rhymes {
       if ((sameOnset || other.onset !== parts.onset) && lookupKey(other.entry.word) !== self) words.add(other.entry.word);
     }
     return [...words].sort(compareWords);
+  }
+
+  // Rhymes grouped for display. Words that only differ in case or full stops (may, May; a, a.) are
+  // merged into one item, { word, variants, zipf }, shown as its most frequent spelling (lowercase if
+  // tied). Items are split into common, uncommon and rare words, by frequency, and phrases (including
+  // hyphenated words, whose frequencies wordfreq can only estimate), each alphabetical.
+  arrange(words) {
+    const merged = new Map();
+    for (const word of words) {
+      const key = word.toLowerCase().replaceAll(".", "");
+      if (!merged.has(key)) merged.set(key, []);
+      merged.get(key).push(word);
+    }
+    const bands = { common: [], uncommon: [], rare: [], phrases: [] };
+    for (const spellings of merged.values()) {
+      const freq = (w) => this.frequency.get(w) ?? 0;
+      spellings.sort((a, b) => freq(b) - freq(a) || (b === b.toLowerCase()) - (a === a.toLowerCase()) || compareWords(a, b));
+      const [word, ...variants] = spellings;
+      const item = { word, variants, zipf: freq(word) };
+      const band = /[\s-]/.test(word) ? "phrases" : item.zipf >= COMMON ? "common" : item.zipf >= RARE ? "uncommon" : "rare";
+      bands[band].push(item);
+    }
+    for (const items of Object.values(bands)) items.sort((a, b) => compareWords(a.word, b.word));
+    return bands;
   }
 }
 

@@ -284,17 +284,38 @@ def zipf(w):
     return round(10 * zipf_frequency(w, "en"))
 
 
+# wordfreq ignores case, so a capitalised word that's also in the data in lowercase (Nice, Bill) would
+# get the lowercase word's frequency. Unless the English list has it capitalised (which it only does
+# for common proper nouns, like May or Polish), cap it below the Zipf frequency of 2 that the page
+# treats as rare. Likewise for words only in CMUdict that aren't in the English list: these are
+# mostly names, which CMUdict writes in lowercase, and get the frequency of anything spelled the same
+# (ted from TED, ged from GED).
+ENGLISH = {line.rstrip("\n") for line in open(WORDLISTS / "english.txt", encoding="utf-8") if not line.startswith("#")}
+RARE_CAP = 15
+
+
+sources = defaultdict(set)
+for w, _, srcs in rows:
+    sources[w] |= set(srcs)
+
+
+def frequency(w):
+    if w not in ENGLISH and ((w != w.lower() and w.lower() in entries) or sources[w] == {"C"}):
+        return min(zipf(w), RARE_CAP)
+    return zipf(w)
+
+
 rows.sort(key=lambda r: (r[0].lower(), r[0], r[1]))
 OUT.parent.mkdir(exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as o:
     print("""# name: Pronunciations
-# description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10.
+# description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10 (capped at 15 for capitalised forms of lowercase words and for words only in CMUdict, unless they're in the English word list).
 # attribution: From the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (BSD licence) and [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)), with frequencies from [wordfreq](https://github.com/rspeer/wordfreq). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.
 # phonemes: vowels A ɑ, a æ, V ʌ/ə, O ɔ, W aʊ, Y aɪ, E ɛ, R ɝ/ɚ, e eɪ, I ɪ, i i, o oʊ, Q ɔɪ, U ʊ, u u (followed by 1 for primary stress, 2 for secondary); consonants b C=tʃ d D=ð f g h J=dʒ k l m n N=ŋ p r s S=ʃ t T=θ v w j z Z=ʒ; space between words
 # sources: C CMUdict, U Wiktionary (US), W Wiktionary (untagged), E Wiktionary enPR, B Wiktionary (British, converted)
 """, file=o)
     for w, p, s in rows:
-        print(f"{w}\t{p}\t{s}\t{zipf(w)}", file=o)
+        print(f"{w}\t{p}\t{s}\t{frequency(w)}", file=o)
 
 # --- Report
 

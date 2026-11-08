@@ -36,8 +36,12 @@
   .also { color: #888; }
   #summary { margin: 16px 0 8px; font-size: 1.1rem; }
   #summary:empty { display: none; }
+  #results section { border: 1px solid #999; padding: 6px 8px; }
+  #results section + section { border-top: none; }
+  #results h2 { margin: 0 0 4px; font-size: 0.95rem; font-weight: 600; color: #444; }
+  #results h2 .count { font-weight: normal; color: #888; }
   #results .list { display: flex; flex-wrap: wrap; gap: 4px 16px; }
-  #results:not(:empty) { border: 1px solid #999; padding: 6px 8px; }
+  #results .rare .rhyme { color: #777; }
   #results .rhyme { cursor: pointer; white-space: pre; }
   #results .rhyme:hover, #results .rhyme:focus { text-decoration: underline; }
   .attribution { margin: 24px 0 0; color: #888; font-size: 0.85rem; }
@@ -234,12 +238,15 @@
     return { attribution: attribution2, entries };
   }
   var lookupKey = (word) => word.trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'").toLowerCase();
+  var COMMON = 30;
+  var RARE = 20;
   var Rhymes = class {
     constructor(entries) {
       this.entries = entries;
       this.byWord = /* @__PURE__ */ new Map();
       this.byRhyme = /* @__PURE__ */ new Map();
       this.byLoose = /* @__PURE__ */ new Map();
+      this.frequency = /* @__PURE__ */ new Map();
       const add = (map, key, value) => {
         if (!map.has(key)) map.set(key, []);
         map.get(key).push(value);
@@ -249,6 +256,7 @@
         const { rhyme, loose, onset } = rhymeParts(entry.pron);
         add(this.byRhyme, rhyme, { entry, onset });
         add(this.byLoose, loose, { entry, onset });
+        this.frequency.set(entry.word, Math.max(this.frequency.get(entry.word) ?? 0, entry.zipf));
       }
     }
     // A word's pronunciations, best first: those written the way it was typed, then the ones with the
@@ -288,6 +296,29 @@
       }
       return [...words].sort(compareWords);
     }
+    // Rhymes grouped for display. Words that only differ in case or full stops (may, May; a, a.) are
+    // merged into one item, { word, variants, zipf }, shown as its most frequent spelling (lowercase if
+    // tied). Items are split into common, uncommon and rare words, by frequency, and phrases (including
+    // hyphenated words, whose frequencies wordfreq can only estimate), each alphabetical.
+    arrange(words) {
+      const merged = /* @__PURE__ */ new Map();
+      for (const word of words) {
+        const key = word.toLowerCase().replaceAll(".", "");
+        if (!merged.has(key)) merged.set(key, []);
+        merged.get(key).push(word);
+      }
+      const bands = { common: [], uncommon: [], rare: [], phrases: [] };
+      for (const spellings of merged.values()) {
+        const freq = (w) => this.frequency.get(w) ?? 0;
+        spellings.sort((a, b) => freq(b) - freq(a) || (b === b.toLowerCase()) - (a === a.toLowerCase()) || compareWords(a, b));
+        const [word, ...variants] = spellings;
+        const item = { word, variants, zipf: freq(word) };
+        const band = /[\s-]/.test(word) ? "phrases" : item.zipf >= COMMON ? "common" : item.zipf >= RARE ? "uncommon" : "rare";
+        bands[band].push(item);
+      }
+      for (const items of Object.values(bands)) items.sort((a, b) => compareWords(a.word, b.word));
+      return bands;
+    }
   };
   var collator = new Intl.Collator("en");
   var compareWords = (a, b) => collator.compare(a, b);
@@ -295,6 +326,7 @@
   // src/rhymes/page.js
   var WORD_KEY = "rhymes-word";
   var OPTIONS_KEY = "rhymes-options";
+  var BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
   var SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)" };
   var input = document.getElementById("word");
   var status = document.getElementById("status");
@@ -355,12 +387,22 @@
     const entry = shown.choices[shown.choice]?.entry;
     if (!entry) return;
     const options = Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
-    const words = rhymes.find(entry, options);
+    const bands = rhymes.arrange(rhymes.find(entry, options));
+    const count = Object.values(bands).reduce((n, items) => n + items.length, 0);
     const { ipa } = rhymeParts(entry.pron);
     const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
-    summary.textContent = `${words.length === 0 ? "No" : words.length.toLocaleString("en")} ${perfect}rhyme${words.length === 1 ? "" : "s"} on /${ipa}/`;
-    if (words.length === 0) return;
-    results.append(el("div", { className: "list" }, words.map((word) => el("span", { className: "rhyme", textContent: word, tabIndex: 0 }))));
+    summary.textContent = `${count === 0 ? "No" : count.toLocaleString("en")} ${perfect}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
+    for (const [band, title] of Object.entries(BANDS)) {
+      const items = bands[band];
+      if (items.length === 0) continue;
+      const heading = el("h2", {}, [`${title} `, el("span", { className: "count", textContent: `(${items.length.toLocaleString("en")})` })]);
+      results.append(el("section", { className: band }, [heading, el("div", { className: "list" }, items.map((item) => el("span", {
+        className: "rhyme",
+        textContent: item.word,
+        tabIndex: 0,
+        title: item.variants.length ? `Also ${item.variants.join(", ")}` : ""
+      })))]));
+    }
   }
   function hashWord() {
     const hash = location.hash.slice(1).replace(/\+/g, " ");
