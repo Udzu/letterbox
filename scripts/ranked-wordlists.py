@@ -21,8 +21,9 @@ page views, each taken as a logarithm and scaled to have mean 0 and standard dev
 list. Page views alone overrate popular items, such as film composers, so PageRank, which measures
 how much other articles refer to an item, gets PAGERANK_WEIGHT of the weight; but not all of it,
 since PageRank alone underrates items that are looked up more than written about. Each word is
-listed once, at the place of the most prominent item with it, and words with accents or other
-non-ASCII letters are followed by their ASCII forms, so Dvořák is followed by Dvorak.
+listed once, at the place of the most prominent item with it, and words with letters that stand
+for two, ß, æ or œ, are followed by their ASCII forms, so Æsop would be followed by Aesop, since
+the Patterns page can match accents, as (?d:Dvorak) does Dvořák, but not one letter with two.
 """
 
 import bz2
@@ -90,10 +91,11 @@ def standardised(measure, items):
     return {item: (value - mean) / deviation for item, value in logs.items()}
 
 
-# --- Write: most prominent first, each word followed by its ASCII form if it's different
+# --- Write: most prominent first, each word with ß, æ or œ followed by its ASCII form
 
 # letters that don't decompose into an ASCII letter and accents
-LETTERS = str.maketrans({"ß": "ss", "æ": "ae", "ø": "o", "ł": "l", "Ł": "L", "đ": "d", "ı": "i"})
+LETTERS = str.maketrans({"ß": "ss", "ẞ": "SS", "æ": "ae", "Æ": "Ae", "œ": "oe", "Œ": "Oe", "ø": "o", "ł": "l", "Ł": "L", "đ": "d", "ı": "i"})
+TWO_LETTERS = set("ßẞæÆœŒ")
 
 
 def ascii_form(word):
@@ -109,7 +111,7 @@ for name, (header, items) in lists.items():
     words, seen = [], set()
     for item in sorted(items, key=lambda item: -prominence[item]):
         for word in items[item]:
-            for form in (word, ascii_form(word)):
+            for form in (word, ascii_form(word)) if TWO_LETTERS & set(word) else (word,):
                 if form not in seen:
                     seen.add(form)
                     words.append(form)

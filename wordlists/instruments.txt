@@ -1,11 +1,10 @@
 # name: Musical instruments
-# description: Instruments from around the world, alphabetically. Names with accents are followed by their unaccented forms.
+# description: Musical instruments from around the world, in alphabetical order.
 # tag: culture
 
 accordion
 acoustic guitar
 agogô
-agogo
 alpenhorn
 alphorn
 alto saxophone
@@ -14,13 +13,11 @@ archlute
 aulos
 autoharp
 bağlama
-baglama
 bagpipe
 bagpipes
 balafon
 balalaika
 bandoneón
-bandoneon
 bandura
 bandurria
 banjo
@@ -38,7 +35,6 @@ bell
 berimbau
 biwa
 bodhrán
-bodhran
 bombard
 bones
 bongo
@@ -47,7 +43,6 @@ bugle
 bullroarer
 cabasa
 cajón
-cajon
 calliope
 carillon
 carnyx
@@ -77,7 +72,6 @@ crumhorn
 crwth
 cuatro
 cuíca
-cuica
 cymbal
 daf
 darbuka
@@ -125,10 +119,8 @@ glockenspiel
 gong
 grand piano
 güiro
-guiro
 guitar
 guitarrón
-guitarron
 guqin
 gusle
 gusli
@@ -240,7 +232,6 @@ shehnai
 shekere
 sheng
 shō
-sho
 shofar
 siku
 sistrum
@@ -272,7 +263,6 @@ tanbur
 tanpura
 tar
 tárogató
-tarogato
 tenor saxophone
 theorbo
 theremin

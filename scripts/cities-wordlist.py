@@ -22,8 +22,9 @@ its English names, including former ones, but not colloquial ones (such as the B
 abbreviations (KL), names in brackets or after a comma, the hand-reviewed exclusions in
 cities-wordlist/excluded.txt, or longer versions of another of its names (Sydney City, City of
 Manila, Seoul-si). Names in cities-wordlist/included.txt are added after these, without being
-filtered. Each name with accents or other non-ASCII letters is followed by its ASCII form, so São
-Paulo is followed by Sao Paulo.
+filtered. Names with letters that stand for two, ß, æ or œ, are followed by their ASCII forms, so
+Gießen is followed by Giessen, since the Patterns page can match accents, as (?d:Sao Paulo) does
+São Paulo, but not one letter with two.
 """
 
 import io
@@ -69,7 +70,7 @@ def tidy(name):
 
 
 # letters that don't decompose into an ASCII letter and accents
-LETTERS = str.maketrans({"ß": "ss", "æ": "ae", "Æ": "Ae", "œ": "oe", "Œ": "Oe", "ø": "o", "Ø": "O", "ł": "l", "Ł": "L",
+LETTERS = str.maketrans({"ß": "ss", "ẞ": "SS", "æ": "ae", "Æ": "Ae", "œ": "oe", "Œ": "Oe", "ø": "o", "Ø": "O", "ł": "l", "Ł": "L",
                          "đ": "d", "Đ": "D", "ð": "d", "Ð": "D", "þ": "th", "Þ": "Th", "ı": "i", "ŀ": "l", "ħ": "h", "Ħ": "H",
                          "ǝ": "e", "Ǝ": "E", "ə": "e", "Ə": "E", "ʾ": "'", "ʿ": "'"})
 
@@ -199,13 +200,14 @@ def names(geonameid):
     return result + added.get(geonameid, [])
 
 
-# --- Write: largest city first, each name followed by its ASCII form if it's different
+# --- Write: largest city first, each name with ß, æ or œ followed by its ASCII form
 
+TWO_LETTERS = set("ßẞæÆœŒ")
 words, seen, unwritable = [], set(), []
 for geonameid in sorted(cities, key=lambda g: (-cities[g][0], cities[g][1])):
     for name in names(geonameid):
-        plain = ascii_form(name)
-        if plain is None:
+        plain = ascii_form(name) if TWO_LETTERS & set(name) else None
+        if TWO_LETTERS & set(name) and plain is None:
             unwritable.append(name)
         for word in (name, plain):
             if word and word not in seen:
@@ -216,8 +218,7 @@ for name in unwritable:
     print(f"no ASCII form for {name!r}", file=sys.stderr)
 
 DESCRIPTION = ("Cities of half a million people or more, capitals, and smaller cities with articles in most"
-               " major Wikipedias, largest first, with English and former names. Names with accents are"
-               " followed by their unaccented forms.")
+               " major Wikipedias, largest first.")
 ATTRIBUTION = ("Adapted from [GeoNames](https://www.geonames.org/), with famous cities found using"
                " [Wikidata](https://www.wikidata.org/). Licensed under"
                " [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), like GeoNames' data.")
