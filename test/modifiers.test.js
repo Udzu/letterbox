@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { compile, matches } from "../src/patterns/index.js";
 import { compile as compileAst } from "../src/patterns/compile.js";
 import { CharSet } from "../src/patterns/charset.js";
-import { caseClass, caseClose, mirrorSet, shiftSet } from "../src/patterns/letters.js";
+import { accentClass, caseClass, caseClose, mirrorSet, shiftSet } from "../src/patterns/letters.js";
 import { equivalent, minimize, trim } from "../src/patterns/nfa.js";
 import { format } from "../src/patterns/parser.js";
 import { randomAst, seededRandom, toRegExp } from "./helpers.js";
@@ -21,6 +21,22 @@ const EXAMPLES = [
   ["(?i:[^a])", ["b"], ["a", "A"]],
   ["(?i:[a-c])", ["B"], ["D"]],
   ["(?i:a)b", ["Ab"], ["AB"]],
+  ["(?d:men)", ["men", "mên", "mëñ", "mén"], ["MEN", "man", "mn"]],
+  ["(?d:mên)", ["men", "meñ", "mèn"], ["mn"]],
+  ["(?d:Dvořák)", ["Dvorak", "Dvořák", "Dvořak"], ["dvorak", "Dvorák!"]],
+  ["(?d:o)", ["ø", "ő", "ǫ"], ["œ", "O", "Ø"]],
+  ["(?d:Łódź)", ["Lodz"], []],
+  ["(?d:ss|ae)", ["ss", "ae"], ["ß", "æ"]],
+  ["(?d:и)", ["й", "ѝ"], ["і"]],
+  ["(?d:α)", ["ά", "ᾳ"], []],
+  ["(?d:[^e])", ["a", "ø"], ["e", "é", ""]],
+  ["(?d:[a-z]+)", ["café", "naïve"], ["CAFE"]],
+  ["(?d:n)", ["ñ"], ["n\u0308"]],
+  ["(?d:n\u0308)", ["n\u0308", "ñ\u0308"], ["n"]],
+  ["(?d:!e)", ["", "a", "ee"], ["e", "é"]],
+  ["(?i:(?d:e))", ["E", "É", "é", "ê"], ["a"]],
+  ["(?d:(?i:é))", ["E", "e", "Ê"], []],
+  ["(?d:é)", ["e", "ê"], ["É", "E"]],
   ["(?r:abc)", ["cba"], ["abc"]],
   ["(?r:ab*)", ["a", "bba"], ["ab"]],
   ["(?r:😀é)", ["é😀"], []],
@@ -191,6 +207,43 @@ test("(?i:…) applies to every comparison inside it", () => {
     const ast = randomAst(rand, 3, { chars: ["a", "B"], modifiers: true });
     const twice = { type: "modifier", flag: "i", count: null, node: { type: "modifier", flag: "i", count: null, node: ast } };
     assert.ok(equivalent(compileAst({ type: "modifier", flag: "i", count: null, node: ast }), compileAst(twice)));
+  }
+});
+
+test("(?d:…) applies to every comparison inside it, and commutes with (?i:…)", () => {
+  const rand = seededRandom(12);
+  const same = (p, q) => assert.ok(equivalent(compile(p), compile(q)), `${p} ≡ ${q}`);
+  same("(?d:!ab)", "!(?d:ab)");
+  same("(?d:a&[a-z])", "(?d:a)&(?d:[a-z])");
+  same("(?d:ab-b)", "(?d:ab)-(?d:b)");
+  same("(?d:(?d:é))", "(?d:é)");
+  same("(?d:é)", "(?d:e)");
+  same("(?d:(?r:ab))", "(?r:(?d:ab))");
+  for (let i = 0; i < 100; i++) {
+    const ast = randomAst(rand, 3, { chars: ["a", "é", "E", "\u0301"], modifiers: true });
+    const mod = (flag, node) => ({ type: "modifier", flag, count: null, node });
+    assert.ok(equivalent(compileAst(mod("d", ast)), compileAst(mod("d", mod("d", ast)))), format(ast));
+    assert.ok(equivalent(compileAst(mod("d", mod("i", ast))), compileAst(mod("i", mod("d", ast)))), format(ast));
+  }
+});
+
+test("accent classes share a base letter", () => {
+  const cls = (c) => accentClass(c.codePointAt(0)).map((cp) => String.fromCodePoint(cp));
+  for (const c of ["é", "è", "ê", "ë", "ę", "ẹ"]) assert.ok(cls("e").includes(c), c);
+  assert.deepEqual(cls("é").sort(), cls("e").sort());
+  assert.ok(!cls("e").includes("É"));
+  assert.deepEqual(cls("ß"), ["ß"]);
+  assert.deepEqual(cls("1"), ["1"]);
+  // every member decomposes to its class's base, apart from the few undecomposed letters
+  for (let cp = 0; cp < 0x3000; cp++) {
+    const members = accentClass(cp);
+    if (members.length === 1) continue;
+    const base = String.fromCodePoint(members[0]);
+    for (const m of members) {
+      const c = String.fromCodePoint(m);
+      const stripped = c.normalize("NFD").replace(/\p{M}/gu, "");
+      assert.ok(stripped === base || "øØłŁđĐıħĦŧŦ".includes(c), `${c} in the class of ${base}`);
+    }
   }
 });
 

@@ -8,22 +8,24 @@ const roundTrip = (state) => readShared(shareQuery(state, DEFAULT), VIEWS, DEFAU
 
 test("round trips patterns full of URL syntax", () => {
   for (const pattern of ["cow^ox", "a+b&!c#d", "(?<v>x)(?&v) %20 ?=/", "\\Qe.g.\\E", "é😀\\u{e9}", ""]) {
-    const state = { pattern, tests: "a b\n+c&d=e\n\n#f%", view: "min", hidden: pattern === "", caseless: pattern !== "" };
+    const state = { pattern, tests: "a b\n+c&d=e\n\n#f%", view: "min", hidden: pattern === "", caseless: pattern !== "", accentless: pattern.includes("é") };
     assert.deepEqual(roundTrip(state), state);
   }
 });
 
-test("omits empty test strings, the default view, a shown diagram and matching case", () => {
+test("omits empty test strings, the default view, a shown diagram and matching case and accents", () => {
   assert.equal(shareQuery({ pattern: "a b", tests: "\n", view: DEFAULT, hidden: false }, DEFAULT), "?p=a+b");
   assert.equal(shareQuery({ pattern: "a", tests: "", view: DEFAULT, hidden: true }, DEFAULT), "?p=a&h=1");
   assert.equal(shareQuery({ pattern: "a", tests: "", view: DEFAULT, caseless: true }, DEFAULT), "?p=a&i=1");
-  assert.deepEqual(roundTrip({ pattern: "x", tests: "", view: DEFAULT }), { pattern: "x", tests: "", view: DEFAULT, hidden: false, caseless: false });
+  assert.equal(shareQuery({ pattern: "a", tests: "", view: DEFAULT, accentless: true }, DEFAULT), "?p=a&d=1");
+  assert.deepEqual(roundTrip({ pattern: "x", tests: "", view: DEFAULT }),
+    { pattern: "x", tests: "", view: DEFAULT, hidden: false, caseless: false, accentless: false });
 });
 
 test("ignores links without a pattern, and tidies hand-written ones", () => {
   assert.equal(readShared("", VIEWS, DEFAULT), null);
   assert.equal(readShared("?t=abc", VIEWS, DEFAULT), null);
-  assert.deepEqual(readShared("?p=a%0Ab&t=x%0D%0Ay&v=bogus&h=yes&i=true", VIEWS, DEFAULT),
-    { pattern: "ab", tests: "x\ny", view: DEFAULT, hidden: false, caseless: false });
+  assert.deepEqual(readShared("?p=a%0Ab&t=x%0D%0Ay&v=bogus&h=yes&i=true&d=on", VIEWS, DEFAULT),
+    { pattern: "ab", tests: "x\ny", view: DEFAULT, hidden: false, caseless: false, accentless: false });
   assert.deepEqual(readShared("?p=a&v=toString", VIEWS, DEFAULT).view, DEFAULT);
 });

@@ -1,4 +1,5 @@
-// Character set transformations for the case-insensitive and cipher shift modifiers.
+// Character set transformations for the case-insensitive, accent-insensitive and cipher shift
+// modifiers.
 
 import { CharSet } from "./charset.js";
 
@@ -75,6 +76,58 @@ export function caseClose(set) {
 export function caseClass(cp) {
   caseTable ??= buildCaseTable();
   return caseTable.classOf.get(cp) ?? [cp];
+}
+
+// Accent-insensitive matching treats characters as the same if they have the same base letter:
+// what's left after decomposing them (NFD) and dropping combining marks, so é, è, ê and e all
+// match each other, as do É and E (but not é and E, unless case is ignored too). A few letters
+// that don't decompose have a base letter as well, such as ø and ł. Letters whose base is more
+// than one letter, like æ or ß, aren't matched with it, just as case-insensitive matching doesn't
+// match ß with SS. Combining marks that aren't part of a precomposed letter (strings are
+// normalised to NFC), like the one in n̈, are characters of their own, so (?d:n) doesn't match n̈.
+// Only code points below this have a decomposition.
+const DECOMPOSING_LIMIT = 0x20000;
+const UNDECOMPOSED = { ø: "o", Ø: "O", ł: "l", Ł: "L", đ: "d", Đ: "D", ı: "i", ħ: "h", Ħ: "H", ŧ: "t", Ŧ: "T" };
+const MARKS_G = /\p{M}/gu;
+
+let accentTable = null; // { accented: sorted code points with a class of 2+, classOf: Map cp → class }
+
+function buildAccentTable() {
+  const bases = new Map(); // base → [base, accented forms]
+  const add = (cp, base) => {
+    if (!bases.has(base)) bases.set(base, [base]);
+    bases.get(base).push(cp);
+  };
+  for (let cp = 0; cp < DECOMPOSING_LIMIT; cp++) {
+    if (cp >= 0xd800 && cp <= 0xdfff) continue;
+    const c = String.fromCodePoint(cp);
+    const base = c.normalize("NFD").replace(MARKS_G, "");
+    const bcp = base.codePointAt(0);
+    if (base !== c && base !== "" && base.length === String.fromCodePoint(bcp).length) add(cp, bcp);
+  }
+  for (const [c, base] of Object.entries(UNDECOMPOSED)) add(c.codePointAt(0), base.codePointAt(0));
+  const classOf = new Map();
+  for (const members of bases.values()) for (const cp of members) classOf.set(cp, members);
+  return { accented: [...classOf.keys()].sort((x, y) => x - y), classOf };
+}
+
+// the characters that match some character of the set accent-insensitively
+export function accentClose(set) {
+  accentTable ??= buildAccentTable();
+  const { accented, classOf } = accentTable;
+  const extra = [];
+  for (const [lo, hi] of set.ranges) {
+    for (let i = lowerBound(accented, lo); i < accented.length && accented[i] <= hi; i++) {
+      for (const cp of classOf.get(accented[i])) extra.push([cp, cp]);
+    }
+  }
+  return extra.length ? set.union(CharSet.from(extra)) : set;
+}
+
+// for tests: the accent-insensitive class of a character, including itself
+export function accentClass(cp) {
+  accentTable ??= buildAccentTable();
+  return accentTable.classOf.get(cp) ?? [cp];
 }
 
 // Shift ASCII letters n places along the alphabet, keeping their case and wrapping round,

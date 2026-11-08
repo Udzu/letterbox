@@ -91,6 +91,23 @@ test("ignoring case throughout is like wrapping the pattern in (?i:...)", () => 
   assert.throws(() => compile("ab(", { caseless: true }), (e) => e instanceof PatternError && e.span[0] === 2);
 });
 
+test("ignoring accents throughout is like wrapping the pattern in (?d:...)", () => {
+  const words = wordsAutomaton(["Dvořák", "café", "Łódź", "cat", "Straße"]);
+  const accentless = (p, caseless = false) => compile(p, { words, accentless: true, caseless });
+  for (const [p, yes, no] of [
+    ["@", ["Dvorak", "Dvořak", "cafe", "Lodz", "cât", "Straße"], ["dvorak", "Strasse", "cafe!"]],
+    ["@&.*a.*", ["Dvorak", "cåt"], ["Lodz"]],
+    ["(?<v>e)(?&v)", ["eé", "ëe"], ["e"]],
+  ]) {
+    for (const s of yes) assert.ok(matches(accentless(p), s), `${p} should match ${s} ignoring accents`);
+    for (const s of no) assert.ok(!matches(accentless(p), s), `${p} shouldn't match ${s} ignoring accents`);
+    assert.ok(equivalent(accentless(p), compile(`(?d:${p})`, { words })), p);
+    assert.ok(equivalent(accentless(p, true), compile(`(?i:(?d:${p}))`, { words })), p);
+  }
+  assert.ok(matches(accentless("@", true), "DVORAK"));
+  assert.ok(!matches(accentless("@"), "DVORAK"));
+});
+
 test("the word list ignoring case is made once, and is deterministic", () => {
   const words = wordsAutomaton(WORDS);
   const once = compile("@", { words, caseless: true });
@@ -98,6 +115,14 @@ test("the word list ignoring case is made once, and is deterministic", () => {
   assert.equal(compile("(?i:@)", { words }), once);
   assert.ok(once.isDeterministic());
   assert.equal(determinize(once), once);
+  // and likewise ignoring accents, or both, which are cached separately
+  const accentless = compile("@", { words, accentless: true });
+  assert.equal(compile("(?d:@)", { words }), accentless);
+  assert.notEqual(accentless, once);
+  assert.ok(accentless.isDeterministic());
+  const both = compile("(?d:(?i:@))", { words });
+  assert.equal(compile("(?i:(?d:@))", { words }), both);
+  assert.equal(compile("@", { words, caseless: true, accentless: true }), both);
 });
 
 test("the word list's automaton is reused rather than determinised again", () => {

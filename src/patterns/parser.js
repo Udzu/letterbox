@@ -78,6 +78,7 @@ const SPATIAL_BY_LENGTH = [...SPATIAL_OPS].sort((x, y) => y.length - x.length);
 // meanings.
 export const MODIFIERS = {
   i: { count: "none" }, //     case-insensitive
+  d: { count: "none" }, //     accent-insensitive
   r: { count: "none" }, //     reversed
   c: { count: "optional" }, // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25, (?c-:A) Atbash
   R: { count: "optional" }, // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any

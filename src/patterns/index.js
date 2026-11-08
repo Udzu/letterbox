@@ -20,10 +20,11 @@ export { NFA, TooManyStatesError, closure, trim, removeEpsilons, determinize, co
 const WORDS_FACTOR = 10;
 
 // pattern string → NFA (throws PatternError); { words } is the word list's automaton, if any,
-// and { caseless } ignores case throughout, as if the pattern were inside (?i:...)
-export function compile(pattern, { words, caseless = false } = {}) {
+// { caseless } ignores case throughout, as if the pattern were inside (?i:...), and
+// { accentless } ignores accents throughout, as if it were inside (?d:...)
+export function compile(pattern, { words, caseless = false, accentless = false } = {}) {
   const normalized = pattern.normalize("NFC");
-  const ast = parseWith(normalized, caseless);
+  const ast = parseWith(normalized, { caseless, accentless });
   const usesWords = words !== undefined && containsWords(ast);
   const limit = stateLimit(ast, words);
   try {
@@ -37,11 +38,15 @@ export function compile(pattern, { words, caseless = false } = {}) {
   }
 }
 
-// the pattern's syntax tree, inside an (?i:...) node spanning the whole pattern if caseless, so
-// that ignoring case throughout behaves exactly like the modifier
-function parseWith(normalized, caseless) {
-  const ast = parse(normalized);
-  return caseless ? { type: "modifier", flag: "i", count: null, node: ast, span: [0, normalized.length] } : ast;
+// the pattern's syntax tree, inside (?d:...) and (?i:...) nodes spanning the whole pattern if
+// accentless or caseless, so that ignoring accents or case throughout behaves exactly like the
+// modifiers
+function parseWith(normalized, { caseless, accentless }) {
+  let ast = parse(normalized);
+  const wrap = (flag) => ({ type: "modifier", flag, count: null, node: ast, span: [0, normalized.length] });
+  if (accentless) ast = wrap("d");
+  if (caseless) ast = wrap("i");
+  return ast;
 }
 
 function stateLimit(ast, words) {
@@ -50,11 +55,11 @@ function stateLimit(ast, words) {
 
 // A function that explains how a string matches the pattern (see explain.js), as rows for
 // display, or returns null if it doesn't match. { nfa } is the pattern's compiled NFA, and
-// { caseless } is as for compile. It throws TooComplexToExplain or TooManyStatesError if the
-// explanation takes too long.
-export function explainer(pattern, { words, nfa, caseless = false } = {}) {
+// { caseless } and { accentless } are as for compile. It throws TooComplexToExplain or
+// TooManyStatesError if the explanation takes too long.
+export function explainer(pattern, { words, nfa, caseless = false, accentless = false } = {}) {
   const normalized = pattern.normalize("NFC");
-  const ast = parseWith(normalized, caseless);
+  const ast = parseWith(normalized, { caseless, accentless });
   const limit = Math.max(stateLimit(ast, words), nfa ? limitFor(nfa) : 0);
   const explain = explainerAst(ast, { words, nfa });
   return (string) => withStateLimit(limit, () => {

@@ -65,12 +65,15 @@
 
   #toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #toolbar select { font-size: 1rem; font-family: inherit; padding: 2px; }
-  #ignore-case-label { white-space: nowrap; }
-  #info { color: #666; }
+  #ignore { white-space: nowrap; }
+  #ignore label + label { margin-left: 6px; }
+  /* the info wraps within its own space (between its parts) before the buttons wrap to another line */
+  #info { color: #666; flex: 1 1 12em; }
+  #stats, #lengths { white-space: nowrap; }
   #toggle-diagram { margin-left: auto; }
   #toggle-diagram, #copy-link, #reset { font: inherit; font-size: 0.9rem; }
   #view-help { color: #666; font-size: 0.9rem; margin: 6px 0 0; }
-  #stats:not(:empty) + #lengths:not(:empty)::before { content: " · "; white-space: pre; }
+  #stats:not(:empty) + #lengths:not(:empty)::before { content: "· "; }
   #regex-line { margin-top: 12px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
   #regex-line .label { color: #666; }
   #regex { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: break-all; }
@@ -165,7 +168,9 @@
   <p id="restore" class="note" hidden></p>
 
   <div id="toolbar">
-    <label id="ignore-case-label" title="Match the whole pattern ignoring case, as if it were inside (?i:...)"><input type="checkbox" id="ignore-case"> Ignore case</label>
+    <span id="ignore" role="group" aria-label="Ignore">Ignore:
+      <label title="Match the whole pattern ignoring case, as if it were inside (?i:...)"><input type="checkbox" id="ignore-case">case</label>
+      <label title="Match the whole pattern ignoring accents, as if it were inside (?d:...)"><input type="checkbox" id="ignore-accents">accents</label></span>
     <select id="view" aria-label="Diagram">
       <option value="raw">Thompson NFA</option>
       <option value="trimmed">Trimmed NFA</option>
@@ -173,10 +178,10 @@
       <option value="dfa">DFA</option>
       <option value="min">Minimal DFA</option>
     </select>
-    <span id="info"><span id="stats"></span><span id="lengths"></span></span>
+    <span id="info"><span id="stats"></span> <span id="lengths"></span></span>
     <button id="toggle-diagram" aria-controls="diagram" aria-expanded="true">Hide diagram</button>
     <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram settings">Copy link</button>
-    <button id="reset" title="Go back to the example pattern and test strings, matching case, and the default diagram (undo brings your text back)">Reset</button>
+    <button id="reset" title="Go back to the example pattern and test strings, matching case and accents, and the default diagram (undo brings your text back)">Reset</button>
   </div>
   <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
@@ -256,7 +261,7 @@
       <tr class="heading"><th colspan="2">Names</th></tr>
       <tr><td><code>(?&lt;v&gt;P)</code> <code>(?&amp;v)</code></td><td>P, named v; P again (the same pattern, not the same text). <code>(?&lt;v&gt;P){0}</code> names P without matching it (<code>(?&lt;c&gt;[^aeiou])[aeiou](?&amp;c)</code> matches <i>cat</i>)</td></tr>
       <tr class="heading"><th colspan="2">Modifiers and transformations</th></tr>
-      <tr><td><code>(?i:P)</code></td><td>P ignoring case (<code>(?i:the)</code> matches <i>The</i> and <i>THE</i>); <i>Ignore case</i> does this for the whole pattern</td></tr>
+      <tr><td><code>(?i:P)</code> <code>(?d:P)</code></td><td>P ignoring case; ignoring accents (<code>(?i:the)</code> matches <i>THE</i>, <code>(?d:cafe)</code> matches <i>café</i>); the <i>Ignore</i> tickboxes do these for the whole pattern</td></tr>
       <tr><td><code>(?cn:P)</code> <code>(?c:P)</code> <code>(?c-:P)</code></td><td>P with its letters shifted n places along the alphabet; by any of 1 to 25; in Atbash, with the alphabet reversed (<code>(?c1:hal)</code> matches <i>ibm</i>, <code>(?c-:hold)</code> matches <i>slow</i>)</td></tr>
       <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
