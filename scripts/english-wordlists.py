@@ -227,6 +227,6 @@ LISTS = {
         f"Adapted from {WIKTIONARY}. {LICENCE}, like content from Wiktionary."),
 }
 for file, (words, name, description, attribution) in LISTS.items():
-    header = f"# name: {name}\n# description: {description}\n# kind: general\n# attribution: {attribution}\n\n"
+    header = f"# name: {name}\n# description: {description}\n# tag: general\n# attribution: {attribution}\n\n"
     (OUT / f"{file}.txt").write_text(header + "\n".join(words) + "\n", encoding="utf-8")
     print(f"{file}: {len(words):,} words")

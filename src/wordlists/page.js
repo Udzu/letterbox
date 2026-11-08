@@ -6,7 +6,7 @@
 
 import { attributionParts, downloadText, stripList, wordCount } from "./lists.js";
 
-// [{ file, name, description, kind, attribution?, size }], general lists first and then by name,
+// [{ file, name, description, tag?, attribution?, size }], general lists first and then by name,
 // written into the page by the build
 const LISTS = JSON.parse(document.getElementById("lists-data").textContent);
 
@@ -191,11 +191,11 @@ function attributionElement(attribution) {
   return p;
 }
 
-// one <ul> for the general lists and another for the topic lists after them
+// one <ul> for the general lists and another for the topic and untagged lists after them
 const listsBox = document.getElementById("lists");
 let group = null;
 for (const list of LISTS) {
-  const general = list.kind === "general";
+  const general = list.tag === "general";
   if (group?.general !== general) {
     group = { general, ul: element("ul") };
     listsBox.append(group.ul);
@@ -205,7 +205,7 @@ for (const list of LISTS) {
   downloadButton.title = `Save the list as ${list.file}`;
   const title = element("div", "title");
   title.append(element("span", "name", list.name));
-  if (!general) title.append(element("span", `badge ${list.kind}`, list.kind));
+  if (list.tag && !general) title.append(element("span", `badge ${list.tag}`, list.tag));
   title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
   const status = element("p", "status");
   status.setAttribute("aria-live", "polite");

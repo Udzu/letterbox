@@ -1,6 +1,6 @@
 # name: English phrases
 # description: English phrases, idioms and hyphenated words from Wiktionary, in alphabetical order.
-# kind: general
+# tag: general
 # attribution: Adapted from [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary.
 
 a aa
