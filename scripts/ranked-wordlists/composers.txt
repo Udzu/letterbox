@@ -21,6 +21,7 @@ Q309709: Arne                       # Thomas Arne
 Q313554: Arnold                     # Malcolm Arnold
 Q157672: Auber                      # Daniel François Esprit Auber
 Q251818: Auric                      # Georges Auric
+Q694123: Babajanian, Babadzhanian   # Arno Babajanian
 Q318518: Babbitt                    # Milton Babbitt
 Q230978: Bacewicz                   # Grażyna Bacewicz
 Q76428: Bach                        # Carl Philipp Emanuel Bach
@@ -106,10 +107,12 @@ Q83182: Einaudi                     # Ludovico Einaudi
 Q78704: Eisler                      # Hanns Eisler
 Q179631: Elgar                      # Edward Elgar
 Q77177: Enescu, Enesco              # Georges Enescou
+Q389851: Eötvös                     # Péter Eötvös
 Q316820: Erkel                      # Ferenc Erkel
 Q193283: Falla                      # Manuel de Falla
 Q104919: Fauré                      # Gabriel Fauré
 Q316427: Feldman                    # Morton Feldman
+Q462291: Ferneyhough                # Brian Ferneyhough
 Q209684: Field                      # John Field
 Q713025: Finzi                      # Gerald Finzi
 Q50187: Franck                      # César Franck
@@ -137,6 +140,7 @@ Q318354: Grainger                   # Percy Grainger
 Q294225: Granados                   # Enrique Granados
 Q210962: Grétry                     # André Grétry
 Q80621: Grieg                       # Edvard Grieg
+Q548149: Grisey                     # Gérard Grisey
 Q165668: Gubaidulina                # Sofia Gubaidulina
 Q432938: Hahn                       # Reynaldo Hahn
 Q317397: Hajibeyov                  # Uzeyir Hajibeyov
@@ -167,6 +171,7 @@ Q153776: Kabalevsky                 # Dmitry Borisovich Kabalevsky
 Q178293: Kagel                      # Mauricio Kagel
 Q153818: Kálmán                     # Emmerich Kálmán
 Q348652: Kancheli                   # Giya Kancheli
+Q704175: Kapustin                   # Nikolai Kapustin
 Q313270: Kern                       # Jerome Kern
 Q152293: Khachaturian               # Aram Khachaturian
 Q367830: Khrennikov                 # Tikhon Khrennikov
@@ -217,9 +222,11 @@ Q23848: Morricone                   # Ennio Morricone
 Q322427: Moszkowski                 # Moritz Moszkowski
 Q156280: Mozart                     # Leopold Mozart
 Q254: Mozart                        # Wolfgang Amadeus Mozart
+Q708501: Murail                     # Tristan Murail
 Q132682: Mussorgsky, Musorgsky      # Modest Petrovich Mussorgsky
 Q312778: Myaskovsky                 # Nikolai Myaskovsky
 Q313974: Mysliveček                 # Josef Mysliveček
+Q703236: Nancarrow                  # Conlon Nancarrow
 Q154602: Nicolai                    # Otto Nicolai
 Q205139: Nielsen                    # Carl Nielsen
 Q160451: Nono                       # Luigi Nono
