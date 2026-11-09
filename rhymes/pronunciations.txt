@@ -1162,8 +1162,7 @@ abermin	a1bRmIn	C	0
 Abernant	a1bRnVnt	U	0
 abernathy	a1bRna2Ti	C	15
 abernethy	a1bRnE2Ti	C	15
-Abernethy biscuit	a1bRni2Ti	U	23
-Abernethy biscuit	a1bVnE2Ti	U	23
+Abernethy biscuit	a2bRnE2Ti bI1skIt	P	23
 Abernethy's fascia	a1bRni2Ti fa1SV	U	0
 Abernethy's fascia	a1bRni2Ti fa1SiV	U	0
 Abernethy's fascia	a1bRni2Ti fe1SV	U	0
@@ -1883,7 +1882,6 @@ abri	Abri1	U	18
 abri	Vbri1	U	18
 abri	abri1	U	18
 Abri Audit	Abri1 odi1	U	18
-Abri Audit	Vbri1	U	18
 Abri Audit	abri1 odi1	U	18
 abridge	VbrI1J	CU	20
 abridged	VbrI1Jd	CW	30
@@ -1981,11 +1979,8 @@ abscisin	absI1sVn	U	0
 abscision	absI1ZVn	U	0
 absciss	a1bsIs	U	0
 absciss	absI1s	U	0
-absciss layer	a1bsIs	U	0
-absciss layer	lR1R	U	0
-absciss layer	lR1V	U	0
-absciss layer	le1R	U	0
-absciss layer	le1V	U	0
+absciss layer	a2bsIs lE1r	P	0
+absciss layer	a2bsIs le1R	P	0
 abscissa	absI1sV	U	15
 abscissae	absI1si2	U	0
 abscissin	a1bsVsVn	U	0
@@ -2115,14 +2110,8 @@ absolute address	a2bsVlu2t a1drE2s	P	44
 absolute advantage	a2bsVlu2t Vdva1ntIJ	P	43
 absolute alcohol	a1bsVlu2t a1lkVhAl	U	43
 absolute alcohol	a2bsVlju1t a1lkVhAl	U	43
-absolute altimeter	a1bsVlu2t	U	25
-absolute altimeter	a1ltVmi2tR	U	25
-absolute altimeter	a2bsVlju1t	U	25
-absolute altimeter	altI1mItR	U	25
-absolute altitude	a1bsVlu2t	U	38
-absolute altitude	a1ltItju2d	U	38
-absolute altitude	a1ltItu2d	U	38
-absolute altitude	a2bsVlju1t	U	38
+absolute altimeter	a2bsVlu2t altI1mItR	P	25
+absolute altitude	a2bsVlu2t a1ltItu2d	P	38
 absolute assembler	a2bsVlu2t VsE1mblR	P	27
 absolute blocking	a1bsVlu2t blA1kIN	U	40
 absolute blocking	a2bsVlju1t blA1kIN	U	40
@@ -2153,20 +2142,14 @@ absolute humidity	a1bsVlu2t hjumI1dIti	U	38
 absolute humidity	a2bsVlju1t hjumI1dIti	U	38
 absolute idea	a1bsVlu2t YdI1V	U	45
 absolute idea	a2bsVlju1t YdI1V	U	45
-absolute idealism	YdI1VlI2zVm	U	31
-absolute idealism	Ydi1VlI2zVm	U	31
-absolute idealism	a1bsVlu2t	U	31
-absolute idealism	a2bsVlju1t	U	31
+absolute idealism	a2bsVlu2t Ydi1lIzVm	P	31
 absolute immunity	a2bsVlu2t I2mju1nVti	P	38
 absolute impediment	a1bsVlu2t ImpR1dVmVnt	U	30
 absolute impediment	a2bsVlju1t ImpR1dVmVnt	U	30
 absolute instruction	a2bsVlu2t I2nstrV1kSVn	P	40
 absolute instrument	a2bsVlu2t I1nstrVmVnt	P	41
 absolute loader	a2bsVlu2t lo1dR	P	31
-absolute magnitude	a1bsVlu2t	U	39
-absolute magnitude	a2bsVlju1t	U	39
-absolute magnitude	ma1gnItjud	U	39
-absolute magnitude	ma1gnItud	U	39
+absolute magnitude	a2bsVlu2t ma1gnItud	P	39
 absolute majority	a1bsVlu2t mVJA1rIti	U	44
 absolute majority	a2bsVlju1t mVJA1rIti	U	44
 absolute mean	a2bsVlu2t mi1n	P	45
@@ -2202,22 +2185,13 @@ absolute state	a2bsVlju1t stet	U	45
 absolute superlative	a2bsVlu2t supR1lVtIv	P	28
 absolute system	a1bsVlu2t sI1stVm	U	45
 absolute system	a2bsVlju1t sI1stVm	U	45
-absolute temperature	a1bsVlu2t	U	43
-absolute temperature	a2bsVlju1t	U	43
-absolute temperature	tR1mpRVCR	U	43
-absolute temperature	tR1mpRVCUr	U	43
-absolute temperature	tR1mpRVtjR	U	43
-absolute temperature	tR1mprVCR	U	43
-absolute temperature	tR1mprVCUr	U	43
-absolute temperature	tR1mprVtjUr	U	43
+absolute temperature	a2bsVlu2t tE1mpRVCR	P	43
+absolute temperature	a2bsVlu2t tE1mprVCR	P	43
 absolute tense	a2bsVlu2t tE1ns	P	38
 absolute term	a1bsVlu2t tRm	U	45
 absolute term	a2bsVlju1t tRm	U	45
 absolute territory	a2bsVlu2t tE1rItO2ri	P	43
-absolute threshold	TrR1Shold	U	39
-absolute threshold	TrR1Sold	U	39
-absolute threshold	a1bsVlu2t	U	39
-absolute threshold	a2bsVlju1t	U	39
+absolute threshold	a2bsVlu2t TrE1So2ld	P	39
 absolute time	a1bsVlu2t tYm	U	45
 absolute time	a2bsVlju1t tYm	U	45
 absolute unit	a1bsVlu2t ju1nIt	U	44
@@ -2430,12 +2404,7 @@ absorption line	VbzO1rpSVn lYn	U	36
 absorption line	absO1rpSVn lYn	U	36
 absorption line	abzO1rpSVn lYn	U	36
 absorption nebula	VbzO2rpSVn nE1bjVlV	P	31
-absorption pipette	VbsO1rpSVn	U	23
-absorption pipette	VbzO1rpSVn	U	23
-absorption pipette	absO1rpSVn	U	23
-absorption pipette	abzO1rpSVn	U	23
-absorption pipette	pIpR1t	U	23
-absorption pipette	pYpR1t	U	23
+absorption pipette	VbzO2rpSVn pY2pE1t	P	23
 absorption refrigerator	VbzO2rpSVn rVfrI1JRe2tR	P	33
 absorption spectroscopy	VbzO2rpSVn spEktrA1skVpi	P	32
 absorption spectrum	VbsO1rpSVn spR1ktrVm	U	36
@@ -2518,12 +2487,8 @@ abstinence only	a2bstInVns o1nli	P	32
 abstinence ring	a2bstInVns rI1N	P	32
 abstinence syndrome	a1bstVnVns sI1ndrom	U	31
 abstinence syndrome	a1bstVnVnts sI1ndrom	U	31
-abstinence theory	TI1Ri	U	32
-abstinence theory	TI1ri	U	32
-abstinence theory	TI1rri	U	32
-abstinence theory	Ti1Ri	U	32
-abstinence theory	a1bstVnVns	U	32
-abstinence theory	a1bstVnVnts	U	32
+abstinence theory	a2bstInVns TI1ri	P	32
+abstinence theory	a2bstInVns Ti1Ri	P	32
 abstinency	a1bstInVnsi	U	0
 Abstinent	a1bstInVnt	U	15
 Abstinent	a1bstVnVnt	CU	15
@@ -2963,9 +2928,6 @@ acanthopterygian	a2kanTA2ptVrI1JiVn	U	0
 acanthor	Vka1nTOr	U	0
 acanthoses	aka2nTo1sis	U	0
 acanthosis	aka2nTo1sIs	U	14
-acanthosis nigricans	aka2nTo1sIs	U	13
-acanthosis nigricans	nI1grIka2nz	U	13
-acanthosis nigricans	nY1grIka2nz	U	13
 acanthosoma	Vka2nTVso1mV	U	0
 acanthosomata	Vka2nTVso1mVtV	U	0
 acanthostyle	Vka1nTVstY2l	U	0
@@ -4298,7 +4260,6 @@ act the goat	a2kt DV go1t	P	40
 act the hypocrite	a2kt DV hI1pVkrI2t	P	34
 act the jennet	a2kt DV JE1nIt	P	17
 act the maggot	a2kt DV ma1gVt	P	28
-act up	V1p	E	53
 act up	akt V1p	U	53
 act upon	a1kt VpAn	P	49
 act's	a1kts	C	15
@@ -4926,7 +4887,6 @@ address book	VdrE2s bU1k	P	48
 address bus	VdrE2s bV1s	P	46
 address line	VdrE2s lY1n	P	48
 address me	VdrE1s mi	U	49
-address me 🐘	VdrE1s mi	U	13
 address message	VdrE2s mE1sIJ	P	46
 address space	VdrE2s spe1s	P	47
 address the ball	VdrE2s DV bO1l	P	47
@@ -18169,7 +18129,7 @@ arrupe	a1ru2p	C	12
 Arsaces	A1rsVsi2z	U	12
 Arsaces	Arse1siz	U	12
 Arsacid	A1rsVsId	W	0
-Arsacid Empire	A1rsVsId	W	0
+Arsacid Empire	A2rsVsId E1mpYR	P	0
 arsdale	A1rzde2l	C	14
 arse	A1rs	CU	36
 arse about	A2rs VbW1t	P	36
@@ -25516,7 +25476,6 @@ banana slice	bVna2nV slY1s	P	37
 banana slug	bVna2nV slV1g	P	32
 banana solution	bVna2nV sVlu1SVn	P	39
 banana spider	bVna2nV spY1dR	P	38
-banana split	bVna1nV	E	15
 banana split	bVna1nV splIt	U	39
 banana squash	bVna2nV skwO1S	P	35
 banana tree	bVna2nV tri1	P	39
@@ -34364,7 +34323,7 @@ bilzerian's	bIlzE1riVnz	C	0
 bima	bi1mV	CW	20
 bimatoprost	bIma1tVprA2st	U	11
 bimble	bI1mbVl	U	10
-bimble box	bI1mbVl	W	10
+bimble box	bI2mbVl bA1ks	P	10
 bimbo	bI1mbo	CUE	29
 bimbo eruption	bI2mbo I2rV1pSVn	P	28
 bimbofication	bI2mbofIke1SVn	U	0
@@ -38368,9 +38327,9 @@ blue-plate special	blu2 ple2t spE1SVl	P	44
 blue-print	blu2 prI1nt	P	44
 blue-red	blu2 rE1d	P	49
 blue-ribbon	blu2 rI1bVn	P	38
-blue-ringed octopodes	A1ktVpo2dz	B	0
-blue-ringed octopodes	AktA1pVdiz	B	0
-blue-ringed octopodes	Akto1pVdiz	B	0
+blue-ringed octopodes	blu2 rI2Nd A1ktVpo2dz	P	0
+blue-ringed octopodes	blu2 rI2Nd AktA1pVdiz	P	0
+blue-ringed octopodes	blu2 rI2Nd Akto1pVdiz	P	0
 blue-ringed octopus	blu2 rI2Nd A1ktVpU2s	P	28
 blue-ringed octopus	blu2 rI2Nd A1ktVpVs	P	28
 blue-rinse	blu2 rI1ns	P	35
@@ -42778,7 +42737,7 @@ bradys	bre1diz	C	15
 brae	bre1	CU	24
 Braeburn	bre1bRn	U	17
 Braemar	bremA1r	E	21
-Braemar Hill	bremA1r	E	21
+Braemar Hill	bremA2r hI1l	P	21
 braendstroem	bra1ndstrom	C	0
 braer	brE1r	C	0
 braff	bra1f	C	15
@@ -44324,7 +44283,6 @@ briar patch	brY2R pa1C	P	28
 briar-patch	brY2R pa1C	P	28
 briar-root	brY2R ru1t	P	28
 briarcliff	brY1rklI2f	C	15
-Briarcliff Manor	brY1rklIf	B	20
 Briarean	brYE1riVn	U	0
 bribable	brY1bVbVl	W	0
 bribe	brY1b	CWE	35
@@ -50316,7 +50274,7 @@ cabrera	kAbrE1rV	C	15
 cabrini	kVbri1ni	C	15
 cabrini's	kVbri1niz	C	0
 cabriole	ka1brio2l	U	15
-Cabriole leg	ka1briol	U	15
+Cabriole leg	ka2brio2l lE1g	P	15
 cabriolet	ka2briolE1t	C	24
 cabriolet	ka2briole1	C	24
 cabriolet	kabriVle1	W	24
@@ -58430,7 +58388,8 @@ Chang Jiang	CaN JjA1N	B	31
 Chang'an	CA1NA2n	W	20
 Chang'an	CA2NA1n	E	20
 Chang'an	Ca1Na2n	W	20
-Chang'an Avenue	CA2NA1n	E	20
+Chang'an Avenue	CA2NA2n a1vVnju2	P	20
+Chang'an Avenue	CA2NA2n a1vVnu2	P	20
 Chang-chia-k'ou	CA2NJiA2kW1	E	29
 Chang-chia-k'ou	JA2NJjA2ko1	E	29
 chang-hsin	CA1NSI1n	C	15
@@ -65346,7 +65305,7 @@ clipper	klI1pR	CU	31
 clipper system	klI2pR sI1stVm	P	31
 clippers	klI1pRz	CU	36
 Clipperton	klI1pRtVn	E	17
-Clipperton Island	klI1pRtVn	E	17
+Clipperton Island	klI2pRtVn Y1lVnd	P	17
 clipping	klI1pIN	CW	32
 clippinger	klI1pINR	C	11
 clippings	klI1pINz	CW	30
@@ -70189,7 +70148,6 @@ communication cord	kVmju2nIke2SVn kO1rd	P	39
 communication disorder	kVmju2nIke2SVn dIsO1rdR	P	42
 communication mix	kVmju2nIke2SVn mI1ks	P	44
 communication studies	kVmju2nIke2SVn stV1diz	P	45
-communication theory	TI1ri	E	45
 communication theory	kVmju2nIke1SVn Ti1Ri	E	45
 communication's	kVmju2nIke1SVnz	C	15
 communications	kVmju2nIke1SVnz	U	46
@@ -86687,9 +86645,8 @@ declare against	dIklE2r VgE1nst	P	40
 declare against	dIklE2r Vge1nst	P	40
 declare war	dIklE2r wO1r	P	40
 declared	dIklE1rd	CU	46
-declared abundance	VbV1ndVns	U	38
-declared abundance	VbV1ndVnts	U	38
-declared abundance	dIklE1rd	U	38
+declared abundance	dIklE2rd VbV1ndVns	P	38
+declared abundance	dIklE2rd VbV1ndVnts	P	38
 declaredly	dIklE1rVdli	B	0
 declaredness	dIklE1rdnVs	B	0
 declarement	dIklE1rmVnt	B	0
@@ -91645,8 +91602,7 @@ diabasic	dY2Vbe1sIk	C	0
 diabeetus	dY2Vbi1tVs	B	11
 diabetes	dY2Vbi1tIs	U	42
 diabetes	dY2Vbi1tiz	CU	42
-diabetes mellitus	mE1lItVs	W	28
-diabetes mellitus	mV2lY1tVs	W	28
+diabetes mellitus	dY2Vbi2tiz mE1lItVs	P	28
 diabetic	dY2VbE1tIk	CU	34
 diabetic bearded woman syndrome	dY2VbE2tIk bI2rdVd wU2mVn sI1ndro2m	P	31
 diabetic crisis	dY2VbE2tIk krY1sIs	P	34
@@ -93825,8 +93781,7 @@ Diogenes	dYA1JVniz	B	25
 dioguardi	diogA1rdi2	C	15
 diol	dY1Al	B	20
 Diomede	dY1Vmid	B	17
-Diomede Islands	dY1Vmid	E	17
-Diomede Islands	dY2Vmi1d	E	17
+Diomede Islands	dY2Vmid Y1lVndz	P	17
 Diomedes	dYVmi1diz	B	19
 Dion	dY1Vn	C	33
 Dion	di1An	U	33
@@ -96605,8 +96560,7 @@ dobmeier	dA1bmYR	C	0
 doboj	do1bO2J	C	14
 Dobos	do1bo2S	W	12
 Dobos	do1boz	C	12
-Dobos torte	do1bo2S	W	11
-Dobos torte	do1bo2s	W	11
+Dobos torte	do2bo2S tO1rt	P	11
 dobosz	dA1bVS	C	0
 Dobra	do1brV	B	14
 dobra	dA1brV	B	14
@@ -107980,7 +107934,6 @@ elysia	IlI1ZiV	C	15
 elysia	Ili1ZV	C	15
 Elysian	IlI1ZVn	U	25
 Elysian	Ili1ZVn	U	25
-Elysian Fields	IlI1ZVn	U	25
 Elysian Fields	Ili1ZVn fi1ldz	U	25
 Elysium	IlI1ZiVm	U	27
 Elysium	IlI1ziVm	CU	27
@@ -116809,9 +116762,7 @@ falkenstein	fO1kVnstYn	C	15
 falkenstein	fO1kVnstin	C	15
 Falkland	fO1klVnd	CU	28
 Falkland Islander	fO2klVnd Y1lVndR	P	26
-Falkland Islands	fO1klVnd	E	28
 Falkland Islands	fO1klVnd Y2lVndz	W	28
-Falkland Islands	fO1lklVnd	E	28
 Falkland Islands	fO1lklVnd Y2lVndz	W	28
 Falklands	fO1klVndz	CU	30
 falkner	fO1knR	C	15
@@ -139574,7 +139525,6 @@ gliding plane	glY2dIN ple1n	P	31
 gliding vowel	glY2dIN vW1Vl	P	29
 glidy	glY1di	W	0
 Gliese	gli1zV	W	18
-Gliese 581	gli1zV	W	18
 gliff	glI1f	W	0
 gliflozin	glIflo1zIn	U	0
 glim	glI1m	B	16
@@ -156937,7 +156887,8 @@ hexer	hE1ksR	W	13
 hexes	hE1ksIz	W	22
 Hexham	hE1ksVm	W	23
 Hexi	hV2Si1	E	11
-Hexi Corridor	hV2Si1	E	11
+Hexi Corridor	hV2Si2 kO1rVdO2r	P	11
+Hexi Corridor	hV2Si2 kO1rVdR	P	11
 hexi stove	hV2Si2 sto1v	P	11
 hexing	hE1ksIN	W	15
 hexings	hE1ksINz	W	0
@@ -163112,7 +163063,7 @@ huachuca	hwACu1kV	C	15
 huachuca	wACu1kV	C	15
 Huadian	wA2djE1n	E	0
 huadong	hwA1do2N	C	0
-Huadong Valley	wA2dU1N	E	0
+Huadong Valley	hwA2do2N va1li	P	0
 Huai	wY1	E	22
 Huai'an	hwY1A2n	W	14
 Huai'an	wY2A1n	E	14
@@ -181336,7 +181287,7 @@ Kenton	kE1ntVn	CW	27
 Kentuckian	kE2ntV1kiVn	CU	20
 kentuckians	kE2ntV1kiVnz	C	15
 Kentucky	kVntV1ki	CW	43
-Kentucky Colonel	kVntV1ki	W	40
+Kentucky Colonel	kVntV2ki kR1nVl	P	40
 kentucky's	kVntV1kiz	C	15
 Kentville	kE1ntvIl	W	16
 kenward	kE1nwRd	C	15
@@ -187647,7 +187598,6 @@ laissez	lE1ze2	C	15
 laissez	le1ze2	C	15
 laissez aller	lE2sezA1le	B	22
 laissez faire	lE1se fE1r	E	26
-laissez faire	lE1ze	E	15
 laissez faire	lE2se2 fE1r	U	26
 laissez-faire	le2ze2 fE1r	P	26
 laissez-passer	lE2se pa1se	B	26
@@ -187680,7 +187630,7 @@ lake fly	le2k flY1	P	45
 lake herring	le2k hE1rIN	P	35
 Lake Huron	le2k hjU1rAn	U	32
 lake itch	le2k I1C	P	34
-Lake Khanka	kA1nkV	E	10
+Lake Khanka	le2k kA1nkV	P	10
 lake lawyer	le2k lO1jR	P	44
 lake lawyer	le2k lQ1R	P	44
 Lake Miwok	le2k mi1wAk	P	16
@@ -187695,7 +187645,6 @@ lake stratification	le2k stra2tVfIke1SVn	P	28
 lake sturgeon	le2k stR1JVn	P	33
 Lake Superior	le2k supI1riR	U	43
 Lake Tai	lek tY1	W	35
-Lake Tai	tY1	E	35
 lake trout	le2k trW1t	P	37
 lake village	le2k vI1lIJ	P	45
 lake's	le1ks	C	15
@@ -188903,13 +188852,8 @@ lapinski	lVpI1nski	C	0
 lapinsky	lVpI1nski	C	0
 lapis	la1pIs	W	28
 lapis	la1pVs	C	28
-lapis lazuli	lVzu1li	U	22
-lapis lazuli	la1ZVlY	UE	22
-lapis lazuli	la1ZVli	UE	22
 lapis lazuli	la1pIs la1zVli	E	22
 lapis lazuli	la1pIs la1zjVli	E	22
-lapis lazuli	la1zVlY	UE	22
-lapis lazuli	la1zjVlY	UE	22
 lapis lazuli	la2pIs la1zVli	U	22
 lapis lazuli	la2pIs la1zjVli	U	22
 lapka	lA1pkV	C	0
@@ -191271,7 +191215,6 @@ least common denominator	li2st kA2mVn dInA1mVne2tR	P	31
 least common multiple	li2st kA2mVn mV1ltIpVl	P	47
 least count	li2st kW1nt	P	47
 least finger	li2st fI1NgR	P	44
-least flycatcher	kE1CR	U	24
 least flycatcher	list flYka1CR	U	24
 least of all	li2st Vv O1l	P	54
 least sandpiper	li2st sa1ndpYpR	P	25
@@ -211243,7 +211186,6 @@ meet one's gaze	mi2t wVnz ge1z	P	36
 meet one's maker	mi2t wVnz me1kR	P	40
 meet one's match	mi2t wVnz ma1C	P	43
 meet one's Waterloo	mi1t wV2nz wO2tRlu1	U	35
-meet one's Waterloo	wO1tRlu2	U	35
 meet someone where they are	mi2t sVmwVn wE1r De Ar	P	50
 meet someone where they are	mi2t sVmwVn wE1r De Er	P	50
 meet someone where they are	mi2t sVmwVn wE1r De R	P	50
@@ -221599,15 +221541,13 @@ mount a horse foaled by an acorn	mW2nt V hO2rs fo2ld bY Vn e1kOrn	P	20
 mount a horse foaled by an acorn	mW2nt V hO2rs fo2ld bY Vn e1kRn	P	20
 Mount Athos	mW2nt a1TAs	B	27
 Mount Carmel-Mitchells Brook-St. Catherines	mW1nt kA1rmEl mI1CVlz brU1k se1nt ka1TRInz	W	16
-Mount Emei	V2me1	E	13
-Mount Erebus	E1rIbVs	E	25
-Mount Erebus	E1rVbVs	E	25
-Mount Everest	E1vRIst	E	34
+Mount Emei	mW2nt V2me1	P	13
+Mount Erebus	mW2nt E1rVbVs	P	25
 Mount Everest	mW2nt E1vRVst	U	34
 Mount Everest	mW2nt E1vrVst	U	34
 Mount Fuji	mWnt fu1Ji	W	32
 Mount Kosciuszko	mWnt kA2ziA1sko	W	19
-Mount Long	lU1N	E	44
+Mount Long	mW2nt lU1N	P	44
 Mount Mayon	mWnt mVjO1n	U	19
 Mount McKinley	mWnt mVkI1nli	W	32
 Mount Mogan	mV2gA1n	E	14
@@ -221616,14 +221556,14 @@ Mount of Temptation	mW2nt Vv tEmte1SVn	P	36
 mount of Venus	mW2nt Vv vi1nVs	P	37
 Mount Pearl	mW1nt pR1l	W	40
 mount point	mW2nt pQ1nt	P	44
-Mount Putuo	pu2tO1	E	12
+Mount Putuo	mW2nt pu2tO1	P	12
 Mount Rainier	mW2nt reni1R	W	29
 Mount Rushmore	mW2nt rV1SmOr	W	28
 Mount Rushmore State	mW2nt rV2SmOr ste1t	P	28
-Mount Sidley	sI1dli	E	18
+Mount Sidley	mW2nt sI1dli	P	18
 Mount Stewart	mW1nt stju1Rt	W	40
 Mount Stewart	mW1nt stu1Rt	W	40
-Mount Tai	tY1	E	35
+Mount Tai	mW2nt tY1	P	35
 mount up	mW2nt V1p	P	45
 mount-everest	mW2ntE1vREst	C	15
 mountain	mW1ntVn	CU	47
@@ -225168,7 +225108,7 @@ Nanking	na1NkIN	C	27
 Nanking	nankI1N	WE	15
 Nanle	nA2nlO1	E	0
 Nanling	nA2nlI1N	E	0
-Nanling Mountains	nA2nlI1N	E	0
+Nanling Mountains	nA2nlI2N mW1ntVnz	P	0
 Nanming	nA2nmI1N	E	0
 nanna	na1nV	C	15
 nanna nap	na2nV na1p	P	25
@@ -226219,7 +226159,7 @@ Navarro	nVvA1ro	CU	30
 Navarro-Aragonese	nVvA2ro a2rVgVni1z	P	18
 navas	nA1vVs	C	15
 Navassa	nVva1sV	W	11
-Navassa Island	nAvAsA1	E	11
+Navassa Island	nVva2sV Y1lVnd	P	11
 navbox	na1vbAks	WE	0
 navcom	na1vkA2m	C	0
 nave	ne1v	CWE	31
@@ -232695,7 +232635,7 @@ North Caicos	nO1rT ke1kVs	B	27
 North Carolina	nO2rT kErVlY1nV	U	45
 North Carolina	nO2rT karVlY1nV	U	45
 North Carolinian	nO2rT ka2rVlI1niVn	P	21
-North Chungcheong	Cu2NCV1N	E	0
+North Chungcheong	nO2rT Cu2NCV1N	P	0
 north country	nO1rT kV2ntri	B	51
 north countryman	nO2rT kV1ntrimVn	P	29
 North Dakota	nO1rT dVko1tV	U	41
@@ -232706,10 +232646,10 @@ North Frisian	nO2rT frI1ZVn	P	23
 North Frisian	nO2rT frI1ziVn	P	23
 North Frisian	nO2rT fri1ZVn	P	23
 north geographical pole	nO2rT Ji2Vgra2fIkVl po1l	P	37
-North Gyeongsang	kjV2NsA1N	E	15
-North Hamgyong	hA2mgjO1N	E	13
-North Hwanghae	wA2Nha1	E	12
-North Jeolla	CV2llA1	E	16
+North Gyeongsang	nO2rT kjV2NsA1N	P	15
+North Hamgyong	nO2rT hA2mgjO1N	P	13
+North Hwanghae	nO2rT wA2Nha1	P	12
+North Jeolla	nO2rT CV2llA1	P	16
 North Kensington	nO1rT kE1nzINtVn	B	35
 North Korea	nOrT kV2ri1V	U	46
 North Korean	nO2rT kVri1Vn	P	44
@@ -232729,7 +232669,7 @@ north of Watford	nO2rT Vv wO1tfRd	P	33
 North Pingan	pI2NA1n	E	0
 North Pole	nO1rTpol	B	15
 north pole	nO2rT po1l	U	42
-North Pyongan	pjO2NA1n	E	11
+North Pyongan	nO2rT pjO2NA1n	P	11
 North River	nO1rT rI1vR	W	49
 North Rustico	nO1rT rV1stIko	B	16
 North Sea	nO2rT si1	P	49
@@ -239372,7 +239312,7 @@ onyx marble	A2nIks mA1rbVl	P	30
 oo	o1o	U	36
 oo	u1	W	15
 oo arr	o2o A1r	P	29
-oo oo aa aa	tu1tu tA1tA	U	31
+oo oo aa aa	o2o o2o A2A A1A	P	31
 oo-er	o2o R1	P	35
 oo-la-la	o2o lA2 lA1	P	35
 ooaa	o1o2A2A2	W	0
@@ -245674,8 +245614,7 @@ pancake syrup	pa2nke2k sI1rVp	P	32
 pancake syrup	pa2nke2k sR1Vp	P	32
 pancake tortoise	pa2nke2k tO1rtVs	P	30
 pancake turner	pa2nke2k tR1nR	P	33
-pancake-maker	pa1Nkek	B	33
-pancake-maker	pa1nkek	B	33
+pancake-maker	pa2nke2k me1kR	P	33
 pancaked	pa1nke2kt	CW	17
 pancakes	pa1nke2ks	CW	36
 pancaking	pa1nkekIN	W	12
@@ -250620,11 +250559,8 @@ pends	pE1ndz	W	12
 pendulate	pE1nJVlet	U	0
 pendulous	pE1nJVlVs	CU	21
 pendulous	pE1ndjVlVs	U	21
-pendulous abdomen	a1bdVmVn	U	21
-pendulous abdomen	abdo1mVn	U	21
-pendulous abdomen	pE1nJVlVs	U	21
-pendulous abdomen	pE1ndVlVs	U	21
-pendulous abdomen	pE1ndjUlVs	U	21
+pendulous abdomen	pE2nJVlVs a1bdVmVn	P	21
+pendulous abdomen	pE2nJVlVs abdo1mVn	P	21
 pendulum	pE1nJVlVm	CU	33
 pendulum	pE1ndVlVm	U	33
 pendulum	pE1ndjVlVm	U	33
@@ -255139,7 +255075,6 @@ pigeon drop	pI2JIn drA1p	P	36
 pigeon dropper	pI2JIn drA1pR	P	25
 pigeon dropping	pI2JIn drA1pIN	P	35
 pigeon fancier	pI2JIn fa1nsiR	P	26
-Pigeon Forge	pI1JVn	E	15
 Pigeon Forge	pI1JVn fOrJ	U	34
 pigeon guillemot	pI2JIn gI1lVmAt	P	18
 pigeon hole	pI2JIn ho1l	P	36
@@ -269539,8 +269474,7 @@ pugilistic	pju2JVlI1stIk	C	19
 pugilistically	pjuJIlI1stIkli	B	0
 puglia	pV1gliV	C	15
 pugliese	puglie1zi	C	15
-Pugliese bread	pU2lje1se	W	19
-Pugliese bread	pU2lje1ze	W	19
+Pugliese bread	puglie2zi brE1d	P	19
 Puglisevich	puljE1sVvIC	W	0
 puglisi	pugli1si	C	15
 pugmire	pV1gmY2r	C	12
@@ -279902,7 +279836,7 @@ regible	rE1JIbVl	B	0
 regicide	rE1JVsYd	WE	22
 regie	rE1gi	C	17
 regie	reZi1	W	15
-regie-book	reZi1	W	17
+regie-book	rE2gi bU1k	P	17
 regier	ri1giR	C	15
 regift	rigI1ft	UE	13
 regime	rE1Zim	W	15
@@ -289310,10 +289244,8 @@ Roy	rQ1	CW	42
 roy	rQ1	CW	42
 roy's	rQ1z	C	15
 royal	rQ1Vl	CW	48
-royal abundance	VbV1ndVns	U	38
-royal abundance	VbV1ndVnts	U	38
-royal abundance	rQ1Vl	U	38
-royal abundance	rQ1jVl	U	38
+royal abundance	rQ2Vl VbV1ndVns	P	38
+royal abundance	rQ2Vl VbV1ndVnts	P	38
 royal angelfish	rQ2Vl e1nJVlfI2S	P	20
 royal antelope	rQ2Vl a1ntVlo2p	P	31
 royal assent	rQ2Vl VsE1nt	P	30
@@ -292059,7 +291991,6 @@ Saint Kitts and Nevis	sent kI2ts Vn ni1vIs	U	25
 Saint Lazare	se2nt lAzA1re	P	23
 Saint Lazarus	se2nt la1zRVs	P	32
 Saint Louisan	se2nt lu1IsVn	P	12
-Saint Lucia	lusi1V	E	15
 Saint Lucia	sInt lu1SV	E	34
 Saint Lucia	sent lu1SV	U	34
 Saint Lucian	se2nt lu1SVn	P	31
@@ -300743,7 +300674,6 @@ self-killed	sE2lf kI1ld	P	49
 self-killer	sE2lf kI1lR	P	44
 self-killing	sE2lf kI1lIN	P	47
 self-knowing	sE2lf no1IN	P	46
-self-knowledge	nA1lIJ	E	48
 self-knowledge	sE2lfnA1lIJ	U	48
 self-knowledgeable	sE2lf nA1lIJVbVl	P	35
 self-lacing	sE2lf le1sIN	P	26
@@ -315801,7 +315731,6 @@ solar cycle	so2lR sY1kVl	P	43
 solar day	so2lR de1	P	45
 solar deity	so2lR de1Vti	P	35
 solar deity	so2lR di1Vti	P	35
-solar eclipse	so1lR	E	15
 solar eclipse	so1lR IklI1ps	U	37
 solar energetic particle	so2lR E2nRJE2tIk pA1rtVkVl	P	34
 solar energetic particle	so2lR E2nRJE2tIk pA1rtVkl	P	34
@@ -317258,15 +317187,15 @@ South Carolina	sW2T kErVlY1nV	U	45
 South Carolina	sW2T karVlY1nV	U	45
 South Carolinian	sW2T ka2rVlI1niVn	P	21
 South China Sea	sW1T CY2nV si1	W	47
-South Chungcheong	Cu2NCV1N	E	0
+South Chungcheong	sW2T Cu2NCV1N	P	0
 South Dakota	sW1T dVko1tV	U	41
 South Dakotan	sW2T dVko1tVn	P	14
 South Dublin	sWT dV1blVn	W	41
 South East England	sWT i2st I1NglVnd	W	47
-South Gyeongsang	kjV2NsA1N	E	15
-South Hamgyong	hA2mgjO1N	E	13
-South Hwanghae	wA2Nha1	E	12
-South Jeolla	CV2llA1	E	16
+South Gyeongsang	sW2T kjV2NsA1N	P	15
+South Hamgyong	sW2T hA2mgjO1N	P	13
+South Hwanghae	sW2T wA2Nha1	P	12
+South Jeolla	sW2T CV2llA1	P	16
 South Korea	sW2T kVri1V	W	46
 South Korean	sW2T kVri1Vn	P	44
 South Ossetia	sW2T AsE1tiV	U	27
@@ -317275,7 +317204,7 @@ south paw	sW2T pO1	P	35
 South Polar Ocean	sW2T po2lR o1SVn	P	39
 South Pole	sW2T po1l	U	42
 south pole	sW2T po1l	P	42
-South Pyongan	pjO2NA1n	E	11
+South Pyongan	sW2T pjO2NA1n	P	11
 South River	sW1T rI1vR	W	49
 South Sami	sW2T sa1mi	P	33
 South Sea	sW2T si1	P	49
@@ -334384,7 +334313,7 @@ Taipei	tY2be1	E	15
 Taipei	tYpe1	WE	15
 taipei's	tY1pe2z	C	15
 Taiping	tYpI1N	UE	22
-Taiping Island	tY2pI1N	E	22
+Taiping Island	tYpI2N Y1lVnd	P	22
 Taipingdian	tY2pI2NdjE1n	E	0
 Taipingxi	tY2pINSi1	WE	0
 Taiqian	tY2CjE1n	WE	0
@@ -343232,7 +343161,6 @@ tickle the ear	tI2kVl DV i1R	P	32
 tickle the ivories	ti2kVl Di Y1vRiz	U	20
 tickle the ivories	ti2kVl Di Y1vriz	U	20
 tickle the ivories	ti2kl Di Y1vRiz	U	20
-tickle the ivories	ti2kl Di Y1vriz	U	20
 tickle the ivory	tI2kVl DV Y1vRi	P	32
 tickle the ivory	tI2kVl DV Y1vri	P	32
 tickle the sausage	tI2kVl DV sO1sIJ	P	31
@@ -344467,7 +344395,7 @@ Timonian	tYmo1niVn	U	0
 Timonism	tY1mVnIzVm	UE	0
 Timonist	tY1mVnIst	W	0
 timor	timO1r	C	15
-Timor Sea	ti1mOr	W	33
+Timor Sea	timO2r si1	P	33
 timor's	timO1rz	C	15
 Timor-Leste	timO1r lE1Ste	W	24
 Timorese	ti2mOri1z	C	24
@@ -353477,7 +353405,6 @@ twenty-five	twE2ntifY1v	W	15
 twenty-five cent word	twE2nti fY2v sE2nt wR1d	P	43
 twenty-five-eight	twE2nti fY2v e1t	P	44
 twenty-foot equivalent unit	twE2nti fU2t IkwI2vVlVnt ju1nIt	P	41
-twenty-four	fO1r	E	46
 twenty-four	twE1ntifO2r	C	46
 twenty-four	twE2ntifO1r	UW	46
 twenty-four hour clock	twE2nti fO2r W2R klA1k	P	42
@@ -353790,7 +353717,6 @@ two for one	tu2 fR wV1n	P	59
 two for the price of one	tu2 fR DV prY2s Vv wV1n	P	51
 two for two	tu2 fR tu1	P	58
 two heads are better than one	tu2 hE2dz R bE2tR DVn wV1n	P	46
-two hundred	hV1nJRd	W	15
 two hundred	tu2 hV1ndrId	U	47
 two hundred	tu2 hV1ndrVd	U	47
 two hundred fifty-sixth note	tu2 hV2ndrVd fI2fti sI2ksT no1t	P	39
@@ -357687,7 +357613,7 @@ unzicker	O1nzIkR	C	0
 unzip	VnzI1p	C	26
 unzipped	VnzI1pt	C	26
 Uotsuri	u2otsU1ri	W	0
-Uotsuri Island	u2otsU1ri	W	0
+Uotsuri Island	u2otsU2ri Y1lVnd	P	0
 up	V1p	CUE	64
 up a creek	Vp V kri1k	P	44
 up a creek without a paddle	Vp V kri2k wITW2t V pa1dVl	P	34
@@ -373692,7 +373618,6 @@ winter solstice	wI2ntR sA1lstIs	P	31
 winter solstice	wI2ntR so1lstIs	P	31
 winter sport	wI2ntR spO1rt	P	45
 winter squash	wI2ntR skwO1S	P	36
-winter storm	wI1ntR	E	15
 winter storm	wI1ntR stOrm	U	45
 winter sun	wI2ntR sV1n	P	46
 winter sunstead	wI2ntR sV1nstEd	P	0
