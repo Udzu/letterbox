@@ -527,15 +527,15 @@
     matches(entry, options = {}) {
       const { sameOnset = false, looseOnsets = false } = options;
       const mergers = Object.keys(MERGERS).some((name) => options[name]);
-      const field = looseOnsets ? "loose" : "rhyme";
       const parts = rhymeParts(entry.pron);
-      const target = mergers ? rhymeParts(merge(entry.pron, options))[field] : parts[field];
-      const candidates = looseOnsets ? this.byLoose.get(looseIndexKey(parts.loose)) : this.byRhyme.get(rhymeParts(mergeAll(entry.pron)).rhyme);
+      const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
+      const strict = this.byRhyme.get(rhymeParts(mergeAll(entry.pron)).rhyme) ?? [];
+      const candidates = looseOnsets ? [...strict, ...this.byLoose.get(looseIndexKey(parts.loose)) ?? []] : strict;
       const self = withoutAccents(lookupKey(entry.word));
       const words = /* @__PURE__ */ new Map();
-      for (const item of candidates ?? []) {
+      for (const item of candidates) {
         const other = mergers ? rhymeParts(merge(item.entry.pron, options)) : item;
-        if (other[field] !== target) continue;
+        if (other.rhyme !== target.rhyme && !(looseOnsets && other.loose === target.loose)) continue;
         const { word, zipf } = item.entry;
         if ((sameOnset || item.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {
           const match = words.get(word) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
