@@ -211,20 +211,149 @@ window.addEventListener("popstate", () => {
 
 input.value = location.hash ? hashWord() : load(WORD_KEY);
 
-async function start() {
+// --- Where the pronunciations come from: the online file, which is also kept in browser storage so
+// the page still works offline after a visit, or a file the user has loaded, which replaces it until
+// they go back to the online data.
+
+const DB = { name: "rhymes", store: "data" };
+const ONLINE = "rhymes/pronunciations.txt";
+
+// browser storage can hang (as in some private windows), so give up on it after a while
+const STORAGE_TIMEOUT = 2000;
+const withTimeout = (promise) => Promise.race([promise, new Promise((_, reject) =>
+  setTimeout(() => reject(new Error("browser storage didn't respond")), STORAGE_TIMEOUT))]);
+
+function openDb() {
+  return withTimeout(new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB.name, 1);
+    request.onupgradeneeded = () => request.result.createObjectStore(DB.store);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  }));
+}
+
+// the stored value for a key ("online" or "loaded"), or null (including when storage doesn't work)
+async function getStored(key) {
+  try {
+    const db = await openDb();
+    return await withTimeout(new Promise((resolve, reject) => {
+      const request = db.transaction(DB.store).objectStore(DB.store).get(key);
+      request.onsuccess = () => resolve(request.result ?? null);
+      request.onerror = () => reject(request.error);
+    }));
+  } catch {
+    return null;
+  }
+}
+
+// store a value (or delete it, for null), returning whether that worked
+async function setStored(key, value) {
+  try {
+    const db = await openDb();
+    await withTimeout(new Promise((resolve, reject) => {
+      const tx = db.transaction(DB.store, "readwrite");
+      if (value === null) tx.objectStore(DB.store).delete(key);
+      else tx.objectStore(DB.store).put(value, key);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    }));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const dataStatus = document.getElementById("data-status");
+const fileInput = document.getElementById("data-file");
+// the data in use: { text, name (for a loaded file), note (about where it's from) }
+let current = null;
+
+// use some pronunciation data, or throw an error if it doesn't parse
+function useData(data) {
+  const parsed = parsePronunciations(data.text);
+  rhymes = new Rhymes(parsed.entries);
+  current = data;
+  attribution.replaceChildren(...attributionParts(parsed.attribution).map((part) =>
+    part.href ? el("a", { href: part.href, textContent: part.text }) : part.text));
+  status.textContent = "";
+  status.classList.remove("error");
+  shown = { word: null, choices: [], choice: 0 };
+  update();
+  showDataStatus(parsed.entries.length);
+}
+
+function action(text, onClick) {
+  const link = el("a", { href: "#", textContent: text });
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    onClick();
+  });
+  return link;
+}
+
+function showDataStatus(count) {
+  const n = count.toLocaleString("en");
+  const download = el("a", { textContent: "Download", download: current.name ?? "pronunciations.txt",
+    href: URL.createObjectURL(new Blob([current.text], { type: "text/plain" })) });
+  const parts = current.name
+    ? [`Using ${n} pronunciations from `, el("i", { textContent: current.name }), ". ", download, " · ",
+       action("Load another file…", () => fileInput.click()), " · ", action("Use the online pronunciations", useOnline)]
+    : [`Using ${n} pronunciations${current.note ? ` ${current.note}` : ""}. `, download, " · ",
+       action("Load a file…", () => fileInput.click())];
+  dataStatus.replaceChildren(...parts);
+}
+
+function showError(message) {
+  status.textContent = message;
+  status.classList.add("error");
+}
+
+// the online pronunciations: fetched (and stored for next time), or else the stored copy
+async function useOnline() {
+  await setStored("loaded", null);
   status.textContent = "Loading pronunciations…";
   try {
-    const response = await fetch("rhymes/pronunciations.txt");
+    const response = await fetch(ONLINE);
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-    const data = parsePronunciations(await response.text());
-    rhymes = new Rhymes(data.entries);
-    attribution.replaceChildren(...attributionParts(data.attribution).map((part) =>
-      part.href ? el("a", { href: part.href, textContent: part.text }) : part.text));
-    status.textContent = "";
-    update();
+    const text = await response.text();
+    useData({ text });
+    setStored("online", { text, date: Date.now() });
   } catch (e) {
-    status.textContent = `Couldn't load the pronunciations (${e.message}).`;
-    status.classList.add("error");
+    const stored = await getStored("online");
+    if (stored) {
+      const date = new Date(stored.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      useData({ text: stored.text, note: `saved on ${date} (couldn't fetch the latest)` });
+    } else {
+      dataStatus.replaceChildren(action("Load a file…", () => fileInput.click()));
+      showError(`Couldn't load the pronunciations (${e.message}). To use this page offline, download them from the online page (at the bottom), then load the file here.`);
+    }
   }
+}
+
+fileInput.addEventListener("change", async () => {
+  const file = fileInput.files[0];
+  fileInput.value = "";
+  if (!file) return;
+  const data = { text: await file.text(), name: file.name };
+  try {
+    useData(data);
+  } catch (e) {
+    showError(`Couldn't use ${file.name}: ${e.message}.`);
+    return;
+  }
+  if (!(await setStored("loaded", data))) status.textContent = "The file couldn't be saved in this browser, so you'll need to load it again next time.";
+});
+
+async function start() {
+  const loaded = await getStored("loaded");
+  if (loaded) {
+    try {
+      useData(loaded);
+      return;
+    } catch {
+      await setStored("loaded", null);
+    }
+  }
+  await useOnline();
 }
 start();

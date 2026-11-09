@@ -97,20 +97,34 @@ export function rhymeParts(pron) {
 // the number of syllables in a pronunciation: its number of vowels
 export const syllableCount = (pron) => phonemes(pron).filter((x) => VOWELS.has(x.p)).length;
 
-// The pronunciation file's attribution and entries ({ word, pron, sources, zipf }).
+// A pronunciation file's attribution and entries ({ word, pron, sources, zipf }), or an error naming
+// the first bad line. Lines starting with # are comments ("# attribution: …" gives the attribution),
+// and blank lines are skipped. Each other line has a word and a pronunciation, separated by a tab,
+// optionally followed by sources and a frequency (see the top of this file). Without a frequency, a
+// word counts as common.
+const PRONUNCIATION = /^(?:[AaVOWYEReIioQUu][12]?|[bCdDfghJklmnNprsStTvwjzZ ])+$/;
+
 export function parsePronunciations(text) {
   const entries = [];
   let attribution = "";
-  for (const line of text.split("\n")) {
+  text.split("\n").forEach((raw, i) => {
+    const line = raw.replace(/\r$/, "");
     if (line.startsWith("#")) {
       const match = /^# attribution: (.*)$/.exec(line);
       if (match) attribution = match[1];
-      continue;
+      return;
     }
-    if (!line) continue;
-    const [word, pron, sources, zipf] = line.split("\t");
-    entries.push({ word, pron, sources, zipf: Number(zipf) });
-  }
+    if (!line.trim()) return;
+    const [word, pron, sources = "", zipf = "", ...rest] = line.split("\t");
+    const where = `line ${i + 1}`;
+    if (!word?.trim() || pron === undefined) throw new Error(`${where}: expected a word and a pronunciation separated by a tab`);
+    if (rest.length) throw new Error(`${where}: too many columns`);
+    if (!PRONUNCIATION.test(pron)) throw new Error(`${where}: "${pron}" isn't a pronunciation in the file's phoneme codes`);
+    if (!/^[A-Za-z]*$/.test(sources)) throw new Error(`${where}: sources should be letters, not "${sources}"`);
+    if (!/^\d*$/.test(zipf)) throw new Error(`${where}: frequency should be a whole number, not "${zipf}"`);
+    entries.push({ word: word.trim(), pron, sources, zipf: zipf === "" ? COMMON : Number(zipf) });
+  });
+  if (entries.length === 0) throw new Error("no pronunciations found");
   return { attribution, entries };
 }
 
