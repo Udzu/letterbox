@@ -38,6 +38,7 @@
   .badge { padding: 1px 8px; border-radius: 10px; font-size: 0.8rem; }
   .badge.culture { background: #fbe4ec; color: #9c2155; }
   .badge.geography { background: #fcecd9; color: #8a4b00; }
+  .badge.language { background: #fde0dc; color: #b3261e; }
   .badge.politics { background: #f3f0c4; color: #5f5600; }
   .badge.science { background: #efe6fa; color: #5b2f94; }
   .badge.other { background: #eee; color: #555; }
@@ -134,6 +135,13 @@
     "size": 357
   },
   {
+    "file": "colours.txt",
+    "name": "Colours",
+    "description": "Colour names in everyday use, in alphabetical order.",
+    "tag": "language",
+    "size": 269
+  },
+  {
     "file": "countries.txt",
     "name": "Countries",
     "description": "Sovereign states and dependent territories, with common alternative and former names.",
@@ -166,6 +174,7 @@
     "file": "scrabble-twos.txt",
     "name": "Two-letter Scrabble words",
     "description": "The 107 North American (NWL) two-letter words, then the 20 more in Collins (CSW).",
+    "tag": "language",
     "size": 127
   },
   {
@@ -196,7 +205,7 @@
   // src/wordlists/lists.js
   var REQUIRED = ["name", "description"];
   var KEYS = [...REQUIRED, "tag", "attribution"];
-  var TOPICS = ["culture", "geography", "politics", "science"];
+  var TOPICS = ["culture", "geography", "language", "politics", "science"];
   var TAGS = ["general", ...TOPICS];
   function stripList(text) {
     const words = text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !line.startsWith("#"));

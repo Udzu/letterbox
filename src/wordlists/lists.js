@@ -20,7 +20,7 @@
 const REQUIRED = ["name", "description"];
 const KEYS = [...REQUIRED, "tag", "attribution"];
 // each topic has a badge colour in the page's CSS (.badge.<topic>)
-export const TOPICS = ["culture", "geography", "politics", "science"];
+export const TOPICS = ["culture", "geography", "language", "politics", "science"];
 const TAGS = ["general", ...TOPICS];
 
 // the list's words, one per line, without comments, blank lines or surrounding spaces

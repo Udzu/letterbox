@@ -30,7 +30,7 @@ test("readList reads an optional attribution", () => {
 test("readList reads the optional tag: general or a topic", () => {
   assert.equal(readList("# name: Words\n# description: All words.\n# tag: general\n\ncat\n").tag, "general");
   assert.equal(readList("# name: Words\n# description: All words.\n# tag: geography\n\ncat\n").tag, "geography");
-  assert.throws(() => readList("# name: Words\n# description: All words.\n# tag: topic\n\ncat\n"), { message: /unknown tag "topic" \(expected general, culture, geography, politics, science\)/ });
+  assert.throws(() => readList("# name: Words\n# description: All words.\n# tag: topic\n\ncat\n"), { message: /unknown tag "topic" \(expected general, culture, geography, language, politics, science\)/ });
   assert.equal(readList("# name: Words\n# description: All words.\n\ncat\n").tag, undefined);
 });
 

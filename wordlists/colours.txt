@@ -1,0 +1,273 @@
+# name: Colours
+# description: Colour names in everyday use, in alphabetical order.
+# tag: language
+
+alabaster
+amber
+amethyst
+anthracite
+apple green
+apricot
+aqua
+aquamarine
+army green
+ash gray
+ash grey
+aubergine
+auburn
+avocado
+azure
+baby blue
+baby pink
+Barbie pink
+battleship gray
+battleship grey
+beige
+biscuit
+black
+blood red
+blue
+blush
+bone
+bottle green
+brass
+brick red
+British racing green
+bronze
+brown
+bubblegum
+bubblegum pink
+buff
+burgundy
+burnt orange
+burnt sienna
+burnt umber
+butterscotch
+cadmium red
+cadmium yellow
+café au lait
+Cambridge blue
+camel
+canary
+canary yellow
+candy pink
+caramel
+cardinal
+carmine
+carnation
+celadon
+cerise
+cerulean
+champagne
+charcoal
+chartreuse
+cherry
+cherry red
+chestnut
+chocolate
+chocolate brown
+chrome yellow
+cinnamon
+claret
+cobalt
+cobalt blue
+cocoa
+coffee
+copper
+coral
+cornflower
+cornflower blue
+cranberry
+cream
+crimson
+cyan
+daffodil
+denim
+dove gray
+dove grey
+duck-egg blue
+dusty rose
+eau de nil
+ebony
+ecru
+eggplant
+eggshell
+Egyptian blue
+electric blue
+emerald
+emerald green
+fawn
+fern green
+fire engine red
+forest green
+fuchsia
+garnet
+ginger
+gold
+golden
+goldenrod
+grape
+graphite
+grass green
+gray
+green
+greige
+grey
+gunmetal
+gunmetal gray
+gunmetal grey
+hazel
+heather
+heliotrope
+honey
+hot pink
+hunter green
+ice blue
+Indian red
+indigo
+International Klein Blue
+international orange
+ivory
+jade
+jade green
+jet
+jet black
+jungle green
+kelly green
+khaki
+lapis lazuli
+lavender
+leaf green
+lemon
+lemon yellow
+lilac
+lime
+lime green
+Lincoln green
+linen
+magenta
+magnolia
+mahogany
+malachite
+marigold
+maroon
+mauve
+midnight blue
+milk chocolate
+millennial pink
+mint
+mint green
+mocha
+moss green
+mulberry
+mustard
+mustard yellow
+Naples yellow
+navy
+navy blue
+Nile green
+nut-brown
+oatmeal
+obsidian
+ocher
+ochre
+off-white
+old gold
+old rose
+olive
+olive drab
+olive green
+onyx
+orange
+orchid
+oxblood
+Oxford blue
+pea green
+peach
+peacock blue
+pearl
+periwinkle
+petrol blue
+pewter
+pillar-box red
+pine green
+pink
+pistachio
+platinum
+plum
+powder blue
+primrose
+Prussian blue
+puce
+pumpkin
+purple
+putty
+racing green
+raspberry
+raven
+raw sienna
+raw umber
+red
+robin's egg blue
+rose
+rose gold
+rose pink
+royal blue
+royal purple
+ruby
+russet
+rust
+saffron
+sage
+sage green
+salmon
+salmon pink
+sand
+sapphire
+scarlet
+school bus yellow
+sea green
+seafoam
+seafoam green
+sepia
+shamrock
+shocking pink
+sienna
+silver
+sky blue
+slate
+slate blue
+slate gray
+slate grey
+spring green
+steel blue
+steel gray
+steel grey
+stone
+straw
+strawberry
+sunflower
+tan
+tangerine
+taupe
+tawny
+teal
+terracotta
+Tiffany blue
+Turkey red
+turquoise
+Tyrian purple
+ultramarine
+umber
+Vandyke brown
+Venetian red
+verdigris
+vermilion
+violet
+viridian
+walnut
+Wedgwood blue
+white
+wine
+wisteria
+yellow
