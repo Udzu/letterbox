@@ -7,7 +7,7 @@ const WORD_KEY = "rhymes-word";
 const OPTIONS_KEY = "rhymes-options";
 const GROUPING_KEY = "rhymes-grouping";
 // the ways rhymes can be grouped, and their buttons' labels
-const GROUPINGS = { frequency: "by frequency", syllables: "by syllables" };
+const GROUPINGS = { frequency: "by frequency", syllables: "by syllables", letters: "by letters" };
 // the sections rhymes are shown in (see Rhymes.arrange), and their headings
 const BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
 const SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)" };
@@ -118,12 +118,12 @@ function showRhymes() {
     return button;
   });
   summary.replaceChildren(text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
-  // sections of [title, items]: by number of syllables, or by frequency
-  const bySyllables = grouping === "syllables";
-  const sections = bySyllables
-    ? rhymes.bySyllables(matches).map(({ syllables, items }) => [`${syllables} syllable${syllables === 1 ? "" : "s"}`, items])
+  // sections of [title, items]: by frequency, or by number of syllables or letters
+  const byCount = (groups, unit) => groups.map(({ count, items }) => [`${count} ${unit}${count === 1 ? "" : "s"}`, items]);
+  const sections = grouping === "syllables" ? byCount(rhymes.bySyllables(matches), "syllable")
+    : grouping === "letters" ? byCount(rhymes.byLetters(matches), "letter")
     : Object.entries(rhymes.arrange(matches)).filter(([, items]) => items.length).map(([band, items]) => [BANDS[band], items]);
-  results.classList.toggle("by-syllables", bySyllables);
+  results.classList.toggle("by-count", grouping !== "frequency");
   for (const [title, items] of sections) {
     const heading = el("h2", {}, [`${title} `, el("span", { className: "count", textContent: `(${items.length.toLocaleString("en")})` })]);
     // each rhyme links to its own lookup, so it can also be opened in a new tab

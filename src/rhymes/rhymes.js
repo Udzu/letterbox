@@ -246,24 +246,41 @@ export class Rhymes {
     return bands;
   }
 
-  // Rhymes grouped by number of syllables: [{ syllables, items }], fewest syllables first. Each group
-  // has its common and uncommon words in alphabetical order, then its rare words, then its phrases. A
-  // word whose rhyming pronunciations have different numbers of syllables is in each group.
+  // Rhymes grouped by number of syllables: [{ count, items }], fewest syllables first. Each group has
+  // its common and uncommon words in alphabetical order, then its rare words, then its phrases. A word
+  // whose rhyming pronunciations have different numbers of syllables is in each group.
   bySyllables(matches) {
-    const groups = new Map();
-    for (const item of this.items(matches)) {
-      for (const n of item.syllables) {
-        if (!groups.has(n)) groups.set(n, []);
-        groups.get(n).push(item);
-      }
-    }
-    const rank = { common: 0, uncommon: 0, rare: 1, phrases: 2 };
-    return [...groups.entries()].sort(([a], [b]) => a - b).map(([syllables, items]) => ({
-      syllables,
-      items: items.sort((a, b) => rank[a.band] - rank[b.band] || compareWords(a.word, b.word)),
-    }));
+    return groupByCount(this.items(matches), (item) => item.syllables);
+  }
+
+  // Rhymes grouped by number of letters (see letterCount), like bySyllables.
+  byLetters(matches) {
+    return groupByCount(this.items(matches), (item) => [letterCount(item.word)]);
   }
 }
+
+// Items grouped by the counts each has (see bySyllables).
+function groupByCount(items, counts) {
+  const groups = new Map();
+  for (const item of items) {
+    for (const n of counts(item)) {
+      if (!groups.has(n)) groups.set(n, []);
+      groups.get(n).push(item);
+    }
+  }
+  const rank = { common: 0, uncommon: 0, rare: 1, phrases: 2 };
+  return [...groups.entries()].sort(([a], [b]) => a - b).map(([count, group]) => ({
+    count,
+    items: group.sort((a, b) => rank[a.band] - rank[b.band] || compareWords(a.word, b.word)),
+  }));
+}
+
+// The number of letters and digits in a word, counted as on the Anagrams and Pangrams pages:
+// accents are ignored, æ, œ and ß count as two letters, and spaces and punctuation don't count.
+const UNDECOMPOSED = { ø: "o", ł: "l", đ: "d", ı: "i", ħ: "h", ŧ: "t", æ: "ae", œ: "oe", ß: "ss" };
+export const letterCount = (word) => [...word.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")]
+  .flatMap((c) => [...(UNDECOMPOSED[c] ?? c)])
+  .filter((c) => /[\p{L}\p{N}]/u.test(c)).length;
 
 const collator = new Intl.Collator("en");
 export const compareWords = (a, b) => collator.compare(a, b);
