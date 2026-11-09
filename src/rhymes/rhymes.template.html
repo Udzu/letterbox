@@ -23,6 +23,10 @@
   }
   #options { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 10px; }
   #options label, #mergers label { cursor: pointer; }
+  #sound-help { margin: 6px 0 0; font-size: 0.85rem; color: #666; line-height: 1.5; }
+  #sound-help span { font-family: ui-monospace, monospace; color: #000; background: #f0f0f0; padding: 0 3px; border-radius: 2px; }
+  #prons .homophones a { color: #000; text-decoration: none; }
+  #prons .homophones a:hover, #prons .homophones a:focus { text-decoration: underline; }
   #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; }
   #mergers .label { color: #666; }
   #status { margin: 12px 0 0; color: #666; }
@@ -70,8 +74,9 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <b>Rhymes</b> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Find rhymes in General American English: words and phrases that sound the same from the last stressed vowel on, but different just before it. Click a rhyme to look it up. The pronunciations are fetched online, but you can download them to use the page offline, or load your own (see the bottom of the page).</p>
+  <p class="intro">Find rhymes in General American English: words and phrases that sound the same from the last stressed vowel on, but different just before it. Click a rhyme to look it up, or type a pronunciation between slashes, like /ˈhɛd/ or /'hEd/. The pronunciations are fetched online, but you can download them to use the page offline, or load your own (see the bottom of the page).</p>
   <input id="word" type="text" placeholder="Word or phrase..." autocomplete="off" spellcheck="false" autofocus>
+  <p id="sound-help" hidden>Type sounds in IPA or using: <span>A</span> ɑ <i>father</i> · <span>a</span> æ <i>cat</i> · <span>^</span> ʌ or <span>@</span> ə <i>cut</i> · <span>O</span> ɔ <i>caught</i> · <span>E</span> ɛ <i>bed</i> · <span>3</span> ɝ/ɚ <i>bird</i> · <span>I</span> ɪ <i>bit</i> · <span>i</span> <i>beat</i> · <span>U</span> ʊ <i>book</i> · <span>u</span> <i>boot</i> · <span>eI</span> <i>bait</i> · <span>aI</span> <i>bite</i> · <span>aU</span> <i>out</i> · <span>oU</span> <i>boat</i> · <span>OI</span> <i>boy</i> · <span>S</span> ʃ <i>ship</i> · <span>Z</span> ʒ <i>measure</i> · <span>tS</span> <i>chip</i> · <span>dZ</span> <i>judge</i> · <span>T</span> θ <i>thin</i> · <span>D</span> ð <i>this</i> · <span>N</span> ŋ <i>sing</i> · <span>j</span>/<span>y</span> <i>yes</i>, others as usual. Put <span>'</span> before the stressed syllable (by default the first) and <span>,</span> before a secondary one, e.g. <span>/'m^Nki/</span> <i>monkey</i>.</p>
   <div id="options">
     <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> Allow the same onset</label>
     <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> Allow different onsets after the stress</label>

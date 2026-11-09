@@ -108,6 +108,68 @@ export function rhymeParts(pron) {
 // the number of syllables in a pronunciation: its number of vowels
 export const syllableCount = (pron) => phonemes(pron).filter((x) => VOWELS.has(x.p)).length;
 
+// A pronunciation typed as sounds, in IPA or in ASCII (based on X-SAMPA, as given in the page's help),
+// or a mix: { pron, assumed }, where pron is in the file's codes and assumed says whether the stress
+// was guessed. Throws an error naming the first sound it doesn't know. A stress mark (ˈ or ' for
+// primary, ˌ or , for secondary) goes before its syllable; without a primary one, the first vowel is
+// stressed (so /Ed/ and /Edi/ rhyme on -ed and -eddy). Spaces separate words, and syllable breaks,
+// length marks and hyphens are ignored (so /-Ed/ works too).
+const SOUND_SYMBOLS = Object.entries({
+  // longest first
+  tʃ: "C", dʒ: "J", eɪ: "e", aɪ: "Y", aʊ: "W", oʊ: "o", ɔɪ: "Q", "ɜ˞": "R",
+  tS: "C", dZ: "J", eI: "e", aI: "Y", aU: "W", oU: "o", OI: "Q", "@`": "R",
+  ɑ: "A", ɒ: "A", æ: "a", ʌ: "V", ə: "V", ɐ: "V", ɔ: "O", ɛ: "E", ɝ: "R", ɚ: "R", ɜ: "R", ɪ: "I", ᵻ: "I",
+  ʊ: "U", ʃ: "S", ʒ: "Z", θ: "T", ð: "D", ŋ: "N", ɹ: "r", ɡ: "g", ɾ: "t", ʔ: "t", ɫ: "l",
+  A: "A", a: "a", "^": "V", "@": "V", O: "O", E: "E", 3: "R", I: "I", i: "i", U: "U", u: "u", e: "e", o: "o",
+  S: "S", Z: "Z", T: "T", D: "D", N: "N", y: "j",
+  ...Object.fromEntries([..."bdfghjklmnprstvwz"].map((c) => [c, c])),
+}).sort(([a], [b]) => b.length - a.length);
+
+export function parseSounds(text) {
+  const out = []; // { p, stress } for vowels, { p } for consonants and " " between words
+  let mark = 0; // the stress mark waiting for its vowel
+  const s = text.replace(/[\u0361\u035c]/g, ""); // tie bars, as in t͡ʃ
+  for (let i = 0; i < s.length;) {
+    const c = s[i];
+    if (/\s/.test(c)) {
+      if (out.length && out.at(-1).p !== " ") out.push({ p: " " });
+      i++;
+    } else if ("ˈ'’ʼ".includes(c) || "ˌ,".includes(c)) {
+      mark = "ˌ,".includes(c) ? 2 : 1;
+      i++;
+    } else if (".:ːˑ-‿".includes(c)) {
+      i++;
+    } else if (c === "\u0329" || c === "\u030d") {
+      // a syllabic consonant, as in /ˈbʌʔn̩/: a vowel before it
+      if (out.length && !VOWELS.has(out.at(-1).p) && out.at(-1).p !== " ") out.splice(-1, 0, { p: "V", stress: mark });
+      mark = 0;
+      i++;
+    } else {
+      const found = SOUND_SYMBOLS.find(([symbol]) => s.startsWith(symbol, i));
+      if (!found) throw new Error(`Unknown sound “${c}”`);
+      const [symbol, code] = found;
+      if (VOWELS.has(code)) {
+        out.push({ p: code, stress: mark });
+        mark = 0;
+      } else out.push({ p: code });
+      i += symbol.length;
+    }
+  }
+  if (out.at(-1)?.p === " ") out.pop();
+  // ʌr and ɝr not before a vowel are ɝ (/ˈbʌtər/ as /ˈbʌtɚ/)
+  for (let k = out.length - 2; k >= 0; k--) {
+    if ((out[k].p === "V" || out[k].p === "R") && out[k + 1].p === "r" && !VOWELS.has(out[k + 2]?.p)) {
+      out[k].p = "R";
+      out.splice(k + 1, 1);
+    }
+  }
+  const vowels = out.filter((x) => VOWELS.has(x.p));
+  if (vowels.length === 0) throw new Error("No vowel");
+  const assumed = !vowels.some((x) => x.stress);
+  if (!vowels.some((x) => x.stress === 1)) (vowels.find((x) => x.stress === 2) ?? vowels[0]).stress = 1;
+  return { pron: out.map((x) => x.p + (x.stress ? x.stress : "")).join(""), assumed: assumed && vowels.length > 1 };
+}
+
 // A pronunciation file's attribution and entries ({ word, pron, sources, zipf }), or an error naming
 // the first bad line. Lines starting with # are comments ("# attribution: …" gives the attribution),
 // and blank lines are skipped. Each other line has a word and a pronunciation, separated by a tab,
@@ -255,6 +317,29 @@ export class Rhymes {
     const seen = new Set();
     const seenKey = (entry) => `${lookupKey(entry.word)}\t${entry.pron}`;
     return sorted.filter((entry) => !seen.has(seenKey(entry)) && seen.add(seenKey(entry)));
+  }
+
+  // The words pronounced like a pronunciation (ignoring secondary stress, word breaks and differences
+  // between unstressed ɪ, ʊ and ə), as a map like matches gives. The index for this is only built
+  // the first time it's needed.
+  homophones(pron) {
+    const key = (p) => p.replace(/[ 2]/g, "").replace(/[IUV](?!1)/g, "V");
+    if (!this.bySound) {
+      this.bySound = new Map();
+      for (const entry of this.entries) {
+        const k = key(entry.pron);
+        if (!this.bySound.has(k)) this.bySound.set(k, []);
+        this.bySound.get(k).push(entry);
+      }
+    }
+    const words = new Map();
+    for (const { word, zipf, pron: p } of this.bySound.get(key(pron)) ?? []) {
+      const match = words.get(word) ?? { zipf: 0, syllables: new Set() };
+      match.zipf = Math.max(match.zipf, zipf);
+      match.syllables.add(syllableCount(p));
+      words.set(word, match);
+    }
+    return words;
   }
 
   // A word's pronunciations (as given by pronunciations), grouped when they have the same rhymes
