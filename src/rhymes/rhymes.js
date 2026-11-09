@@ -139,11 +139,18 @@ export function parsePronunciations(text) {
   return { attribution, entries };
 }
 
-// a word as looked up: case and the kind of apostrophe don't matter
+// a word as looked up: case, the kind of apostrophe and how accents are encoded don't matter
 // (most words need no cleaning up, which is checked first as this runs on every word when the page loads)
-const UNCLEAN = /^\s|\s$|\s\s|[^\S ]|[‘’ʼ]/;
+const UNCLEAN = /^\s|\s$|\s\s|[^\S ]|[‘’ʼ]|[^\x00-\x7f]/;
 export const lookupKey = (word) =>
-  (UNCLEAN.test(word) ? word.trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'") : word).toLowerCase();
+  (UNCLEAN.test(word) ? word.normalize("NFC").trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'") : word).toLowerCase();
+
+// A word without its accents (café as cafe, Brontë as Bronte), with æ, œ and ß as two letters and
+// letters like ø and ł without their strokes, as on the Anagrams page.
+const UNDECOMPOSED = { ø: "o", Ø: "O", ł: "l", Ł: "L", đ: "d", Đ: "D", ı: "i", ħ: "h", Ħ: "H", ŧ: "t", Ŧ: "T", æ: "ae", Æ: "AE", œ: "oe", Œ: "OE", ß: "ss" };
+export const withoutAccents = (word) => (/[^\x00-\x7f]/.test(word)
+  ? [...word.normalize("NFD").replace(/\p{M}/gu, "")].map((c) => UNDECOMPOSED[c] ?? c).join("")
+  : word);
 
 // Zipf frequencies (× 10) at or above which a word counts as common, and below which it's rare
 export const COMMON = 30;
@@ -168,6 +175,7 @@ export class Rhymes {
   constructor(entries) {
     this.entries = entries;
     this.byWord = new Map(); // lookup key -> entries
+    this.accented = new Map(); // lookup key without accents -> lookup keys with them
     // rhymes and loose rhymes with every merger applied -> [{ entry, rhyme, loose, onset }], from which
     // find picks the ones that match with the mergers chosen
     this.byRhyme = new Map();
@@ -178,7 +186,9 @@ export class Rhymes {
       else map.set(key, [value]);
     };
     for (const entry of entries) {
-      add(this.byWord, lookupKey(entry.word), entry);
+      const key = lookupKey(entry.word);
+      if (!this.byWord.has(key) && withoutAccents(key) !== key) add(this.accented, withoutAccents(key), key);
+      add(this.byWord, key, entry);
       const { rhyme, loose, onset } = rhymeParts(entry.pron);
       const item = { entry, rhyme, loose, onset };
       add(this.byRhyme, mergeAll(rhyme), item);
@@ -186,14 +196,23 @@ export class Rhymes {
     }
   }
 
-  // A word's pronunciations, best first: those written the way it was typed, then the ones with the
-  // most sources. A pronunciation shared by several spellings (orange, Orange) is only given once.
+  // A word's pronunciations, best first: those written the way it was typed, then those of other
+  // spellings that only differ in case, then those with accents, each with the ones with the most
+  // sources first. Accents only count one way: a word typed without them (cafe, Bronte) also finds
+  // spellings with them (café, Brontë), but one typed with them only finds those, unless there's no
+  // such spelling (naïve finds naive). A pronunciation shared by spellings that only differ in case
+  // (orange, Orange) is only given once.
   pronunciations(word) {
-    const typed = word.trim();
-    const found = this.byWord.get(lookupKey(word)) ?? [];
-    const sorted = [...found].sort((a, b) => (b.word === typed) - (a.word === typed) || b.sources.length - a.sources.length);
+    const typed = word.normalize("NFC").trim();
+    const key = lookupKey(word);
+    const plain = withoutAccents(key);
+    const keys = plain === key || !this.byWord.has(key) ? [plain, ...(this.accented.get(plain) ?? [])] : [key];
+    const found = keys.flatMap((k) => this.byWord.get(k) ?? []);
+    const rank = (e) => (e.word === typed ? 0 : lookupKey(e.word) === key ? 1 : 2);
+    const sorted = found.sort((a, b) => rank(a) - rank(b) || b.sources.length - a.sources.length);
     const seen = new Set();
-    return sorted.filter((entry) => !seen.has(entry.pron) && seen.add(entry.pron));
+    const seenKey = (entry) => `${lookupKey(entry.word)}\t${entry.pron}`;
+    return sorted.filter((entry) => !seen.has(seenKey(entry)) && seen.add(seenKey(entry)));
   }
 
   // A word's pronunciations (as given by pronunciations), grouped when they have the same rhymes
@@ -230,12 +249,12 @@ export class Rhymes {
     const field = looseOnsets ? "loose" : "rhyme";
     const target = merge(parts[field], options);
     const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(mergeAll(parts[field]));
-    const self = lookupKey(entry.word);
+    const self = withoutAccents(lookupKey(entry.word));
     const words = new Map();
     for (const other of candidates ?? []) {
       if (merge(other[field], options) !== target) continue;
       const { word, zipf } = other.entry;
-      if ((sameOnset || other.onset !== parts.onset) && lookupKey(word) !== self) {
+      if ((sameOnset || other.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {
         const match = words.get(word) ?? { zipf: 0, syllables: new Set() };
         match.zipf = Math.max(match.zipf, zipf);
         match.syllables.add(syllableCount(other.entry.pron));
@@ -245,15 +264,15 @@ export class Rhymes {
     return words;
   }
 
-  // Rhymes (as given by matches) as items for display. Words that only differ in case, full stops or
-  // hyphens for spaces (may, May; a, a.; hate crime, hate-crime) are merged into one item, shown as its
-  // most frequent spelling (lowercase, then without hyphens, if tied): { word, variants, zipf,
-  // syllables, band }. The band is common, uncommon or rare, by
+  // Rhymes (as given by matches) as items for display. Words that only differ in case, accents, full
+  // stops or hyphens for spaces (may, May; café, cafe; a, a.; hate crime, hate-crime) are merged into
+  // one item, shown as its most frequent spelling (lowercase, then without hyphens, if tied): { word,
+  // variants, zipf, syllables, band }. The band is common, uncommon or rare, by
   // frequency, or phrases (including hyphenated words, whose frequencies wordfreq can only estimate).
   items(matches) {
     const merged = new Map();
     for (const word of matches.keys()) {
-      const key = word.toLowerCase().replaceAll(".", "").replaceAll("-", " ");
+      const key = withoutAccents(lookupKey(word)).replaceAll(".", "").replaceAll("-", " ");
       if (!merged.has(key)) merged.set(key, []);
       merged.get(key).push(word);
     }
@@ -309,10 +328,7 @@ function groupByCount(items, counts) {
 
 // The number of letters and digits in a word, counted as on the Anagrams and Pangrams pages:
 // accents are ignored, æ, œ and ß count as two letters, and spaces and punctuation don't count.
-const UNDECOMPOSED = { ø: "o", ł: "l", đ: "d", ı: "i", ħ: "h", ŧ: "t", æ: "ae", œ: "oe", ß: "ss" };
-export const letterCount = (word) => [...word.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")]
-  .flatMap((c) => [...(UNDECOMPOSED[c] ?? c)])
-  .filter((c) => /[\p{L}\p{N}]/u.test(c)).length;
+export const letterCount = (word) => [...withoutAccents(word)].filter((c) => /[\p{L}\p{N}]/u.test(c)).length;
 
 const collator = new Intl.Collator("en");
 export const compareWords = (a, b) => collator.compare(a, b);

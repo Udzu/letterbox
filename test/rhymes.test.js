@@ -243,3 +243,42 @@ test("groups pronunciations that have the same rhymes", () => {
   assert.deepEqual(groups, [["O1rVnJ", "O1rInJ"], ["A1rVnJ", "A1rInJ"], ["O1rnJ"]]);
   assert.deepEqual(rhymes.pronunciationGroups("polish").map((g) => g.others.length), [0, 0]);
 });
+
+test("a word typed without accents also finds spellings with them, but not the other way round", () => {
+  const r = new Rhymes(parsePronunciations(`
+cafe\tkVfe1\tC\t40
+cafe\tka1fe\tC\t40
+café\tka2fe1\tU\t35
+resume\trIzu1m\tC\t45
+resume\trE1zVme2\tC\t45
+résumé\trE1zVme\tU\t40
+naive\tnAi1v\tC\t40
+ne\tni1\tC\t40
+ne\tne1\tC\t40
+Ne\tne1\tC\t15
+né\tne1\tW\t20
+Brontë\tbrA1nti\tU\t25
+day\tde1\tC\t60
+fey\tfe1\tC\t20
+`).entries);
+  const words = (w) => r.pronunciations(w).map((e) => `${e.word} ${e.pron}`);
+  assert.deepEqual(words("cafe"), ["cafe kVfe1", "cafe ka1fe", "café ka2fe1"]);
+  assert.deepEqual(words("café"), ["café ka2fe1"]);
+  assert.deepEqual(words("CAFÉ"), ["café ka2fe1"]);
+  assert.deepEqual(words("Bronte"), ["Brontë brA1nti"]);
+  // with no spelling with those accents, the one without them
+  assert.deepEqual(words("naïve"), ["naive nAi1v"]);
+  // however the accents are encoded
+  assert.deepEqual(words("café"), ["café ka2fe1"]);
+  // résumé is in the same group as resume's pronunciation that rhymes the same way
+  const groups = r.pronunciationGroups("resume").map((g) => [g.entry, ...g.others].map((e) => e.word).join(" "));
+  assert.deepEqual(groups, ["resume", "resume résumé"]);
+  assert.deepEqual(r.pronunciationGroups("résumé").length, 1);
+  // a pronunciation shared with a spelling with accents is kept, so the spelling is shown, but not one
+  // shared with a spelling that only differs in case
+  assert.deepEqual(words("ne"), ["ne ni1", "ne ne1", "né ne1"]);
+  // spellings that only differ in accents are one rhyme, and not rhymes of each other
+  const items = (w, o) => r.items(r.matches(r.pronunciations(w)[0], o)).map((i) => [i.word, ...i.variants].join("/"));
+  assert.deepEqual(items("day"), ["cafe/café", "ne/né/Ne", "fey"]);
+  assert.deepEqual(items("café", { sameOnset: true }), ["ne/né/Ne", "day", "fey"]);
+});
