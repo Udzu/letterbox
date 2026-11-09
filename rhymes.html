@@ -34,6 +34,8 @@
   .word { font-weight: 600; }
   .ipa { color: #444; }
   .also { color: #888; }
+  a.wiktionary { color: #06c; font-size: 0.85rem; text-decoration: none; vertical-align: 1px; }
+  a.wiktionary:hover { text-decoration: underline; }
   #summary { margin: 16px 0 8px; font-size: 1.1rem; }
   #summary:empty { display: none; }
   /* the grouping buttons, joined, with the current one pressed */
@@ -53,8 +55,8 @@
   /* grouped by syllables, each section runs on from common and less common words to rare words and
      phrases, told apart by their styling */
   #results.by-syllables .rhyme.phrases { font-style: italic; }
-  #results .rhyme { cursor: pointer; white-space: pre; }
-  #results .rhyme:hover, #results .rhyme:focus { text-decoration: underline; }
+  #results a.rhyme { color: inherit; text-decoration: none; white-space: pre; }
+  #results a.rhyme:hover, #results a.rhyme:focus { text-decoration: underline; }
   .attribution { margin: 24px 0 0; color: #888; font-size: 0.85rem; }
   .attribution a { color: #888; }
   nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
@@ -425,12 +427,18 @@
   }
   var sourcesTitle = (entries) => entries.map((e) => `/${toIpa(e.pron)}/ from ${[...e.sources].map((s) => SOURCES[s]).join(", ")}`).join("\n");
   function groupLabel({ entry, others }) {
-    const parts = [el("span", { className: "word", textContent: entry.word }), " ", el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })];
+    const parts = [el("span", { className: "word", textContent: entry.word }), ...wiktionaryLink(entry.word), " ", el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })];
     if (others.length) {
       const also = others.map((e) => (e.word === entry.word ? "" : `${e.word} `) + `/${toIpa(e.pron)}/`).join(", ");
       parts.push(" ", el("span", { className: "also", textContent: `(also ${also})` }));
     }
     return parts;
+  }
+  var FROM_WIKTIONARY = /[UWEB]/;
+  function wiktionaryLink(word) {
+    if (!rhymes.pronunciations(word).some((e) => e.word === word && FROM_WIKTIONARY.test(e.sources))) return [];
+    const href = `https://en.wiktionary.org/wiki/${encodeURIComponent(word.replaceAll(" ", "_"))}#English`;
+    return [" ", el("a", { className: "wiktionary", href, target: "_blank", rel: "noopener", textContent: "\u2197", title: `${word} on Wiktionary` })];
   }
   function showPronunciations() {
     const { choices, choice } = shown;
@@ -480,10 +488,10 @@
     results.classList.toggle("by-syllables", bySyllables);
     for (const [title, items] of sections) {
       const heading = el("h2", {}, [`${title} `, el("span", { className: "count", textContent: `(${items.length.toLocaleString("en")})` })]);
-      results.append(el("section", {}, [heading, el("div", { className: "list" }, items.map((item) => el("span", {
+      results.append(el("section", {}, [heading, el("div", { className: "list" }, items.map((item) => el("a", {
         className: `rhyme ${item.band}`,
+        href: hashFor(item.word),
         textContent: item.word,
-        tabIndex: 0,
         title: item.variants.length ? `Also ${item.variants.join(", ")}` : ""
       })))]));
     }
@@ -518,16 +526,14 @@
     }
     showRhymes();
   }
-  function lookUp(target) {
-    if (!target.classList?.contains("rhyme")) return;
+  results.addEventListener("click", (e) => {
+    const target = e.target.closest?.("a.rhyme");
+    if (!target || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
     input.value = target.textContent;
     update({ push: true });
     input.focus();
     window.scrollTo({ top: 0 });
-  }
-  results.addEventListener("click", (e) => lookUp(e.target));
-  results.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") lookUp(e.target);
   });
   var timer = null;
   input.addEventListener("input", () => {

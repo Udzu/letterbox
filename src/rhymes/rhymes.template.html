@@ -33,6 +33,8 @@
   .word { font-weight: 600; }
   .ipa { color: #444; }
   .also { color: #888; }
+  a.wiktionary { color: #06c; font-size: 0.85rem; text-decoration: none; vertical-align: 1px; }
+  a.wiktionary:hover { text-decoration: underline; }
   #summary { margin: 16px 0 8px; font-size: 1.1rem; }
   #summary:empty { display: none; }
   /* the grouping buttons, joined, with the current one pressed */
@@ -52,8 +54,8 @@
   /* grouped by syllables, each section runs on from common and less common words to rare words and
      phrases, told apart by their styling */
   #results.by-syllables .rhyme.phrases { font-style: italic; }
-  #results .rhyme { cursor: pointer; white-space: pre; }
-  #results .rhyme:hover, #results .rhyme:focus { text-decoration: underline; }
+  #results a.rhyme { color: inherit; text-decoration: none; white-space: pre; }
+  #results a.rhyme:hover, #results a.rhyme:focus { text-decoration: underline; }
   .attribution { margin: 24px 0 0; color: #888; font-size: 0.85rem; }
   .attribution a { color: #888; }
   nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
