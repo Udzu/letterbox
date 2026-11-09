@@ -52,9 +52,9 @@
   #results h2 .count { font-weight: normal; color: #888; }
   #results .list { display: flex; flex-wrap: wrap; gap: 4px 16px; }
   #results .rhyme.rare { color: #888; }
-  /* grouped by syllables, each section runs on from common and less common words to rare words and
+  /* grouped by syllables or letters, each section runs on from common and less common words to rare words and
      phrases, told apart by their styling */
-  #results.by-syllables .rhyme.phrases { font-style: italic; }
+  #results.by-count .rhyme.phrases { font-style: italic; }
   #results a.rhyme { color: inherit; text-decoration: none; white-space: pre; }
   #results a.rhyme:hover, #results a.rhyme:focus { text-decoration: underline; }
   .attribution { margin: 24px 0 0; color: #888; font-size: 0.85rem; }
@@ -364,24 +364,33 @@
       for (const items of Object.values(bands)) items.sort((a, b) => compareWords(a.word, b.word));
       return bands;
     }
-    // Rhymes grouped by number of syllables: [{ syllables, items }], fewest syllables first. Each group
-    // has its common and uncommon words in alphabetical order, then its rare words, then its phrases. A
-    // word whose rhyming pronunciations have different numbers of syllables is in each group.
+    // Rhymes grouped by number of syllables: [{ count, items }], fewest syllables first. Each group has
+    // its common and uncommon words in alphabetical order, then its rare words, then its phrases. A word
+    // whose rhyming pronunciations have different numbers of syllables is in each group.
     bySyllables(matches) {
-      const groups = /* @__PURE__ */ new Map();
-      for (const item of this.items(matches)) {
-        for (const n of item.syllables) {
-          if (!groups.has(n)) groups.set(n, []);
-          groups.get(n).push(item);
-        }
-      }
-      const rank = { common: 0, uncommon: 0, rare: 1, phrases: 2 };
-      return [...groups.entries()].sort(([a], [b]) => a - b).map(([syllables, items]) => ({
-        syllables,
-        items: items.sort((a, b) => rank[a.band] - rank[b.band] || compareWords(a.word, b.word))
-      }));
+      return groupByCount(this.items(matches), (item) => item.syllables);
+    }
+    // Rhymes grouped by number of letters (see letterCount), like bySyllables.
+    byLetters(matches) {
+      return groupByCount(this.items(matches), (item) => [letterCount(item.word)]);
     }
   };
+  function groupByCount(items, counts) {
+    const groups = /* @__PURE__ */ new Map();
+    for (const item of items) {
+      for (const n of counts(item)) {
+        if (!groups.has(n)) groups.set(n, []);
+        groups.get(n).push(item);
+      }
+    }
+    const rank = { common: 0, uncommon: 0, rare: 1, phrases: 2 };
+    return [...groups.entries()].sort(([a], [b]) => a - b).map(([count, group]) => ({
+      count,
+      items: group.sort((a, b) => rank[a.band] - rank[b.band] || compareWords(a.word, b.word))
+    }));
+  }
+  var UNDECOMPOSED = { \u00F8: "o", \u0142: "l", \u0111: "d", \u0131: "i", \u0127: "h", \u0167: "t", \u00E6: "ae", \u0153: "oe", \u00DF: "ss" };
+  var letterCount = (word) => [...word.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")].flatMap((c) => [...UNDECOMPOSED[c] ?? c]).filter((c) => /[\p{L}\p{N}]/u.test(c)).length;
   var collator = new Intl.Collator("en");
   var compareWords = (a, b) => collator.compare(a, b);
 
@@ -389,7 +398,7 @@
   var WORD_KEY = "rhymes-word";
   var OPTIONS_KEY = "rhymes-options";
   var GROUPING_KEY = "rhymes-grouping";
-  var GROUPINGS = { frequency: "by frequency", syllables: "by syllables" };
+  var GROUPINGS = { frequency: "by frequency", syllables: "by syllables", letters: "by letters" };
   var BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
   var SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)" };
   var input = document.getElementById("word");
@@ -483,9 +492,9 @@
       return button;
     });
     summary.replaceChildren(text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
-    const bySyllables = grouping === "syllables";
-    const sections = bySyllables ? rhymes.bySyllables(matches).map(({ syllables, items }) => [`${syllables} syllable${syllables === 1 ? "" : "s"}`, items]) : Object.entries(rhymes.arrange(matches)).filter(([, items]) => items.length).map(([band, items]) => [BANDS[band], items]);
-    results.classList.toggle("by-syllables", bySyllables);
+    const byCount = (groups, unit) => groups.map(({ count: count2, items }) => [`${count2} ${unit}${count2 === 1 ? "" : "s"}`, items]);
+    const sections = grouping === "syllables" ? byCount(rhymes.bySyllables(matches), "syllable") : grouping === "letters" ? byCount(rhymes.byLetters(matches), "letter") : Object.entries(rhymes.arrange(matches)).filter(([, items]) => items.length).map(([band, items]) => [BANDS[band], items]);
+    results.classList.toggle("by-count", grouping !== "frequency");
     for (const [title, items] of sections) {
       const heading = el("h2", {}, [`${title} `, el("span", { className: "count", textContent: `(${items.length.toLocaleString("en")})` })]);
       results.append(el("section", {}, [heading, el("div", { className: "list" }, items.map((item) => el("a", {

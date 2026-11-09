@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { COMMON, RARE, Rhymes, lookupKey, parsePronunciations, rhymeParts, splitCluster, syllableCount, toIpa } from "../src/rhymes/rhymes.js";
+import { COMMON, RARE, Rhymes, lookupKey, parsePronunciations, rhymeParts, letterCount, splitCluster, syllableCount, toIpa } from "../src/rhymes/rhymes.js";
 
 const DATA = `# name: Pronunciations
 # attribution: From [somewhere](https://example.com).
@@ -186,10 +186,29 @@ orred\tO1rEd\tC\t30
 orred\tO1rVrE1d\tW\t30
 `).entries);
   const groups = r.bySyllables(r.matches(r.pronunciations("head")[0]));
-  const show = groups.map((g) => `${g.syllables}: ${g.items.map((i) => i.word).join(" ")}`);
+  const show = groups.map((g) => `${g.count}: ${g.items.map((i) => i.word).join(" ")}`);
   // orred only counts with its 3-syllable pronunciation, the one that rhymes
   assert.deepEqual(show, ["1: bed sked", "2: abed instead adread co-ed sliced bread", "3: orred"]);
   assert.equal(syllableCount("Y1s kri2m"), 2);
+});
+
+test("groups rhymes by letters, ignoring spaces and punctuation", () => {
+  assert.equal(letterCount("ice cream"), 8);
+  assert.equal(letterCount("co-ed"), 4);
+  assert.equal(letterCount("e.g."), 2);
+  assert.equal(letterCount("K2"), 2);
+  assert.equal(letterCount("café"), 4);
+  assert.equal(letterCount("Cæsar"), 6);
+  const r = new Rhymes(parsePronunciations(`
+head\thE1d\tC\t55
+bed\tbE1d\tC\t50
+sked\tskE1d\tC\t10
+bread\tbrE1d\tC\t50
+co-ed\tko1E1d\tC\t30
+instead\tInstE1d\tC\t52
+`).entries);
+  const show = r.byLetters(r.matches(r.pronunciations("head")[0])).map((g) => `${g.count}: ${g.items.map((i) => i.word).join(" ")}`);
+  assert.deepEqual(show, ["3: bed", "4: sked co-ed", "5: bread", "7: instead"]);
 });
 
 test("looks words up regardless of case and apostrophes", () => {
