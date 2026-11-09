@@ -413,7 +413,7 @@
   var GROUPING_KEY = "rhymes-grouping";
   var GROUPINGS = { frequency: "by frequency", syllables: "by syllables", letters: "by letters" };
   var BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
-  var SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)" };
+  var SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)", P: "its words' pronunciations" };
   var input = document.getElementById("word");
   var status = document.getElementById("status");
   var prons = document.getElementById("prons");
@@ -456,7 +456,7 @@
     }
     return parts;
   }
-  var FROM_WIKTIONARY = /[UWEB]/;
+  var FROM_WIKTIONARY = /[UWEBP]/;
   function wiktionaryLink(word) {
     if (!rhymes.pronunciations(word).some((e) => e.word === word && FROM_WIKTIONARY.test(e.sources))) return [];
     const href = `https://en.wiktionary.org/wiki/${encodeURIComponent(word.replaceAll(" ", "_"))}#English`;
