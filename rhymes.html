@@ -217,28 +217,40 @@
     return [cluster.slice(0, k), cluster.slice(k)];
   }
   function rhymeParts(pron) {
-    const ps = phonemes(pron);
-    let start2 = ps.findLastIndex((x) => x.stress === 1);
-    if (start2 < 0) start2 = ps.findLastIndex((x) => VOWELS.has(x.p));
-    let cluster = "";
+    let start2 = pron.lastIndexOf("1") - 1;
+    for (let j = pron.length - 1; start2 < 0 && j >= 0; j--) if (VOWELS.has(pron[j])) start2 = j;
     let i = start2 - 1;
-    for (; i >= 0 && !VOWELS.has(ps[i].p) && ps[i].p !== " "; i--) cluster = ps[i].p + cluster;
-    const onset = i < 0 || ps[i].p === " " ? cluster : splitCluster(cluster)[1];
-    const tail = ps.slice(start2);
-    const vowel = (x, i2) => i2 > 0 && x.stress === 0 && "IUV".includes(x.p) ? "V" : x.p;
-    const rhyme = tail.filter((x) => x.p !== " ").map(vowel).join("");
+    while (i >= 0 && pron[i] !== " " && !VOWELS.has(pron[i]) && pron[i] !== "1" && pron[i] !== "2") i--;
+    const cluster = pron.slice(i + 1, start2);
+    const onset = i < 0 || pron[i] === " " ? cluster : splitCluster(cluster)[1];
+    if (start2 < 0) start2 = pron.length - 1;
+    let rhyme = "";
     let loose = "";
     let between = "";
-    tail.forEach((x, k) => {
-      if (!VOWELS.has(x.p)) {
-        between += x.p;
-        return;
+    for (let j = start2; j < pron.length; j++) {
+      const c = pron[j];
+      if (c === "1" || c === "2") continue;
+      if (!VOWELS.has(c)) {
+        if (c !== " ") rhyme += c;
+        between += c;
+        continue;
       }
-      loose += splitCluster(between)[0] + vowel(x, k);
+      const unstressed = j > start2 && pron[j + 1] !== "1" && pron[j + 1] !== "2";
+      const v = unstressed && (c === "I" || c === "U" || c === "V") ? "V" : c;
+      rhyme += v;
+      loose += splitCluster(between)[0] + v;
       between = "";
-    });
+    }
     loose += between.replaceAll(" ", "");
-    return { rhyme, loose, onset, ipa: toIpa(tail.map((x) => x.p + (x.stress || "")).join("")) };
+    const tail = pron.slice(start2);
+    return {
+      rhyme,
+      loose,
+      onset,
+      get ipa() {
+        return toIpa(tail);
+      }
+    };
   }
   var syllableCount = (pron) => phonemes(pron).filter((x) => VOWELS.has(x.p)).length;
   var PRONUNCIATION = /^(?:[AaVOWYEReIioQUu][12]?|[bCdDfghJklmnNprsStTvwjzZ ])+$/;
@@ -265,7 +277,8 @@
     if (entries.length === 0) throw new Error("no pronunciations found");
     return { attribution: attribution2, entries };
   }
-  var lookupKey = (word) => word.trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'").toLowerCase();
+  var UNCLEAN = /^\s|\s$|\s\s|[^\S ]|[‘’ʼ]/;
+  var lookupKey = (word) => (UNCLEAN.test(word) ? word.trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'") : word).toLowerCase();
   var COMMON = 30;
   var RARE = 20;
   var MERGERS = {
@@ -274,7 +287,8 @@
   function merge(key, mergers = {}) {
     return Object.entries(MERGERS).reduce((k, [name, f]) => mergers[name] ? f(k) : k, key);
   }
-  var ALL_MERGERS = Object.fromEntries(Object.keys(MERGERS).map((name) => [name, true]));
+  var ALL_MERGERS = Object.values(MERGERS);
+  var mergeAll = (key) => ALL_MERGERS.reduce((k, f) => f(k), key);
   var Rhymes = class {
     constructor(entries) {
       this.entries = entries;
@@ -282,15 +296,16 @@
       this.byRhyme = /* @__PURE__ */ new Map();
       this.byLoose = /* @__PURE__ */ new Map();
       const add = (map, key, value) => {
-        if (!map.has(key)) map.set(key, []);
-        map.get(key).push(value);
+        const list = map.get(key);
+        if (list) list.push(value);
+        else map.set(key, [value]);
       };
       for (const entry of entries) {
         add(this.byWord, lookupKey(entry.word), entry);
         const { rhyme, loose, onset } = rhymeParts(entry.pron);
         const item = { entry, rhyme, loose, onset };
-        add(this.byRhyme, merge(rhyme, ALL_MERGERS), item);
-        add(this.byLoose, merge(loose, ALL_MERGERS), item);
+        add(this.byRhyme, mergeAll(rhyme), item);
+        add(this.byLoose, mergeAll(loose), item);
       }
     }
     // A word's pronunciations, best first: those written the way it was typed, then the ones with the
@@ -333,7 +348,7 @@
       const parts = rhymeParts(entry.pron);
       const field = looseOnsets ? "loose" : "rhyme";
       const target = merge(parts[field], options);
-      const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(merge(parts[field], ALL_MERGERS));
+      const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(mergeAll(parts[field]));
       const self = lookupKey(entry.word);
       const words = /* @__PURE__ */ new Map();
       for (const other of candidates ?? []) {
