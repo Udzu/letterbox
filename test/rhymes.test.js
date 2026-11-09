@@ -211,6 +211,18 @@ instead\tInstE1d\tC\t52
   assert.deepEqual(show, ["3: bed", "4: sked co-ed", "5: bread", "7: instead"]);
 });
 
+test("parses custom files, with optional sources and frequency, and reports bad lines", () => {
+  const { entries } = parsePronunciations("# a comment\n\nhead\thE1d\r\nbed\tbE1d\tC\t12\n");
+  assert.deepEqual(entries, [
+    { word: "head", pron: "hE1d", sources: "", zipf: COMMON },
+    { word: "bed", pron: "bE1d", sources: "C", zipf: 12 },
+  ]);
+  assert.throws(() => parsePronunciations("head hE1d\n"), /line 1: expected a word and a pronunciation/);
+  assert.throws(() => parsePronunciations("head\thEd1\n"), /line 1: "hEd1" isn't a pronunciation/);
+  assert.throws(() => parsePronunciations("#\nhead\thE1d\tC\tlots\n"), /line 2: frequency/);
+  assert.throws(() => parsePronunciations("# only comments\n"), /no pronunciations/);
+});
+
 test("looks words up regardless of case and apostrophes", () => {
   assert.equal(lookupKey("  Rock’n  Roll "), "rock'n roll");
   assert.deepEqual(rhymes.pronunciations("Polish").map((e) => e.word), ["Polish", "polish"]);
