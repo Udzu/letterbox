@@ -94,6 +94,9 @@ export function rhymeParts(pron) {
   return { rhyme, loose, onset, ipa: toIpa(tail.map((x) => x.p + (x.stress || "")).join("")) };
 }
 
+// the number of syllables in a pronunciation: its number of vowels
+export const syllableCount = (pron) => phonemes(pron).filter((x) => VOWELS.has(x.p)).length;
+
 // The pronunciation file's attribution and entries ({ word, pron, sources, zipf }).
 export function parsePronunciations(text) {
   const entries = [];
@@ -188,8 +191,9 @@ export class Rhymes {
     return [...this.matches(entry, options).keys()].sort(compareWords);
   }
 
-  // The rhymes as for find, as a map from each word to the highest Zipf frequency (× 10) of its
-  // pronunciations that rhyme (so a word's rare pronunciations don't count as common).
+  // The rhymes as for find, as a map from each word to { zipf, syllables }: the highest Zipf frequency
+  // (× 10) of its pronunciations that rhyme (so a word's rare pronunciations don't count as common),
+  // and the set of their numbers of syllables.
   matches(entry, options = {}) {
     const { sameOnset = false, looseOnsets = false } = options;
     const parts = rhymeParts(entry.pron);
@@ -201,33 +205,63 @@ export class Rhymes {
     for (const other of candidates ?? []) {
       if (merge(other[field], options) !== target) continue;
       const { word, zipf } = other.entry;
-      if ((sameOnset || other.onset !== parts.onset) && lookupKey(word) !== self) words.set(word, Math.max(words.get(word) ?? 0, zipf));
+      if ((sameOnset || other.onset !== parts.onset) && lookupKey(word) !== self) {
+        const match = words.get(word) ?? { zipf: 0, syllables: new Set() };
+        match.zipf = Math.max(match.zipf, zipf);
+        match.syllables.add(syllableCount(other.entry.pron));
+        words.set(word, match);
+      }
     }
     return words;
   }
 
-  // Rhymes (as given by matches) grouped for display. Words that only differ in case or full stops (may, May; a, a.) are
-  // merged into one item, { word, variants, zipf }, shown as its most frequent spelling (lowercase if
-  // tied). Items are split into common, uncommon and rare words, by frequency, and phrases (including
-  // hyphenated words, whose frequencies wordfreq can only estimate), each alphabetical.
-  arrange(matches) {
+  // Rhymes (as given by matches) as items for display. Words that only differ in case or full stops
+  // (may, May; a, a.) are merged into one item, shown as its most frequent spelling (lowercase if
+  // tied): { word, variants, zipf, syllables, band }. The band is common, uncommon or rare, by
+  // frequency, or phrases (including hyphenated words, whose frequencies wordfreq can only estimate).
+  items(matches) {
     const merged = new Map();
     for (const word of matches.keys()) {
       const key = word.toLowerCase().replaceAll(".", "");
       if (!merged.has(key)) merged.set(key, []);
       merged.get(key).push(word);
     }
-    const bands = { common: [], uncommon: [], rare: [], phrases: [] };
-    for (const spellings of merged.values()) {
-      const freq = (w) => matches.get(w);
+    return [...merged.values()].map((spellings) => {
+      const freq = (w) => matches.get(w).zipf;
       spellings.sort((a, b) => freq(b) - freq(a) || (b === b.toLowerCase()) - (a === a.toLowerCase()) || compareWords(a, b));
       const [word, ...variants] = spellings;
-      const item = { word, variants, zipf: freq(word) };
-      const band = /[\s-]/.test(word) ? "phrases" : item.zipf >= COMMON ? "common" : item.zipf >= RARE ? "uncommon" : "rare";
-      bands[band].push(item);
-    }
+      const zipf = freq(word);
+      const syllables = new Set(spellings.flatMap((w) => [...matches.get(w).syllables]));
+      const band = /[\s-]/.test(word) ? "phrases" : zipf >= COMMON ? "common" : zipf >= RARE ? "uncommon" : "rare";
+      return { word, variants, zipf, syllables, band };
+    });
+  }
+
+  // Rhymes grouped by frequency: { common, uncommon, rare, phrases }, each a list of items (see
+  // items) in alphabetical order.
+  arrange(matches) {
+    const bands = { common: [], uncommon: [], rare: [], phrases: [] };
+    for (const item of this.items(matches)) bands[item.band].push(item);
     for (const items of Object.values(bands)) items.sort((a, b) => compareWords(a.word, b.word));
     return bands;
+  }
+
+  // Rhymes grouped by number of syllables: [{ syllables, items }], fewest syllables first. Each group
+  // has its common and uncommon words in alphabetical order, then its rare words, then its phrases. A
+  // word whose rhyming pronunciations have different numbers of syllables is in each group.
+  bySyllables(matches) {
+    const groups = new Map();
+    for (const item of this.items(matches)) {
+      for (const n of item.syllables) {
+        if (!groups.has(n)) groups.set(n, []);
+        groups.get(n).push(item);
+      }
+    }
+    const rank = { common: 0, uncommon: 0, rare: 1, phrases: 2 };
+    return [...groups.entries()].sort(([a], [b]) => a - b).map(([syllables, items]) => ({
+      syllables,
+      items: items.sort((a, b) => rank[a.band] - rank[b.band] || compareWords(a.word, b.word)),
+    }));
   }
 }
 

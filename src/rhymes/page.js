@@ -5,6 +5,9 @@ import { Rhymes, parsePronunciations, rhymeParts, toIpa } from "./rhymes.js";
 
 const WORD_KEY = "rhymes-word";
 const OPTIONS_KEY = "rhymes-options";
+const GROUPING_KEY = "rhymes-grouping";
+// the ways rhymes can be grouped, and their buttons' labels
+const GROUPINGS = { frequency: "by frequency", syllables: "by syllables" };
 // the sections rhymes are shown in (see Rhymes.arrange), and their headings
 const BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
 const SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)" };
@@ -24,6 +27,7 @@ const OPTIONS = {
 const currentOptions = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
 
 let rhymes = null;
+let grouping = GROUPINGS[load(GROUPING_KEY)] ? load(GROUPING_KEY) : "frequency";
 let shown = { word: null, choices: [], choice: 0 };
 
 function load(name) {
@@ -83,17 +87,37 @@ function showRhymes() {
   const entry = shown.choices[shown.choice]?.entry;
   if (!entry) return;
   const options = currentOptions();
-  const bands = rhymes.arrange(rhymes.matches(entry, options));
-  const count = Object.values(bands).reduce((n, items) => n + items.length, 0);
+  const matches = rhymes.matches(entry, options);
+  const count = rhymes.items(matches).length;
   const { ipa } = rhymeParts(entry.pron);
   const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
-  summary.textContent = `${count === 0 ? "No" : count.toLocaleString("en")} ${perfect}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
-  for (const [band, title] of Object.entries(BANDS)) {
-    const items = bands[band];
-    if (items.length === 0) continue;
+  const text = `${count === 0 ? "No" : count.toLocaleString("en")} ${perfect}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
+  if (count === 0) {
+    summary.textContent = text;
+    return;
+  }
+  // a button for each way of grouping the rhymes, with the current one pressed
+  const buttons = Object.entries(GROUPINGS).map(([name, label]) => {
+    const button = el("button", { type: "button", textContent: label });
+    button.setAttribute("aria-pressed", String(name === grouping));
+    button.addEventListener("click", () => {
+      grouping = name;
+      save(GROUPING_KEY, name);
+      showRhymes();
+    });
+    return button;
+  });
+  summary.replaceChildren(text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
+  // sections of [title, items]: by number of syllables, or by frequency
+  const bySyllables = grouping === "syllables";
+  const sections = bySyllables
+    ? rhymes.bySyllables(matches).map(({ syllables, items }) => [`${syllables} syllable${syllables === 1 ? "" : "s"}`, items])
+    : Object.entries(rhymes.arrange(matches)).filter(([, items]) => items.length).map(([band, items]) => [BANDS[band], items]);
+  results.classList.toggle("by-syllables", bySyllables);
+  for (const [title, items] of sections) {
     const heading = el("h2", {}, [`${title} `, el("span", { className: "count", textContent: `(${items.length.toLocaleString("en")})` })]);
-    results.append(el("section", { className: band }, [heading, el("div", { className: "list" }, items.map((item) => el("span", {
-      className: "rhyme",
+    results.append(el("section", {}, [heading, el("div", { className: "list" }, items.map((item) => el("span", {
+      className: `rhyme ${item.band}`,
       textContent: item.word,
       tabIndex: 0,
       title: item.variants.length ? `Also ${item.variants.join(", ")}` : "",
