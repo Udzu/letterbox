@@ -277,8 +277,10 @@
     if (entries.length === 0) throw new Error("no pronunciations found");
     return { attribution: attribution2, entries };
   }
-  var UNCLEAN = /^\s|\s$|\s\s|[^\S ]|[‘’ʼ]/;
-  var lookupKey = (word) => (UNCLEAN.test(word) ? word.trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'") : word).toLowerCase();
+  var UNCLEAN = /^\s|\s$|\s\s|[^\S ]|[‘’ʼ]|[^\x00-\x7f]/;
+  var lookupKey = (word) => (UNCLEAN.test(word) ? word.normalize("NFC").trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'") : word).toLowerCase();
+  var UNDECOMPOSED = { \u00F8: "o", \u00D8: "O", \u0142: "l", \u0141: "L", \u0111: "d", \u0110: "D", \u0131: "i", \u0127: "h", \u0126: "H", \u0167: "t", \u0166: "T", \u00E6: "ae", \u00C6: "AE", \u0153: "oe", \u0152: "OE", \u00DF: "ss" };
+  var withoutAccents = (word) => /[^\x00-\x7f]/.test(word) ? [...word.normalize("NFD").replace(/\p{M}/gu, "")].map((c) => UNDECOMPOSED[c] ?? c).join("") : word;
   var COMMON = 30;
   var RARE = 20;
   var MERGERS = {
@@ -293,6 +295,7 @@
     constructor(entries) {
       this.entries = entries;
       this.byWord = /* @__PURE__ */ new Map();
+      this.accented = /* @__PURE__ */ new Map();
       this.byRhyme = /* @__PURE__ */ new Map();
       this.byLoose = /* @__PURE__ */ new Map();
       const add = (map, key, value) => {
@@ -301,21 +304,32 @@
         else map.set(key, [value]);
       };
       for (const entry of entries) {
-        add(this.byWord, lookupKey(entry.word), entry);
+        const key = lookupKey(entry.word);
+        if (!this.byWord.has(key) && withoutAccents(key) !== key) add(this.accented, withoutAccents(key), key);
+        add(this.byWord, key, entry);
         const { rhyme, loose, onset } = rhymeParts(entry.pron);
         const item = { entry, rhyme, loose, onset };
         add(this.byRhyme, mergeAll(rhyme), item);
         add(this.byLoose, mergeAll(loose), item);
       }
     }
-    // A word's pronunciations, best first: those written the way it was typed, then the ones with the
-    // most sources. A pronunciation shared by several spellings (orange, Orange) is only given once.
+    // A word's pronunciations, best first: those written the way it was typed, then those of other
+    // spellings that only differ in case, then those with accents, each with the ones with the most
+    // sources first. Accents only count one way: a word typed without them (cafe, Bronte) also finds
+    // spellings with them (café, Brontë), but one typed with them only finds those, unless there's no
+    // such spelling (naïve finds naive). A pronunciation shared by spellings that only differ in case
+    // (orange, Orange) is only given once.
     pronunciations(word) {
-      const typed = word.trim();
-      const found = this.byWord.get(lookupKey(word)) ?? [];
-      const sorted = [...found].sort((a, b) => (b.word === typed) - (a.word === typed) || b.sources.length - a.sources.length);
+      const typed = word.normalize("NFC").trim();
+      const key = lookupKey(word);
+      const plain = withoutAccents(key);
+      const keys = plain === key || !this.byWord.has(key) ? [plain, ...this.accented.get(plain) ?? []] : [key];
+      const found = keys.flatMap((k) => this.byWord.get(k) ?? []);
+      const rank = (e) => e.word === typed ? 0 : lookupKey(e.word) === key ? 1 : 2;
+      const sorted = found.sort((a, b) => rank(a) - rank(b) || b.sources.length - a.sources.length);
       const seen = /* @__PURE__ */ new Set();
-      return sorted.filter((entry) => !seen.has(entry.pron) && seen.add(entry.pron));
+      const seenKey = (entry) => `${lookupKey(entry.word)}	${entry.pron}`;
+      return sorted.filter((entry) => !seen.has(seenKey(entry)) && seen.add(seenKey(entry)));
     }
     // A word's pronunciations (as given by pronunciations), grouped when they have the same rhymes
     // (with the mergers chosen, as for find): [{ entry, others }], where entry is the first in its group
@@ -349,12 +363,12 @@
       const field = looseOnsets ? "loose" : "rhyme";
       const target = merge(parts[field], options);
       const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(mergeAll(parts[field]));
-      const self = lookupKey(entry.word);
+      const self = withoutAccents(lookupKey(entry.word));
       const words = /* @__PURE__ */ new Map();
       for (const other of candidates ?? []) {
         if (merge(other[field], options) !== target) continue;
         const { word, zipf } = other.entry;
-        if ((sameOnset || other.onset !== parts.onset) && lookupKey(word) !== self) {
+        if ((sameOnset || other.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {
           const match = words.get(word) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
           match.zipf = Math.max(match.zipf, zipf);
           match.syllables.add(syllableCount(other.entry.pron));
@@ -363,15 +377,15 @@
       }
       return words;
     }
-    // Rhymes (as given by matches) as items for display. Words that only differ in case, full stops or
-    // hyphens for spaces (may, May; a, a.; hate crime, hate-crime) are merged into one item, shown as its
-    // most frequent spelling (lowercase, then without hyphens, if tied): { word, variants, zipf,
-    // syllables, band }. The band is common, uncommon or rare, by
+    // Rhymes (as given by matches) as items for display. Words that only differ in case, accents, full
+    // stops or hyphens for spaces (may, May; café, cafe; a, a.; hate crime, hate-crime) are merged into
+    // one item, shown as its most frequent spelling (lowercase, then without hyphens, if tied): { word,
+    // variants, zipf, syllables, band }. The band is common, uncommon or rare, by
     // frequency, or phrases (including hyphenated words, whose frequencies wordfreq can only estimate).
     items(matches) {
       const merged = /* @__PURE__ */ new Map();
       for (const word of matches.keys()) {
-        const key = word.toLowerCase().replaceAll(".", "").replaceAll("-", " ");
+        const key = withoutAccents(lookupKey(word)).replaceAll(".", "").replaceAll("-", " ");
         if (!merged.has(key)) merged.set(key, []);
         merged.get(key).push(word);
       }
@@ -418,8 +432,7 @@
       items: group.sort((a, b) => rank[a.band] - rank[b.band] || compareWords(a.word, b.word))
     }));
   }
-  var UNDECOMPOSED = { \u00F8: "o", \u0142: "l", \u0111: "d", \u0131: "i", \u0127: "h", \u0167: "t", \u00E6: "ae", \u0153: "oe", \u00DF: "ss" };
-  var letterCount = (word) => [...word.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")].flatMap((c) => [...UNDECOMPOSED[c] ?? c]).filter((c) => /[\p{L}\p{N}]/u.test(c)).length;
+  var letterCount = (word) => [...withoutAccents(word)].filter((c) => /[\p{L}\p{N}]/u.test(c)).length;
   var collator = new Intl.Collator("en");
   var compareWords = (a, b) => collator.compare(a, b);
 
@@ -465,11 +478,13 @@
   }
   var sourcesTitle = (entries) => entries.map((e) => `/${toIpa(e.pron)}/ from ${[...e.sources].map((s) => SOURCES[s]).join(", ")}`).join("\n");
   function groupLabel({ entry, others }) {
-    const parts = [el("span", { className: "word", textContent: entry.word }), ...wiktionaryLink(entry.word), " ", el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })];
-    if (others.length) {
-      const also = others.map((e) => (e.word === entry.word ? "" : `${e.word} `) + `/${toIpa(e.pron)}/`).join(", ");
-      parts.push(" ", el("span", { className: "also", textContent: `(also ${also})` }));
-    }
+    const entries = [entry, ...others];
+    const firsts = (key, value) => [...entries.reduce((m, e) => m.has(key(e)) ? m : m.set(key(e), value(e)), /* @__PURE__ */ new Map()).values()];
+    const spellings = firsts((e) => lookupKey(e.word), (e) => e.word);
+    const ipas = firsts((e) => e.pron.replaceAll("2", ""), (e) => `/${toIpa(e.pron)}/`);
+    const parts = spellings.flatMap((word, i) => [...i ? [", "] : [], el("span", { className: "word", textContent: word }), ...wiktionaryLink(word)]);
+    parts.push(" ", el("span", { className: "ipa", textContent: ipas[0] }));
+    if (ipas.length > 1) parts.push(" ", el("span", { className: "also", textContent: `(also ${ipas.slice(1).join(", ")})` }));
     return parts;
   }
   var FROM_WIKTIONARY = /[UWEBP]/;

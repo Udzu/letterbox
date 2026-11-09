@@ -1,7 +1,7 @@
 // The Rhymes page: look up a word, pick one of its pronunciations, and list its perfect rhymes.
 
 import { attributionParts } from "../wordlists/lists.js";
-import { Rhymes, parsePronunciations, rhymeParts, toIpa } from "./rhymes.js";
+import { Rhymes, lookupKey, parsePronunciations, rhymeParts, toIpa } from "./rhymes.js";
 
 const WORD_KEY = "rhymes-word";
 const OPTIONS_KEY = "rhymes-options";
@@ -52,14 +52,18 @@ function el(tag, props = {}, children = []) {
 
 const sourcesTitle = (entries) => entries.map((e) => `/${toIpa(e.pron)}/ from ${[...e.sources].map((s) => SOURCES[s]).join(", ")}`).join("\n");
 
-// A group of pronunciations with the same rhymes: the first, and the others as "also" (with their
-// spelling if it's different).
+// A group of pronunciations with the same rhymes: its spellings (those that differ in more than case,
+// such as café for cafe), each with a Wiktionary link, then its first pronunciation, and the others
+// as "also". Pronunciations that only differ in secondary stress (/kæˈfeɪ/, /ˌkæˈfeɪ/) are shown once.
 function groupLabel({ entry, others }) {
-  const parts = [el("span", { className: "word", textContent: entry.word }), ...wiktionaryLink(entry.word), " ", el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })];
-  if (others.length) {
-    const also = others.map((e) => (e.word === entry.word ? "" : `${e.word} `) + `/${toIpa(e.pron)}/`).join(", ");
-    parts.push(" ", el("span", { className: "also", textContent: `(also ${also})` }));
-  }
+  const entries = [entry, ...others];
+  // the first of each kind
+  const firsts = (key, value) => [...entries.reduce((m, e) => (m.has(key(e)) ? m : m.set(key(e), value(e))), new Map()).values()];
+  const spellings = firsts((e) => lookupKey(e.word), (e) => e.word);
+  const ipas = firsts((e) => e.pron.replaceAll("2", ""), (e) => `/${toIpa(e.pron)}/`);
+  const parts = spellings.flatMap((word, i) => [...(i ? [", "] : []), el("span", { className: "word", textContent: word }), ...wiktionaryLink(word)]);
+  parts.push(" ", el("span", { className: "ipa", textContent: ipas[0] }));
+  if (ipas.length > 1) parts.push(" ", el("span", { className: "also", textContent: `(also ${ipas.slice(1).join(", ")})` }));
   return parts;
 }
 
