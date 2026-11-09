@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { COMMON, RARE, Rhymes, lookupKey, parsePronunciations, rhymeParts, splitCluster, toIpa } from "../src/rhymes/rhymes.js";
+import { COMMON, RARE, Rhymes, lookupKey, parsePronunciations, rhymeParts, splitCluster, syllableCount, toIpa } from "../src/rhymes/rhymes.js";
 
 const DATA = `# name: Pronunciations
 # attribution: From [somewhere](https://example.com).
@@ -170,6 +170,26 @@ bah\tbA1\tC\t30
   assert.deepEqual(r.pronunciationGroups("Gloucester", { cotCaught: true }).map((g) => g.others.length), [1]);
   assert.deepEqual(find("Gloucester", { cotCaught: true }), ["coster", "Foster"]);
   assert.deepEqual(find("Gloucester", { cotCaught: true, looseOnsets: true }), ["coster", "Foster"]);
+});
+
+test("groups rhymes by syllables, rare words and then phrases last", () => {
+  const r = new Rhymes(parsePronunciations(`
+head\thE1d\tC\t55
+bed\tbE1d\tC\t50
+sked\tskE1d\tC\t10
+abed\tVbE1d\tC\t25
+instead\tInstE1d\tC\t52
+adread\tVdrE1d\tC\t0
+co-ed\tko1E1d\tC\t30
+sliced bread\tslY1st brE1d\tW\t40
+orred\tO1rEd\tC\t30
+orred\tO1rVrE1d\tW\t30
+`).entries);
+  const groups = r.bySyllables(r.matches(r.pronunciations("head")[0]));
+  const show = groups.map((g) => `${g.syllables}: ${g.items.map((i) => i.word).join(" ")}`);
+  // orred only counts with its 3-syllable pronunciation, the one that rhymes
+  assert.deepEqual(show, ["1: bed sked", "2: abed instead adread co-ed sliced bread", "3: orred"]);
+  assert.equal(syllableCount("Y1s kri2m"), 2);
 });
 
 test("looks words up regardless of case and apostrophes", () => {

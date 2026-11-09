@@ -36,12 +36,23 @@
   .also { color: #888; }
   #summary { margin: 16px 0 8px; font-size: 1.1rem; }
   #summary:empty { display: none; }
+  /* the grouping buttons, joined, with the current one pressed */
+  #summary .grouping { margin-left: 12px; font-size: 0.9rem; color: #666; white-space: nowrap; }
+  #summary .buttons { display: inline-flex; vertical-align: middle; }
+  #summary .buttons button { font: inherit; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
+  #summary .buttons button + button { border-left: none; }
+  #summary .buttons button:first-child { border-radius: 3px 0 0 3px; }
+  #summary .buttons button:last-child { border-radius: 0 3px 3px 0; }
+  #summary .buttons button[aria-pressed=true] { background: #e8e8e8; border-color: #999; color: #222; }
   #results section { border: 1px solid #999; padding: 6px 8px; }
   #results section + section { border-top: none; }
   #results h2 { margin: 0 0 4px; font-size: 0.95rem; font-weight: 600; color: #444; }
   #results h2 .count { font-weight: normal; color: #888; }
   #results .list { display: flex; flex-wrap: wrap; gap: 4px 16px; }
-  #results .rare .rhyme { color: #777; }
+  #results .rhyme.rare { color: #888; }
+  /* grouped by syllables, each section runs on from common and less common words to rare words and
+     phrases, told apart by their styling */
+  #results.by-syllables .rhyme.phrases { font-style: italic; }
   #results .rhyme { cursor: pointer; white-space: pre; }
   #results .rhyme:hover, #results .rhyme:focus { text-decoration: underline; }
   .attribution { margin: 24px 0 0; color: #888; font-size: 0.85rem; }
@@ -223,6 +234,7 @@
     loose += between.replaceAll(" ", "");
     return { rhyme, loose, onset, ipa: toIpa(tail.map((x) => x.p + (x.stress || "")).join("")) };
   }
+  var syllableCount = (pron) => phonemes(pron).filter((x) => VOWELS.has(x.p)).length;
   function parsePronunciations(text) {
     const entries = [];
     let attribution2 = "";
@@ -298,8 +310,9 @@
     find(entry, options = {}) {
       return [...this.matches(entry, options).keys()].sort(compareWords);
     }
-    // The rhymes as for find, as a map from each word to the highest Zipf frequency (× 10) of its
-    // pronunciations that rhyme (so a word's rare pronunciations don't count as common).
+    // The rhymes as for find, as a map from each word to { zipf, syllables }: the highest Zipf frequency
+    // (× 10) of its pronunciations that rhyme (so a word's rare pronunciations don't count as common),
+    // and the set of their numbers of syllables.
     matches(entry, options = {}) {
       const { sameOnset = false, looseOnsets = false } = options;
       const parts = rhymeParts(entry.pron);
@@ -311,32 +324,60 @@
       for (const other of candidates ?? []) {
         if (merge(other[field], options) !== target) continue;
         const { word, zipf } = other.entry;
-        if ((sameOnset || other.onset !== parts.onset) && lookupKey(word) !== self) words.set(word, Math.max(words.get(word) ?? 0, zipf));
+        if ((sameOnset || other.onset !== parts.onset) && lookupKey(word) !== self) {
+          const match = words.get(word) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
+          match.zipf = Math.max(match.zipf, zipf);
+          match.syllables.add(syllableCount(other.entry.pron));
+          words.set(word, match);
+        }
       }
       return words;
     }
-    // Rhymes (as given by matches) grouped for display. Words that only differ in case or full stops (may, May; a, a.) are
-    // merged into one item, { word, variants, zipf }, shown as its most frequent spelling (lowercase if
-    // tied). Items are split into common, uncommon and rare words, by frequency, and phrases (including
-    // hyphenated words, whose frequencies wordfreq can only estimate), each alphabetical.
-    arrange(matches) {
+    // Rhymes (as given by matches) as items for display. Words that only differ in case or full stops
+    // (may, May; a, a.) are merged into one item, shown as its most frequent spelling (lowercase if
+    // tied): { word, variants, zipf, syllables, band }. The band is common, uncommon or rare, by
+    // frequency, or phrases (including hyphenated words, whose frequencies wordfreq can only estimate).
+    items(matches) {
       const merged = /* @__PURE__ */ new Map();
       for (const word of matches.keys()) {
         const key = word.toLowerCase().replaceAll(".", "");
         if (!merged.has(key)) merged.set(key, []);
         merged.get(key).push(word);
       }
-      const bands = { common: [], uncommon: [], rare: [], phrases: [] };
-      for (const spellings of merged.values()) {
-        const freq = (w) => matches.get(w);
+      return [...merged.values()].map((spellings) => {
+        const freq = (w) => matches.get(w).zipf;
         spellings.sort((a, b) => freq(b) - freq(a) || (b === b.toLowerCase()) - (a === a.toLowerCase()) || compareWords(a, b));
         const [word, ...variants] = spellings;
-        const item = { word, variants, zipf: freq(word) };
-        const band = /[\s-]/.test(word) ? "phrases" : item.zipf >= COMMON ? "common" : item.zipf >= RARE ? "uncommon" : "rare";
-        bands[band].push(item);
-      }
+        const zipf = freq(word);
+        const syllables = new Set(spellings.flatMap((w) => [...matches.get(w).syllables]));
+        const band = /[\s-]/.test(word) ? "phrases" : zipf >= COMMON ? "common" : zipf >= RARE ? "uncommon" : "rare";
+        return { word, variants, zipf, syllables, band };
+      });
+    }
+    // Rhymes grouped by frequency: { common, uncommon, rare, phrases }, each a list of items (see
+    // items) in alphabetical order.
+    arrange(matches) {
+      const bands = { common: [], uncommon: [], rare: [], phrases: [] };
+      for (const item of this.items(matches)) bands[item.band].push(item);
       for (const items of Object.values(bands)) items.sort((a, b) => compareWords(a.word, b.word));
       return bands;
+    }
+    // Rhymes grouped by number of syllables: [{ syllables, items }], fewest syllables first. Each group
+    // has its common and uncommon words in alphabetical order, then its rare words, then its phrases. A
+    // word whose rhyming pronunciations have different numbers of syllables is in each group.
+    bySyllables(matches) {
+      const groups = /* @__PURE__ */ new Map();
+      for (const item of this.items(matches)) {
+        for (const n of item.syllables) {
+          if (!groups.has(n)) groups.set(n, []);
+          groups.get(n).push(item);
+        }
+      }
+      const rank = { common: 0, uncommon: 0, rare: 1, phrases: 2 };
+      return [...groups.entries()].sort(([a], [b]) => a - b).map(([syllables, items]) => ({
+        syllables,
+        items: items.sort((a, b) => rank[a.band] - rank[b.band] || compareWords(a.word, b.word))
+      }));
     }
   };
   var collator = new Intl.Collator("en");
@@ -345,6 +386,8 @@
   // src/rhymes/page.js
   var WORD_KEY = "rhymes-word";
   var OPTIONS_KEY = "rhymes-options";
+  var GROUPING_KEY = "rhymes-grouping";
+  var GROUPINGS = { frequency: "by frequency", syllables: "by syllables" };
   var BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
   var SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)" };
   var input = document.getElementById("word");
@@ -360,6 +403,7 @@
   };
   var currentOptions = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
   var rhymes = null;
+  var grouping = GROUPINGS[load(GROUPING_KEY)] ? load(GROUPING_KEY) : "frequency";
   var shown = { word: null, choices: [], choice: 0 };
   function load(name) {
     try {
@@ -411,17 +455,33 @@
     const entry = shown.choices[shown.choice]?.entry;
     if (!entry) return;
     const options = currentOptions();
-    const bands = rhymes.arrange(rhymes.matches(entry, options));
-    const count = Object.values(bands).reduce((n, items) => n + items.length, 0);
+    const matches = rhymes.matches(entry, options);
+    const count = rhymes.items(matches).length;
     const { ipa } = rhymeParts(entry.pron);
     const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
-    summary.textContent = `${count === 0 ? "No" : count.toLocaleString("en")} ${perfect}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
-    for (const [band, title] of Object.entries(BANDS)) {
-      const items = bands[band];
-      if (items.length === 0) continue;
+    const text = `${count === 0 ? "No" : count.toLocaleString("en")} ${perfect}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
+    if (count === 0) {
+      summary.textContent = text;
+      return;
+    }
+    const buttons = Object.entries(GROUPINGS).map(([name, label]) => {
+      const button = el("button", { type: "button", textContent: label });
+      button.setAttribute("aria-pressed", String(name === grouping));
+      button.addEventListener("click", () => {
+        grouping = name;
+        save(GROUPING_KEY, name);
+        showRhymes();
+      });
+      return button;
+    });
+    summary.replaceChildren(text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
+    const bySyllables = grouping === "syllables";
+    const sections = bySyllables ? rhymes.bySyllables(matches).map(({ syllables, items }) => [`${syllables} syllable${syllables === 1 ? "" : "s"}`, items]) : Object.entries(rhymes.arrange(matches)).filter(([, items]) => items.length).map(([band, items]) => [BANDS[band], items]);
+    results.classList.toggle("by-syllables", bySyllables);
+    for (const [title, items] of sections) {
       const heading = el("h2", {}, [`${title} `, el("span", { className: "count", textContent: `(${items.length.toLocaleString("en")})` })]);
-      results.append(el("section", { className: band }, [heading, el("div", { className: "list" }, items.map((item) => el("span", {
-        className: "rhyme",
+      results.append(el("section", {}, [heading, el("div", { className: "list" }, items.map((item) => el("span", {
+        className: `rhyme ${item.band}`,
         textContent: item.word,
         tabIndex: 0,
         title: item.variants.length ? `Also ${item.variants.join(", ")}` : ""

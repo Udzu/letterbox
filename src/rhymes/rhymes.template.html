@@ -35,12 +35,23 @@
   .also { color: #888; }
   #summary { margin: 16px 0 8px; font-size: 1.1rem; }
   #summary:empty { display: none; }
+  /* the grouping buttons, joined, with the current one pressed */
+  #summary .grouping { margin-left: 12px; font-size: 0.9rem; color: #666; white-space: nowrap; }
+  #summary .buttons { display: inline-flex; vertical-align: middle; }
+  #summary .buttons button { font: inherit; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
+  #summary .buttons button + button { border-left: none; }
+  #summary .buttons button:first-child { border-radius: 3px 0 0 3px; }
+  #summary .buttons button:last-child { border-radius: 0 3px 3px 0; }
+  #summary .buttons button[aria-pressed=true] { background: #e8e8e8; border-color: #999; color: #222; }
   #results section { border: 1px solid #999; padding: 6px 8px; }
   #results section + section { border-top: none; }
   #results h2 { margin: 0 0 4px; font-size: 0.95rem; font-weight: 600; color: #444; }
   #results h2 .count { font-weight: normal; color: #888; }
   #results .list { display: flex; flex-wrap: wrap; gap: 4px 16px; }
-  #results .rare .rhyme { color: #777; }
+  #results .rhyme.rare { color: #888; }
+  /* grouped by syllables, each section runs on from common and less common words to rare words and
+     phrases, told apart by their styling */
+  #results.by-syllables .rhyme.phrases { font-style: italic; }
   #results .rhyme { cursor: pointer; white-space: pre; }
   #results .rhyme:hover, #results .rhyme:focus { text-decoration: underline; }
   .attribution { margin: 24px 0 0; color: #888; font-size: 0.85rem; }
