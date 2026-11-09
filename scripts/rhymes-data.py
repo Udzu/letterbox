@@ -45,7 +45,12 @@ UK_TAGS = {"Received-Pronunciation", "UK", "British", "England", "Southern-Engla
 DROP_TAGS = {"obsolete", "archaic", "dialectal"}
 NEUTRAL_TAGS = {"rare", "dated", "also", "unstressed", "stressed", "colloquial", "uncommon", "sometimes",
                 "nonstandard", "proscribed", "phoneme", "letter", "name", "standard", "Standard", "informal",
-                "emphatic", "common", "casual", "weak", "strong", "careful", "rhotic"}
+                "emphatic", "common", "casual", "weak", "strong", "careful", "rhotic", "humorous"}
+# tags and notes that mark a pronunciation as unusual: such pronunciations are kept, but treated like
+# those from weaker sources (see frequency)
+MARKED_TAGS = {"rare", "uncommon", "nonstandard", "proscribed", "dated", "colloquial", "informal", "sometimes",
+               "humorous"}
+MARKED_NOTE = re.compile(r"\b(rare|uncommon|sometimes|less common|older|nonstandard|humorous)\b")
 NOT_WORDS = {"prefix", "suffix", "infix", "interfix", "circumfix", "affix", "symbol", "character", "punct"}
 # A note is fine if every part of it is: General American features, or not about accent at all
 OK_NOTE = re.compile(
@@ -117,7 +122,8 @@ unparsed = []  # (word, source, transcription, reason)
 wikt = defaultdict(lambda: defaultdict(set))  # word -> pron -> sources
 uk_bodies = defaultdict(list)  # word -> RP transcriptions
 enprs = defaultdict(list)  # word -> enPR strings
-unstressed = []  # (word, source, transcription) with no stress marks, to try again with more to go on
+unstressed = []  # (word, source, transcription, marked) with no stress marks, to try again with more to go on
+main_prons = defaultdict(set)  # word -> pronunciations from US Wiktionary transcriptions that aren't marked
 notes = Counter()
 
 with gzip.open(KAIKKI, "rt", encoding="utf-8") as f:
@@ -151,12 +157,15 @@ with gzip.open(KAIKKI, "rt", encoding="utf-8") as f:
                     uk_bodies[word].append(body)
                     continue
                 body = mixed_to_us(body) if c == "mixed" else body
+                marked = bool(set(sound.get("tags", [])) & MARKED_TAGS) or bool(MARKED_NOTE.search(sound.get("note", "")))
                 try:
                     for p in from_ipa(body, word):
                         wikt[word][p].add("W" if c == "mixed" else c)
+                        if c == "U" and not marked:
+                            main_prons[word].add(p)
                 except Unparsed as x:
                     if str(x) == "no stress":
-                        unstressed.append((word, "W" if c == "mixed" else c, body))
+                        unstressed.append((word, "W" if c == "mixed" else c, body, marked))
                     else:
                         unparsed.append((word, c, body, str(x)))
 
@@ -205,10 +214,12 @@ def patterns(word):
 wikt_forms = defaultdict(list)
 for w in list(wikt):
     wikt_forms[w.lower()].append(w)
-for word, source, body in unstressed:
+for word, source, body, marked in unstressed:
     try:
         for p in from_ipa(body, word, patterns(word)):
             wikt[word][p].add(source)
+            if source == "U" and not marked:
+                main_prons[word].add(p)
         stats["stress from other pronunciations"] += 1
     except Unparsed as x:
         unparsed.append((word, source, body, str(x)))
@@ -321,6 +332,7 @@ for line in open(HERE / "rhymes-data" / "excluded.txt", encoding="utf-8"):
 
 ORDER = "CUWEB"
 rows = []
+main_rows = set()  # (word, pronunciation) from CMUdict or unmarked US Wiktionary transcriptions
 for w, prons in entries.items():
     groups = defaultdict(list)
     for p, srcs in prons.items():
@@ -329,6 +341,8 @@ for w, prons in entries.items():
         items.sort(key=lambda t: (min(ORDER.index(s) for s in t[1]), -sum(x.endswith("2") for x in t[0])))
         srcs = set().union(*(s for _, s in items))
         rows.append((w, encode(items[0][0]), "".join(s for s in ORDER if s in srcs)))
+        if "C" in srcs or any(p in main_prons[w] for p, _ in items):
+            main_rows.add((w, rows[-1][1]))
 
 
 @cache
@@ -370,18 +384,19 @@ def rhyme_key(pron):
 
 
 # A word's pronunciations that only come from weaker sources (untagged Wiktionary, enPR or converted
-# British) and that rhyme differently from all of its CMUdict or US Wiktionary ones are usually for a
-# rare sense (math as a Hindu monastery, be as a Cyrillic letter), so they're capped as rare too.
+# British) or from US ones marked as rare, nonstandard and so on, and that rhyme differently from all
+# of its CMUdict or other US Wiktionary ones, are usually for a rare sense (math as a Hindu monastery,
+# be as a Cyrillic letter) or unusual (solve as /sɔlv/), so they're capped as rare too.
 strong_rhymes = defaultdict(set)
 for w, p, srcs in rows:
-    if set(srcs) & {"C", "U"}:
+    if (w, p) in main_rows:
         strong_rhymes[w].add(rhyme_key(p))
 
 
 def frequency(w, p, srcs):
     if w not in ENGLISH and ((w != w.lower() and w.lower() in entries) or sources[w] == {"C"}):
         return min(zipf(w), RARE_CAP)
-    if strong_rhymes[w] and not set(srcs) & {"C", "U"} and rhyme_key(p) not in strong_rhymes[w]:
+    if strong_rhymes[w] and (w, p) not in main_rows and rhyme_key(p) not in strong_rhymes[w]:
         return min(zipf(w), RARE_CAP)
     return zipf(w)
 
@@ -390,7 +405,7 @@ rows.sort(key=lambda r: (r[0].lower(), r[0], r[1]))
 OUT.parent.mkdir(exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as o:
     print("""# name: Pronunciations
-# description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10 (capped at 15 for capitalised forms of lowercase words and for words only in CMUdict, unless they're in the English word list, and for pronunciations only from weaker sources that rhyme differently from the word's CMUdict or US ones).
+# description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10 (capped at 15 for capitalised forms of lowercase words and for words only in CMUdict, unless they're in the English word list, and for pronunciations only from weaker sources, or marked as rare, nonstandard and so on, that rhyme differently from the word's other CMUdict or US ones).
 # attribution: From the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (BSD licence) and [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)), with frequencies from [wordfreq](https://github.com/rspeer/wordfreq). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.
 # phonemes: vowels A ɑ, a æ, V ʌ/ə, O ɔ, W aʊ, Y aɪ, E ɛ, R ɝ/ɚ, e eɪ, I ɪ, i i, o oʊ, Q ɔɪ, U ʊ, u u (followed by 1 for primary stress, 2 for secondary); consonants b C=tʃ d D=ð f g h J=dʒ k l m n N=ŋ p r s S=ʃ t T=θ v w j z Z=ʒ; space between words
 # sources: C CMUdict, U Wiktionary (US), W Wiktionary (untagged), E Wiktionary enPR, B Wiktionary (British, converted)

@@ -1,5 +1,5 @@
 # name: Pronunciations
-# description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10 (capped at 15 for capitalised forms of lowercase words and for words only in CMUdict, unless they're in the English word list, and for pronunciations only from weaker sources that rhyme differently from the word's CMUdict or US ones).
+# description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10 (capped at 15 for capitalised forms of lowercase words and for words only in CMUdict, unless they're in the English word list, and for pronunciations only from weaker sources, or marked as rare, nonstandard and so on, that rhyme differently from the word's other CMUdict or US ones).
 # attribution: From the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (BSD licence) and [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)), with frequencies from [wordfreq](https://github.com/rspeer/wordfreq). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.
 # phonemes: vowels A ɑ, a æ, V ʌ/ə, O ɔ, W aʊ, Y aɪ, E ɛ, R ɝ/ɚ, e eɪ, I ɪ, i i, o oʊ, Q ɔɪ, U ʊ, u u (followed by 1 for primary stress, 2 for secondary); consonants b C=tʃ d D=ð f g h J=dʒ k l m n N=ŋ p r s S=ʃ t T=θ v w j z Z=ʒ; space between words
 # sources: C CMUdict, U Wiktionary (US), W Wiktionary (untagged), E Wiktionary enPR, B Wiktionary (British, converted)
@@ -137,7 +137,7 @@
 5-MeO-DMT	fYvE2miodi1Emti	W	22
 5-methoxy-dimethyltryptamine	fYvmETA2ksidYmETVltrI1ptVmin	B	14
 5150	fI1ftiwVnfI1fti	W	15
-5th	fI1T	UE	44
+5th	fI1T	UE	15
 5th	fI1fT	UE	44
 6x6	sI1ks bY1 sI1ks	U	23
 7-Eleven	sE2vVn VlE1vVn	U	41
@@ -2901,10 +2901,10 @@ accumulators	Vkju1mjVle2tRz	C	21
 accuracies	a1kjRVsiz	C	19
 accuracy	a1kjRVsi	CU	42
 accuracy	a1krVsi	W	15
-accurate	a1kRIt	U	46
+accurate	a1kRIt	U	15
 accurate	a1kjRIt	U	46
 accurate	a1kjRVt	C	46
-accurate	a1krIt	U	46
+accurate	a1krIt	U	15
 accurately	a1kjRItli	U	40
 accurately	a1kjRVtli	CU	40
 accurately	a1krItli	W	15
@@ -3406,9 +3406,9 @@ acroposthion	akrVUpA1sTiVn	B	0
 acroposthion	akrVpA1sTiVn	B	0
 acrospore	a1krVspO2r	U	0
 across	VkrA1s	W	15
-across	VkrA1st	U	52
+across	VkrA1st	U	15
 across	VkrO1s	CUE	52
-across	VkrO1st	U	52
+across	VkrO1st	U	15
 across the pond	VkrO2s DV pA1nd	U	40
 acrostic	VkrO1stIk	U	21
 acroter	a1krVtR	W	0
@@ -3551,7 +3551,7 @@ acuity	Vkju1Iti	W	28
 acuity	Vkju1Vti	C	28
 aculeus	Vkju1liVs	U	0
 acumen	Vkju1mVn	CU	29
-acumen	a1kjVmE2n	U	29
+acumen	a1kjVmE2n	U	15
 acumen	a1kjVmVn	U	29
 acumen	akju1mVn	U	29
 acuminate	Vkju1mInVt	B	19
@@ -3865,7 +3865,7 @@ adepts	a1dEpts	W	23
 adequacy	a1dIkwVsi	W	28
 adequacy	a1dVkwVsi	CW	28
 adequate	a1dIkwe2t	W	40
-adequate	a1dVkIt	U	40
+adequate	a1dVkIt	U	15
 adequate	a1dVkwIt	U	40
 adequate	a1dVkwVt	C	40
 adequate	a1dVkwe2t	C	40
@@ -4935,8 +4935,8 @@ afonso	VfA1nso	C	15
 afoot	VfU1t	CW	29
 afore	VfO1r	UW	24
 aforementioned	VfO1rmE2nSVnd	CU	35
-aforementioned	a1fOrmE2nSVnd	U	35
-aforementioned	a1fRmE2nSVnd	U	35
+aforementioned	a1fOrmE2nSVnd	U	15
+aforementioned	a1fRmE2nSVnd	U	15
 aforesaid	VfO1rsE2d	CU	26
 aforethought	VfO1rTA2t	CU	19
 aforethought	VfO1rTOt	U	19
@@ -6438,8 +6438,8 @@ alcoa	a1lkoV	C	15
 alcoa's	alko1Vz	C	12
 alcocer	Vlko1sR	C	14
 alcock	VlkA1k	C	15
-alcohol	A1lkVhAl	U	46
-alcohol	A1lkVhOl	U	46
+alcohol	A1lkVhAl	U	15
+alcohol	A1lkVhOl	U	15
 alcohol	a1lkVhA2l	CU	46
 alcohol	a1lkVhOl	U	46
 alcohol-drenched	a1lkVhA2ldrE1nCt	C	15
@@ -7564,7 +7564,7 @@ alpex	a1lpEks	C	0
 alpha	a1lfV	CU	42
 alpha's	a1lfVz	C	15
 alphabet	a1lfVbE2t	CU	37
-alphabet	a1lfVbIt	U	37
+alphabet	a1lfVbIt	U	15
 alphabetarian	a2lfVbVtE1riVn	U	0
 alphabetic	a2lfVbE1tIk	CW	25
 alphabetical	a2lfVbE1tIkVl	CU	32
@@ -7662,9 +7662,9 @@ alsgaard	A1lzgArd	C	0
 alshelhah	AlSE1lhV	C	0
 alsinaceous	a2lsVne1SVs	W	0
 alsip	a1lsIp	C	15
-also	A1ltso	U	62
+also	A1ltso	U	15
 also	O1lso	CU	62
-also	O1ltso	U	62
+also	O1ltso	U	15
 alsobrook	a1lsVbrUk	C	0
 alsobrooks	a1lsVbrUks	C	0
 alsop	a1lsAp	C	15
@@ -7849,7 +7849,7 @@ alumium	a2ljumjV1m	U	0
 alumium	a2lumi1Vm	U	0
 alumium	a2lumjV1m	U	0
 alumna	VlV1mnV	CW	25
-alumnae	VlV1mnY	U	25
+alumnae	VlV1mnY	U	15
 alumnae	VlV1mne2	C	25
 alumnae	VlV1mni	U	25
 alumni	VlV1mnY2	CW	39
@@ -8141,7 +8141,7 @@ amber's	a1mbRz	C	15
 amberg	a1mbRg	C	15
 amberger	a1mbRgR	C	10
 ambergris	a1mbRgrIs	CU	22
-ambergris	a1mbRgris	U	22
+ambergris	a1mbRgris	U	15
 Ambergris Caye	ambR1grIs ki1	W	17
 amberiferous	ambVrI1fRVs	B	0
 amberjack	a1mbRJak	U	16
@@ -8588,7 +8588,7 @@ ammoed	a1mod	U	0
 Ammon	a1mVn	CW	25
 ammonal	A1mVnAl	B	0
 ammonals	A1mVnAlz	B	0
-ammonia	Vmo1niV	UE	34
+ammonia	Vmo1niV	UE	15
 ammonia	Vmo1njV	CUE	34
 ammoniacal	AmVnV1iVkVl	B	12
 ammonian	Vmo1niVn	U	0
@@ -13216,7 +13216,7 @@ Aruba	Vru1bV	W	29
 arugula	A2ru1gulV	C	25
 arugula	V1rUgVlV	E	15
 arugula	V1rugVlV	E	15
-arugula	VrU1gVlV	UW	25
+arugula	VrU1gVlV	UW	15
 arugula	Vru1gVlV	U	25
 arum	E1rVm	CW	24
 Arun	ArU1n	W	30
@@ -13982,9 +13982,9 @@ astaxanthin	astVza1nTIn	U	16
 astay	Vste1	W	0
 aster	a1stR	CW	28
 asterisk	a1stRIsk	C	30
-asterisk	a1stVrI2ks	U	30
+asterisk	a1stVrI2ks	U	15
 asterisk	a1stVrI2sk	U	30
-asterisk	a1strI2ks	U	30
+asterisk	a1strI2ks	U	15
 asterism	a1stVrI2zVm	U	15
 asterix	a1stRIks	W	24
 astern	VstR1n	U	25
@@ -15354,7 +15354,7 @@ autopolymerization	O2topA2lImRYze1SVn	U	0
 autopsied	O1tA2psid	C	18
 autopsies	O1tA2psiz	C	26
 autopsy	O1tA2psi	CU	36
-autopsy	OtA1psi	U	36
+autopsy	OtA1psi	U	15
 autorad	O1tOra2d	C	0
 autorad	O1tVra2d	W	0
 autoradiograph	AtOre1diograf	C	0
@@ -17957,9 +17957,9 @@ barbituate	bA2rbI1tjuIt	U	0
 barbituate	bA2rbI1tuIt	U	0
 barbiturate	bA2rbI1CRIt	W	21
 barbiturate	bA2rbI1CRet	W	15
-barbiturate	bA2rbI1CuIt	U	21
-barbiturate	bA2rbI1tjuIt	U	21
-barbiturate	bA2rbI1tuIt	U	21
+barbiturate	bA2rbI1CuIt	U	15
+barbiturate	bA2rbI1tjuIt	U	15
+barbiturate	bA2rbI1tuIt	U	15
 barbiturate	bArbI1CRVt	C	21
 barbiturates	bArbI1CRVts	C	24
 barbituric acid	bA2rbItU2rIk a1sId	U	0
@@ -22975,7 +22975,7 @@ biophilia	bY2ofI1lIV	B	17
 biophysical	bY1ofI2zIkVl	B	25
 biophysics	bY2ofI1sIks	C	26
 biopic	bY1opI2k	CUE	30
-biopic	bYA1pIk	U	30
+biopic	bYA1pIk	U	15
 bioplastic	bY1Vpla2stIk	U	14
 bioplastic	bY1opla2stIk	U	14
 bioplastic	bY2opla1stIk	U	14
@@ -26602,7 +26602,7 @@ bow shock	bW1SAk	W	41
 Bow Street	bo1 stri1t	B	43
 bow up	bo2 V1p	U	43
 bow-legged	bo1 lE1gId	U	34
-bow-legged	bo1 lE1gd	U	34
+bow-legged	bo1 lE1gd	U	15
 bow-wood	bo1wU2d	UE	42
 Bowang	bV1wA2N	E	0
 bowar	bo1R	C	0
@@ -26703,7 +26703,7 @@ bowssen	bW1sVn	W	0
 bowstave	bo1stev	B	0
 bowstring	bo1strIN	U	20
 bowtie	bo1tY2	U	24
-bowtie	botY1	U	24
+bowtie	botY1	U	15
 bowwoman	bo1wUmVn	B	0
 bowyang	bo1jAN	B	0
 bowyer	bQ1R	U	26
@@ -32407,7 +32407,7 @@ candida	ka1ndIdV	C	28
 candidacies	ka1ndVdVsiz	C	20
 candidacy	ka1ndIdVsi	CU	34
 candidate	ka1nIdIt	U	47
-candidate	ka1nIdet	U	47
+candidate	ka1nIdet	U	15
 candidate	ka1nVdIt	C	47
 candidate	ka1ndIdIt	U	47
 candidate	ka1ndIdet	U	47
@@ -32490,7 +32490,7 @@ canida	kAni1dV	C	0
 caniglia	kVnI1gliV	C	0
 canilles	kVnI1liz	C	0
 canin	ke1nIn	C	15
-canine	kVnY1n	U	33
+canine	kVnY1n	U	15
 canine	ke1nY2n	CUE	33
 canines	ke1nY2nz	C	28
 caning	ke1nIN	CW	24
@@ -33443,8 +33443,8 @@ caricaturas	ka1rIkVCU2rVz	E	0
 caricature	kE1rIkVCR	U	32
 caricature	kE1rIkVCUr	U	32
 caricature	kE1rVkVCR	C	32
-caricature	kVrI1kVCR	U	32
-caricature	kVrI1kVCUr	U	32
+caricature	kVrI1kVCR	U	15
+caricature	kVrI1kVCUr	U	15
 caricatured	kRI1kVCRd	C	23
 caricatures	kRI1kVCRz	C	29
 caricaturist	kE1rVkVCRVst	C	19
@@ -37930,7 +37930,7 @@ chimings	CY1mINz	W	0
 Chiminigagua	SI2mVnigA1gwV	U	0
 chimken	CI1mkIn	W	0
 chimley	CI1mli	W	0
-chimney	CI1mVni	U	36
+chimney	CI1mVni	U	15
 chimney	CI1mni	CU	36
 chimneys	CI1mniz	C	30
 chimo	CY1mo	W	15
@@ -41223,7 +41223,7 @@ cockpits	kA1kpI2ts	C	23
 cockran	kA1krVn	C	10
 cockrell	kA1krVl	C	15
 cockrill	kA1krVl	C	14
-cockroach	kA1kRoC	U	32
+cockroach	kA1kRoC	U	15
 cockroach	kA1kro2C	CU	32
 Cockroach Island	kA1kroC Y1lVnd	B	32
 cockroaches	kA1kro2CIz	C	31
@@ -43776,7 +43776,7 @@ congradulations	kVngra2JVle1Snz	U	14
 congrats	kVngra1ts	CW	40
 congratulate	kVngra1CUle2t	W	36
 congratulate	kVngra1CVle2t	C	36
-congratulate	kVngra1JUle2t	U	36
+congratulate	kVngra1JUle2t	U	15
 congratulated	kVngra1CVle2tId	C	32
 congratulating	kVngra1CVle2tIN	C	30
 congratulation	kVngra2CVle1SVn	C	27
@@ -44270,7 +44270,7 @@ consortion	kVnsO1rSVn	W	0
 consortium	kVnsO1rSVm	U	37
 consortium	kVnsO1rSiVm	C	37
 consortium	kVnsO1rSjVm	C	37
-consortium	kVnsO1rtiVm	U	37
+consortium	kVnsO1rtiVm	U	15
 consortium's	kVnsO1rSiVmz	C	15
 consortium's	kVnsO1rSjVmz	C	15
 consortiums	kVnsO1rSVmz	C	18
@@ -44530,7 +44530,7 @@ contemplated	kA1ntVmple2tId	CU	32
 contemplates	kA1ntVmple2ts	C	28
 contemplating	kA1ntVmple2tIN	C	35
 contemplation	kA2ntVmple1SVn	CU	32
-contemplative	kA1ntVmple2tIv	U	29
+contemplative	kA1ntVmple2tIv	U	15
 contemplative	kVntE1mplVtIv	CU	29
 contempo	kA2ntE1mpo	C	17
 contemporality	kVntE2mpVra1lIti	B	0
@@ -46735,7 +46735,7 @@ coverings	kV1vRINz	C	30
 coverlet	kV1vRlIt	W	18
 covers	kV1vRz	CU	45
 coverstone	kV1vRsto2n	C	0
-covert	kV1vR	U	35
+covert	kV1vR	U	15
 covert	kV1vRt	U	35
 covert	ko1vRt	CU	35
 covert	kovR1t	U	35
@@ -47234,7 +47234,7 @@ craycraft	kre1kra2ft	C	0
 crayfish	kre1fIS	CW	28
 Crayford	kre1fRd	B	18
 crayne	kre1n	C	0
-crayon	krW1n	U	30
+crayon	krW1n	U	15
 crayon	kra1n	U	30
 crayon	kre1A2n	CU	30
 crayons	kre1A2nz	C	30
@@ -48859,7 +48859,7 @@ cumin	ku1mIn	UE	30
 cumings	ku1mINz	C	14
 cummer	kV1mR	U	16
 cummerbund	kV1mRbV2nd	U	17
-cummerbund	kV1mbRbV2nd	U	17
+cummerbund	kV1mbRbV2nd	U	15
 cummie	kV1mi	U	0
 cummie	kju1mi	U	0
 cumming	kV1mIN	CW	32
@@ -53950,8 +53950,8 @@ deluge	dE1ljuJ	CU	30
 deluge	dE1ljuZ	U	30
 deluge	dE1luJ	U	30
 deluge	dE1luZ	U	30
-deluge	dVlu1J	U	30
-deluge	dVlu1Z	U	30
+deluge	dVlu1J	U	15
+deluge	dVlu1Z	U	15
 deluge	di1luJ	U	30
 deluge	di1luZ	U	30
 deluged	dE1ljuJd	C	22
@@ -54101,7 +54101,7 @@ demesne	dIme1n	W	23
 demesne	dImi1n	W	15
 demesne	dVme1n	CW	23
 demesnial	dImi1niVl	W	0
-Demeter	dE1mItR	U	24
+Demeter	dE1mItR	U	15
 Demeter	dImi1tR	C	24
 Demeter	dVmi1tR	U	24
 demethylase	dimE1TVlez	B	14
@@ -54284,7 +54284,7 @@ demonstrates	dE1mVnstre2ts	C	39
 demonstrating	dE1mVnstre2tIN	C	38
 demonstration	dE2mVnstre1SVn	CU	41
 demonstrations	dE2mVnstre1SVnz	CW	38
-demonstrative	dE1mVnstretIv	U	26
+demonstrative	dE1mVnstretIv	U	15
 demonstrative	dImA1nstrVtIv	CU	26
 demonstrative	dVmA1nstrVtIv	U	26
 demonstrator	dE1mVnstre2tR	C	29
@@ -55661,7 +55661,7 @@ detergent	dItR1JVnt	CU	32
 detergents	dItR1JVnts	C	27
 deteriorate	dItI1riRe2t	CU	32
 deteriorate	dVtI1riRet	U	32
-deteriorate	dVtI1riet	U	32
+deteriorate	dVtI1riet	U	15
 deteriorate	ditI1riRet	U	32
 deteriorated	dItI1riRe2tId	C	34
 deteriorates	dItI1riRe2ts	C	26
@@ -57650,7 +57650,7 @@ dioptric	dYA1ptrIk	B	13
 dioptrical	dYA1ptrIkVl	B	0
 dior	di2O1r	C	15
 diorama	dY2VrA1mV	U	25
-diorama	dY2Vra1mV	U	25
+diorama	dY2Vra1mV	U	15
 diorio	diO1rio2	C	15
 diorite	dY1RY2t	C	19
 diorite	dY1VrY2t	W	15
@@ -57689,7 +57689,7 @@ diphtheria	dIfTI1riA	C	26
 diphtheria	dIfTI1riV	U	26
 diphthong	dI1fTO2N	CU	21
 diphthong	dI1pTA2N	W	15
-diphthong	dI1pTO2N	U	21
+diphthong	dI1pTO2N	U	15
 diphthongal	dIfTO1NgVl	W	10
 diphthongize	dI1fTANYz	U	0
 dipiazza	dIpiA1tsA2	C	0
@@ -60637,7 +60637,7 @@ Dota	do1tV	U	29
 dotage	do1tIJ	U	20
 dotal	do1tVl	B	0
 dotan	do1tVn	C	14
-dotard	do1tArd	U	18
+dotard	do1tArd	U	15
 dotard	do1tRd	U	18
 dotation	dote1SVn	U	0
 dotcom	dA1tkA2m	U	26
@@ -63523,7 +63523,7 @@ ebbings	E1bINz	W	0
 ebbs	E1bz	CW	24
 Ebbw Vale	E2bu ve1l	W	20
 ebby	E1bi	C	15
-EBCDIC	E1bkVdI2k	U	16
+EBCDIC	E1bkVdI2k	U	15
 EBCDIC	E1bsIdIk	U	16
 EBCDIC	E1bsVdI2k	U	16
 EBE	i1b	W	18
@@ -64669,7 +64669,7 @@ einon's	Y1nOnz	C	0
 Einsatzgruppe	Y1nzAtsgrU2pV	W	13
 Einsiedeln	Y1nzidVln	B	14
 einspahr	Y1nspAr	C	0
-Einstein	Y1nStY2n	UE	37
+Einstein	Y1nStY2n	UE	15
 Einstein	Y1nstYn	CUE	37
 einstein's	Y1nstYnz	C	15
 Einsteinian	YnstY1nIVn	U	14
@@ -64977,7 +64977,7 @@ elections	VlE1kSnz	W	47
 elective	IlE1ktIv	CW	33
 electives	IlE1ktIvz	C	27
 elector	IlE1ktR	CU	30
-elector	VlE1ktOr	U	30
+elector	VlE1ktOr	U	15
 elector	VlE1ktR	U	30
 elector	ilE1ktR	U	30
 electoral	E2lEktO1rVl	U	41
@@ -67120,7 +67120,7 @@ enmeshing	EnmE1SIN	C	0
 enmilden	EnmY1ldVn	B	0
 enmities	E1nmItiz	C	19
 enmities	E1nmVtiz	C	19
-enmity	E1mnIti	U	30
+enmity	E1mnIti	U	15
 enmity	E1nmIti	CU	30
 enmity	E1nmVti	C	30
 ennea	E1niV	C	0
@@ -73471,7 +73471,7 @@ fenstermaker	fE1nstRme2kR	C	0
 fensterstock	fE1nstRstA2k	C	0
 fent	fE1nt	C	18
 fentanyl	fE1ntVnAl	U	29
-fentanyl	fE1ntVnIl	W	15
+fentanyl	fE1ntVnIl	W	29
 fentanyl	fE1ntVnOl	U	29
 fenter	fE1ntR	C	0
 Fenton	fE1ntVn	CW	32
@@ -76473,7 +76473,7 @@ foliot	fo1liVt	B	12
 folious	fo1liVs	B	0
 folivore	fo1lIvOr	B	0
 folk	fo1k	CU	42
-folk	fo1lk	U	42
+folk	fo1lk	U	15
 folk etymology	fok E2tImA1lVJi	B	29
 folk medicine	fo2k mE1dVsVn	U	41
 folk medicine	fo2k mE1dVsn	U	41
@@ -76489,12 +76489,12 @@ folklorist	fo1klOrIst	U	20
 folkman	fo1kmVn	C	15
 folkrock	fo1krA2k	C	0
 folks	fo1ks	CU	46
-folks	fo1lks	U	46
+folks	fo1lks	U	15
 folks'	fo1ks	C	15
 folkstone	fo1ksto2n	C	14
 folkstone's	fo1ksto2nz	C	0
 folksy	fo1ksi	CU	24
-folksy	fo1lksi	U	24
+folksy	fo1lksi	U	15
 folktale	fo1kte2l	CW	22
 folkway	fo1kwe2	CU	0
 folkways	fo1kwe2z	C	21
@@ -77471,9 +77471,9 @@ fortyish	fO1rtiIS	W	11
 forum	fO1rVm	CU	44
 forum's	fO1rVmz	C	15
 forums	fO1rVmz	C	38
-forward	fO1rRd	U	51
+forward	fO1rRd	U	15
 forward	fO1rwRd	CU	51
-forward	fo1wRd	U	51
+forward	fo1wRd	U	15
 forward compatibility	fO2rwRd kVmpa2tVbI1lVti	U	36
 forwarded	fO1rwRdId	C	34
 forwarder	fO1rwRdR	C	22
@@ -81845,7 +81845,7 @@ gelatin	JE1lVtVn	C	30
 gelatinate	JVla1tInet	W	0
 gelatine	JE1lVtin	W	15
 gelatine	JE2lVti1n	C	23
-gelatinous	JE1lVtInVs	UE	25
+gelatinous	JE1lVtInVs	UE	15
 gelatinous	JVla1tInVs	UE	25
 gelatinous	JVla1tVnVs	C	25
 gelation	JIle1SVn	W	15
@@ -82310,7 +82310,7 @@ genuflect	JE1njUflEkt	U	17
 genuine	JE1njVwVn	C	44
 genuine	JE1nju1wY2n	C	44
 genuine	JE1njuI2n	UWE	44
-genuine	JE1njuY2n	UWE	44
+genuine	JE1njuY2n	UWE	15
 genuinely	JE1njVwVnli	C	41
 genuinely	JE1nju1wY2nli	C	41
 genuinely	JE1njuInli	W	15
@@ -84312,7 +84312,7 @@ glotzbach	glA1tsbAk	C	0
 Gloucester	glA1stR	CUE	35
 Gloucester	glO1stR	U	35
 Gloucester County	glA1stR kW1nti	W	35
-Gloucestershire	glA1stRSYr	UE	33
+Gloucestershire	glA1stRSYr	UE	15
 Gloucestershire	glA1stVSR	U	33
 glout	glW1t	W	0
 glout	glu1t	W	0
@@ -87136,7 +87136,7 @@ Grim Reaper	grI1m ri1pR	U	32
 grim-gram	grI1mgra2m	W	34
 grima	gri1mV	C	15
 grimace	grI1mVs	CUE	26
-grimace	grIme1s	UE	26
+grimace	grIme1s	UE	15
 grimaced	grI1mVst	C	22
 grimaces	grI1mVsIz	C	22
 grimacing	grI1mVsIN	C	22
@@ -92697,7 +92697,7 @@ Heliconian	hE2lIko1niVn	U	0
 heliconian	hE2lIko1niVn	U	0
 helicons	hE1lIkA2nz	C	0
 helicopter	hE1lIkA2ptR	CU	41
-helicopter	hi1lIkA2ptR	U	41
+helicopter	hi1lIkA2ptR	U	15
 helicopter's	hE1lVkA2ptRz	C	15
 helicopters	hE1lIkA2ptRz	C	37
 helie	hE1li	C	0
@@ -99558,6 +99558,7 @@ igo	i1go	C	15
 igoe	i1go	C	15
 igon	Y1gVn	C	0
 Igor	I2gO1r	C	34
+Igor	Y1gOr	W	15
 Igor	i1gO2r	CW	34
 igou	I2gu1	C	0
 iguana	IgwA1nV	UE	27
@@ -100230,10 +100231,10 @@ impersonation	I2mpRsVne1SVn	C	29
 impersonator	I2mpR1sVnetR	C	27
 impersonators	I2mpR1sVne2tRz	C	22
 impertinence	ImpR1tInVns	U	22
-impertinence	ImpR1tnVns	U	22
+impertinence	ImpR1tnVns	U	15
 impertinent	I2mpR1tVnVnt	C	26
 impertinent	ImpR1tInVnt	U	26
-impertinent	ImpR1tnVnt	U	26
+impertinent	ImpR1tnVnt	U	15
 imperturbable	I2mpRtR1bVbVl	U	19
 imperturbable	I2mpRtR1bVbl	U	19
 impervious	I2mpR1viVs	CU	29
@@ -101793,7 +101794,7 @@ inflorescence	I2nflVrE1sVns	W	26
 inflow	I1nflo2	C	29
 inflows	I1nflo2z	C	28
 influence	I1nfluVns	CU	48
-influence	Influ1Vns	U	48
+influence	Influ1Vns	U	15
 influenced	I1nfluVnst	CU	42
 influencer	I1nfluVnsR	W	30
 influences	I1nflu2VnsIz	CW	40
@@ -105390,12 +105391,12 @@ jalapeno	Ja2lVpi1no	C	26
 jalapeno	ha2lVpi1njo	C	26
 jalapenos	ha2lVpi1njoz	C	22
 jalapeño	hA2lVpe1njo	U	25
-jalapeño	hA2lVpe1no	U	25
+jalapeño	hA2lVpe1no	U	15
 jalapeño	hA2lVpi1njo	U	25
-jalapeño	hA2lVpi1no	U	25
+jalapeño	hA2lVpi1no	U	15
 jalapeño	ha2lVpe1njo	U	25
-jalapeño	ha2lVpe1no	U	25
-jalapeño	ha2lVpi1no	U	25
+jalapeño	ha2lVpe1no	U	15
+jalapeño	ha2lVpi1no	U	15
 jalbert	Ja1lbRt	C	13
 jaleo	hAle1o	B	11
 jalopy	JVlA1pi	C	19
@@ -109872,7 +109873,7 @@ ketterman	kE1tRmVn	C	0
 ketti	kE1ti	C	0
 kettle	kE1tVl	CUWE	35
 kettle	kE1tl	E	15
-kettle	kI1tVl	U	35
+kettle	kI1tVl	U	15
 kettlebell	kE1tVlbE2l	U	24
 kettler	kE1tVlR	C	15
 kettler	kE1tlR	C	15
@@ -117066,9 +117067,9 @@ Leith	li1T	CW	30
 leitha	li1DV	C	0
 leithia	li1DiV	C	0
 leitman	lY1tmVn	C	11
-leitmotif	lY1tmotI2v	U	20
+leitmotif	lY1tmotI2v	U	15
 leitmotif	lY1tmoti2f	CU	20
-leitmotif	le1tmoti2f	U	20
+leitmotif	le1tmoti2f	U	15
 leitner	lY1tnR	C	15
 Leitrim	li1trIm	W	22
 leitz	li1ts	C	15
@@ -118030,7 +118031,7 @@ liable	lY1VbVl	CW	39
 liacos	lYA1kos	C	0
 liaise	lie1z	W	25
 liaising	lie1zIN	W	23
-liaison	lY1VsVn	U	36
+liaison	lY1VsVn	U	15
 liaison	le1zA2n	C	36
 liaison	lie1zA2n	CU	36
 liaisons	lie1sA2nz	C	27
@@ -118146,7 +118147,7 @@ Liberlander	li1bRlandR	W	0
 Liberlandish	li1bRlandIS	W	0
 liberman	lI1bR2mVn	C	15
 libero	lI1bRo	U	23
-libero	lIbE1ro	U	23
+libero	lIbE1ro	U	15
 liberosis	lI2bVro1sIs	U	0
 libert	lI1bR2t	C	15
 Libertarian	lI2bR2tE1ri2Vn	CU	15
@@ -120828,12 +120829,12 @@ los	lO1s	C	48
 los	lo1s	C	48
 Los Altos	lAs a1ltos	U	25
 Los Altos	lVUs a1ltos	U	25
-Los Angeles	lOs a1NgVlVs	U	44
+Los Angeles	lOs a1NgVlVs	U	15
 Los Angeles	lOs a1nJVlEs	U	44
 Los Angeles	lOs a1nJVlIs	U	44
 Los Angeles	lOs a1nJVlVs	U	44
 Los Angeles	lOs a1nJVliz	U	44
-Los Angeles	los a1NgVlVs	U	44
+Los Angeles	los a1NgVlVs	U	15
 Los Gatos	lOs ga1tVs	W	24
 Los Gatos	losgA1tos	W	24
 los jibbities	lo2s JI1bItis	U	0
@@ -123631,7 +123632,7 @@ majors	me1JRz	C	38
 majors'	me1JRz	C	15
 majrooh	ma1Jru	C	0
 majure	mAjU1re	C	0
-Majuro	mVJU1ro	U	21
+Majuro	mVJU1ro	U	15
 Majuro	ma1JRo	U	21
 majuscule	ma1JVskjul	B	12
 mak	ma1k	CW	31
@@ -124571,7 +124572,7 @@ manifestly	ma1nVfEstli	C	27
 manifesto	ma2nIfE1sto2	C	36
 manifesto	ma2nVfE1sto2	CU	36
 manifests	ma1nVfE2sts	C	31
-manifold	mE1nIfo2ld	U	33
+manifold	mE1nIfo2ld	U	15
 manifold	mE1nifo2ld	U	33
 manifold	ma1nIfo2ld	CU	33
 manifold	ma1nVfo2ld	C	33
@@ -130218,7 +130219,7 @@ metanym	mE1tVnIm	W	0
 metaphasis	mVta1fVsIs	W	0
 metaphony	mVta1fVni	W	0
 metaphor	mE1tVfOr	CU	37
-metaphor	mE1tVfR	U	37
+metaphor	mE1tVfR	U	15
 metaphorical	mE2tVfO1rIkVl	CU	31
 metaphorically	mE2tVfO1rIkli	C	30
 metaphors	mE1tVfOrz	C	32
@@ -130536,7 +130537,7 @@ mexicana	mE2ksIka1nV	C	15
 mexicano	mE2ksIkA1no	C	15
 mexicanos	mE2ksIkA1noz	C	15
 mexicans	mE1ksIkVnz	C	15
-Mexico	mE1hiko	U	48
+Mexico	mE1hiko	U	15
 Mexico	mE1ksIko	UE	48
 Mexico	mE1ksVko2	C	48
 Mexico City	mE1ksIko sIti	U	47
@@ -134172,6 +134173,7 @@ monk's	mV1Nks	C	15
 monkaS	mV1NkIs	W	0
 monkaS	mV1NkVs	W	0
 monkaS	mV1NkVz	W	0
+monkaS	mV1Nka2s	W	0
 monkaS	mV2NkV E1s	W	0
 monkee	mA1Nki	C	14
 monkees	mA1Nkiz	C	15
@@ -137311,7 +137313,7 @@ naab	nA1b	C	14
 NAACP	E2ne2e2si2pi1	C	15
 naam	nA1m	W	23
 naan	nA1n	CU	26
-naan	na1n	U	26
+naan	na1n	U	15
 NAAQS	na1ks	W	12
 Naarmcore	nA1rmkOr	W	0
 Naas	nA1z	C	21
@@ -143503,7 +143505,7 @@ obviating	A1bvie2tIN	C	18
 obviation	A2bvie1SVn	B	0
 obviative	A1bviVtIv	B	0
 obvious	A1bviVs	CU	46
-obvious	A1viVs	U	46
+obvious	A1viVs	U	15
 obviously	A1bviVsli	CU	48
 obviously	A1viVsli	U	48
 obviousness	A1bviVsnIs	U	21
@@ -144170,7 +144172,7 @@ ogival	o1gYvVl	U	13
 ogive	o1JYv	U	16
 ogive	o1gYv	U	16
 oglala	oglA1lV	C	15
-ogle	A1gVl	UE	27
+ogle	A1gVl	UE	15
 ogle	o1gVl	CUE	27
 oglebay	o1gVlbe2	C	12
 ogled	o1gVld	C	19
@@ -146330,7 +146332,7 @@ OS	o2 E1s	W	15
 Os	o1z	U	15
 os	A1s	CU	41
 os	o1z	U	41
-OS X	oE2sE1ks	U	41
+OS X	oE2sE1ks	U	15
 OS X	oE2stE1n	U	41
 OSAA	tosA1tA	W	11
 Osage	o1seJ	U	29
@@ -146769,6 +146771,7 @@ ou	o1	U	38
 ou	u1	C	38
 ouabain	u1Vben	W	15
 ouabain	wA1ben	W	15
+Ouachita	o2juVCi1tV	W	23
 Ouachita	wA1SItA	W	23
 ouaga	wA1gV	C	0
 Ouagadougou	wA1gVdu1gu	W	23
@@ -148787,7 +148790,7 @@ palestinians	pa2lIstI1niVnz	C	15
 palestinians'	pa2lVstI1niVnz	C	15
 paletot	pa1lVto2	U	0
 paletot	pa1lto2	U	0
-palette	pVlE1t	U	37
+palette	pVlE1t	U	15
 palette	pa1lIt	U	37
 palette	pa1lVt	CU	37
 palettise	pa1lItYz	U	0
@@ -149881,7 +149884,7 @@ parathion	parVTY1An	B	15
 parathormone	pErVTO1rmon	U	0
 paratore	pRVtO1ri	C	0
 paratransgenetic	pa2rVtra2nzJVnE1tIk	W	0
-paratransit	pE2rVtra1nsIt	U	20
+paratransit	pE2rVtra1nsIt	U	15
 paratransit	pE2rVtra1nzIt	U	20
 paratroop	pE1rVtru2p	C	18
 paratrooper	pE1rVtru2pR	CW	25
@@ -151863,7 +151866,7 @@ pelmeni	pElmE1ni	W	13
 pelmet	pE1lmIt	W	11
 pelon	pE1lVn	C	14
 Peloponnese	pE2lVpVni1s	U	22
-Peloponnese	pE2lVpVni1z	U	22
+Peloponnese	pE2lVpVni1z	U	15
 Peloponnesian	pE2lVpVni1SVn	W	15
 Peloponnesian	pE2lVpVni1ZVn	CW	23
 peloquin	pelokwi1n	C	13
@@ -152435,7 +152438,7 @@ Percival	pR1sIvVl	CW	29
 percle	pR1kVl	C	0
 Percocet	pR1kVsE2t	W	23
 percolate	pR1kVle2t	CU	22
-percolate	pR1kjVlet	U	22
+percolate	pR1kjVlet	U	15
 percolated	pR1kVle2tId	C	19
 percolating	pR1kVle2tIN	C	23
 percolation	pRkVle1SVn	U	22
@@ -155930,7 +155933,7 @@ plagioclase	pla1JiVkle2s	U	21
 plagioclase	pla1JiVkle2z	U	21
 plagioclase	ple1JiVkle2s	CU	21
 plagioclase	ple1JiVkle2z	U	21
-plague	plE1g	U	39
+plague	plE1g	U	15
 plague	ple1g	CWE	39
 plagued	ple1gd	C	34
 plagues	ple1gz	CW	30
@@ -158313,7 +158316,7 @@ Portree	pOrtri1	U	18
 ports	pO1rts	CUW	41
 Portsmouth	pO1rtsmVT	CW	36
 Portugal	pO1rCVgVl	CU	41
-Portugal	pO1rtugAl	U	41
+Portugal	pO1rtugAl	U	15
 Portugal Cove South	pO1rCVgVl ko1v sW1T	W	35
 Portugal Cove-St. Philip's	pO1rCVgVl ko1v se1nt fI1lIps	W	25
 portugal's	pO1rCVgVlz	C	15
@@ -160057,7 +160060,7 @@ presumptive	prizV1mptIv	CU	28
 presumptive	prizV1mtIv	U	28
 presumptuous	prIzV1mpCVwVs	C	29
 presumptuous	prVzV1mpCuVs	U	29
-presumptuous	prVzV1mpSVs	U	29
+presumptuous	prVzV1mpSVs	U	15
 presumptuous	prizV1mpCuVs	U	29
 presumtious	prIzV1mSVs	W	0
 presuppose	pri2sVpo1z	C	21
@@ -160130,9 +160133,9 @@ prettiest	prI1tiIst	W	33
 prettiest	prI1tiVst	C	33
 prettify	prI1tIfV2i	B	11
 prettily	prI1tIli	W	22
-pretty	pQ1ti	U	54
+pretty	pQ1ti	U	15
 pretty	prI1ti	CU	54
-pretty	prU1ti	U	54
+pretty	prU1ti	U	15
 pretty penny	prI2ti pE1ni	U	40
 pretty please	prI1ti pli2z	U	52
 pretty please with a cherry on top	prI2ti pli2z wID V CE1ri An tA2p	U	41
@@ -160678,11 +160681,11 @@ probabilities	prA2bVbI1lVti2z	C	32
 probability	prA2bVbI1lVti2	CUW	40
 probable	prA1bVbVl	CU	38
 probableness	prA1bVbVlnVs	B	0
-probably	prA1Vbli	U	54
-probably	prA1Vli	U	54
+probably	prA1Vbli	U	15
+probably	prA1Vli	U	15
 probably	prA1bVbli2	CU	54
 probably	prA1bli	CU	54
-probably	prA1li	U	54
+probably	prA1li	U	15
 probasco	probA1sko2	C	10
 probate	pro1be2t	C	32
 probation	probe1SVn	CU	38
@@ -160764,12 +160767,12 @@ proceso	pro2sE1so	C	15
 process	prA1sE2s	CUE	53
 process	prO1sE2s	C	53
 process	prVsE1s	UE	53
-process	pro1sEs	UE	53
+process	pro1sEs	UE	15
 processed	prA1sEst	CUE	40
 processed	prA1sVst	U	40
 processed	prVsE1st	WE	15
-processed	pro1sEst	UE	40
-processed	pro1sVst	U	40
+processed	pro1sEst	UE	15
+processed	pro1sVst	U	15
 processes	prA1sEsIz	UE	45
 processes	prA1sEsVz	C	45
 processes	prA1sVsIz	U	45
@@ -161678,7 +161681,7 @@ protects	prVtE1kts	C	38
 protege	pro1tVZe2	C	27
 proteges	pro1tIZe2z	C	20
 protein	pro1ti2n	CU	45
-protein	pro1tiIn	U	45
+protein	pro1tiIn	U	15
 protein's	pro1ti2nz	C	15
 proteinaceous	pro2tIne1SVs	C	15
 proteinemia	pro2tini1miV	U	0
@@ -167041,7 +167044,7 @@ reclusive	riklu1sIv	C	28
 reco	rE1ko	C	15
 recogitate	rIkA1JVte2t	W	0
 recognisable	rE1kVgnYzVbVl	U	30
-recognisable	rE1kVnYzVbVl	U	30
+recognisable	rE1kVnYzVbVl	U	15
 recognise	rE1kVgnY2z	CU	39
 recognise	rE1kVnYz	U	39
 recognised	rE1kVgnY2zd	C	41
@@ -172058,7 +172061,7 @@ rinks	rI1Nks	C	26
 rinky-dink	rI1NkidI2Nk	U	17
 rinn	rI1n	C	15
 rinne	rI1n	C	15
-rinse	rE1ns	U	35
+rinse	rE1ns	U	15
 rinse	rI1ns	CW	35
 rinsing	rI1nsIN	CW	27
 rinsta	rI1nstV	W	0
@@ -173075,7 +173078,7 @@ rolemodel	ro1lmA2dVl	C	12
 rolemodels	ro1lmA2dVlz	C	0
 rolen	ro1lVn	C	15
 roleplay	ro1lple	U	28
-roleplay	ro1ple	U	28
+roleplay	ro1ple	U	15
 roleplaying	ro1lple2IN	C	28
 roles	ro1lz	CU	44
 rolette	rolE1t	C	14
@@ -174089,7 +174092,7 @@ row's	ro1z	C	15
 row-back	ro1bak	U	46
 rowaine	roe1n	C	0
 rowaine's	roe1nz	C	0
-rowan	rW1Vn	U	33
+rowan	rW1Vn	U	15
 rowan	ro1Vn	CU	33
 rowan's	ro1Vnz	C	15
 rowand	ro1Vnd	C	14
@@ -178930,6 +178933,8 @@ Schuylkill	sku1gVl	W	15
 Schuylkill	sku1kVl	W	15
 Schuylkill	sku1lkIl	W	15
 schwa	SwA1	CWE	19
+schwa	SwV	W	15
+schwa	SwV1	W	15
 Schwab	SwA1b	CU	30
 schwab's	SwA1bz	C	15
 schwabe	SwO1b	C	15
@@ -181127,7 +181132,7 @@ semisecrecy	sE2mIsi1krVsi	C	0
 semisecrecy	sE2misi1krVsi	C	0
 semistatic	sE2mista1tIk	W	0
 Semite	sE1mYt	CU	27
-Semitic	sVmE1tIk	U	36
+Semitic	sVmE1tIk	U	15
 Semitic	sVmI1tIk	CU	36
 Semiticize	sVmI1tIsYz	W	0
 semitism	sE1mItI2zVm	C	15
@@ -181331,7 +181336,7 @@ sensitive	sE1nsVtIv	C	45
 sensitively	sE1nsItIvli	C	25
 sensitiveness	sE1nsVtIvnVs	C	16
 sensitivities	sE2nsItI1vItiz	C	29
-sensitivity	sE1nsIvVti	U	40
+sensitivity	sE1nsIvVti	U	15
 sensitivity	sE2nsItI1vIti	C	40
 sensitivity	sE2nsVtI1vVti	U	40
 sensitize	sE1nsVtY2z	C	21
@@ -183189,7 +183194,7 @@ sheraton	SE1rVtVn	C	15
 sheraton's	SE1rVtVnz	C	0
 sherbert	SR1bRt	C	19
 sherbet	SR1bIt	U	25
-sherbet	SR1bRt	U	25
+sherbet	SR1bRt	U	15
 sherbet	SR1bVt	CU	25
 sherbondy	SRbA1ndi	C	0
 sherborne	SR1bRn	C	15
@@ -188423,7 +188428,7 @@ Solutrean	sVlu1triVn	W	13
 solvable	sA1lvVbVl	CU	26
 solvay	so1lve	C	15
 solve	sA1lv	CUW	44
-solve	sO1lv	U	44
+solve	sO1lv	U	15
 solved	sA1lvd	C	41
 solvency	sO1lvVnsi	C	27
 solvent	sA1lvVnt	C	34
@@ -192014,9 +192019,9 @@ steadman	stE1dmVn	C	15
 steady	stE1dI	E	15
 steady	stE1di	CW	43
 steady	stI1dI	E	15
-steady	stI1di	U	43
+steady	stI1di	U	15
 steady	stV1dI	E	15
-steady	stV1di	U	43
+steady	stV1di	U	15
 Steady Brook	stE1di brU1k	W	36
 steagall	sti1gVl	C	15
 steagle	sti1gVl	C	0
@@ -192564,7 +192569,7 @@ sterett's	stE1rVts	C	0
 steric	stE1rIk	W	22
 sterilant	stE1rIlVnt	W	0
 sterile	stE1rVl	CUWE	34
-sterile	stE1rYl	UW	34
+sterile	stE1rYl	UW	15
 sterilely	stE1rVli	W	0
 sterilely	stE1rVlli	W	0
 sterilely	stE1rYli	W	0
@@ -200054,7 +200059,7 @@ tempo	tE1mpo2	CU	37
 temporal	tE1mpRVl	CW	36
 temporales	tE2mpVre1li2z	W	0
 temporalis	tE2mpVre1lIs	W	15
-temporally	tE1mpOrVli	U	24
+temporally	tE1mpOrVli	U	15
 temporally	tE1mpRVli	CW	24
 temporally	tE1mpRli	W	15
 temporally	tE1mprVli	W	15
@@ -200760,7 +200765,7 @@ tetragon	tE1trVgAn	U	11
 tetragonal	tEtra1gVnVl	W	19
 tetragram	tE1trVgra2m	WE	0
 tetrahedral	tE2trVhi1drVl	CW	24
-tetrahedron	tE2trVhi1drAn	U	23
+tetrahedron	tE2trVhi1drAn	U	15
 tetrahedron	tE2trVhi1drVn	CWE	23
 tetrahemihexahedron	tE2trVhEmIhE2ksVhi1drVn	B	0
 tetrahydrocannabinol	tE2trVhY2drVkVna1bVnO2l	U	20
@@ -201156,7 +201161,7 @@ theano	Ti1no2	C	14
 theanthropist	Tia1nTrVpIst	W	0
 theanthroposophy	Tia2nTro2pA1sVfi	U	0
 thearchic	TiA1rkIk	W	0
-theater	TI1VtR	U	44
+theater	TI1VtR	U	15
 theater	Ti1VtR	CU	44
 theater	Ti1tR	U	44
 theater's	Ti1VtRz	C	15
@@ -201522,7 +201527,7 @@ thesis	Ti1sVs	C	40
 thesis	Ti1siz	U	40
 Thespian	TE1spiVn	CW	15
 thespian	TE1spiVn	CW	24
-thespian	TE1zbiVn	U	24
+thespian	TE1zbiVn	U	15
 Thesprotia	TEspro1SV	B	0
 Thesprotian	TEspro1SVn	B	0
 Thessalonian	TEsVlo1niVn	U	13
@@ -202097,7 +202102,7 @@ threptic	TrE1ptIk	B	0
 thresh	TrE1S	CWE	22
 thresher	TrE1SR	C	23
 threshing floor	TrE1SIN flO2r	U	24
-threshold	TrE1Shold	U	40
+threshold	TrE1Shold	U	15
 threshold	TrE1So2ld	CU	40
 thresholds	TrE1So2ldz	C	32
 threw	Tru1	CUE	45
@@ -204375,6 +204380,7 @@ toujours perdrix	tuZUr pErdri1	W	0
 Toulon	tulA1n	B	30
 Toulouse	tVlu1z	W	32
 Toulouse	tulu1z	CW	32
+toupe	tu1p	W	0
 toupe	tupe1	W	0
 toupee	tu2pe1	CW	22
 toupin	tu1pIn	C	12
@@ -207439,7 +207445,7 @@ turman	tR1mVn	C	15
 turmel	tR1mVl	C	11
 turmeric	tR1mRIk	U	29
 turmeric	tR1mVrI2k	C	29
-turmeric	tu1mRIk	U	29
+turmeric	tu1mRIk	U	15
 turmoil	tR1mQ2l	C	35
 turn	tR1n	CUE	53
 turn a blind eye	tR1n V blY1nd Y1	E	44
@@ -210200,7 +210206,7 @@ unnaturally	Vnna1CRli	C	26
 unnaturally	Vnna1CrVli	CU	26
 unnear	V2nnI1r	B	0
 unnecessarily	VnnE1sVsE2rVli	C	34
-unnecessary	V2nnE1sRI	U	42
+unnecessary	V2nnE1sRI	U	15
 unnecessary	VnnE1sVsE2ri	CU	42
 unneeded	Vnni1dId	C	26
 unnerve	V2nnR1v	W	19
@@ -210366,7 +210372,7 @@ unreasoning	Vnri1znIN	C	17
 unrebuilt	V2nribI1lt	U	0
 unreceptive	VnrIsE1ptIv	C	17
 unrecognizable	V2nrE1kVgnYzVbVl	U	28
-unrecognizable	V2nrE1kVnYzVbVl	U	28
+unrecognizable	V2nrE1kVnYzVbVl	U	15
 unrecognizable	VnrE2kVgnY1zVbVl	C	28
 unrecognized	VnrE1kVgnY2zd	C	28
 unreconciled	VnrE1kVnsY2ld	C	14
@@ -218210,7 +218216,7 @@ wharves	wO1rvz	W	25
 Whasian	hwe1ZVn	W	0
 Whasian	we1ZVn	W	0
 what	hwV1t	C	64
-what	wA1t	UE	64
+what	wA1t	UE	15
 what	wV1t	CUE	64
 what a pity	wV2t V pI1ti	U	40
 what do you want, a biscuit	wV1t dV jV wA1nt V bI1skVt	U	34
@@ -218551,7 +218557,7 @@ whilere	wYlE1r	U	0
 whiles	hwY1lz	CW	22
 whiles	wY1lz	CW	22
 whilom	wY1lVm	U	13
-whilst	wI1lst	U	44
+whilst	wI1lst	U	15
 whilst	wY1lst	CUW	44
 whim	hwI1m	C	33
 whim	wI1m	CW	33
@@ -220420,7 +220426,7 @@ withdraught	wIDdra1ft	U	0
 withdraught	wITdra1ft	U	0
 withdraw	wIDdrO1	CU	40
 withdraw	wITdrO1	CU	40
-withdrawal	wI1TdrO2l	U	40
+withdrawal	wI1TdrO2l	U	15
 withdrawal	wIDdrO1Vl	CU	40
 withdrawal	wIDdrO1l	U	40
 withdrawal	wITdrO1Vl	CU	40
@@ -223282,7 +223288,7 @@ Yeshua	jE1SuV	W	24
 yeske	jE1sk	C	0
 yesn't	jE1sVnt	U	0
 yesses	jE1sIz	W	12
-yessir	jE1sR	U	25
+yessir	jE1sR	U	15
 yessir	jE2ssR1	U	25
 yessuey	jE1sui	C	0
 yessum	jE1sVm	U	10
