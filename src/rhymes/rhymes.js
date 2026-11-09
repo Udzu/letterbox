@@ -70,28 +70,39 @@ export function splitCluster(cluster) {
 //   silver, but br in bread), or all of them at the start of a word
 // - ipa: the rhyme in IPA
 export function rhymeParts(pron) {
-  const ps = phonemes(pron);
-  let start = ps.findLastIndex((x) => x.stress === 1);
-  if (start < 0) start = ps.findLastIndex((x) => VOWELS.has(x.p));
-  let cluster = "";
+  // works on the string directly rather than on phonemes, as it's run on every pronunciation when the
+  // page loads: a vowel's stress is the digit after it, if any
+  let start = pron.lastIndexOf("1") - 1;
+  for (let j = pron.length - 1; start < 0 && j >= 0; j--) if (VOWELS.has(pron[j])) start = j;
   let i = start - 1;
-  for (; i >= 0 && !VOWELS.has(ps[i].p) && ps[i].p !== " "; i--) cluster = ps[i].p + cluster;
-  const onset = i < 0 || ps[i].p === " " ? cluster : splitCluster(cluster)[1];
-  const tail = ps.slice(start);
-  const vowel = (x, i) => (i > 0 && x.stress === 0 && "IUV".includes(x.p) ? "V" : x.p);
-  const rhyme = tail.filter((x) => x.p !== " ").map(vowel).join("");
+  while (i >= 0 && pron[i] !== " " && !VOWELS.has(pron[i]) && pron[i] !== "1" && pron[i] !== "2") i--;
+  const cluster = pron.slice(i + 1, start);
+  const onset = i < 0 || pron[i] === " " ? cluster : splitCluster(cluster)[1];
+  if (start < 0) start = pron.length - 1; // no vowel (hm): no onset, and the rhyme is the last sound
+  let rhyme = "";
   let loose = "";
   let between = "";
-  tail.forEach((x, k) => {
-    if (!VOWELS.has(x.p)) {
-      between += x.p;
-      return;
+  for (let j = start; j < pron.length; j++) {
+    const c = pron[j];
+    if (c === "1" || c === "2") continue;
+    if (!VOWELS.has(c)) {
+      if (c !== " ") rhyme += c;
+      between += c;
+      continue;
     }
-    loose += splitCluster(between)[0] + vowel(x, k);
+    const unstressed = j > start && pron[j + 1] !== "1" && pron[j + 1] !== "2";
+    const v = unstressed && (c === "I" || c === "U" || c === "V") ? "V" : c;
+    rhyme += v;
+    loose += splitCluster(between)[0] + v;
     between = "";
-  });
+  }
   loose += between.replaceAll(" ", "");
-  return { rhyme, loose, onset, ipa: toIpa(tail.map((x) => x.p + (x.stress || "")).join("")) };
+  const tail = pron.slice(start);
+  // ipa is only worked out when it's asked for, as indexing every pronunciation doesn't need it
+  return {
+    rhyme, loose, onset,
+    get ipa() { return toIpa(tail); },
+  };
 }
 
 // the number of syllables in a pronunciation: its number of vowels
@@ -129,7 +140,10 @@ export function parsePronunciations(text) {
 }
 
 // a word as looked up: case and the kind of apostrophe don't matter
-export const lookupKey = (word) => word.trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'").toLowerCase();
+// (most words need no cleaning up, which is checked first as this runs on every word when the page loads)
+const UNCLEAN = /^\s|\s$|\s\s|[^\S ]|[‘’ʼ]/;
+export const lookupKey = (word) =>
+  (UNCLEAN.test(word) ? word.trim().replace(/\s+/g, " ").replace(/[‘’ʼ]/g, "'") : word).toLowerCase();
 
 // Zipf frequencies (× 10) at or above which a word counts as common, and below which it's rare
 export const COMMON = 30;
@@ -146,7 +160,8 @@ export const MERGERS = {
 export function merge(key, mergers = {}) {
   return Object.entries(MERGERS).reduce((k, [name, f]) => (mergers[name] ? f(k) : k), key);
 }
-const ALL_MERGERS = Object.fromEntries(Object.keys(MERGERS).map((name) => [name, true]));
+const ALL_MERGERS = Object.values(MERGERS);
+const mergeAll = (key) => ALL_MERGERS.reduce((k, f) => f(k), key);
 
 // A rhyming dictionary over a list of entries.
 export class Rhymes {
@@ -158,15 +173,16 @@ export class Rhymes {
     this.byRhyme = new Map();
     this.byLoose = new Map();
     const add = (map, key, value) => {
-      if (!map.has(key)) map.set(key, []);
-      map.get(key).push(value);
+      const list = map.get(key);
+      if (list) list.push(value);
+      else map.set(key, [value]);
     };
     for (const entry of entries) {
       add(this.byWord, lookupKey(entry.word), entry);
       const { rhyme, loose, onset } = rhymeParts(entry.pron);
       const item = { entry, rhyme, loose, onset };
-      add(this.byRhyme, merge(rhyme, ALL_MERGERS), item);
-      add(this.byLoose, merge(loose, ALL_MERGERS), item);
+      add(this.byRhyme, mergeAll(rhyme), item);
+      add(this.byLoose, mergeAll(loose), item);
     }
   }
 
@@ -213,7 +229,7 @@ export class Rhymes {
     const parts = rhymeParts(entry.pron);
     const field = looseOnsets ? "loose" : "rhyme";
     const target = merge(parts[field], options);
-    const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(merge(parts[field], ALL_MERGERS));
+    const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(mergeAll(parts[field]));
     const self = lookupKey(entry.word);
     const words = new Map();
     for (const other of candidates ?? []) {
