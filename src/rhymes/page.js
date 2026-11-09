@@ -10,7 +10,7 @@ const GROUPING_KEY = "rhymes-grouping";
 const GROUPINGS = { frequency: "by frequency", syllables: "by syllables", letters: "by letters" };
 // the sections rhymes are shown in (see Rhymes.arrange), and their headings
 const BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
-const SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)" };
+const SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)", P: "its words' pronunciations" };
 
 const input = document.getElementById("word");
 const status = document.getElementById("status");
@@ -65,7 +65,7 @@ function groupLabel({ entry, others }) {
 
 // A link to a word's Wiktionary entry (at its English section), if it comes from Wiktionary: words
 // only in CMUdict, mostly names, usually have no entry.
-const FROM_WIKTIONARY = /[UWEB]/;
+const FROM_WIKTIONARY = /[UWEBP]/; // built phrases (P) are Wiktionary entries too
 
 function wiktionaryLink(word) {
   if (!rhymes.pronunciations(word).some((e) => e.word === word && FROM_WIKTIONARY.test(e.sources))) return [];

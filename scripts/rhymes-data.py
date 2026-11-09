@@ -14,6 +14,8 @@ Everything is General American, in CMUdict's phoneme set (see rhymes-data/phonem
 - E: Wiktionary enPR (untagged or American).
 - B: Wiktionary IPA for British (RP/UK) or British-looking pronunciations, converted to General American,
   only for words with no American pronunciation from any other source.
+- P: phrases from the English phrases word list with no pronunciation of their own, built from their
+  words' pronunciations (see rhymes-data/phrases.py).
 Pronunciations tagged obsolete, archaic or dialectal, or as having an accent merger, or with a note that
 names another accent, are left out.
 """
@@ -30,6 +32,7 @@ from wordfreq import zipf_frequency
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE / "rhymes-data"))
+from phrases import FUNCTION_WORDS, phrase_pronunciation  # noqa: E402
 from phonemes import (Unparsed, encode, from_arpabet, from_enpr, from_ipa, guess_th, ipa_bodies,  # noqa: E402
                       is_vowel, stress_pattern, uk_to_us)
 
@@ -124,6 +127,7 @@ uk_bodies = defaultdict(list)  # word -> RP transcriptions
 enprs = defaultdict(list)  # word -> enPR strings
 unstressed = []  # (word, source, transcription, marked) with no stress marks, to try again with more to go on
 main_prons = defaultdict(set)  # word -> pronunciations from US Wiktionary transcriptions that aren't marked
+entry_prons = defaultdict(lambda: defaultdict(set))  # word -> (pos, etymology) -> American IPA pronunciations
 notes = Counter()
 
 with gzip.open(KAIKKI, "rt", encoding="utf-8") as f:
@@ -161,6 +165,7 @@ with gzip.open(KAIKKI, "rt", encoding="utf-8") as f:
                 try:
                     for p in from_ipa(body, word):
                         wikt[word][p].add("W" if c == "mixed" else c)
+                        entry_prons[word][(e.get("pos"), e.get("etymology_number"))].add(p)
                         if c == "U" and not marked:
                             main_prons[word].add(p)
                 except Unparsed as x:
@@ -459,6 +464,66 @@ def frequency(w, p, srcs):
     return zipf(w)
 
 
+# --- Phrases from the English phrases list that have no pronunciation of their own, built from their
+# words' pronunciations (see rhymes-data/phrases.py for the stress). Earlier words use their best
+# pronunciation (the one with the most sources, among those not capped as rare); the last word gives a
+# pronunciation for each of its uncapped ones that rhymes differently. But if the last word is a
+# homograph in Wiktionary (two entries with pronunciations that don't rhyme, like lead the metal and
+# lead the verb) with uncapped pronunciations that rhyme differently, the phrase is left out, as it
+# can't tell which it uses (bury the lead, black lead).
+
+word_rows = defaultdict(list)  # word -> [(pronunciation, sources, frequency)]
+for w, p, srcs in rows:
+    word_rows[w].append((p, srcs, frequency(w, p, srcs)))
+lowercase_forms = {}
+for w in word_rows:
+    lowercase_forms.setdefault(w.lower(), w)
+
+
+def merged_rhyme(code):
+    return rhyme_key(code).replace("O", "A")  # don't count cot/caught variants as different
+
+
+def uncapped(w):
+    top = max(f for _, _, f in word_rows[w])
+    return sorted((p for p, srcs, f in word_rows[w] if f == top), key=lambda p: -len(next(s for q, s, _ in word_rows[w] if q == p)))
+
+
+def weak_form(w):
+    """A function word's unstressed pronunciation, if it has one (a as /ə/, not /eɪ/), or else its best."""
+    weak = sorted((p for p, _, _ in word_rows[w] if "1" not in p and "2" not in p), key=lambda p: -len(next(s for q, s, _ in word_rows[w] if q == p)))
+    return weak[0] if weak else uncapped(w)[0]
+
+
+def wiktionary_homograph(w):
+    rhymes = [{merged_rhyme(encode(p)) for p in prons} for prons in entry_prons.get(w, {}).values()]
+    return any(not (a & b) for a in rhymes for b in rhymes)
+
+
+built = []
+phrase_list = [line.rstrip("\n") for line in open(WORDLISTS / "english-phrases.txt", encoding="utf-8")
+               if line.strip() and not line.startswith("#")]
+for phrase in phrase_list:
+    if phrase in word_rows:
+        continue
+    parts = [x for x in re.split("[ -]+", phrase) if x]
+    words = [x if x in word_rows else lowercase_forms.get(x.lower()) for x in parts]
+    if not all(words):
+        stats["phrases with a word without a pronunciation"] += 1
+        continue
+    last = {}
+    for p in uncapped(words[-1]):
+        last.setdefault(merged_rhyme(p), p)
+    if len(last) > 1 and wiktionary_homograph(words[-1]):
+        stats["phrases left out for ending in a homograph"] += 1
+        continue
+    first = [weak_form(w) if part.lower() in FUNCTION_WORDS else uncapped(w)[0] for part, w in zip(parts, words[:-1])]
+    for p in last.values():
+        built.append((phrase, phrase_pronunciation(parts, first + [p]), "P"))
+    stats["phrases built"] += 1
+rows += built
+stats["phrase pronunciations built"] = len(built)
+
 rows.sort(key=lambda r: (r[0].lower(), r[0], r[1]))
 OUT.parent.mkdir(exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as o:
@@ -466,7 +531,7 @@ with open(OUT, "w", encoding="utf-8") as o:
 # description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10 (capped at 15 for capitalised forms of lowercase words and for words only in CMUdict, unless they're in the English word list, and for pronunciations only from weaker sources, or marked as rare, nonstandard and so on, that rhyme differently from the word's other CMUdict or US ones).
 # attribution: From the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (BSD licence) and [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)), with frequencies from [wordfreq](https://github.com/rspeer/wordfreq). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.
 # phonemes: vowels A ɑ, a æ, V ʌ/ə, O ɔ, W aʊ, Y aɪ, E ɛ, R ɝ/ɚ, e eɪ, I ɪ, i i, o oʊ, Q ɔɪ, U ʊ, u u (followed by 1 for primary stress, 2 for secondary); consonants b C=tʃ d D=ð f g h J=dʒ k l m n N=ŋ p r s S=ʃ t T=θ v w j z Z=ʒ; space between words
-# sources: C CMUdict, U Wiktionary (US), W Wiktionary (untagged), E Wiktionary enPR, B Wiktionary (British, converted)
+# sources: C CMUdict, U Wiktionary (US), W Wiktionary (untagged), E Wiktionary enPR, B Wiktionary (British, converted), P built from the pronunciations of a phrase's words
 """, file=o)
     for w, p, s in rows:
         print(f"{w}\t{p}\t{s}\t{frequency(w, p, s)}", file=o)
