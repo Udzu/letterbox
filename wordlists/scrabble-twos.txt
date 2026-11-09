@@ -1,5 +1,6 @@
 # name: Two-letter Scrabble words
 # description: The 107 North American (NWL) two-letter words, then the 20 more in Collins (CSW).
+# tag: language
 
 # NWL2023
 aa
