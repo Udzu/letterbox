@@ -55,12 +55,22 @@ const sourcesTitle = (entries) => entries.map((e) => `/${toIpa(e.pron)}/ from ${
 // A group of pronunciations with the same rhymes: the first, and the others as "also" (with their
 // spelling if it's different).
 function groupLabel({ entry, others }) {
-  const parts = [el("span", { className: "word", textContent: entry.word }), " ", el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })];
+  const parts = [el("span", { className: "word", textContent: entry.word }), ...wiktionaryLink(entry.word), " ", el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })];
   if (others.length) {
     const also = others.map((e) => (e.word === entry.word ? "" : `${e.word} `) + `/${toIpa(e.pron)}/`).join(", ");
     parts.push(" ", el("span", { className: "also", textContent: `(also ${also})` }));
   }
   return parts;
+}
+
+// A link to a word's Wiktionary entry (at its English section), if it comes from Wiktionary: words
+// only in CMUdict, mostly names, usually have no entry.
+const FROM_WIKTIONARY = /[UWEB]/;
+
+function wiktionaryLink(word) {
+  if (!rhymes.pronunciations(word).some((e) => e.word === word && FROM_WIKTIONARY.test(e.sources))) return [];
+  const href = `https://en.wiktionary.org/wiki/${encodeURIComponent(word.replaceAll(" ", "_"))}#English`;
+  return [" ", el("a", { className: "wiktionary", href, target: "_blank", rel: "noopener", textContent: "↗", title: `${word} on Wiktionary` })];
 }
 
 function showPronunciations() {
@@ -116,10 +126,11 @@ function showRhymes() {
   results.classList.toggle("by-syllables", bySyllables);
   for (const [title, items] of sections) {
     const heading = el("h2", {}, [`${title} `, el("span", { className: "count", textContent: `(${items.length.toLocaleString("en")})` })]);
-    results.append(el("section", {}, [heading, el("div", { className: "list" }, items.map((item) => el("span", {
+    // each rhyme links to its own lookup, so it can also be opened in a new tab
+    results.append(el("section", {}, [heading, el("div", { className: "list" }, items.map((item) => el("a", {
       className: `rhyme ${item.band}`,
+      href: hashFor(item.word),
       textContent: item.word,
-      tabIndex: 0,
       title: item.variants.length ? `Also ${item.variants.join(", ")}` : "",
     })))]));
   }
@@ -158,17 +169,15 @@ function update({ push = false } = {}) {
   showRhymes();
 }
 
-// clicking (or pressing Enter on) a rhyme looks it up
-function lookUp(target) {
-  if (!target.classList?.contains("rhyme")) return;
+// clicking a rhyme (or pressing Enter on it) looks it up here, unless it's opened in a new tab or window
+results.addEventListener("click", (e) => {
+  const target = e.target.closest?.("a.rhyme");
+  if (!target || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  e.preventDefault();
   input.value = target.textContent;
   update({ push: true });
   input.focus();
   window.scrollTo({ top: 0 });
-}
-results.addEventListener("click", (e) => lookUp(e.target));
-results.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") lookUp(e.target);
 });
 
 let timer = null;
