@@ -307,6 +307,64 @@ for lw, prons in cmu.items():
         for w in matching:
             entries[w][p].add("C")
 
+# --- Partial and unstressed pronunciations. A phrase or hyphenated word's pronunciation with fewer
+# syllables than it has words is partial (leave someone on read as /ɹɛd/), unless it's only one
+# syllable short and ends the way its last word is pronounced, which is usually an elision (tout de
+# suite as /tutˈswit/); and so is one with no primary stress and fewer syllables than another of its
+# pronunciations (deep-rooted as /ˌɹʊtɪd/). Drop them. Other pronunciations that only have secondary
+# stress get the stress of another pronunciation of the word with as many syllables, if there's just
+# one such pattern, or else have their last secondary stress made primary for phrases (which usually
+# stress their last word), and their first for single words (rulebook as /ˌɹulˌbʊk/, as for CMUdict).
+
+def has_primary(p):
+    return any(x.endswith("1") for x in p if is_vowel(x))
+
+
+def sounds(p):
+    """An encoded pronunciation without stress or word breaks, and with unstressed ɪ, ʊ and ə the same."""
+    return re.sub("[12]", "", re.sub("[IU](?![12])", "V", encode(p).replace(" ", "")))
+
+
+def ends_like(p, word):
+    """Whether a pronunciation ends the way a word is pronounced on its own (False if it has none)."""
+    for form in (word, word.lower(), word.capitalize()):
+        if form in entries:
+            return any(sounds(p).endswith(sounds(q)) for q in entries[form])
+    return False
+
+
+for w in list(entries):
+    prons = entries[w]
+    parts = [x for x in re.split("[ -]+", w) if re.search("[aeiouy]", x.lower())]
+    for p in [p for p in prons if not has_primary(p)]:
+        vowels = [i for i, x in enumerate(p) if is_vowel(x)]
+        if not any(p[i].endswith("2") for i in vowels):
+            continue  # weak forms such as /ðə/
+        if len(parts) > 1 and any(has_primary(q) and len(stress_pattern(q)) > len(vowels) for q in prons):
+            del prons[p]
+            stats["partial phrase transcriptions dropped"] += 1
+            continue
+        fits = {stress_pattern(q) for q in prons if has_primary(q) and len(stress_pattern(q)) == len(vowels)}
+        q = list(p)
+        if len(fits) == 1:
+            for i, d in zip(vowels, fits.pop()):
+                q[i] = q[i][:-1] + d
+        else:
+            secondary = [i for i in vowels if p[i].endswith("2")]
+            k = secondary[-1] if len(parts) > 1 else secondary[0]
+            q[k] = q[k][:-1] + "1"
+        prons[tuple(q)] = prons.get(tuple(q), set()) | prons.pop(p)
+        stats["secondary stress made primary"] += 1
+    if len(parts) > 1:
+        for p in [p for p in prons if sum(is_vowel(x) for x in p) < len(parts)]:
+            if sum(is_vowel(x) for x in p) == len(parts) - 1 and ends_like(p, parts[-1]):
+                stats["elided phrase pronunciations kept"] += 1
+                continue
+            del prons[p]
+            stats["partial phrase transcriptions dropped"] += 1
+    if not prons:
+        del entries[w]
+
 # --- Hand-made exclusions: rhymes-data/excluded.txt has lines "word<TAB>pronunciation" (in the data
 # file's codes), or just "word" to leave a word out altogether
 

@@ -318,17 +318,22 @@ def from_enpr(enpr):
     """Convert enPR to IPA, one string for each reading of "th" (enPR writes θ and ð the same)."""
     if re.match(r"\s*[-—‒]|.*-\s*$", enpr):
         raise Unparsed("fragment")
-    s = enpr.replace("th", "TH")
+    # where a word has both primes (ʹ ′) and apostrophes (' ’), the apostrophes mark secondary stress
+    s = " ".join(re.sub("['’´ˊ]", "″", w) if re.search("[ʹ′]", w) and re.search("['’´ˊ]", w) else w
+                 for w in enpr.split(" "))
+    s = s.replace("th", "TH")
     out, last_vowel, i = [], None, 0
     while i < len(s):
         c = s[i]
-        if c in ENPR_PRIMARY + ENPR_SECONDARY:  # marks follow the stressed syllable
+        # marks follow the stressed syllable, though IPA-style ones at the start of a word may precede it
+        after = c in "ˈˌ" and last_vowel is not None and not re.search(r"[\s(-]$", s[:i])
+        if c in ENPR_PRIMARY + ENPR_SECONDARY or after:
             if last_vowel is None:
                 raise Unparsed("stress mark before a vowel")
-            out.insert(last_vowel, "ˈ" if c in ENPR_PRIMARY else "ˌ")
+            out.insert(last_vowel, "ˈ" if c in ENPR_PRIMARY + "ˈ" else "ˌ")
             last_vowel = None
             i += 1
-        elif c in "ˈˌ()":  # IPA-style marks precede the syllable
+        elif c in "ˈˌ()":
             out.append(c)
             i += 1
         elif c in "-·• ":
@@ -345,9 +350,9 @@ def from_enpr(enpr):
             else:
                 raise Unparsed(f"enPR symbol {c}")
     words = []
-    for w in "".join(out).split(" "):  # several primary marks in a word: keep the first
-        k = w.find("ˈ")
-        words.append(w if k < 0 else w[:k + 1] + w[k + 1:].replace("ˈ", "ˌ"))
+    for w in "".join(out).split(" "):  # several primary marks in a word: keep the last
+        k = w.rfind("ˈ")
+        words.append(w if k < 0 else w[:k].replace("ˈ", "ˌ") + w[k:])
     ipa = " ".join(words)
     n = ipa.count("TH")
     if n > 3:
