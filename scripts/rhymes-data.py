@@ -370,6 +370,42 @@ for w in list(entries):
     if not prons:
         del entries[w]
 
+# Phrase transcriptions that only cover part of the phrase: Wiktionary sometimes gives just one word's
+# pronunciation (Uotsuri Island as /ˌuːoʊˈtsʊəɹi/, Mount Tai as /taɪ/) or one per word (absolute
+# altitude as /ˈæbsəˌlut/ and /ˈæltɪˌtud/). Drop transcriptions that sound the same as some of the
+# phrase's words, or that have at least two syllables fewer than its words do (one fewer may be an
+# elision). If that leaves a phrase without any, it can be built from its words below.
+
+
+def forms(word):
+    for form in (word, word.lower(), word.capitalize()):
+        if form in entries:
+            return entries[form]
+    return {}
+
+
+def syllables(p):
+    return sum(is_vowel(x) for x in p)
+
+
+partial = []
+for w in list(entries):
+    parts = [x for x in re.split("[ -]+", w) if x]
+    if len(parts) < 2:
+        continue
+    runs = {sounds(q) for i in range(len(parts)) for j in range(i + 1, len(parts) + 1) if j - i < len(parts)
+            for q in forms(" ".join(parts[i:j]))}
+    words = [forms(x) for x in parts]
+    least = sum(min(map(syllables, x)) for x in words) if all(words) else 0
+    for p in [p for p in entries[w] if sounds(p) in runs or syllables(p) <= least - 2]:
+        partial.append((w, encode(p), "".join(sorted(entries[w][p]))))
+for w, code, _ in partial:
+    for p in [p for p in entries.get(w, {}) if encode(p) == code]:
+        del entries[w][p]
+    if w in entries and not entries[w]:
+        del entries[w]
+stats["partial phrase transcriptions dropped"] += len(partial)
+
 # --- Hand-made exclusions: rhymes-data/excluded.txt has lines "word<TAB>pronunciation" (in the data
 # file's codes), or just "word" to leave a word out altogether
 
@@ -470,7 +506,8 @@ def frequency(w, p, srcs):
 # pronunciation for each of its uncapped ones that rhymes differently. But if the last word is a
 # homograph in Wiktionary (two entries with pronunciations that don't rhyme, like lead the metal and
 # lead the verb) with uncapped pronunciations that rhyme differently, the phrase is left out, as it
-# can't tell which it uses (bury the lead, black lead).
+# can't tell which it uses (bury the lead, black lead). Phrases whose only transcriptions were partial
+# (see above) are built too, even if they aren't in the list.
 
 word_rows = defaultdict(list)  # word -> [(pronunciation, sources, frequency)]
 for w, p, srcs in rows:
@@ -503,6 +540,7 @@ def wiktionary_homograph(w):
 built = []
 phrase_list = [line.rstrip("\n") for line in open(WORDLISTS / "english-phrases.txt", encoding="utf-8")
                if line.strip() and not line.startswith("#")]
+phrase_list += sorted({w for w, _, _ in partial} - set(phrase_list))  # those left without a transcription
 for phrase in phrase_list:
     if phrase in word_rows:
         continue
@@ -561,6 +599,9 @@ if REPORT:
             print("\t".join(r), file=o)
     with open(REPORT / "uk-failed.tsv", "w", encoding="utf-8") as o:
         for r in uk_failed:
+            print("\t".join(r), file=o)
+    with open(REPORT / "partial-phrases.tsv", "w", encoding="utf-8") as o:
+        for r in partial:
             print("\t".join(r), file=o)
     with open(REPORT / "notes-dropped.tsv", "w", encoding="utf-8") as o:
         for n, k in notes.most_common():
