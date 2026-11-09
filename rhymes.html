@@ -23,7 +23,9 @@
     font-family: inherit;
   }
   #options { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 10px; }
-  #options label { cursor: pointer; }
+  #options label, #mergers label { cursor: pointer; }
+  #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; }
+  #mergers .label { color: #666; }
   #status { margin: 12px 0 0; color: #666; }
   #status:empty { display: none; }
   #status.error { color: #d00; }
@@ -74,7 +76,15 @@
   <div id="options">
     <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> Allow the same onset</label>
     <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> Allow different onsets after the stress</label>
-    <label title="Treat the vowels of cot and caught as the same, as many North Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> Merge <i>cot</i> and <i>caught</i></label>
+  </div>
+  <div id="mergers">
+    <span class="label" title="Treat sounds as the same that many Americans pronounce the same">Merge:</span>
+    <label title="Treat the vowels of cot and caught as the same, as many North Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> <i>cot</i> = <i>caught</i></label>
+    <label title="Treat the stressed vowels of marry, Mary and merry as the same before r, as most Americans do"><input type="checkbox" id="mary-marry-merry"> <i>marry</i> = <i>merry</i></label>
+    <label title="Treat the stressed vowels of hurry and furry as the same, as most Americans do"><input type="checkbox" id="hurry-furry"> <i>hurry</i> = <i>furry</i></label>
+    <label title="Treat the stressed vowels of poor and pour as the same, as many Americans do (so tour rhymes with more)"><input type="checkbox" id="cure-force"> <i>poor</i> = <i>pour</i></label>
+    <label title="Treat t between vowels, before an unstressed one, as d, as Americans pronounce both as a quick tap (so metal rhymes with pedal, and dirty with wordy)"><input type="checkbox" id="flapping"> <i>latter</i> = <i>ladder</i></label>
+    <label title="Treat stressed e and i as the same before m and n, as in the South (so pen rhymes with win)"><input type="checkbox" id="pin-pen"> <i>pin</i> = <i>pen</i></label>
   </div>
   <p id="status"></p>
   <div id="prons"></div>
@@ -283,14 +293,27 @@
   var withoutAccents = (word) => /[^\x00-\x7f]/.test(word) ? [...word.normalize("NFD").replace(/\p{M}/gu, "")].map((c) => UNDECOMPOSED[c] ?? c).join("") : word;
   var COMMON = 30;
   var RARE = 20;
+  var VOWEL = "[AaVOWYEReIioQUu]";
+  var re = (source, flags) => new RegExp(source.replaceAll("VOWEL", VOWEL), flags);
+  var BEFORE_R_AND_VOWEL = re("[ae]1(?= ?r ?VOWEL)", "g");
+  var STRESSED_V_R = re("V1( ?)r(?= ?VOWEL)", "g");
+  var FLAPPED_T = re("(?<=(?:VOWEL[12]?|r) ?)t(?= ?VOWEL(?!1))", "g");
   var MERGERS = {
-    cotCaught: (key) => key.replace(/O(?!r)/g, "A")
+    cotCaught: (pron) => pron.replace(/O(?![12]? ?r)/g, "A"),
+    maryMarryMerry: (pron) => pron.replace(BEFORE_R_AND_VOWEL, "E1"),
+    hurryFurry: (pron) => pron.replace(STRESSED_V_R, "R1$1"),
+    cureForce: (pron) => pron.replace(/U1( ?)r/g, "O1$1r"),
+    flapping: (pron) => pron.replace(FLAPPED_T, "d"),
+    pinPen: (pron) => pron.replace(/E1(?= ?[mn])/g, "I1")
   };
-  function merge(key, mergers = {}) {
-    return Object.entries(MERGERS).reduce((k, [name, f]) => mergers[name] ? f(k) : k, key);
+  function merge(pron, mergers = {}) {
+    return Object.entries(MERGERS).reduce((p, [name, f]) => mergers[name] ? f(p) : p, pron);
   }
+  var MERGEABLE = /O|[aeVUE]1|t/;
   var ALL_MERGERS = Object.values(MERGERS);
-  var mergeAll = (key) => ALL_MERGERS.reduce((k, f) => f(k), key);
+  var mergeAll = (pron) => ALL_MERGERS.reduce((p, f) => f(p), pron);
+  var VOWEL_CLASSES = { O: "A", U: "A", a: "E", e: "E", I: "E", V: "R" };
+  var looseIndexKey = (loose) => loose.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) => VOWEL_CLASSES[c]).replaceAll("t", "d");
   var Rhymes = class {
     constructor(entries) {
       this.entries = entries;
@@ -303,14 +326,26 @@
         if (list) list.push(value);
         else map.set(key, [value]);
       };
+      const rhymeKeys = /* @__PURE__ */ new Map();
+      const looseKeys = /* @__PURE__ */ new Map();
       for (const entry of entries) {
         const key = lookupKey(entry.word);
         if (!this.byWord.has(key) && withoutAccents(key) !== key) add(this.accented, withoutAccents(key), key);
         add(this.byWord, key, entry);
         const { rhyme, loose, onset } = rhymeParts(entry.pron);
         const item = { entry, rhyme, loose, onset };
-        add(this.byRhyme, mergeAll(rhyme), item);
-        add(this.byLoose, mergeAll(loose), item);
+        const stress = entry.pron.lastIndexOf("1");
+        const tail = stress > 0 ? entry.pron.slice(stress - 1) : entry.pron;
+        let rhymeKey = MERGEABLE.test(tail) ? rhymeKeys.get(tail) : rhyme;
+        if (rhymeKey === void 0) {
+          const merged = mergeAll(tail);
+          rhymeKey = merged === tail ? rhyme : rhymeParts(merged).rhyme;
+          rhymeKeys.set(tail, rhymeKey);
+        }
+        let looseKey = looseKeys.get(loose);
+        if (looseKey === void 0) looseKeys.set(loose, looseKey = looseIndexKey(loose));
+        add(this.byRhyme, rhymeKey, item);
+        add(this.byLoose, looseKey, item);
       }
     }
     // A word's pronunciations, best first: those written the way it was typed, then those of other
@@ -337,8 +372,8 @@
     pronunciationGroups(word, options = {}) {
       const groups = /* @__PURE__ */ new Map();
       for (const entry of this.pronunciations(word)) {
-        const { rhyme, onset } = rhymeParts(entry.pron);
-        const key = `${onset}|${merge(rhyme, options)}`;
+        const { rhyme, onset } = rhymeParts(merge(entry.pron, options));
+        const key = `${onset}|${rhyme}`;
         if (groups.has(key)) groups.get(key).others.push(entry);
         else groups.set(key, { entry, others: [] });
       }
@@ -359,19 +394,21 @@
     // and the set of their numbers of syllables.
     matches(entry, options = {}) {
       const { sameOnset = false, looseOnsets = false } = options;
-      const parts = rhymeParts(entry.pron);
+      const mergers = Object.keys(MERGERS).some((name) => options[name]);
       const field = looseOnsets ? "loose" : "rhyme";
-      const target = merge(parts[field], options);
-      const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(mergeAll(parts[field]));
+      const parts = rhymeParts(entry.pron);
+      const target = mergers ? rhymeParts(merge(entry.pron, options))[field] : parts[field];
+      const candidates = looseOnsets ? this.byLoose.get(looseIndexKey(parts.loose)) : this.byRhyme.get(rhymeParts(mergeAll(entry.pron)).rhyme);
       const self = withoutAccents(lookupKey(entry.word));
       const words = /* @__PURE__ */ new Map();
-      for (const other of candidates ?? []) {
-        if (merge(other[field], options) !== target) continue;
-        const { word, zipf } = other.entry;
-        if ((sameOnset || other.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {
+      for (const item of candidates ?? []) {
+        const other = mergers ? rhymeParts(merge(item.entry.pron, options)) : item;
+        if (other[field] !== target) continue;
+        const { word, zipf } = item.entry;
+        if ((sameOnset || item.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {
           const match = words.get(word) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
           match.zipf = Math.max(match.zipf, zipf);
-          match.syllables.add(syllableCount(other.entry.pron));
+          match.syllables.add(syllableCount(item.entry.pron));
           words.set(word, match);
         }
       }
@@ -452,7 +489,12 @@
   var OPTIONS = {
     sameOnset: document.getElementById("same-onset"),
     looseOnsets: document.getElementById("loose-onsets"),
-    cotCaught: document.getElementById("cot-caught")
+    cotCaught: document.getElementById("cot-caught"),
+    maryMarryMerry: document.getElementById("mary-marry-merry"),
+    hurryFurry: document.getElementById("hurry-furry"),
+    cureForce: document.getElementById("cure-force"),
+    flapping: document.getElementById("flapping"),
+    pinPen: document.getElementById("pin-pen")
   };
   var currentOptions = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
   var rhymes = null;

@@ -282,3 +282,41 @@ fey\tfe1\tC\t20
   assert.deepEqual(items("day"), ["cafe/café", "ne/né/Ne", "fey"]);
   assert.deepEqual(items("café", { sameOnset: true }), ["ne/né/Ne", "day", "fey"]);
 });
+
+test("other mergers: Mary-marry-merry, hurry-furry, cure-force, flapping and pin-pen", () => {
+  const r = new Rhymes(parsePronunciations(`
+carry\tka1ri\tU\t40
+merry\tmE1ri\tC\t40
+Mary\tme1ri\tC\t40
+hurry\thV1ri\tU\t40
+furry\tfR1i\tC\t40
+poor\tpU1r\tC\t50
+door\tdO1r\tC\t50
+tour\ttU1r\tC\t50
+latter\tla1tR\tC\t40
+madder\tma1dR\tC\t40
+Aarti\tA1rti2\tC\t20
+hardy\thA1rdi\tC\t40
+get it\tgE1t It\tC\t40
+fed it\tfE1d It\tC\t40
+attack\tVta1k\tC\t40
+back\tba1k\tC\t50
+pen\tpE1n\tC\t50
+win\twI1n\tC\t50
+`).entries);
+  const find = (w, o) => r.find(r.pronunciations(w)[0], o);
+  assert.deepEqual(find("carry"), []);
+  assert.deepEqual(find("carry", { maryMarryMerry: true }), ["Mary", "merry"]);
+  assert.deepEqual(find("hurry", { hurryFurry: true }), ["furry"]);
+  assert.deepEqual(find("poor", { cureForce: true }), ["door", "tour"]);
+  // flapping: t before a vowel without primary stress (including across a word break), but not attack's
+  assert.deepEqual(find("latter", { flapping: true }), ["madder"]);
+  assert.deepEqual(find("Aarti", { flapping: true }), ["hardy"]);
+  assert.deepEqual(find("get it", { flapping: true }), ["fed it"]);
+  assert.deepEqual(find("back", { flapping: true }), ["attack"]);
+  assert.deepEqual(find("pen", { pinPen: true }), ["win"]);
+  // they work with loose rhymes too, though those leave out the r of hurry and the m of pen
+  assert.deepEqual(find("hurry", { hurryFurry: true, looseOnsets: true }), ["furry"]);
+  assert.deepEqual(find("pen", { pinPen: true, looseOnsets: true }), ["win"]);
+  assert.deepEqual(find("pen", { looseOnsets: true }), []);
+});
