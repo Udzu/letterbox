@@ -30,6 +30,11 @@ class CMUdict(unittest.TestCase):
         self.assertEqual(encode(from_arpabet("D IH0 L IH1 V AH0 R IY0")), "dIlI1vRi")
         self.assertEqual(encode(from_arpabet("AH0 R AW1 N D")), "VrW1nd")
 
+    def test_missing_stress(self):
+        self.assertEqual(encode(from_arpabet("G AE2 S AH0 F AY2")), "ga1sVfY2")
+        self.assertIsNone(from_arpabet("IH0 N K W ER0 IY0"))
+        self.assertEqual(encode(from_arpabet("DH AH0")), "DV")
+
     def test_display(self):
         self.assertEqual(to_ipa(from_arpabet("HH AH1 M B AH2 G")), "hˈʌmbˌʌɡ")
         self.assertEqual(to_ipa(from_arpabet("B ER1 D ER0")), "bˈɝdɚ")
@@ -81,6 +86,7 @@ class IPA(unittest.TestCase):
     def test_syllabic(self):
         self.assertEqual(ipa("ˈbɑtl̩"), ["bA1tVl"])
         self.assertEqual(ipa("ˈbʌʔn̩"), ["bV1tVn"])
+        self.assertEqual(ipa("əˈbn̩.dn̩t.li"), ["VbV1ndVntli"])
 
     def test_narrow_detail(self):
         self.assertEqual(ipa("ˈpaʊ̯nd"), ["pW1nd"])

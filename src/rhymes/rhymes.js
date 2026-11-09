@@ -140,7 +140,6 @@ export class Rhymes {
     // find picks the ones that match with the mergers chosen
     this.byRhyme = new Map();
     this.byLoose = new Map();
-    this.frequency = new Map(); // word -> highest Zipf frequency (× 10) of its entries
     const add = (map, key, value) => {
       if (!map.has(key)) map.set(key, []);
       map.get(key).push(value);
@@ -151,7 +150,6 @@ export class Rhymes {
       const item = { entry, rhyme, loose, onset };
       add(this.byRhyme, merge(rhyme, ALL_MERGERS), item);
       add(this.byLoose, merge(loose, ALL_MERGERS), item);
-      this.frequency.set(entry.word, Math.max(this.frequency.get(entry.word) ?? 0, entry.zipf));
     }
   }
 
@@ -187,34 +185,41 @@ export class Rhymes {
   //   (so hip-hop and flip-flop)
   // - any of the MERGERS, such as cotCaught: treat those sounds as the same
   find(entry, options = {}) {
+    return [...this.matches(entry, options).keys()].sort(compareWords);
+  }
+
+  // The rhymes as for find, as a map from each word to the highest Zipf frequency (× 10) of its
+  // pronunciations that rhyme (so a word's rare pronunciations don't count as common).
+  matches(entry, options = {}) {
     const { sameOnset = false, looseOnsets = false } = options;
     const parts = rhymeParts(entry.pron);
     const field = looseOnsets ? "loose" : "rhyme";
     const target = merge(parts[field], options);
     const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(merge(parts[field], ALL_MERGERS));
     const self = lookupKey(entry.word);
-    const words = new Set();
+    const words = new Map();
     for (const other of candidates ?? []) {
       if (merge(other[field], options) !== target) continue;
-      if ((sameOnset || other.onset !== parts.onset) && lookupKey(other.entry.word) !== self) words.add(other.entry.word);
+      const { word, zipf } = other.entry;
+      if ((sameOnset || other.onset !== parts.onset) && lookupKey(word) !== self) words.set(word, Math.max(words.get(word) ?? 0, zipf));
     }
-    return [...words].sort(compareWords);
+    return words;
   }
 
-  // Rhymes grouped for display. Words that only differ in case or full stops (may, May; a, a.) are
+  // Rhymes (as given by matches) grouped for display. Words that only differ in case or full stops (may, May; a, a.) are
   // merged into one item, { word, variants, zipf }, shown as its most frequent spelling (lowercase if
   // tied). Items are split into common, uncommon and rare words, by frequency, and phrases (including
   // hyphenated words, whose frequencies wordfreq can only estimate), each alphabetical.
-  arrange(words) {
+  arrange(matches) {
     const merged = new Map();
-    for (const word of words) {
+    for (const word of matches.keys()) {
       const key = word.toLowerCase().replaceAll(".", "");
       if (!merged.has(key)) merged.set(key, []);
       merged.get(key).push(word);
     }
     const bands = { common: [], uncommon: [], rare: [], phrases: [] };
     for (const spellings of merged.values()) {
-      const freq = (w) => this.frequency.get(w) ?? 0;
+      const freq = (w) => matches.get(w);
       spellings.sort((a, b) => freq(b) - freq(a) || (b === b.toLowerCase()) - (a === a.toLowerCase()) || compareWords(a, b));
       const [word, ...variants] = spellings;
       const item = { word, variants, zipf: freq(word) };

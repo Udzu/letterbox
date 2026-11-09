@@ -129,12 +129,15 @@ fray\tfre1\tC\t25
 sley\tsle1\tC\t0
 one-way\twV1nwe1\tC\t50
 far away\tfA1r Vwe1\tW\t40
+be\tbi1\tC\t68
+be\tbe1\tW\t15
 `).entries);
-  const bands = r.arrange(r.find(r.pronunciations("day")[0]));
+  const bands = r.arrange(r.matches(r.pronunciations("day")[0]));
   const show = (items) => items.map((i) => [i.word, ...i.variants].join("/"));
   assert.deepEqual(show(bands.common), ["a/a./A", "may/May"]);
   assert.deepEqual(show(bands.uncommon), ["Bray", "fray"]);
-  assert.deepEqual(show(bands.rare), ["sley"]);
+  // a word's rare pronunciation counts as rare, whatever its other pronunciations
+  assert.deepEqual(show(bands.rare), ["be", "sley"]);
   assert.deepEqual(show(bands.phrases), ["far away", "one-way"]);
   assert.ok(COMMON > RARE);
 });
