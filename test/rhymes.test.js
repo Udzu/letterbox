@@ -129,6 +129,9 @@ fray\tfre1\tC\t25
 sley\tsle1\tC\t0
 one-way\twV1nwe1\tC\t50
 far away\tfA1r Vwe1\tW\t40
+far-away\tfA1r Vwe1\tP\t40
+x-ray\te2ks re1\tC\t45
+X ray\te2ks re1\tP\t45
 be\tbi1\tC\t68
 be\tbe1\tW\t15
 `).entries);
@@ -138,7 +141,8 @@ be\tbe1\tW\t15
   assert.deepEqual(show(bands.uncommon), ["Bray", "fray"]);
   // a word's rare pronunciation counts as rare, whatever its other pronunciations
   assert.deepEqual(show(bands.rare), ["be", "sley"]);
-  assert.deepEqual(show(bands.phrases), ["far away", "one-way"]);
+  // hyphen and space spellings are one item, shown with spaces if otherwise tied
+  assert.deepEqual(show(bands.phrases), ["far away/far-away", "one-way", "x-ray/X ray"]);
   assert.ok(COMMON > RARE);
 });
 
