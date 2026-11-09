@@ -245,20 +245,22 @@ export class Rhymes {
     return words;
   }
 
-  // Rhymes (as given by matches) as items for display. Words that only differ in case or full stops
-  // (may, May; a, a.) are merged into one item, shown as its most frequent spelling (lowercase if
-  // tied): { word, variants, zipf, syllables, band }. The band is common, uncommon or rare, by
+  // Rhymes (as given by matches) as items for display. Words that only differ in case, full stops or
+  // hyphens for spaces (may, May; a, a.; hate crime, hate-crime) are merged into one item, shown as its
+  // most frequent spelling (lowercase, then without hyphens, if tied): { word, variants, zipf,
+  // syllables, band }. The band is common, uncommon or rare, by
   // frequency, or phrases (including hyphenated words, whose frequencies wordfreq can only estimate).
   items(matches) {
     const merged = new Map();
     for (const word of matches.keys()) {
-      const key = word.toLowerCase().replaceAll(".", "");
+      const key = word.toLowerCase().replaceAll(".", "").replaceAll("-", " ");
       if (!merged.has(key)) merged.set(key, []);
       merged.get(key).push(word);
     }
     return [...merged.values()].map((spellings) => {
       const freq = (w) => matches.get(w).zipf;
-      spellings.sort((a, b) => freq(b) - freq(a) || (b === b.toLowerCase()) - (a === a.toLowerCase()) || compareWords(a, b));
+      spellings.sort((a, b) => freq(b) - freq(a) || (b === b.toLowerCase()) - (a === a.toLowerCase())
+        || a.includes("-") - b.includes("-") || compareWords(a, b));
       const [word, ...variants] = spellings;
       const zipf = freq(word);
       const syllables = new Set(spellings.flatMap((w) => [...matches.get(w).syllables]));
