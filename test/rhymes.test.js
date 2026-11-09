@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { COMMON, RARE, Rhymes, lookupKey, parsePronunciations, rhymeParts, letterCount, splitCluster, syllableCount, toIpa } from "../src/rhymes/rhymes.js";
+import { COMMON, RARE, Rhymes, lookupKey, parsePronunciations, parseSounds, rhymeParts, letterCount, splitCluster, syllableCount, toIpa } from "../src/rhymes/rhymes.js";
 
 const DATA = `# name: Pronunciations
 # attribution: From [somewhere](https://example.com).
@@ -319,4 +319,48 @@ win\twI1n\tC\t50
   assert.deepEqual(find("hurry", { hurryFurry: true, looseOnsets: true }), ["furry"]);
   assert.deepEqual(find("pen", { pinPen: true, looseOnsets: true }), ["win"]);
   assert.deepEqual(find("pen", { looseOnsets: true }), []);
+});
+
+test("reads pronunciations typed in IPA or ASCII", () => {
+  const sounds = (text) => {
+    const { pron, assumed } = parseSounds(text);
+    return assumed ? `${pron} (assumed)` : pron;
+  };
+  assert.equal(sounds("ˈhɛd"), "hE1d");
+  assert.equal(sounds("'hEd"), "hE1d");
+  // one vowel needs no stress mark; with several, the first is taken as stressed
+  assert.equal(sounds("Ed"), "E1d");
+  assert.equal(sounds("-Edi"), "E1di (assumed)");
+  assert.equal(sounds("@'lON"), "VlO1N");
+  assert.equal(sounds("əˈlɔŋ"), "VlO1N");
+  assert.equal(sounds("'m^Nki"), "mV1Nki");
+  assert.equal(sounds("t͡ʃɪp"), "CI1p");
+  assert.equal(sounds("'tSIp"), "CI1p");
+  assert.equal(sounds("'mEZ3"), "mE1ZR");
+  assert.equal(sounds("'jEs"), sounds("'yEs"));
+  assert.equal(sounds(",kat'bOI"), "ka2tbQ1");
+  assert.equal(sounds("'hIp 'hAp"), "hI1p hA1p");
+  // ər not before a vowel is ɚ, and syllabic consonants get a vowel
+  assert.equal(sounds("ˈbʌtər"), "bV1tR");
+  assert.equal(sounds("ˈbʌʔn̩"), "bV1tVn");
+  // syllable breaks and length marks are ignored
+  assert.equal(sounds("ˈhɛ.dːi"), "hE1di");
+  assert.throws(() => parseSounds("'hEx"), /Unknown sound “x”/);
+  assert.throws(() => parseSounds("st"), /No vowel/);
+});
+
+test("finds the words pronounced a given way", () => {
+  const r = new Rhymes(parsePronunciations(`
+night\tnY1t\tC\t50
+knight\tnY1t\tC\t40
+Knight\tnY1t\tC\t15
+nite\tnY1t\tC\t20
+kite\tkY1t\tC\t30
+rabbit\tra1bIt\tC\t40
+`).entries);
+  const words = (pron) => r.items(r.homophones(pron)).map((i) => [i.word, ...i.variants].join("/")).sort();
+  assert.deepEqual(words(parseSounds("'naIt").pron), ["knight/Knight", "night", "nite"]);
+  // unstressed ɪ and ə are the same
+  assert.deepEqual(words(parseSounds("'rab@t").pron), ["rabbit"]);
+  assert.deepEqual(words(parseSounds("'blIrfIN").pron), []);
 });

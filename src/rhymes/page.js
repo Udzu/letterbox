@@ -1,7 +1,7 @@
 // The Rhymes page: look up a word, pick one of its pronunciations, and list its perfect rhymes.
 
 import { attributionParts } from "../wordlists/lists.js";
-import { Rhymes, lookupKey, parsePronunciations, rhymeParts, toIpa } from "./rhymes.js";
+import { Rhymes, compareWords, lookupKey, parsePronunciations, parseSounds, rhymeParts, toIpa } from "./rhymes.js";
 
 const WORD_KEY = "rhymes-word";
 const OPTIONS_KEY = "rhymes-options";
@@ -18,6 +18,7 @@ const prons = document.getElementById("prons");
 const summary = document.getElementById("summary");
 const results = document.getElementById("results");
 const attribution = document.getElementById("attribution");
+const soundHelp = document.getElementById("sound-help");
 // option name -> its tickbox
 const OPTIONS = {
   sameOnset: document.getElementById("same-onset"),
@@ -82,9 +83,27 @@ function wiktionaryLink(word) {
   return [" ", el("a", { className: "wiktionary", href, target: "_blank", rel: "noopener", textContent: "↗", title: `${word} on Wiktionary` })];
 }
 
+// a pronunciation typed between slashes: as understood, and the words pronounced that way, like
+// /ˈɡɹin/ (like green, Greene)
+function showSounds() {
+  const { entry } = shown.choices[0];
+  const items = rhymes.items(rhymes.homophones(entry.pron)).sort((a, b) => b.zipf - a.zipf || compareWords(a.word, b.word));
+  const notes = [];
+  if (items.length) {
+    notes.push("like ", ...items.flatMap((item, i) => [...(i ? [", "] : []), el("a", {
+      className: "rhyme", href: hashFor(item.word), textContent: item.word, title: item.variants.length ? `Also ${item.variants.join(", ")}` : "",
+    })]));
+  }
+  if (shown.assumed) notes.push(...(notes.length ? ["; "] : []), "stress taken to be on the first vowel");
+  const parts = [el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })];
+  if (notes.length) parts.push(" ", el("span", { className: "also homophones" }, ["(", ...notes, ")"]));
+  prons.append(el("p", { className: "single" }, parts));
+}
+
 function showPronunciations() {
   const { choices, choice } = shown;
   prons.replaceChildren();
+  if (shown.sounds) return showSounds();
   if (choices.length === 1) {
     const [group] = choices;
     prons.append(el("p", { className: "single", title: sourcesTitle([group.entry, ...group.others]) }, groupLabel(group)));
@@ -154,21 +173,40 @@ function hashWord() {
     return hash;
   }
 }
-const hashFor = (word) => (word.trim() ? "#" + encodeURIComponent(word.trim()).replace(/%20/g, "+") : location.pathname);
+const hashFor = (word) => (word.trim() ? "#" + encodeURIComponent(word.trim()).replace(/%20/g, "+").replace(/%2F/g, "/") : location.pathname);
 
 function update({ push = false } = {}) {
   if (!rhymes) return;
   const word = input.value;
   save(WORD_KEY, word);
   if (hashWord() !== word.trim()) history[push ? "pushState" : "replaceState"](null, "", hashFor(word));
+  soundHelp.hidden = !word.trim().startsWith("/");
   if (word.trim() === shown.word) return;
-  shown = { word: word.trim(), choices: rhymes.pronunciationGroups(word, currentOptions()), choice: 0 };
+  shown = { word: word.trim(), choices: [], choice: 0 };
   summary.textContent = "";
   if (!shown.word) {
     prons.replaceChildren();
     results.replaceChildren();
     return;
   }
+  // a pronunciation between slashes (the closing one is optional)
+  if (shown.word.startsWith("/")) {
+    shown.sounds = true;
+    try {
+      const { pron, assumed } = parseSounds(shown.word.replace(/^\/|\/$/g, ""));
+      shown.choices = [{ entry: { word: shown.word, pron, sources: "", zipf: 0 }, others: [] }];
+      shown.assumed = assumed;
+    } catch (e) {
+      prons.replaceChildren();
+      results.replaceChildren();
+      summary.textContent = shown.word === "/" ? "" : `${e.message} in ${shown.word}.`;
+      return;
+    }
+    showPronunciations();
+    showRhymes();
+    return;
+  }
+  shown.choices = rhymes.pronunciationGroups(word, currentOptions());
   showPronunciations();
   if (shown.choices.length === 0) {
     results.replaceChildren();
@@ -178,8 +216,9 @@ function update({ push = false } = {}) {
   showRhymes();
 }
 
-// clicking a rhyme (or pressing Enter on it) looks it up here, unless it's opened in a new tab or window
-results.addEventListener("click", (e) => {
+// clicking a rhyme or homophone (or pressing Enter on it) looks it up here, unless it's opened in a new
+// tab or window
+const lookUpClicked = (e) => {
   const target = e.target.closest?.("a.rhyme");
   if (!target || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
   e.preventDefault();
@@ -187,7 +226,9 @@ results.addEventListener("click", (e) => {
   update({ push: true });
   input.focus();
   window.scrollTo({ top: 0 });
-});
+};
+results.addEventListener("click", lookUpClicked);
+prons.addEventListener("click", lookUpClicked);
 
 let timer = null;
 input.addEventListener("input", () => {
@@ -203,6 +244,7 @@ for (const box of Object.values(OPTIONS)) {
   box.addEventListener("change", () => {
     save(OPTIONS_KEY, JSON.stringify(currentOptions()));
     if (!rhymes) return;
+    if (shown.sounds) return showRhymes();
     // mergers can change which pronunciations have the same rhymes: regroup, keeping the one chosen
     const chosen = shown.choices[shown.choice];
     const entries = chosen ? [chosen.entry, ...chosen.others] : [];

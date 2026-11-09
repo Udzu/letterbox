@@ -24,6 +24,10 @@
   }
   #options { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 10px; }
   #options label, #mergers label { cursor: pointer; }
+  #sound-help { margin: 6px 0 0; font-size: 0.85rem; color: #666; line-height: 1.5; }
+  #sound-help span { font-family: ui-monospace, monospace; color: #000; background: #f0f0f0; padding: 0 3px; border-radius: 2px; }
+  #prons .homophones a { color: #000; text-decoration: none; }
+  #prons .homophones a:hover, #prons .homophones a:focus { text-decoration: underline; }
   #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; }
   #mergers .label { color: #666; }
   #status { margin: 12px 0 0; color: #666; }
@@ -71,8 +75,9 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <b>Rhymes</b> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Find rhymes in General American English: words and phrases that sound the same from the last stressed vowel on, but different just before it. Click a rhyme to look it up. The pronunciations are fetched online, but you can download them to use the page offline, or load your own (see the bottom of the page).</p>
+  <p class="intro">Find rhymes in General American English for a word, a phrase, or a pronunciation between slashes, like /ˈhɛd/ or /'hEd/. Click a rhyme to look it up. The pronunciations are fetched online, but you can download them to use the page offline, or load your own (see the bottom of the page).</p>
   <input id="word" type="text" placeholder="Word or phrase..." autocomplete="off" spellcheck="false" autofocus>
+  <p id="sound-help" hidden>Type sounds in IPA or using: <span>A</span> ɑ <i>father</i> · <span>a</span> æ <i>cat</i> · <span>^</span> ʌ or <span>@</span> ə <i>cut</i> · <span>O</span> ɔ <i>caught</i> · <span>E</span> ɛ <i>bed</i> · <span>3</span> ɝ/ɚ <i>bird</i> · <span>I</span> ɪ <i>bit</i> · <span>i</span> <i>beat</i> · <span>U</span> ʊ <i>book</i> · <span>u</span> <i>boot</i> · <span>eI</span> <i>bait</i> · <span>aI</span> <i>bite</i> · <span>aU</span> <i>out</i> · <span>oU</span> <i>boat</i> · <span>OI</span> <i>boy</i> · <span>S</span> ʃ <i>ship</i> · <span>Z</span> ʒ <i>measure</i> · <span>tS</span> <i>chip</i> · <span>dZ</span> <i>judge</i> · <span>T</span> θ <i>thin</i> · <span>D</span> ð <i>this</i> · <span>N</span> ŋ <i>sing</i> · <span>j</span>/<span>y</span> <i>yes</i>, others as usual. Put <span>'</span> before the stressed syllable (by default the first) and <span>,</span> before a secondary one, e.g. <span>/'m^Nki/</span> <i>monkey</i>.</p>
   <div id="options">
     <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> Allow the same onset</label>
     <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> Allow different onsets after the stress</label>
@@ -263,6 +268,111 @@
     };
   }
   var syllableCount = (pron) => phonemes(pron).filter((x) => VOWELS.has(x.p)).length;
+  var SOUND_SYMBOLS = Object.entries({
+    // longest first
+    t\u0283: "C",
+    d\u0292: "J",
+    e\u026A: "e",
+    a\u026A: "Y",
+    a\u028A: "W",
+    o\u028A: "o",
+    \u0254\u026A: "Q",
+    "\u025C\u02DE": "R",
+    tS: "C",
+    dZ: "J",
+    eI: "e",
+    aI: "Y",
+    aU: "W",
+    oU: "o",
+    OI: "Q",
+    "@`": "R",
+    \u0251: "A",
+    \u0252: "A",
+    \u00E6: "a",
+    \u028C: "V",
+    \u0259: "V",
+    \u0250: "V",
+    \u0254: "O",
+    \u025B: "E",
+    \u025D: "R",
+    \u025A: "R",
+    \u025C: "R",
+    \u026A: "I",
+    "\u1D7B": "I",
+    \u028A: "U",
+    \u0283: "S",
+    \u0292: "Z",
+    \u03B8: "T",
+    \u00F0: "D",
+    \u014B: "N",
+    \u0279: "r",
+    \u0261: "g",
+    \u027E: "t",
+    \u0294: "t",
+    \u026B: "l",
+    A: "A",
+    a: "a",
+    "^": "V",
+    "@": "V",
+    O: "O",
+    E: "E",
+    3: "R",
+    I: "I",
+    i: "i",
+    U: "U",
+    u: "u",
+    e: "e",
+    o: "o",
+    S: "S",
+    Z: "Z",
+    T: "T",
+    D: "D",
+    N: "N",
+    y: "j",
+    ...Object.fromEntries([..."bdfghjklmnprstvwz"].map((c) => [c, c]))
+  }).sort(([a], [b]) => b.length - a.length);
+  function parseSounds(text) {
+    const out = [];
+    let mark = 0;
+    const s = text.replace(/[\u0361\u035c]/g, "");
+    for (let i = 0; i < s.length; ) {
+      const c = s[i];
+      if (/\s/.test(c)) {
+        if (out.length && out.at(-1).p !== " ") out.push({ p: " " });
+        i++;
+      } else if ("\u02C8'\u2019\u02BC".includes(c) || "\u02CC,".includes(c)) {
+        mark = "\u02CC,".includes(c) ? 2 : 1;
+        i++;
+      } else if (".:\u02D0\u02D1-\u203F".includes(c)) {
+        i++;
+      } else if (c === "\u0329" || c === "\u030D") {
+        if (out.length && !VOWELS.has(out.at(-1).p) && out.at(-1).p !== " ") out.splice(-1, 0, { p: "V", stress: mark });
+        mark = 0;
+        i++;
+      } else {
+        const found = SOUND_SYMBOLS.find(([symbol2]) => s.startsWith(symbol2, i));
+        if (!found) throw new Error(`Unknown sound \u201C${c}\u201D`);
+        const [symbol, code] = found;
+        if (VOWELS.has(code)) {
+          out.push({ p: code, stress: mark });
+          mark = 0;
+        } else out.push({ p: code });
+        i += symbol.length;
+      }
+    }
+    if (out.at(-1)?.p === " ") out.pop();
+    for (let k = out.length - 2; k >= 0; k--) {
+      if ((out[k].p === "V" || out[k].p === "R") && out[k + 1].p === "r" && !VOWELS.has(out[k + 2]?.p)) {
+        out[k].p = "R";
+        out.splice(k + 1, 1);
+      }
+    }
+    const vowels = out.filter((x) => VOWELS.has(x.p));
+    if (vowels.length === 0) throw new Error("No vowel");
+    const assumed = !vowels.some((x) => x.stress);
+    if (!vowels.some((x) => x.stress === 1)) (vowels.find((x) => x.stress === 2) ?? vowels[0]).stress = 1;
+    return { pron: out.map((x) => x.p + (x.stress ? x.stress : "")).join(""), assumed: assumed && vowels.length > 1 };
+  }
   var PRONUNCIATION = /^(?:[AaVOWYEReIioQUu][12]?|[bCdDfghJklmnNprsStTvwjzZ ])+$/;
   function parsePronunciations(text) {
     const entries = [];
@@ -365,6 +475,28 @@
       const seen = /* @__PURE__ */ new Set();
       const seenKey = (entry) => `${lookupKey(entry.word)}	${entry.pron}`;
       return sorted.filter((entry) => !seen.has(seenKey(entry)) && seen.add(seenKey(entry)));
+    }
+    // The words pronounced like a pronunciation (ignoring secondary stress, word breaks and differences
+    // between unstressed ɪ, ʊ and ə), as a map like matches gives. The index for this is only built
+    // the first time it's needed.
+    homophones(pron) {
+      const key = (p) => p.replace(/[ 2]/g, "").replace(/[IUV](?!1)/g, "V");
+      if (!this.bySound) {
+        this.bySound = /* @__PURE__ */ new Map();
+        for (const entry of this.entries) {
+          const k = key(entry.pron);
+          if (!this.bySound.has(k)) this.bySound.set(k, []);
+          this.bySound.get(k).push(entry);
+        }
+      }
+      const words = /* @__PURE__ */ new Map();
+      for (const { word, zipf, pron: p } of this.bySound.get(key(pron)) ?? []) {
+        const match = words.get(word) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
+        match.zipf = Math.max(match.zipf, zipf);
+        match.syllables.add(syllableCount(p));
+        words.set(word, match);
+      }
+      return words;
     }
     // A word's pronunciations (as given by pronunciations), grouped when they have the same rhymes
     // (with the mergers chosen, as for find): [{ entry, others }], where entry is the first in its group
@@ -486,6 +618,7 @@
   var summary = document.getElementById("summary");
   var results = document.getElementById("results");
   var attribution = document.getElementById("attribution");
+  var soundHelp = document.getElementById("sound-help");
   var OPTIONS = {
     sameOnset: document.getElementById("same-onset"),
     looseOnsets: document.getElementById("loose-onsets"),
@@ -535,9 +668,27 @@
     const href = `https://en.wiktionary.org/wiki/${encodeURIComponent(word.replaceAll(" ", "_"))}#English`;
     return [" ", el("a", { className: "wiktionary", href, target: "_blank", rel: "noopener", textContent: "\u2197", title: `${word} on Wiktionary` })];
   }
+  function showSounds() {
+    const { entry } = shown.choices[0];
+    const items = rhymes.items(rhymes.homophones(entry.pron)).sort((a, b) => b.zipf - a.zipf || compareWords(a.word, b.word));
+    const notes = [];
+    if (items.length) {
+      notes.push("like ", ...items.flatMap((item, i) => [...i ? [", "] : [], el("a", {
+        className: "rhyme",
+        href: hashFor(item.word),
+        textContent: item.word,
+        title: item.variants.length ? `Also ${item.variants.join(", ")}` : ""
+      })]));
+    }
+    if (shown.assumed) notes.push(...notes.length ? ["; "] : [], "stress taken to be on the first vowel");
+    const parts = [el("span", { className: "ipa", textContent: `/${toIpa(entry.pron)}/` })];
+    if (notes.length) parts.push(" ", el("span", { className: "also homophones" }, ["(", ...notes, ")"]));
+    prons.append(el("p", { className: "single" }, parts));
+  }
   function showPronunciations() {
     const { choices, choice } = shown;
     prons.replaceChildren();
+    if (shown.sounds) return showSounds();
     if (choices.length === 1) {
       const [group] = choices;
       prons.append(el("p", { className: "single", title: sourcesTitle([group.entry, ...group.others]) }, groupLabel(group)));
@@ -599,20 +750,38 @@
       return hash;
     }
   }
-  var hashFor = (word) => word.trim() ? "#" + encodeURIComponent(word.trim()).replace(/%20/g, "+") : location.pathname;
+  var hashFor = (word) => word.trim() ? "#" + encodeURIComponent(word.trim()).replace(/%20/g, "+").replace(/%2F/g, "/") : location.pathname;
   function update({ push = false } = {}) {
     if (!rhymes) return;
     const word = input.value;
     save(WORD_KEY, word);
     if (hashWord() !== word.trim()) history[push ? "pushState" : "replaceState"](null, "", hashFor(word));
+    soundHelp.hidden = !word.trim().startsWith("/");
     if (word.trim() === shown.word) return;
-    shown = { word: word.trim(), choices: rhymes.pronunciationGroups(word, currentOptions()), choice: 0 };
+    shown = { word: word.trim(), choices: [], choice: 0 };
     summary.textContent = "";
     if (!shown.word) {
       prons.replaceChildren();
       results.replaceChildren();
       return;
     }
+    if (shown.word.startsWith("/")) {
+      shown.sounds = true;
+      try {
+        const { pron, assumed } = parseSounds(shown.word.replace(/^\/|\/$/g, ""));
+        shown.choices = [{ entry: { word: shown.word, pron, sources: "", zipf: 0 }, others: [] }];
+        shown.assumed = assumed;
+      } catch (e) {
+        prons.replaceChildren();
+        results.replaceChildren();
+        summary.textContent = shown.word === "/" ? "" : `${e.message} in ${shown.word}.`;
+        return;
+      }
+      showPronunciations();
+      showRhymes();
+      return;
+    }
+    shown.choices = rhymes.pronunciationGroups(word, currentOptions());
     showPronunciations();
     if (shown.choices.length === 0) {
       results.replaceChildren();
@@ -621,7 +790,7 @@
     }
     showRhymes();
   }
-  results.addEventListener("click", (e) => {
+  var lookUpClicked = (e) => {
     const target = e.target.closest?.("a.rhyme");
     if (!target || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
@@ -629,7 +798,9 @@
     update({ push: true });
     input.focus();
     window.scrollTo({ top: 0 });
-  });
+  };
+  results.addEventListener("click", lookUpClicked);
+  prons.addEventListener("click", lookUpClicked);
   var timer = null;
   input.addEventListener("input", () => {
     clearTimeout(timer);
@@ -644,6 +815,7 @@
     box.addEventListener("change", () => {
       save(OPTIONS_KEY, JSON.stringify(currentOptions()));
       if (!rhymes) return;
+      if (shown.sounds) return showRhymes();
       const chosen = shown.choices[shown.choice];
       const entries = chosen ? [chosen.entry, ...chosen.others] : [];
       shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
