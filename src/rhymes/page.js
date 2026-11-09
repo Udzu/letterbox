@@ -23,6 +23,11 @@ const OPTIONS = {
   sameOnset: document.getElementById("same-onset"),
   looseOnsets: document.getElementById("loose-onsets"),
   cotCaught: document.getElementById("cot-caught"),
+  maryMarryMerry: document.getElementById("mary-marry-merry"),
+  hurryFurry: document.getElementById("hurry-furry"),
+  cureForce: document.getElementById("cure-force"),
+  flapping: document.getElementById("flapping"),
+  pinPen: document.getElementById("pin-pen"),
 };
 const currentOptions = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
 

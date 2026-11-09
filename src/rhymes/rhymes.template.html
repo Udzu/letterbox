@@ -22,7 +22,9 @@
     font-family: inherit;
   }
   #options { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 10px; }
-  #options label { cursor: pointer; }
+  #options label, #mergers label { cursor: pointer; }
+  #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; }
+  #mergers .label { color: #666; }
   #status { margin: 12px 0 0; color: #666; }
   #status:empty { display: none; }
   #status.error { color: #d00; }
@@ -73,7 +75,15 @@
   <div id="options">
     <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> Allow the same onset</label>
     <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> Allow different onsets after the stress</label>
-    <label title="Treat the vowels of cot and caught as the same, as many North Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> Merge <i>cot</i> and <i>caught</i></label>
+  </div>
+  <div id="mergers">
+    <span class="label" title="Treat sounds as the same that many Americans pronounce the same">Merge:</span>
+    <label title="Treat t between vowels, before an unstressed one, as d, as Americans pronounce both as a quick tap (so metal rhymes with pedal, and dirty with wordy)"><input type="checkbox" id="flapping"> <i>latter</i> = <i>ladder</i></label>
+    <label title="Treat the stressed vowels of marry, Mary and merry as the same before r, as most Americans do"><input type="checkbox" id="mary-marry-merry"> <i>marry</i> = <i>merry</i></label>
+    <label title="Treat the stressed vowels of hurry and furry as the same, as most Americans do"><input type="checkbox" id="hurry-furry"> <i>hurry</i> = <i>furry</i></label>
+    <label title="Treat the vowels of cot and caught as the same, as many Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> <i>cot</i> = <i>caught</i></label>
+    <label title="Treat the stressed vowels of poor and pour as the same, as many Americans do (so tour rhymes with more)"><input type="checkbox" id="cure-force"> <i>poor</i> = <i>pour</i></label>
+    <label title="Treat stressed e and i as the same before m and n, as in the South (so pen rhymes with win)"><input type="checkbox" id="pin-pen"> <i>pin</i> = <i>pen</i></label>
   </div>
   <p id="status"></p>
   <div id="prons"></div>

@@ -156,19 +156,46 @@ export const withoutAccents = (word) => (/[^\x00-\x7f]/.test(word)
 export const COMMON = 30;
 export const RARE = 20;
 
-// Sound mergers that some speakers have, each as a function on rhymes (strings of phoneme codes,
-// without stress digits) that makes the merged sounds the same:
+// Sound mergers that some speakers have, each as a function on pronunciations (in the file's codes,
+// with stress digits) that makes the merged sounds the same. They work on whole pronunciations rather
+// than rhymes, as loose rhymes leave out consonants that some depend on (the r of hurry, the n of
+// penny).
 // - cotCaught: ɔ is the same as ɑ (caught and cot), except before r (horse isn't hearse or hard)
+// - maryMarryMerry: stressed æ and eɪ are ɛ before r and a vowel (marry and Mary are merry)
+// - hurryFurry: stressed ʌ before r and a vowel is ɝ (hurry is furry)
+// - cureForce: stressed ʊ before r is ɔ (poor is pour, tour is tore)
+// - flapping: t between a vowel (or r) and an unstressed vowel is d (latter is ladder, dirty wordy)
+// - pinPen: stressed ɛ is ɪ before m or n (pen is pin, hem him)
+// As rhymes ignore secondary stress and word breaks, so do the mergers, so that they never make
+// pronunciations that rhyme stop rhyming: "stressed" means primary stress (the vowel a rhyme starts
+// from), and "unstressed" means without it.
+const VOWEL = "[AaVOWYEReIioQUu]";
+const re = (source, flags) => new RegExp(source.replaceAll("VOWEL", VOWEL), flags);
+const BEFORE_R_AND_VOWEL = re("[ae]1(?= ?r ?VOWEL)", "g");
+const STRESSED_V_R = re("V1( ?)r(?= ?VOWEL)", "g");
+const FLAPPED_T = re("(?<=(?:VOWEL[12]?|r) ?)t(?= ?VOWEL(?!1))", "g");
 export const MERGERS = {
-  cotCaught: (key) => key.replace(/O(?!r)/g, "A"),
+  cotCaught: (pron) => pron.replace(/O(?![12]? ?r)/g, "A"),
+  maryMarryMerry: (pron) => pron.replace(BEFORE_R_AND_VOWEL, "E1"),
+  hurryFurry: (pron) => pron.replace(STRESSED_V_R, "R1$1"),
+  cureForce: (pron) => pron.replace(/U1( ?)r/g, "O1$1r"),
+  flapping: (pron) => pron.replace(FLAPPED_T, "d"),
+  pinPen: (pron) => pron.replace(/E1(?= ?[mn])/g, "I1"),
 };
 
-// a rhyme with the given mergers applied ({ cotCaught: true, ... })
-export function merge(key, mergers = {}) {
-  return Object.entries(MERGERS).reduce((k, [name, f]) => (mergers[name] ? f(k) : k), key);
+// a pronunciation with the given mergers applied ({ cotCaught: true, ... }), always in the same order
+export function merge(pron, mergers = {}) {
+  return Object.entries(MERGERS).reduce((p, [name, f]) => (mergers[name] ? f(p) : p), pron);
 }
+// the sounds that some merger changes, so pronunciations without them are the same with every merger
+const MERGEABLE = /O|[aeVUE]1|t/;
 const ALL_MERGERS = Object.values(MERGERS);
-const mergeAll = (key) => ALL_MERGERS.reduce((k, f) => f(k), key);
+const mergeAll = (pron) => ALL_MERGERS.reduce((p, f) => f(p), pron);
+// A loose rhyme with the sounds that any merger can change made the same. Loose rhymes leave out
+// consonants that mergers depend on (the r of hurry, the m of pen), so two that are the same can
+// differ once merged: this key, which no merger changes, finds the candidates.
+const VOWEL_CLASSES = { O: "A", U: "A", a: "E", e: "E", I: "E", V: "R" };
+const looseIndexKey = (loose) => loose.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) => VOWEL_CLASSES[c]).replaceAll("t", "d");
 
 // A rhyming dictionary over a list of entries.
 export class Rhymes {
@@ -176,8 +203,9 @@ export class Rhymes {
     this.entries = entries;
     this.byWord = new Map(); // lookup key -> entries
     this.accented = new Map(); // lookup key without accents -> lookup keys with them
-    // rhymes and loose rhymes with every merger applied -> [{ entry, rhyme, loose, onset }], from which
-    // find picks the ones that match with the mergers chosen
+    // rhymes with every merger applied, and loose rhymes as looseIndexKey -> [{ entry, rhyme, loose,
+    // onset }] (the parts without mergers), from which find picks the ones that match with the mergers
+    // chosen
     this.byRhyme = new Map();
     this.byLoose = new Map();
     const add = (map, key, value) => {
@@ -185,14 +213,28 @@ export class Rhymes {
       if (list) list.push(value);
       else map.set(key, [value]);
     };
+    const rhymeKeys = new Map(); // the rhyme part of a pronunciation -> its key in byRhyme
+    const looseKeys = new Map(); // a loose rhyme -> its key in byLoose
     for (const entry of entries) {
       const key = lookupKey(entry.word);
       if (!this.byWord.has(key) && withoutAccents(key) !== key) add(this.accented, withoutAccents(key), key);
       add(this.byWord, key, entry);
       const { rhyme, loose, onset } = rhymeParts(entry.pron);
       const item = { entry, rhyme, loose, onset };
-      add(this.byRhyme, mergeAll(rhyme), item);
-      add(this.byLoose, mergeAll(loose), item);
+      // the mergers only need to see the rhyme, from the stressed vowel on, and as the same rhymes and
+      // loose rhymes come up again and again, their keys are cached
+      const stress = entry.pron.lastIndexOf("1");
+      const tail = stress > 0 ? entry.pron.slice(stress - 1) : entry.pron;
+      let rhymeKey = MERGEABLE.test(tail) ? rhymeKeys.get(tail) : rhyme;
+      if (rhymeKey === undefined) {
+        const merged = mergeAll(tail);
+        rhymeKey = merged === tail ? rhyme : rhymeParts(merged).rhyme;
+        rhymeKeys.set(tail, rhymeKey);
+      }
+      let looseKey = looseKeys.get(loose);
+      if (looseKey === undefined) looseKeys.set(loose, (looseKey = looseIndexKey(loose)));
+      add(this.byRhyme, rhymeKey, item);
+      add(this.byLoose, looseKey, item);
     }
   }
 
@@ -221,8 +263,8 @@ export class Rhymes {
   pronunciationGroups(word, options = {}) {
     const groups = new Map();
     for (const entry of this.pronunciations(word)) {
-      const { rhyme, onset } = rhymeParts(entry.pron);
-      const key = `${onset}|${merge(rhyme, options)}`;
+      const { rhyme, onset } = rhymeParts(merge(entry.pron, options));
+      const key = `${onset}|${rhyme}`;
       if (groups.has(key)) groups.get(key).others.push(entry);
       else groups.set(key, { entry, others: [] });
     }
@@ -245,19 +287,23 @@ export class Rhymes {
   // and the set of their numbers of syllables.
   matches(entry, options = {}) {
     const { sameOnset = false, looseOnsets = false } = options;
-    const parts = rhymeParts(entry.pron);
+    const mergers = Object.keys(MERGERS).some((name) => options[name]);
     const field = looseOnsets ? "loose" : "rhyme";
-    const target = merge(parts[field], options);
-    const candidates = (looseOnsets ? this.byLoose : this.byRhyme).get(mergeAll(parts[field]));
+    const parts = rhymeParts(entry.pron);
+    const target = mergers ? rhymeParts(merge(entry.pron, options))[field] : parts[field];
+    const candidates = looseOnsets ? this.byLoose.get(looseIndexKey(parts.loose))
+      : this.byRhyme.get(rhymeParts(mergeAll(entry.pron)).rhyme);
     const self = withoutAccents(lookupKey(entry.word));
     const words = new Map();
-    for (const other of candidates ?? []) {
-      if (merge(other[field], options) !== target) continue;
-      const { word, zipf } = other.entry;
-      if ((sameOnset || other.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {
+    for (const item of candidates ?? []) {
+      const other = mergers ? rhymeParts(merge(item.entry.pron, options)) : item;
+      if (other[field] !== target) continue;
+      const { word, zipf } = item.entry;
+      // (onsets as without mergers, which aren't meant to change them)
+      if ((sameOnset || item.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {
         const match = words.get(word) ?? { zipf: 0, syllables: new Set() };
         match.zipf = Math.max(match.zipf, zipf);
-        match.syllables.add(syllableCount(other.entry.pron));
+        match.syllables.add(syllableCount(item.entry.pron));
         words.set(word, match);
       }
     }
