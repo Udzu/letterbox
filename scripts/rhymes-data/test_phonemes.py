@@ -155,6 +155,14 @@ class EnPR(unittest.TestCase):
         with self.assertRaises(Unparsed):
             from_enpr("ĕs-")
 
+    def test_ipa_style_marks(self):
+        self.assertEqual(enpr("hûrˌ-mə-no͞oˈ-tĭks", "hermeneutics"), ["hR2mVnu1tIks"])
+        self.assertEqual(enpr("ˈŏr-ĭnj", "orange"), ["A1rInJ"])
+        self.assertEqual(enpr("ˌchēm-bō-ˈrä-(ˌ)zō", "Chimborazo"), ["Ci2mbOrA1zo", "Ci2mbOrA1zo2"])
+        self.assertEqual(enpr("chēmʹbō-räʹsō", "Chimborazo"), ["Ci2mbOrA1so"])
+        self.assertEqual(enpr("pē'dəmôʹfĭk", "pædomorphic"), ["pi2dVmO1fIk"])
+        self.assertEqual(enpr("ĭ'mĭ-dăʹzōl'", "imidazole"), ["I2mIda1zo2l"])
+
     def test_th(self):
         self.assertEqual(enpr("fä'thər", "father"), ["fA1DR"])
         self.assertEqual(enpr("brēth", "breathe"), ["bri1D"])
