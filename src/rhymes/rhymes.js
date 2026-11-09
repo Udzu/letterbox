@@ -373,16 +373,18 @@ export class Rhymes {
   matches(entry, options = {}) {
     const { sameOnset = false, looseOnsets = false } = options;
     const mergers = Object.keys(MERGERS).some((name) => options[name]);
-    const field = looseOnsets ? "loose" : "rhyme";
     const parts = rhymeParts(entry.pron);
-    const target = mergers ? rhymeParts(merge(entry.pron, options))[field] : parts[field];
-    const candidates = looseOnsets ? this.byLoose.get(looseIndexKey(parts.loose))
-      : this.byRhyme.get(rhymeParts(mergeAll(entry.pron)).rhyme);
+    const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
+    // Loose rhymes also include the strict ones: as loose rhymes split consonants at word breaks, the
+    // same sounds can give different loose rhymes (the r of care of ends a syllable, but where've's
+    // starts one), so they wouldn't always.
+    const strict = this.byRhyme.get(rhymeParts(mergeAll(entry.pron)).rhyme) ?? [];
+    const candidates = looseOnsets ? [...strict, ...(this.byLoose.get(looseIndexKey(parts.loose)) ?? [])] : strict;
     const self = withoutAccents(lookupKey(entry.word));
     const words = new Map();
-    for (const item of candidates ?? []) {
+    for (const item of candidates) {
       const other = mergers ? rhymeParts(merge(item.entry.pron, options)) : item;
-      if (other[field] !== target) continue;
+      if (other.rhyme !== target.rhyme && !(looseOnsets && other.loose === target.loose)) continue;
       const { word, zipf } = item.entry;
       // (onsets as without mergers, which aren't meant to change them)
       if ((sameOnset || item.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {

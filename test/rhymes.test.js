@@ -364,3 +364,15 @@ rabbit\tra1bIt\tC\t40
   assert.deepEqual(words(parseSounds("'rab@t").pron), ["rabbit"]);
   assert.deepEqual(words(parseSounds("'blIrfIN").pron), []);
 });
+
+test("allowing different onsets after the stress never loses a rhyme", () => {
+  const r = new Rhymes(parsePronunciations(`
+care of\tkE1r Vv\tP\t56
+where've\twE1rVv\tC\t30
+eruv\tE1rUv\tU\t20
+`).entries);
+  const find = (w, o) => r.find(r.pronunciations(w)[0], o);
+  // the r ends a syllable in care of (before a word break) but starts one in where've
+  assert.deepEqual(find("care of"), ["eruv", "where've"]);
+  assert.deepEqual(find("care of", { looseOnsets: true }), ["eruv", "where've"]);
+});
