@@ -23,6 +23,12 @@
   main { max-width: 900px; margin: 0 auto; }
   h1 { margin: 0 0 8px; font-size: 1.8rem; }
   .intro { margin: 0 0 24px; color: #666; }
+  /* how to install the site as an app, where the browser supports it (see the script below) */
+  #install { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin: -8px 0 20px; padding: 8px 12px; border-radius: 6px; background: #f4f4f4; color: #444; font-size: 0.95rem; }
+  #install[hidden] { display: none; }
+  #install .text { flex: 1; min-width: 12em; }
+  #install button { font: inherit; cursor: pointer; }
+  #install .dismiss { border: none; background: none; color: #888; font-size: 1.2rem; line-height: 1; padding: 0 2px; }
   /* each section is a grid of boxes, each box a link: 3 columns on desktop, 1 on narrow phones */
   .grid {
     list-style: none;
@@ -56,6 +62,11 @@
 <main>
   <h1>Letterbox</h1>
   <p class="intro">Simple offline web tools.</p>
+  <div id="install" hidden>
+    <span class="text"></span>
+    <button type="button" class="install" hidden>Install app</button>
+    <button type="button" class="dismiss" title="Don't show this again" aria-label="Don't show this again">×</button>
+  </div>
   <ul class="grid">
     <li><a href="anagrams.html">
       <span class="name">Anagrams</span>
@@ -101,5 +112,49 @@
     </a></li>
   </ul>
 </main>
+<script>
+  // Suggest installing the site as an app: on iOS, which never offers it, by saying how; elsewhere with a
+  // button for the browser's own install dialog, once the browser says the site can be installed. Not
+  // shown when running as the installed app, or once dismissed.
+  (() => {
+    const box = document.getElementById("install");
+    const text = box.querySelector(".text");
+    const button = box.querySelector(".install");
+    const KEY = "install-dismissed";
+    let dismissed = false;
+    try {
+      dismissed = localStorage.getItem(KEY) === "1";
+    } catch (e) {}
+    if (dismissed || matchMedia("(display-mode: standalone)").matches || navigator.standalone) return;
+    // iPadOS reports itself as a Mac, but has a touch screen
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+    if (ios) {
+      text.textContent = "Install Letterbox as an app to use it offline: tap Share, then Add to Home Screen.";
+      box.hidden = false;
+    }
+    let prompt = null;
+    addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault(); // show the button instead of the browser's own banner
+      prompt = event;
+      text.textContent = "Letterbox can be installed as an app, to use it offline.";
+      button.hidden = false;
+      box.hidden = false;
+    });
+    button.addEventListener("click", async () => {
+      if (!prompt) return;
+      prompt.prompt();
+      const { outcome } = await prompt.userChoice;
+      prompt = null;
+      if (outcome === "accepted") box.hidden = true;
+    });
+    addEventListener("appinstalled", () => (box.hidden = true));
+    box.querySelector(".dismiss").addEventListener("click", () => {
+      box.hidden = true;
+      try {
+        localStorage.setItem(KEY, "1");
+      } catch (e) {}
+    });
+  })();
+</script>
 </body>
 </html>
