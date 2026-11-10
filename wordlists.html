@@ -50,6 +50,9 @@
   .badge.politics-religion { background: #f3f0c4; color: #5f5600; }
   .badge.science { background: #efe6fa; color: #5b2f94; }
   .badge.other { background: #eee; color: #555; }
+  /* a row's badge is a button too, which shows only the lists with that topic, or all of them again */
+  .title button.badge { border: 1px solid transparent; font-family: inherit; line-height: inherit; cursor: pointer; }
+  .title button.badge:hover, .title button.badge[aria-pressed=true] { border-color: currentColor; }
   /* pressed buttons are coloured like the shading of their rows */
   button.load[aria-pressed=true] { background: #080; border: 1px solid #080; border-radius: 3px; color: #fff; }
   button.at[aria-pressed=true] { background: #06c; border: 1px solid #06c; border-radius: 3px; color: #fff; }
@@ -454,12 +457,17 @@ ${stripped}` : stripped;
     filterBox.append(button);
   }
   var filtered = [];
+  var rowBadges = [];
   function setFilter(name) {
     filter = name;
     allButton.setAttribute("aria-pressed", String(name === null));
     for (const [key, button] of filters) {
       button.setAttribute("aria-pressed", String(key === name));
       button.title = key === name ? "Show all the lists" : `Show only the ${key === "other" ? "untagged" : key} lists`;
+    }
+    for (const { topic, button } of rowBadges) {
+      button.setAttribute("aria-pressed", String(topic === name));
+      button.title = topic === name ? "Show all the lists" : `Show only the ${topic} lists`;
     }
     filterBox.classList.toggle("active", name !== null);
     for (const { list, li } of filtered) li.hidden = name !== null && filterOf(list) !== name;
@@ -479,7 +487,16 @@ ${stripped}` : stripped;
     downloadButton.title = `Save the list as ${list.file}`;
     const title = element("div", "title");
     title.append(element("span", "name", list.name));
-    if (list.tag && !general) title.append(element("span", badgeClass(list.tag), list.tag));
+    if (list.tag && !general) {
+      const badge = element("button", badgeClass(list.tag), list.tag);
+      badge.addEventListener("click", () => {
+        const top = badge.getBoundingClientRect().top;
+        setFilter(filter === list.tag ? null : list.tag);
+        window.scrollBy(0, badge.getBoundingClientRect().top - top);
+      });
+      rowBadges.push({ topic: list.tag, button: badge });
+      title.append(badge);
+    }
     title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
     const status = element("p", "status");
     status.setAttribute("aria-live", "polite");
