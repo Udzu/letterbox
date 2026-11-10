@@ -480,14 +480,14 @@
         ["", "Any type"],
         ["emoji", "Emoji"],
         ["not-emoji", "Not emoji"],
-        ["sequence", "Sequences"],
+        ["emoji-sequence", "Emoji sequences"],
         ["invisible", "Invisible characters"],
         ["new", `New in Unicode ${unicode.latest.replace(/\.0$/, "")}`],
         ...groupNames.map((g) => [`group:${g}`, g, "Emoji groups"])
       ],
       values: (e) => e.types ??= [
         ...e.emoji ? ["emoji", `group:${unicode.groups[e.emoji.group].group}`] : ["not-emoji"],
-        ...isSequence(e) ? ["sequence"] : [],
+        ...e.emoji && isSequence(e) ? ["emoji-sequence"] : [],
         ...isInvisible(e) ? ["invisible"] : [],
         ...e.age === unicode.latest ? ["new"] : []
       ]
