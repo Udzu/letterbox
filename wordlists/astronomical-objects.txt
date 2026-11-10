@@ -1,0 +1,498 @@
+# name: Astronomical objects
+# description: Objects in space, both named (Triton, Milky Way) and general (comet, dwarf planet), in alphabetical order.
+# tag: science
+
+47 Tucanae
+accretion disc
+Achernar
+Acrux
+active galactic nucleus
+active galaxy
+Adhara
+Adrastea
+Albion
+Albireo
+Alcor
+Alcyone
+Aldebaran
+Algenib
+Algieba
+Algol
+Alhena
+Alioth
+Alkaid
+Allende meteorite
+Alnair
+Alnilam
+Alnitak
+Alpha Centauri
+Alphard
+Alpheratz
+Altair
+Amalthea
+Ananke
+Andromeda Galaxy
+Antares
+Antennae Galaxies
+Apophis
+Arches Cluster
+Arcturus
+Ariel
+Arrokoth
+asteroid
+asteroid belt
+Asterope
+Atlas
+Atria
+Avior
+Barnard's Loop
+Barnard's Star
+barred spiral galaxy
+Beehive Cluster
+Bellatrix
+Bennu
+Beta Pictoris
+Betelgeuse
+Biela's Comet
+binary asteroid
+binary star
+black dwarf
+Black Eye Galaxy
+black hole
+blazar
+blue giant
+blue straggler
+blue supergiant
+Bode's Galaxy
+Bok globule
+bolide
+Boomerang Nebula
+Boötes Void
+brown dwarf
+Bubble Nebula
+Bullet Cluster
+Butterfly Nebula
+Caliban
+Callisto
+Calypso
+Canis Major Dwarf Galaxy
+Canopus
+Capella
+carbon star
+Carina Nebula
+Carme
+Cartwheel Galaxy
+Cassiopeia A
+Castor
+Cat's Eye Nebula
+Celaeno
+centaur
+Centaurus A
+Cepheid variable
+Ceres
+Chariklo
+Charon
+Chiron
+Christmas Tree Cluster
+Cigar Galaxy
+circumbinary planet
+Coalsack Nebula
+Cocoon Nebula
+Coma Cluster
+comet
+Comet Borisov
+Comet Churyumov-Gerasimenko
+Comet Galaxy
+Comet Hale-Bopp
+Comet Holmes
+Comet Hyakutake
+Comet Ikeya-Seki
+Comet Kohoutek
+Comet Lovejoy
+Comet McNaught
+Comet NEOWISE
+Comet Shoemaker-Levy 9
+Comet Swift-Tuttle
+Comet Tempel 1
+Comet Tempel-Tuttle
+Comet Tsuchinshan-ATLAS
+Comet West
+Comet Wild 2
+Cone Nebula
+Cordelia
+cosmic void
+Crab Nebula
+Crab Pulsar
+Crescent Nebula
+Cruithne
+cubewano
+Cygnus Loop
+Cygnus X-1
+Dactyl
+Daphnis
+dark nebula
+debris disc
+Deimos
+Deneb
+Denebola
+Despina
+Didymos
+Dimidium
+Dimorphos
+Dione
+Diphda
+Double Cluster
+double star
+Dubhe
+Dumbbell Nebula
+dwarf galaxy
+dwarf planet
+Dysnomia
+Eagle Nebula
+Earth
+eclipsing binary
+Einstein Cross
+El Gordo
+Elara
+Electra
+elliptical galaxy
+Elnath
+Eltanin
+emission nebula
+Enceladus
+Encke's Comet
+Enif
+Epimetheus
+Epsilon Eridani
+Eris
+Eros
+Eskimo Nebula
+Eta Carinae
+Eunomia
+Europa
+exomoon
+exoplanet
+extrasolar planet
+Fireworks Galaxy
+Flame Nebula
+Flora
+Fomalhaut
+Fornax Cluster
+Gacrux
+Galatea
+galaxy
+galaxy cluster
+galaxy filament
+galaxy group
+Ganymede
+gas giant
+Gaspra
+globular cluster
+Gonggong
+Great Attractor
+Gum Nebula
+H II region
+Hadar
+Halley's Comet
+Hamal
+Haumea
+Heart Nebula
+Hebe
+Hektor
+Helene
+Helix Nebula
+Herbig-Haro object
+Hercules-Corona Borealis Great Wall
+Hiʻiaka
+Hills cloud
+Himalia
+Hippocamp
+Hoag's Object
+Hoba meteorite
+Homunculus Nebula
+Horsehead Nebula
+hot Jupiter
+Hourglass Nebula
+Hyades
+Hydra
+Hygiea
+hypergiant
+Hyperion
+hypernova
+Iapetus
+Icarus
+ice giant
+Ida
+Interamnia
+intermediate-mass black hole
+interstellar object
+Io
+Iris
+Iris Nebula
+irregular galaxy
+Itokawa
+Ixion
+Janus
+Jellyfish Nebula
+Jewel Box
+Juno
+Jupiter
+Kamoʻoalewa
+Kapteyn's Star
+Kaus Australis
+Kepler's Supernova
+Kerberos
+kilonova
+Kleopatra
+Kochab
+Kuiper belt
+Kuiper belt object
+Lagoon Nebula
+Laniakea Supercluster
+Large Magellanic Cloud
+Larissa
+Leda
+lenticular galaxy
+Local Group
+Local Void
+Lutetia
+Luyten's Star
+Mab
+magnetar
+Maia
+main-sequence star
+Makemake
+Markab
+Mars
+Mathilde
+Medusa Nebula
+Menkalinan
+Menkent
+Merak
+Mercury
+Merope
+meteor
+meteorite
+meteoroid
+Methuselah
+Metis
+Mice Galaxies
+micrometeoroid
+Milky Way
+millisecond pulsar
+Mimas
+Mimosa
+mini-Neptune
+minor planet
+Mintaka
+Mira
+Mirach
+Miranda
+Mirfak
+Mirzam
+Mizar
+molecular cloud
+moon
+Moon
+moonlet
+Murchison meteorite
+Naiad
+Namaka
+natural satellite
+near-Earth asteroid
+near-Earth object
+nebula
+Needle Galaxy
+Neptune
+Nereid
+Neso
+neutron star
+Nix
+North America Nebula
+nova
+Nunki
+Oberon
+Omega Centauri
+Omega Nebula
+Oort cloud
+open cluster
+Ophelia
+orange dwarf
+Orcus
+Orion Nebula
+ʻOumuamua
+Owl Nebula
+Pac-Man Nebula
+Pallas
+Pan
+Pandora
+Pandora's Cluster
+Pasiphae
+Patroclus
+Peacock
+Pelican Nebula
+Perseus Cluster
+Phaethon
+Phantom Galaxy
+Phobos
+Phoebe
+Pholus
+Pillars of Creation
+Pinwheel Galaxy
+planet
+Planet Nine
+planetary nebula
+planetary ring
+planetary system
+planetesimal
+planetoid
+Pleiades
+Pleione
+plutino
+Pluto
+Polaris
+Pollux
+Pōwehi
+primordial black hole
+Procyon
+Prometheus
+Prospero
+Proteus
+protoplanet
+protoplanetary disc
+protostar
+Proxima b
+Proxima Centauri
+Przybylski's Star
+Psyche
+Ptolemy Cluster
+Puck
+pulsar
+Quaoar
+quasar
+radio galaxy
+Rasalgethi
+Rasalhague
+red dwarf
+red giant
+Red Rectangle Nebula
+red supergiant
+reflection nebula
+Regulus
+Rhea
+Rigel
+Rigil Kentaurus
+ring galaxy
+Ring Nebula
+ring system
+rogue planet
+Rosette Nebula
+Running Chicken Nebula
+Ryugu
+Sadr
+Sagittarius A*
+Sagittarius Dwarf Spheroidal Galaxy
+Saiph
+Salacia
+Sargas
+satellite galaxy
+Saturn
+scattered disc
+scattered disc object
+Scheat
+Sculptor Galaxy
+Sedna
+Seyfert galaxy
+Seyfert's Sextet
+Shapley Supercluster
+Shaula
+Sinope
+Sirius
+Sloan Great Wall
+Small Magellanic Cloud
+SN 1987A
+solar system
+Solar System
+Sombrero Galaxy
+Soul Nebula
+Southern Pinwheel Galaxy
+Southern Ring Nebula
+Spica
+spiral galaxy
+star
+star cluster
+star system
+starburst galaxy
+Šteins
+stellar black hole
+Stephan's Quintet
+Stingray Nebula
+Styx
+subgiant
+sun
+Sun
+Sunflower Galaxy
+super-Earth
+supercluster
+supergiant
+supermassive black hole
+supernova
+supernova remnant
+Sycorax
+T Tauri star
+Tabby's Star
+Tadpole Galaxy
+Tarantula Nebula
+Tau Ceti
+Taygeta
+Teegarden's Star
+Telesto
+terrestrial planet
+Tethys
+Thalassa
+Thebe
+Theia
+Thuban
+Titan
+Titania
+Toliman
+Toutatis
+trans-Neptunian object
+Trapezium Cluster
+TRAPPIST-1
+Triangulum Galaxy
+Trifid Nebula
+Triton
+Twin Quasar
+Tycho's Supernova
+Umbriel
+Uranus
+UY Scuti
+Van Maanen's Star
+Vanth
+variable star
+Varuna
+Vega
+Veil Nebula
+Vela Pulsar
+Venus
+Vesta
+Vindemiatrix
+Virgo Cluster
+Virgo Supercluster
+VY Canis Majoris
+Weywot
+Wezen
+Whirlpool Galaxy
+white dwarf
+Wild Duck Cluster
+Willamette Meteorite
+Witch Head Nebula
+Wolf 359
+Wolf-Rayet star
+X-ray binary
+Xiangliu
+yellow dwarf
+yellow supergiant
+Zubenelgenubi
+Zubeneschamali
