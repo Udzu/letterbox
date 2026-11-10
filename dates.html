@@ -120,7 +120,7 @@
     // Martian solar day
     { name: "Mars sol", score: 1, ms: 88775244 },
   ];
-  const UNIT_ORDER = ["year", "month", ...FIXED_UNITS.map(u => u.name), "Islamic year"];
+  const UNIT_ORDER = ["year", "month", ...FIXED_UNITS.map(u => u.name), "Islamic year", "Hebrew year"];
 
   const dateInput = document.getElementById("date");
   const timeInput = document.getElementById("time");
@@ -209,6 +209,44 @@
     return null;
   }
 
+  // Hebrew calendar conversion, also using the browser's calendar data. The browser numbers
+  // months by their position in the year (Nisan is 7 or 8), so months are matched by name.
+  const HEBREW_YEAR = 365.2468 * DAY;
+  const HEBREW_MONTHS = ["Tishri", "Heshvan", "Kislev", "Tevet", "Shevat",
+    "Adar I", "Adar", "Adar II", "Nisan", "Iyar", "Sivan", "Tamuz", "Av", "Elul"];
+  const hebrewFormat = new Intl.DateTimeFormat("en-u-ca-hebrew",
+    { timeZone: "UTC", year: "numeric", month: "long", day: "numeric" });
+  function toHebrew(ms) {
+    const parts = Object.fromEntries(hebrewFormat.formatToParts(ms).map(p => [p.type, p.value]));
+    return { y: Number(parts.year), m: parts.month, d: Number(parts.day) };
+  }
+  const isHebrewLeapYear = y => (7 * y + 1) % 19 < 7;
+  // the month an anniversary falls in: Adar becomes Adar II in leap years, and Adar I and
+  // Adar II become Adar in ordinary years
+  function hebrewMonthIn(y, m) {
+    if (isHebrewLeapYear(y)) return m === "Adar" ? "Adar II" : m;
+    return m === "Adar I" || m === "Adar II" ? "Adar" : m;
+  }
+  // UTC midnight of the given Hebrew date, starting before an estimate (which can be about a
+  // month out) and jumping a month at a time; null if it doesn't exist (such as 30 Heshvan in
+  // a year where Heshvan has 29 days)
+  function fromHebrew(y, m, d, estimate) {
+    const target = y * HEBREW_MONTHS.length + HEBREW_MONTHS.indexOf(m);
+    let t = Math.floor(estimate / DAY) * DAY - 60 * DAY;
+    for (let k = 0; k < 8; k++) {
+      const h = toHebrew(t);
+      const here = h.y * HEBREW_MONTHS.length + HEBREW_MONTHS.indexOf(h.m);
+      if (here > target) return null;
+      if (here === target) {
+        const day = t + (d - h.d) * DAY;
+        const check = toHebrew(day);
+        return check.m === m && check.d === d ? day : null;
+      }
+      t += (31 - h.d) * DAY; // to the first or second day of the next month
+    }
+    return null;
+  }
+
   function getStart() {
     const [y, mo, d] = (dateInput.value || "2000-01-01").split("-").map(Number);
     const [h, mi, s = 0] = (timeInput.value || "00:00").split(":").map(Number);
@@ -243,6 +281,17 @@
       if (day !== null && day >= from && day < to) add("Islamic year", count, 1, day + timeOfDay);
     }
 
+    // Hebrew years: likewise at most two overlap a Gregorian month
+    const startHebrew = toHebrew(utc(start.y, start.mo, start.d));
+    const hebrewYears = new Set([toHebrew(from).y, toHebrew(to - DAY).y]);
+    for (const hy of hebrewYears) {
+      const count = hy - startHebrew.y;
+      if (count < 1) continue;
+      const month = hebrewMonthIn(hy, startHebrew.m);
+      const day = fromHebrew(hy, month, startHebrew.d, start.ms + count * HEBREW_YEAR);
+      if (day !== null && day >= from && day < to) add("Hebrew year", count, 1, day + timeOfDay);
+    }
+
     for (const unit of FIXED_UNITS) {
       const lo = Math.ceil((from - start.ms) / unit.ms);
       const hi = Math.floor((to - 1 - start.ms) / unit.ms);
@@ -257,11 +306,15 @@
 
   const islamicLongFormat = new Intl.DateTimeFormat("en-GB-u-ca-islamic-umalqura",
     { timeZone: "UTC", day: "numeric", month: "long" });
+  const hebrewLongFormat = new Intl.DateTimeFormat("en-GB-u-ca-hebrew",
+    { timeZone: "UTC", day: "numeric", month: "long" });
 
   function describe(a) {
     const count = a.count.toLocaleString("en-GB") + (a.label ? ` (=${a.label})` : "");
     const text = `${count} ${a.unit}${a.count === 1 ? "" : "s"}`;
-    return a.unit === "Islamic year" ? `${text} (${islamicLongFormat.format(a.ms)})` : text;
+    if (a.unit === "Islamic year") return `${text} (${islamicLongFormat.format(a.ms)})`;
+    if (a.unit === "Hebrew year") return `${text} (${hebrewLongFormat.format(a.ms)})`;
+    return text;
   }
 
   function render() {
