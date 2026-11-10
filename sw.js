@@ -4,7 +4,7 @@ const FILES = {
   "anagrams.html": "2aa5b3a14acb",
   "dates.html": "a3bcb8280add",
   "dice.html": "eb85e112868b",
-  "index.html": "0598d26b2bcb",
+  "index.html": "d50200b7b977",
   "lipograms.html": "8227f68d317b",
   "palindromes.html": "3862e9873b17",
   "pangrams.html": "6d0d24ae5771",
@@ -13,13 +13,13 @@ const FILES = {
   "unicode.html": "01f88d802592",
   "wordlists.html": "a8517015426c",
   "manifest.json": "f68ccd90c859",
-  "icons/apple-touch-icon.png": "eff1050c9c78",
-  "icons/apple-touch-icon.svg": "73069fe92612",
+  "icons/apple-touch-icon.png": "44ee5b503fd1",
+  "icons/apple-touch-icon.svg": "7069a8262b07",
   "icons/icon-192.png": "4c9a12616dd8",
   "icons/icon-512.png": "23804f0f6644",
   "icons/icon.svg": "a49373da6bc3",
-  "icons/maskable-512.png": "bb3be97277f2",
-  "icons/maskable.svg": "d1be620685e2"
+  "icons/maskable-512.png": "f250ab1f790c",
+  "icons/maskable.svg": "ec358ab00215"
 };
 const CACHE = "letterbox-shell";
 const key = (file) => new URL(`${file}?v=${FILES[file]}`, self.registration.scope).href;
