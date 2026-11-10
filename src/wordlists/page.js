@@ -194,7 +194,7 @@ function attributionElement(attribution) {
 // Between the general lists and the topic and untagged lists after them, an "all" badge, then a
 // badge for each topic in use and an "other" badge for untagged lists, each with its number of
 // lists: pressing a topic or "other" shows only the lists it's for, and pressing it again or
-// pressing "all" shows them all.
+// pressing "all" shows them all. A row's topic badge works like the topic's badge here.
 const listsBox = document.getElementById("lists");
 const filterBox = element("div", "filters");
 filterBox.setAttribute("role", "group");
@@ -220,6 +220,7 @@ for (const name of [...TOPICS, "other"].filter((name) => counts.has(name))) {
   filterBox.append(button);
 }
 const filtered = []; // [{ list, li }] for the lists the filter applies to
+const rowBadges = []; // [{ topic, button }] for the badges on the lists' rows
 
 function setFilter(name) {
   filter = name;
@@ -227,6 +228,10 @@ function setFilter(name) {
   for (const [key, button] of filters) {
     button.setAttribute("aria-pressed", String(key === name));
     button.title = key === name ? "Show all the lists" : `Show only the ${key === "other" ? "untagged" : key} lists`;
+  }
+  for (const { topic, button } of rowBadges) {
+    button.setAttribute("aria-pressed", String(topic === name));
+    button.title = topic === name ? "Show all the lists" : `Show only the ${topic} lists`;
   }
   filterBox.classList.toggle("active", name !== null);
   for (const { list, li } of filtered) li.hidden = name !== null && filterOf(list) !== name;
@@ -249,7 +254,17 @@ for (const list of LISTS) {
   downloadButton.title = `Save the list as ${list.file}`;
   const title = element("div", "title");
   title.append(element("span", "name", list.name));
-  if (list.tag && !general) title.append(element("span", badgeClass(list.tag), list.tag));
+  if (list.tag && !general) {
+    const badge = element("button", badgeClass(list.tag), list.tag);
+    // filtering hides rows above this one, so keep its badge where it was on the screen
+    badge.addEventListener("click", () => {
+      const top = badge.getBoundingClientRect().top;
+      setFilter(filter === list.tag ? null : list.tag);
+      window.scrollBy(0, badge.getBoundingClientRect().top - top);
+    });
+    rowBadges.push({ topic: list.tag, button: badge });
+    title.append(badge);
+  }
   title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
   const status = element("p", "status");
   status.setAttribute("aria-live", "polite");

@@ -49,6 +49,9 @@
   .badge.politics-religion { background: #f3f0c4; color: #5f5600; }
   .badge.science { background: #efe6fa; color: #5b2f94; }
   .badge.other { background: #eee; color: #555; }
+  /* a row's badge is a button too, which shows only the lists with that topic, or all of them again */
+  .title button.badge { border: 1px solid transparent; font-family: inherit; line-height: inherit; cursor: pointer; }
+  .title button.badge:hover, .title button.badge[aria-pressed=true] { border-color: currentColor; }
   /* pressed buttons are coloured like the shading of their rows */
   button.load[aria-pressed=true] { background: #080; border: 1px solid #080; border-radius: 3px; color: #fff; }
   button.at[aria-pressed=true] { background: #06c; border: 1px solid #06c; border-radius: 3px; color: #fff; }
