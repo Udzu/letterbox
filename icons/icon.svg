@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- a letter tile: an L with a point value of 1 -->
+  <rect width="512" height="512" rx="96" fill="#f2d9a6"/>
+  <rect x="16" y="16" width="480" height="480" rx="82" fill="#f8e7c3"/>
+  <g fill="#06c"><path d="M164 120h80v196h108v76H164z"/><path d="M392 380l22-10h14v70h-18v-50l-14 6z"/></g>
+</svg>
