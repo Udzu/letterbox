@@ -84,12 +84,13 @@
   </div>
   <div id="mergers">
     <span class="label" title="Treat sounds as the same that many Americans pronounce the same">Merge:</span>
-    <label title="Treat t between vowels, before an unstressed one, as d, as Americans pronounce both as a quick tap (so metal rhymes with pedal, and dirty with wordy)"><input type="checkbox" id="flapping"> <i>latter</i> = <i>ladder</i></label>
-    <label title="Treat the stressed vowels of marry, Mary and merry as the same before r, as most Americans do"><input type="checkbox" id="mary-marry-merry"> <i>marry</i> = <i>merry</i></label>
-    <label title="Treat the stressed vowels of hurry and furry as the same, as most Americans do"><input type="checkbox" id="hurry-furry"> <i>hurry</i> = <i>furry</i></label>
-    <label title="Treat the vowels of cot and caught as the same, as many Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> <i>cot</i> = <i>caught</i></label>
-    <label title="Treat the stressed vowels of poor and pour as the same, as many Americans do (so tour rhymes with more)"><input type="checkbox" id="cure-force"> <i>poor</i> = <i>pour</i></label>
-    <label title="Treat stressed e and i as the same before m and n, as in the South (so pen rhymes with win)"><input type="checkbox" id="pin-pen"> <i>pin</i> = <i>pen</i></label>
+    <label title="Treat t between vowels, before an unstressed one, as d, as Americans pronounce both as a quick tap (so metal rhymes with pedal, and dirty with wordy)"><input type="checkbox" id="flapping"> <i>latter</i>/<i>ladder</i></label>
+    <label title="Treat the stressed vowels of marry, Mary and merry as the same before r, as most Americans do"><input type="checkbox" id="mary-marry-merry"> <i>marry</i>/<i>merry</i></label>
+    <label title="Treat the stressed vowels of hurry and furry as the same, as most Americans do"><input type="checkbox" id="hurry-furry"> <i>hurry</i>/<i>furry</i></label>
+    <label title="Treat the vowels of cot and caught as the same, as many Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> <i>cot</i>/<i>caught</i></label>
+    <label title="Treat the stressed vowels of poor and pour as the same, as many Americans do (so tour rhymes with more)"><input type="checkbox" id="cure-force"> <i>poor</i>/<i>pour</i></label>
+    <label title="Treat stressed e and i as the same before m and n, as in the South (so pen rhymes with win)"><input type="checkbox" id="pin-pen"> <i>pin</i>/<i>pen</i></label>
+    <label title="Drop r unless a vowel follows, as in traditional New York, Boston and Southern speech (so lord rhymes with flawed, and Dora with explorer). The r after ah is kept: the pronunciations here use the same vowel for father and bother, so dropping it would make card rhyme with cod, which it doesn't for these speakers"><input type="checkbox" id="non-rhotic"> <i>sauce</i>/<i>source</i></label>
   </div>
   <p id="status"></p>
   <div id="prons"></div>
@@ -408,22 +409,35 @@
   var BEFORE_R_AND_VOWEL = re("[ae]1(?= ?r ?VOWEL)", "g");
   var STRESSED_V_R = re("V1( ?)r(?= ?VOWEL)", "g");
   var FLAPPED_T = re("(?<=(?:VOWEL[12]?|r) ?)t(?= ?VOWEL(?!1))", "g");
+  var CODA_R = "( ?)r(?! ?VOWEL)";
+  var R_LESS = [
+    [re("(O[12]?|R1?)" + CODA_R, "g"), "$1$2"],
+    // court, Rr: just drop it
+    [re("V1" + CODA_R, "g"), "R1$1"],
+    // stressed ʌr is ɝ
+    [re("V(2?)" + CODA_R, "g"), "V$1$2"],
+    // unstressed ʌr is ɚ, so ə
+    [re("([aWYEeIiQUuo][12]?)" + CODA_R, "g"), "$1V$2"],
+    // beer: bɪə
+    [re("R(2?)(?= ?VOWEL)", "g"), "V$1r"],
+    // unstressed ɚ before a vowel: əɹ
+    [/R(?![12])|R(?=2)/g, "V"]
+    // and otherwise ə
+  ];
   var MERGERS = {
     cotCaught: (pron) => pron.replace(/O(?![12]? ?r)/g, "A"),
     maryMarryMerry: (pron) => pron.replace(BEFORE_R_AND_VOWEL, "E1"),
     hurryFurry: (pron) => pron.replace(STRESSED_V_R, "R1$1"),
     cureForce: (pron) => pron.replace(/U1( ?)r/g, "O1$1r"),
     flapping: (pron) => pron.replace(FLAPPED_T, "d"),
-    pinPen: (pron) => pron.replace(/E1(?= ?[mn])/g, "I1")
+    pinPen: (pron) => pron.replace(/E1(?= ?[mn])/g, "I1"),
+    nonRhotic: (pron) => R_LESS.reduce((p, [from, to]) => p.replace(from, to), pron)
   };
   function merge(pron, mergers = {}) {
     return Object.entries(MERGERS).reduce((p, [name, f]) => mergers[name] ? f(p) : p, pron);
   }
-  var MERGEABLE = /O|[aeVUE]1|t/;
-  var ALL_MERGERS = Object.values(MERGERS);
-  var mergeAll = (pron) => ALL_MERGERS.reduce((p, f) => f(p), pron);
   var VOWEL_CLASSES = { O: "A", U: "A", a: "E", e: "E", I: "E", V: "R" };
-  var looseIndexKey = (loose) => loose.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) => VOWEL_CLASSES[c]).replaceAll("t", "d");
+  var indexKey = (rhyme) => rhyme.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) => VOWEL_CLASSES[c]).replaceAll("t", "d").replaceAll("r", "").replace(/(?<=[AERWYioQu])R+/g, "");
   var Rhymes = class {
     constructor(entries) {
       this.entries = entries;
@@ -436,26 +450,20 @@
         if (list) list.push(value);
         else map.set(key, [value]);
       };
-      const rhymeKeys = /* @__PURE__ */ new Map();
-      const looseKeys = /* @__PURE__ */ new Map();
+      const keys = /* @__PURE__ */ new Map();
+      const keyOf = (rhyme) => {
+        let key = keys.get(rhyme);
+        if (key === void 0) keys.set(rhyme, key = indexKey(rhyme));
+        return key;
+      };
       for (const entry of entries) {
         const key = lookupKey(entry.word);
         if (!this.byWord.has(key) && withoutAccents(key) !== key) add(this.accented, withoutAccents(key), key);
         add(this.byWord, key, entry);
         const { rhyme, loose, onset } = rhymeParts(entry.pron);
         const item = { entry, rhyme, loose, onset };
-        const stress = entry.pron.lastIndexOf("1");
-        const tail = stress > 0 ? entry.pron.slice(stress - 1) : entry.pron;
-        let rhymeKey = MERGEABLE.test(tail) ? rhymeKeys.get(tail) : rhyme;
-        if (rhymeKey === void 0) {
-          const merged = mergeAll(tail);
-          rhymeKey = merged === tail ? rhyme : rhymeParts(merged).rhyme;
-          rhymeKeys.set(tail, rhymeKey);
-        }
-        let looseKey = looseKeys.get(loose);
-        if (looseKey === void 0) looseKeys.set(loose, looseKey = looseIndexKey(loose));
-        add(this.byRhyme, rhymeKey, item);
-        add(this.byLoose, looseKey, item);
+        add(this.byRhyme, keyOf(rhyme), item);
+        add(this.byLoose, keyOf(loose), item);
       }
     }
     // A word's pronunciations, best first: those written the way it was typed, then those of other
@@ -529,8 +537,8 @@
       const mergers = Object.keys(MERGERS).some((name) => options[name]);
       const parts = rhymeParts(entry.pron);
       const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
-      const strict = this.byRhyme.get(rhymeParts(mergeAll(entry.pron)).rhyme) ?? [];
-      const candidates = looseOnsets ? [...strict, ...this.byLoose.get(looseIndexKey(parts.loose)) ?? []] : strict;
+      const strict = this.byRhyme.get(indexKey(parts.rhyme)) ?? [];
+      const candidates = looseOnsets ? [...strict, ...this.byLoose.get(indexKey(parts.loose)) ?? []] : strict;
       const self = withoutAccents(lookupKey(entry.word));
       const words = /* @__PURE__ */ new Map();
       for (const item of candidates) {
@@ -627,7 +635,8 @@
     hurryFurry: document.getElementById("hurry-furry"),
     cureForce: document.getElementById("cure-force"),
     flapping: document.getElementById("flapping"),
-    pinPen: document.getElementById("pin-pen")
+    pinPen: document.getElementById("pin-pen"),
+    nonRhotic: document.getElementById("non-rhotic")
   };
   var currentOptions = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
   var rhymes = null;

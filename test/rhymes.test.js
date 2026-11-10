@@ -321,6 +321,54 @@ win\twI1n\tC\t50
   assert.deepEqual(find("pen", { looseOnsets: true }), []);
 });
 
+test("the non-rhotic merger drops r unless a vowel follows", () => {
+  const r = new Rhymes(parsePronunciations(`
+court\tkO1rt\tC\t50
+taught\ttO1t\tC\t50
+cot\tkA1t\tC\t50
+letter\tlE1tR\tC\t50
+Etta\tE1tV\tC\t30
+car\tkA1r\tC\t50
+spa\tspA1\tC\t40
+fire\tfY1r\tC\t50
+higher\thY1R\tC\t50
+Maya\tmY1V\tC\t40
+beer\tbI1r\tC\t50
+idea\tYdi1V\tC\t50
+bird\tbR1d\tC\t50
+heard\thR1d\tC\t50
+poor\tpU1r\tC\t50
+law\tlO1\tC\t50
+warmer\twO1rmR\tC\t40
+trauma\ttrO1mV\tC\t40
+hurry\thV1ri\tC\t40
+cherry\tCE1ri\tC\t40
+care of\tkE1r Vv\tC\t30
+there of\tDE1 Vv\tC\t30
+`).entries);
+  const find = (w, o) => r.find(r.pronunciations(w)[0], o);
+  const nonRhotic = { nonRhotic: true };
+  assert.deepEqual(find("court", nonRhotic), ["taught"]);
+  assert.deepEqual(find("court"), []);
+  assert.deepEqual(find("letter", nonRhotic), ["Etta"]);
+  // car's vowel stays apart from spa's and cot's
+  assert.deepEqual(find("car", nonRhotic), []);
+  // other vowels end in ə instead
+  assert.deepEqual(find("fire", nonRhotic), ["higher", "Maya"]);
+  assert.deepEqual(find("beer", nonRhotic), []);
+  assert.deepEqual(find("bird", nonRhotic), ["heard"]);
+  // r stays before a vowel, even in the next word
+  assert.deepEqual(find("hurry", nonRhotic), []);
+  assert.deepEqual(find("care of", nonRhotic), []);
+  // with the other mergers: poor is pour, so law; but cot-caught leaves the ɔ that was before r
+  assert.deepEqual(find("poor", nonRhotic), []);
+  assert.deepEqual(find("poor", { ...nonRhotic, cureForce: true }), ["law"]);
+  assert.deepEqual(find("warmer", nonRhotic), ["trauma"]);
+  assert.deepEqual(find("warmer", { ...nonRhotic, cotCaught: true }), []);
+  assert.deepEqual(find("trauma", { ...nonRhotic, looseOnsets: true }), ["warmer"]);
+  assert.deepEqual(find("warmer", { ...nonRhotic, looseOnsets: true }), ["trauma"]);
+});
+
 test("reads pronunciations typed in IPA or ASCII", () => {
   const sounds = (text) => {
     const { pron, assumed } = parseSounds(text);

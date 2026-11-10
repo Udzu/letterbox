@@ -29,6 +29,7 @@ const OPTIONS = {
   cureForce: document.getElementById("cure-force"),
   flapping: document.getElementById("flapping"),
   pinPen: document.getElementById("pin-pen"),
+  nonRhotic: document.getElementById("non-rhotic"),
 };
 const currentOptions = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
 
