@@ -377,7 +377,7 @@ async function useOnline() {
       useData({ text: stored.text, note: `saved on ${date} (couldn't fetch the latest)` });
     } else {
       dataStatus.replaceChildren(action("Load a file…", () => fileInput.click()));
-      showError(`Couldn't load the pronunciations (${e.message}). To use this page offline, download them from the online page (at the bottom), then load the file here.`);
+      showError(`Couldn't load the pronunciations (${e.message}). Open this page once while online (in the app, if you've installed it) and they'll be kept for offline use. Or download them from the online page (at the bottom) and load the file here.`);
     }
   }
 }
