@@ -129,7 +129,7 @@
     // iPadOS reports itself as a Mac, but has a touch screen
     const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
     if (ios) {
-      text.textContent = "Install Letterbox as an app to use it offline: tap Share, then Add to Home Screen.";
+      text.textContent = "To install this as an offline app: tap Share, then Add to Home Screen.";
       box.hidden = false;
     }
     let prompt = null;
