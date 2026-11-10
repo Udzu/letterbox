@@ -93,7 +93,7 @@
     <select id="category" aria-label="Category"></select>
     <select id="script" aria-label="Script"></select>
     <select id="block" aria-label="Block"></select>
-    <select id="emoji" aria-label="Emoji"></select>
+    <select id="type" aria-label="Type"></select>
   </div>
   <div id="tones"></div>
   <div id="tray-row">
@@ -173,6 +173,11 @@
     if (label.includes(` ${term} `)) return 0;
     return label.includes(` ${term}`) ? 1 : 2;
   }
+  var INVISIBLE = /^[\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180f\u200b-\u200f\u202a-\u202e\u2060-\u206f\u3164\ufe00-\ufe0f\ufeff\uffa0\u{1bca0}-\u{1bca3}\u{1d173}-\u{1d17a}\u{e0000}-\u{e0fff}]$/u;
+  function isInvisible(entry) {
+    return entry.cps.length === 1 && (/^C[cfsno]|^Z/.test(entry.gc) || INVISIBLE.test(String.fromCodePoint(entry.cps[0])));
+  }
+  var isSequence = (entry) => entry.cps.filter((cp) => cp !== 65039).length > 1;
   var NAME = 0;
   var EMOJI = 1;
   var ALIAS = 2;
@@ -189,6 +194,7 @@
       this.blocks = sections.blocks.map(range).map(({ first, last, rest: [name] }) => ({ first, last, name }));
       this.scripts = sections.script.map(range).map(({ first, last, rest: [code] }) => ({ first, last, code }));
       this.ages = sections.age.map(range).map(({ first, last, rest: [age] }) => ({ first, last, age }));
+      this.latest = this.ages.map((a) => a.age).reduce((a, b) => Number(b) > Number(a) ? b : a);
       this.ranges = sections.ranges.map(range).map(({ first, last, rest: [gc, name = "", flag = ""] }) => ({ first, last, gc, name, omit: flag === "omit" }));
       this.groups = sections.groups.map(([group, subgroup]) => ({ group, subgroup }));
       this.variants = sections.variants.map(([s, description]) => ({ cps: parseSeq(s), description }));
@@ -392,7 +398,7 @@
     category: document.getElementById("category"),
     script: document.getElementById("script"),
     block: document.getElementById("block"),
-    emoji: document.getElementById("emoji")
+    type: document.getElementById("type")
   };
   function el(tag, props = {}, children = []) {
     const node = Object.assign(document.createElement(tag), props);
@@ -426,9 +432,22 @@
       options: [["", "Any block"], ...unicode.blocks.map((b) => [b.name, b.name])],
       values: (e) => [e.block]
     },
-    emoji: {
-      options: [["", "Emoji or not"], ["yes", "Emoji"], ["no", "Not emoji"], ...groupNames.map((g) => [`group:${g}`, g, "Emoji group"])],
-      values: (e) => e.emoji ? ["yes", `group:${unicode.groups[e.emoji.group].group}`] : ["no"]
+    type: {
+      options: [
+        ["", "Any type"],
+        ["emoji", "Emoji"],
+        ["not-emoji", "Not emoji"],
+        ["sequence", "Sequences"],
+        ["invisible", "Invisible characters"],
+        ["new", `New in Unicode ${unicode.latest.replace(/\.0$/, "")}`],
+        ...groupNames.map((g) => [`group:${g}`, g, "Emoji groups"])
+      ],
+      values: (e) => e.types ??= [
+        ...e.emoji ? ["emoji", `group:${unicode.groups[e.emoji.group].group}`] : ["not-emoji"],
+        ...isSequence(e) ? ["sequence"] : [],
+        ...isInvisible(e) ? ["invisible"] : [],
+        ...e.age === unicode.latest ? ["new"] : []
+      ]
     }
   };
   var chosen = Object.fromEntries(Object.keys(FILTERS).map((name) => [name, ""]));
@@ -474,7 +493,6 @@
   function showTones() {
     toneButtons.forEach((b, i) => b.setAttribute("aria-pressed", String([0, ...TONES][i] === tone)));
   }
-  var INVISIBLE = /^[­͏؜ᅟᅠ឴឵᠋-᠏​-‏‪-‮⁠-⁯ㅤ︀-️﻿ﾠ\u{1bca0}-\u{1bca3}\u{1d173}-\u{1d17a}\u{e0000}-\u{e0fff}]$/u;
   function glyph(entry, cps) {
     const text = String.fromCodePoint(...cps);
     if (cps.length === 1) {
@@ -620,7 +638,7 @@
     const all = unicode.search(query);
     fillFilters(all.map((r) => r.entry));
     found = all.filter((r) => passes(r.entry));
-    if (!query.trim() && (chosen.emoji === "yes" || chosen.emoji.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
+    if (!query.trim() && (chosen.type === "emoji" || chosen.type.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
     const n = found.length;
     summary.textContent = `${n === 0 ? "No" : n.toLocaleString("en")} result${n === 1 ? "" : "s"}`;
     more();

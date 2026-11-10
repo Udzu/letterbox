@@ -64,6 +64,18 @@ function termLevel(label, term) {
   return label.includes(` ${term}`) ? 1 : 2;
 }
 
+// Default ignorable characters that show nothing: variation selectors, tags and the like.
+export const INVISIBLE = /^[\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180f\u200b-\u200f\u202a-\u202e\u2060-\u206f\u3164\ufe00-\ufe0f\ufeff\uffa0\u{1bca0}-\u{1bca3}\u{1d173}-\u{1d17a}\u{e0000}-\u{e0fff}]$/u;
+
+// Whether an entry shows nothing, or only space: a space, control, format character or other default
+// ignorable character (such as a variation selector).
+export function isInvisible(entry) {
+  return entry.cps.length === 1 && (/^C[cfsno]|^Z/.test(entry.gc) || INVISIBLE.test(String.fromCodePoint(entry.cps[0])));
+}
+
+// Whether an entry is more than one character (not counting an emoji presentation selector).
+export const isSequence = (entry) => entry.cps.filter((cp) => cp !== 0xfe0f).length > 1;
+
 // The kinds of label an entry can be found by, best first.
 const NAME = 0;
 const EMOJI = 1;
@@ -82,6 +94,7 @@ export class Unicode {
     this.blocks = sections.blocks.map(range).map(({ first, last, rest: [name] }) => ({ first, last, name }));
     this.scripts = sections.script.map(range).map(({ first, last, rest: [code] }) => ({ first, last, code }));
     this.ages = sections.age.map(range).map(({ first, last, rest: [age] }) => ({ first, last, age }));
+    this.latest = this.ages.map((a) => a.age).reduce((a, b) => (Number(b) > Number(a) ? b : a));
     this.ranges = sections.ranges.map(range).map(({ first, last, rest: [gc, name = "", flag = ""] }) => ({ first, last, gc, name, omit: flag === "omit" }));
     this.groups = sections.groups.map(([group, subgroup]) => ({ group, subgroup }));
     this.variants = sections.variants.map(([s, description]) => ({ cps: parseSeq(s), description }));

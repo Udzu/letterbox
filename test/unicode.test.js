@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { TONES, Unicode, displayName, normalize, withTone, withTones } from "../src/unicode/unicode.js";
+import { TONES, Unicode, displayName, isInvisible, isSequence, normalize, withTone, withTones } from "../src/unicode/unicode.js";
 
 const unicode = new Unicode(readFileSync(new URL("../unicode/characters.txt", import.meta.url), "utf8"));
 const text = (cps) => String.fromCodePoint(...cps);
@@ -81,4 +81,13 @@ test("pasted text is split into graphemes", () => {
   assert.deepEqual(top("é👍🏽x́", 5), ["é", "👍🏽", "x", "́"]);
   assert.deepEqual(top("👨‍👩‍👦a👨‍👩‍👦", 5), ["👨‍👩‍👦", "a"]);
   assert.deepEqual(top("🫱🏻‍🫲🏿"), ["🫱🏻‍🫲🏿"]);
+});
+
+test("types: sequences, invisible characters, latest version", () => {
+  assert.equal(unicode.latest, "18.0");
+  assert.ok(isSequence(unicode.find([0x31, 0x20e3])));
+  assert.ok(!isSequence(unicode.find([0xa9]))); // © with its emoji presentation selector
+  for (const cp of [0x20, 0xa0, 0x200b, 0x200d, 0xfe0f, 0xe0061, 0x9, 0x3164]) assert.ok(isInvisible(unicode.entry(cp)), cp.toString(16));
+  for (const cp of [0x41, 0x301, 0x1f600]) assert.ok(!isInvisible(unicode.entry(cp)), cp.toString(16));
+  assert.ok(unicode.entries.some((e) => e.age === "18.0" && e.emoji));
 });

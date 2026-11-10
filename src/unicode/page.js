@@ -3,7 +3,7 @@
 
 import DATA from "../../unicode/characters.txt";
 import { attributionParts } from "../wordlists/lists.js";
-import { ALIAS_TYPES, CATEGORIES, TONES, Unicode, codepoints, displayName, withTone, withTones } from "./unicode.js";
+import { ALIAS_TYPES, CATEGORIES, INVISIBLE, TONES, Unicode, codepoints, displayName, isInvisible, isSequence, withTone, withTones } from "./unicode.js";
 
 const STATE_KEY = "unicode-state";
 const PAGE = 200; // results shown at first, and added by each "Show more"
@@ -33,7 +33,7 @@ const FILTERS = {
   category: document.getElementById("category"),
   script: document.getElementById("script"),
   block: document.getElementById("block"),
-  emoji: document.getElementById("emoji"),
+  type: document.getElementById("type"),
 };
 
 function el(tag, props = {}, children = []) {
@@ -59,7 +59,9 @@ function save() {
 // --- Filters
 
 // Each filter: its options (value, label and, for the emoji groups, an optgroup label), the first
-// being "any", and the option values an entry has. Each dropdown lists only the options with matches
+// being "any", and the option values an entry has. Type holds filters that don't need a dropdown of
+// their own (so they can't be combined with each other), with the emoji groups last, as a dropdown
+// can't show where a group ends. Each dropdown lists only the options with matches
 // given the search and the other filters (and the one chosen, even if it has none).
 const groupNames = [...new Set(unicode.groups.map((g) => g.group))].filter((g) => g !== "Component");
 const FILTER_OPTIONS = {
@@ -75,9 +77,22 @@ const FILTER_OPTIONS = {
     options: [["", "Any block"], ...unicode.blocks.map((b) => [b.name, b.name])],
     values: (e) => [e.block],
   },
-  emoji: {
-    options: [["", "Emoji or not"], ["yes", "Emoji"], ["no", "Not emoji"], ...groupNames.map((g) => [`group:${g}`, g, "Emoji group"])],
-    values: (e) => (e.emoji ? ["yes", `group:${unicode.groups[e.emoji.group].group}`] : ["no"]),
+  type: {
+    options: [
+      ["", "Any type"],
+      ["emoji", "Emoji"],
+      ["not-emoji", "Not emoji"],
+      ["sequence", "Sequences"],
+      ["invisible", "Invisible characters"],
+      ["new", `New in Unicode ${unicode.latest.replace(/\.0$/, "")}`],
+      ...groupNames.map((g) => [`group:${g}`, g, "Emoji groups"]),
+    ],
+    values: (e) => (e.types ??= [
+      ...(e.emoji ? ["emoji", `group:${unicode.groups[e.emoji.group].group}`] : ["not-emoji"]),
+      ...(isSequence(e) ? ["sequence"] : []),
+      ...(isInvisible(e) ? ["invisible"] : []),
+      ...(e.age === unicode.latest ? ["new"] : []),
+    ]),
   },
 };
 const chosen = Object.fromEntries(Object.keys(FILTERS).map((name) => [name, ""]));
@@ -132,8 +147,6 @@ function showTones() {
 
 // --- Showing characters
 
-// Default ignorable characters that show nothing: variation selectors, tags and the like.
-const INVISIBLE = /^[­͏؜ᅟᅠ឴឵᠋-᠏​-‏‪-‮⁠-⁯ㅤ︀-️﻿ﾠ\u{1bca0}-\u{1bca3}\u{1d173}-\u{1d17a}\u{e0000}-\u{e0fff}]$/u;
 
 // The glyph for a result: the text itself, with a dotted circle before a lone combining mark, or a
 // label in a dashed box for a character that shows nothing.
@@ -148,7 +161,7 @@ function glyph(entry, cps) {
       return el("span", { className: "glyph invisible", textContent: label });
     }
     if (gc === "Zs") return el("span", { className: "glyph space", textContent: text });
-    if (gc[0] === "M") return el("span", { className: "glyph", textContent: "◌" + text });
+    if (gc[0] === "M") return el("span", { className: "glyph", textContent: "\u25cc" + text });
   }
   return el("span", { className: "glyph", textContent: text });
 }
@@ -293,7 +306,7 @@ function show() {
   const all = unicode.search(query);
   fillFilters(all.map((r) => r.entry));
   found = all.filter((r) => passes(r.entry));
-  if (!query.trim() && (chosen.emoji === "yes" || chosen.emoji.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
+  if (!query.trim() && (chosen.type === "emoji" || chosen.type.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
   const n = found.length;
   summary.textContent = `${n === 0 ? "No" : n.toLocaleString("en")} result${n === 1 ? "" : "s"}`;
   more();
