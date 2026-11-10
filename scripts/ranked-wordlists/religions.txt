@@ -1,0 +1,288 @@
+# name: Religions
+# description: Religions, their branches and movements, and stances such as atheism, most prominent first.
+# tag: culture
+# attribution: From Wikipedia's [list of religions and spiritual traditions](https://en.wikipedia.org/wiki/List_of_religions_and_spiritual_traditions), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.
+
+# Religions, branches, denominations, historical religions, new religious movements and stances on
+# religion from the Wikipedia list (leaving out parody religions, philosophies, peoples and places,
+# and churches of one country), named as the religion is (Mormonism, not the Church of Jesus Christ
+# of Latter-day Saints), or by its followers where there's no common name for the faith (Amish).
+# Stances and general kinds are lowercase.
+
+Q2348383: Advaita Vedanta
+Q215168: Adventism
+Q288928: agnosticism                     # Agnosticism
+Q171764: Ahmadiyya
+Q1493154: Akan religion
+Q134005948: Alawism
+Q137097: Alevism
+Q104444: Amish
+Q165580: Anabaptism
+Q447131: ancient Egyptian religion       # Ancient Egyptian religion
+Q855270: ancient Greek religion          # Ancient Greek religion
+Q337547: ancient Roman religion          # Religion in ancient Rome
+Q6423963: Anglicanism
+Q541235: Anglo-Catholicism
+Q537514: Anglo-Saxon paganism
+Q43004: animism                          # Animism
+Q184719: Anthroposophy
+Q620834: apatheism                       # Apatheism
+Q83922: Arianism
+Q13446873: Arminianism
+Q717798: Arya Samaj
+Q539918: Ash'arism
+Q146107: Atenism
+Q7066: atheism                           # Atheism
+Q217408: Aum Shinrikyo
+Q217403: Ayyavazhi
+Q781560: Aztec religion
+Q22679: Baháʼí Faith
+Q4850935: Balinese Hinduism
+Q93191: Baptists
+Q284479: Barelvism                       # Barelvi movement
+Q467692: Bektashism
+Q4913749: Bimoism
+Q204095: Bogomilism
+Q815628: Bon
+Q897299: Brahma Kumaris
+Q897356: Brahmo Samaj
+Q3322742: Branch Davidians
+Q748: Buddhism
+Q2659042: Burkhanism
+Q204128: Bábism
+Q101849: Calvinism                       # Reformed Christianity
+Q2914567: Canaanite religion
+Q752660: Candomblé
+Q470364: Caodaism
+Q22314: cargo cult                       # Cargo cult
+Q161696: Catharism
+Q9592: Catholicism                       # Catholic Church
+Q263031: Celtic paganism                 # Ancient Celtic religion
+Q940709: Chan Buddhism
+Q324640: Charismatic Christianity         # Charismatic movement
+Q513638: Cheondoism
+Q1074275: Chinese folk religion
+Q137111: Chishti Order
+Q27827: Christadelphians
+Q477317: Christian Identity
+Q624477: Christian Science
+Q5043: Christianity
+Q9581: Confucianism
+Q1062789: Congregationalism
+Q205644: Conservative Judaism
+Q198998: Coptic Christianity             # Coptic Orthodox Church
+Q1275961: Cult of Reason
+Q1277069: Cult of the Supreme Being
+Q620629: deism                           # Deism
+Q2366025: Deobandism                     # Deobandi movement
+Q9436: Digambara
+Q7340: Discordianism
+Q4166501: Donyi-Polo
+Q1541838: Druidry                        # Druidry (modern)
+Q163943: Druze
+Q49376: Eastern Catholicism              # Eastern Catholic Churches
+Q1022157: Eastern Lightning
+Q35032: Eastern Orthodoxy                # Eastern Orthodox Church
+Q208171: Ebionites
+Q1281268: Eckankar
+Q189204: Essenes
+Q11884379: Etruscan religion
+Q194253: Evangelicalism
+Q185802: Falun Gong
+Q5491116: Frankism
+Q1144575: Gaudiya Vaishnavism
+Q319218: Gelug
+Q1122452: Germanic paganism
+Q1295854: Ghost Dance
+Q48420: Gnosticism
+Q1061176: Happy Science
+Q190193: Hare Krishna                    # ISKCON
+Q212912: Haredi Judaism
+Q171201: Hasidism                        # Hasidic Judaism
+Q503089: Hawaiian religion
+Q285441: Heathenry                       # Heathenry (new religious movement)
+Q46788: Heaven's Gate                    # Heaven's Gate (religious group)
+Q1539307: Hellenic polytheism            # Hellenism (modern religion)
+Q150395: henotheism                      # Henotheism
+Q192933: Hermeticism
+Q9089: Hinduism
+Q1546302: Hoodoo                         # Hoodoo (spirituality)
+Q951353: Humanistic Judaism
+Q131372: Hussites
+Q258344: Hutterites
+Q1369404: Hòa Hảo
+Q243551: Ibadism
+Q1426922: Ifá
+Q637230: ignosticism                     # Ignosticism
+Q3238302: Inca religion                  # Religion in the Inca Empire
+Q1473866: Inuit religion
+Q58721: irreligion                       # Irreligion
+Q432: Islam
+Q230386: Ismailism
+Q9232: Jainism
+Q35269: Jehovah's Witnesses
+Q9268: Judaism
+Q123006: Kabbalah
+Q471187: Kagyu
+Q6346844: Kaharingan
+Q208398: Karaite Judaism
+Q3173931: Kejawèn
+Q1081042: Kemetism
+Q189570: Kharijites
+Q3429351: Kiratism
+Q858640: Lingayatism                     # Lingayats
+Q731652: Lollardy
+Q6673892: Longhouse Religion
+Q75809: Lutheranism
+Q591569: Macumba
+Q48362: Mahayana
+Q205754: Mandaeism
+Q131165: Manichaeism
+Q6754235: Mapuche religion
+Q754941: Marcionism
+Q786221: Mari native religion            # Mari religion
+Q492501: Maturidism
+Q1921707: Maya religion
+Q19750498: Mazdakism
+Q110223: Mennonites
+Q21028568: Mesopotamian religion         # Ancient Mesopotamian religion
+Q216952: Messianic Judaism
+Q33203: Methodism
+Q659567: Mevlevi Order
+Q1764554: Miaphysitism
+Q538136: Midewiwin
+Q219903: Mithraism
+Q183091: Monophysitism
+Q9159: monotheism                        # Monotheism
+Q159318: Moravian Church
+Q42504: Mormonism                        # The Church of Jesus Christ of Latter-day Saints
+Q668460: Mu'tazilism
+Q32078: Naqshbandi                       # Naqshbandi Order
+Q220222: Nation of Islam
+Q920084: Native American Church
+Q6982199: Navayana
+Q825754: Neo-Confucianism
+Q189753: neopaganism                     # Modern paganism
+Q168414: Nestorianism
+Q183308: New Age
+Q940573: New Thought
+Q871371: Nichiren Buddhism
+Q871396: nontheism                       # Nontheism
+Q584205: nontrinitarianism               # Nontrinitarianism
+Q121617: Norse paganism                  # Old Norse religion
+Q848771: Nyingma
+Q1774796: Obeah
+Q2723030: Odinani
+Q223710: Old Believers
+Q5169816: Old Catholicism                # Old Catholic Church
+Q7090402: omnism                         # Omnism
+Q385517: Oomoto
+Q49377: Oriental Orthodoxy               # Oriental Orthodox Churches
+Q242517: Orphism
+Q80970: Orthodox Judaism
+Q29536: paganism                         # Paganism
+Q2529896: Palo                           # Palo (religion)
+Q1620224: pandeism                       # Pandeism
+Q221390: panentheism                     # Panentheism
+Q728455: pantheism                       # Pantheism
+Q334727: Paulicianism
+Q483978: Pentecostalism
+Q26403: Pharisees
+Q193664: Pietism
+Q9163: polytheism                        # Polytheism
+Q178169: Presbyterianism
+Q23540: Protestantism
+Q262244: Pure Land Buddhism
+Q137073: Puritanism                      # Puritans
+Q137108: Qadiriyya                       # Qadiri Order
+Q170208: Quakerism                       # Quakers
+Q3128886: Quimbanda
+Q1021580: Quranism
+Q1366914: Rabbinic Judaism
+Q266037: Rajneesh movement
+Q101462: Rastafari
+Q631897: Raëlism
+Q339284: Reconstructionist Judaism
+Q1133485: Reform Judaism
+Q855941: Restorationism
+Q1258217: Rodnovery                      # Slavic Native Faith
+Q1094619: Romuva                         # Romuva (religion)
+Q194267: Rosicrucianism
+Q269348: Sabbateans
+Q182682: Sadducees
+Q650035: Sakya
+Q191057: Salafism                        # Salafi movement
+Q6981696: Samaritanism
+Q7415486: Sanamahism
+Q1939951: Sant Mat
+Q927277: Santería
+Q7424029: Sarnaism
+Q133363: Satanism
+Q131036: Scientology
+Q3424404: Serer religion
+Q104319: Seventh-day Adventism           # Seventh-day Adventist Church
+Q28219870: Shabakism
+Q234953: Shaivism
+Q1370167: Shakers
+Q849345: Shaktism
+Q42042: shamanism                        # Shamanism
+Q9585: Shia Islam
+Q550182: Shingon Buddhism
+Q812767: Shinto
+Q1483875: Shugendō
+Q9316: Sikhism
+Q838267: Slavic paganism
+Q558585: Smartism                        # Smarta tradition
+Q617717: Soka Gakkai
+Q214255: Spiritism                       # Kardecist spiritism
+Q829348: Spiritualism                    # Spiritualism (movement)
+Q1772736: Subud
+Q9603: Sufism
+Q275051: Sumerian religion
+Q4188799: Sunda Wiwitan
+Q483654: Sunni Islam
+Q4155728: Swaminarayan Sampradaya
+Q7654539: Swedenborgianism
+Q735329: Sámi religion                   # Ancient Sámi religion
+Q181510: Tantra
+Q9598: Taoism, Daoism
+Q855964: Tendai
+Q837605: Tengrism
+Q737323: Tenrikyo
+Q620805: theism                          # Theism
+Q745955: Thelema
+Q178671: Theosophy
+Q132265: Theravada
+Q668188: Tiantai
+Q483889: Tibetan Buddhism
+Q558571: Transcendental Meditation
+Q269785: Twelver Shi'ism
+Q1431297: Umbanda
+Q217059: Unification Church
+Q106687: Unitarianism
+Q45584: Vaishnavism
+Q172175: Vajrayana
+Q204603: Valentinianism
+Q2512051: Vedanta
+Q194497: Vedic religion                  # Historical Vedic religion
+Q302729: Vodou, Voodoo                   # Haitian Vodou
+Q177764: Vodun                           # West African Vodún
+Q4016589: Voodoo                         # Louisiana Voodoo
+Q65091425: Waaqeffanna
+Q163140: Wahhabism
+Q201620: Waldensians
+Q59774: Wicca
+Q2765545: Winti
+Q3571322: Yahwism
+Q7485854: Yarsanism
+Q18670106: Yazidism                      # Yezidism
+Q714127: Yiguandao
+Q1086440: Yoruba religion
+Q144333: Zaydism
+Q7953: Zen
+Q9601: Zoroastrianism
+Q113145936: Zulu traditional religion
+Q1423009: Zurvanism
+Q412873: Ājīvika
+Q5221505: Đạo Mẫu
+Q280522: Śvetāmbara
