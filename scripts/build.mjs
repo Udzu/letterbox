@@ -4,7 +4,7 @@
 //
 // Each <!-- @inline path/to/entry.js --> marker in the template (path relative to the
 // template) is replaced by a <script> containing that module bundled with its imports,
-// so the output works offline and when saved as a single file.
+// so the output works offline and when saved as a single file. Imported .txt files are bundled as strings.
 //
 // A <!-- @wordlists path/to/dir --> marker is replaced by a JSON <script id="lists-data">
 // holding the metadata and size of each .txt list in that directory, general lists first
@@ -33,6 +33,7 @@ for (const [, entry] of html.matchAll(MARKER)) {
     target: "es2022",
     write: false,
     legalComments: "inline",
+    loader: { ".txt": "text" }, // data files imported as strings
     logLevel: "warning",
   });
   // a literal </script inside the code would end the inline script early
