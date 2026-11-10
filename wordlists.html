@@ -39,7 +39,7 @@
   .badge.culture { background: #fbe4ec; color: #9c2155; }
   .badge.geography { background: #fcecd9; color: #8a4b00; }
   .badge.language { background: #fde0dc; color: #b3261e; }
-  .badge.politics { background: #f3f0c4; color: #5f5600; }
+  .badge.politics-religion { background: #f3f0c4; color: #5f5600; }
   .badge.science { background: #efe6fa; color: #5b2f94; }
   .badge.other { background: #eee; color: #555; }
   /* pressed buttons are coloured like the shading of their rows */
@@ -166,7 +166,7 @@
     "file": "political-systems.txt",
     "name": "Political systems and ideologies",
     "description": "Forms of government and political ideologies, most prominent first.",
-    "tag": "politics",
+    "tag": "politics & religion",
     "attribution": "From Wikipedia's lists of [forms of government](https://en.wikipedia.org/wiki/List_of_forms_of_government) and [ideologies](https://en.wikipedia.org/wiki/List_of_political_ideologies), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.",
     "size": 209
   },
@@ -174,7 +174,7 @@
     "file": "religions.txt",
     "name": "Religions",
     "description": "Religions, their branches and movements, and stances such as atheism, most prominent first.",
-    "tag": "culture",
+    "tag": "politics & religion",
     "attribution": "From Wikipedia's [list of religions and spiritual traditions](https://en.wikipedia.org/wiki/List_of_religions_and_spiritual_traditions), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.",
     "size": 278
   },
@@ -196,7 +196,7 @@
     "file": "us-presidents.txt",
     "name": "US presidents",
     "description": "Surnames of the presidents of the United States, in order of their first terms.",
-    "tag": "politics",
+    "tag": "politics & religion",
     "size": 40
   },
   {
@@ -220,7 +220,7 @@
   // src/wordlists/lists.js
   var REQUIRED = ["name", "description"];
   var KEYS = [...REQUIRED, "tag", "attribution"];
-  var TOPICS = ["culture", "geography", "language", "politics", "science"];
+  var TOPICS = ["culture", "geography", "language", "politics & religion", "science"];
   var TAGS = ["general", ...TOPICS];
   function stripList(text) {
     const words = text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !line.startsWith("#"));
@@ -407,6 +407,7 @@ ${stripped}` : stripped;
   var filters = /* @__PURE__ */ new Map();
   var filter = null;
   var filterOf = (list) => list.tag ?? "other";
+  var badgeClass = (topic) => `badge ${topic.replace(/\W+/g, "-")}`;
   var counts = /* @__PURE__ */ new Map();
   for (const list of LISTS) {
     if (list.tag !== "general") counts.set(filterOf(list), (counts.get(filterOf(list)) ?? 0) + 1);
@@ -416,7 +417,7 @@ ${stripped}` : stripped;
   allButton.addEventListener("click", () => setFilter(null));
   filterBox.append(allButton);
   for (const name of [...TOPICS, "other"].filter((name2) => counts.has(name2))) {
-    const button = element("button", `badge ${name}`, `${name} (${counts.get(name)})`);
+    const button = element("button", badgeClass(name), `${name} (${counts.get(name)})`);
     button.setAttribute("aria-pressed", "false");
     button.addEventListener("click", () => setFilter(filter === name ? null : name));
     filters.set(name, button);
@@ -448,7 +449,7 @@ ${stripped}` : stripped;
     downloadButton.title = `Save the list as ${list.file}`;
     const title = element("div", "title");
     title.append(element("span", "name", list.name));
-    if (list.tag && !general) title.append(element("span", `badge ${list.tag}`, list.tag));
+    if (list.tag && !general) title.append(element("span", badgeClass(list.tag), list.tag));
     title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
     const status = element("p", "status");
     status.setAttribute("aria-live", "polite");

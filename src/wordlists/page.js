@@ -202,6 +202,8 @@ filterBox.setAttribute("aria-label", "Show only lists about");
 const filters = new Map(); // filter -> button
 let filter = null;
 const filterOf = (list) => list.tag ?? "other";
+// a topic's class for its badge's colours (politics-religion for politics & religion)
+const badgeClass = (topic) => `badge ${topic.replace(/\W+/g, "-")}`;
 const counts = new Map(); // filter -> number of lists
 for (const list of LISTS) {
   if (list.tag !== "general") counts.set(filterOf(list), (counts.get(filterOf(list)) ?? 0) + 1);
@@ -211,7 +213,7 @@ allButton.title = "Show all the lists";
 allButton.addEventListener("click", () => setFilter(null));
 filterBox.append(allButton);
 for (const name of [...TOPICS, "other"].filter((name) => counts.has(name))) {
-  const button = element("button", `badge ${name}`, `${name} (${counts.get(name)})`);
+  const button = element("button", badgeClass(name), `${name} (${counts.get(name)})`);
   button.setAttribute("aria-pressed", "false");
   button.addEventListener("click", () => setFilter(filter === name ? null : name));
   filters.set(name, button);
@@ -247,7 +249,7 @@ for (const list of LISTS) {
   downloadButton.title = `Save the list as ${list.file}`;
   const title = element("div", "title");
   title.append(element("span", "name", list.name));
-  if (list.tag && !general) title.append(element("span", `badge ${list.tag}`, list.tag));
+  if (list.tag && !general) title.append(element("span", badgeClass(list.tag), list.tag));
   title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
   const status = element("p", "status");
   status.setAttribute("aria-live", "polite");
