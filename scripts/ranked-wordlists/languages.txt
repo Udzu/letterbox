@@ -1,0 +1,521 @@
+# name: Languages
+# description: Languages of the world, living, historical and constructed, most prominent first.
+# tag: language
+# attribution: From [Wikidata](https://www.wikidata.org/) (every ISO 639-1 language, and others by prominence or speakers), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker).
+
+# Languages with an ISO 639 code and an English Wikipedia article: every ISO 639-1 language, the
+# 500 or so most prominent others, and every language with 3 million or more speakers on Wikidata,
+# leaving out dialects (Swabian, Gascon), varieties of a language already listed (Egyptian Arabic,
+# Northern Uzbek), duplicates (Standard Chinese for Mandarin) and scripts (Linear A), and adding
+# Ossetian, Nahuatl and Aramaic, which have no code of their own on Wikidata. Names are the common
+# English ones (Cantonese for Yue Chinese), with widely used alternatives after them.
+
+Q27567: Abaza
+Q5111: Abkhaz
+Q27683: Acehnese
+Q27776: Adyghe
+Q27811: Afar
+Q14196: Afrikaans
+Q27969: Ainu
+Q28026: Akan
+Q35518: Akkadian
+Q8748: Albanian
+Q131339: Alemannic
+Q27210: Aleut
+Q14759: American Sign Language
+Q28244: Amharic
+Q35497: Ancient Greek
+Q35974: Ancient Macedonian
+Q28378: Angika
+Q35214: Anglo-Norman
+Q13955: Arabic
+Q8765: Aragonese
+Q28602: Aramaic
+Q1075302: Arbëresh
+Q8785: Armenian
+Q29316: Aromanian
+Q29401: Assamese
+Q29440: Assyrian Neo-Aramaic
+Q29507: Asturian
+Q29561: Avar
+Q29572: Avestan
+Q29579: Awadhi
+Q4627: Aymara
+Q9292: Azerbaijani
+Q756651: Bactrian
+Q33070: Balinese
+Q33049: Balochi
+Q33243: Bambara
+Q33151: Banjar
+Q13389: Bashkir
+Q8752: Basque
+Q29540: Bavarian
+Q9091: Belarusian
+Q33052: Bemba
+Q9610: Bengali, Bangla                   # Bangla
+Q33014: Betawi
+Q33229: Bhili
+Q33268: Bhojpuri
+Q1982248: Biblical Hebrew
+Q37059: Bishnupriya Manipuri
+Q35452: Bislama
+Q33223: Bodo
+Q25167: Bokmål
+Q9303: Bosnian
+Q33202: Brahui
+Q35243: Braj Bhasha
+Q3436689: Brazilian Sign Language
+Q12107: Breton
+Q33000: British Sign Language
+Q33190: Bugis
+Q56469: Bukharian
+Q36880: Bulgar
+Q7918: Bulgarian
+Q9228: Burmese
+Q216286: Burushaski
+Q33120: Buryat
+Q35466: Caló
+Q7033959: Cantonese                      # Yue Chinese
+Q35963: Cape Verdean Creole
+Q7026: Catalan
+Q33239: Cebuano
+Q37012: Celtiberian
+Q36831: Chagatai
+Q33262: Chamorro
+Q33281: Chavacano
+Q33350: Chechen
+Q33388: Cherokee
+Q33158: Chhattisgarhi
+Q33273: Chichewa, Chewa                  # Chewa
+Q7850: Chinese
+Q33173: Chittagonian
+Q33170: Chukchi
+Q33251: Church Slavonic, Old Church Slavonic
+Q33348: Chuvash
+Q37053: Cimbrian
+Q37041: Classical Chinese
+Q36155: Coptic
+Q25289: Cornish
+Q33111: Corsican
+Q33390: Cree
+Q33357: Crimean Tatar
+Q6654: Croatian
+Q1075050: Cuman
+Q35965: Cumbric
+Q9056: Czech
+Q682547: Dacian
+Q32238: Dagbani                          # Dagbanli
+Q35527: Dalmatian
+Q9035: Danish
+Q178440: Dari
+Q32656: Dhivehi, Maldivian               # Maldivian
+Q32730: Dogri
+Q32878: Dolgan
+Q33050: Dungan
+Q7411: Dutch
+Q33081: Dzongkha
+Q36455: Eastern Min
+Q50868: Egyptian                         # Egyptian language
+Q35470: Elamite
+Q1057898: Emilian
+Q1860: English
+Q29952: Erzya
+Q143: Esperanto
+Q9072: Estonian
+Q35726: Etruscan
+Q30004: Evenki
+Q30005: Ewe
+Q30007: Extremaduran
+Q300402: Fala
+Q35669: Faliscan
+Q25258: Faroese
+Q46728: Fiji Hindi
+Q33295: Fijian
+Q33298: Filipino
+Q1412: Finnish
+Q33291: Fon
+Q15087: Franco-Provençal                 # Franco-Provençal language
+Q10860505: Frankish
+Q150: French
+Q33441: Friulian
+Q33454: Fula, Fulani
+Q33457: Gagauz
+Q27403: Galatian
+Q9307: Galician
+Q33475: Gan Chinese
+Q33459: Garhwali
+Q36137: Garo
+Q35667: Ge'ez
+Q8108: Georgian
+Q188: German
+Q5555465: Ghanaian Pidgin English
+Q33657: Gilaki
+Q30898: Gilbertese
+Q1775361: Gondi
+Q33733: Gorani
+Q35722: Gothic
+Q36510: Greek                            # Modern Greek
+Q25355: Greenlandic
+Q35876: Guarani
+Q5137: Gujarati
+Q33303: Haida
+Q33491: Haitian Creole
+Q33375: Hakka                            # Hakka Chinese
+Q33410: Haryanvi
+Q31107: Hattic
+Q56475: Hausa
+Q33569: Hawaiian
+Q9288: Hebrew
+Q33315: Herero
+Q35978: Hiligaynon
+Q1568: Hindi
+Q33617: Hiri Motu
+Q35668: Hittite
+Q3307894: Hmong
+Q36495: Hokkien                          # Southern Min
+Q9067: Hungarian
+Q35740: Hurrian
+Q294: Icelandic
+Q35224: Ido
+Q33578: Igbo
+Q35976: Illyrian
+Q35936: Ilocano
+Q33462: Inari Sami
+Q9240: Indonesian
+Q33559: Ingrian
+Q33509: Ingush
+Q35934: Interlingua
+Q35850: Interlingue
+Q148971: Interslavic
+Q29921: Inuktitut
+Q9142: Irish
+Q33417: Isan
+Q35845: Istriot
+Q33622: Istro-Romanian
+Q652: Italian
+Q27183: Iñupiaq
+Q35939: Jamaican Patois
+Q5287: Japanese
+Q33549: Javanese
+Q56479: Jin Chinese                      # Jin
+Q37733: Judeo-Arabic
+Q1145414: Judeo-Italian                  # Judæo-Italian
+Q33367: Judeo-Persian
+Q56495: Judeo-Tat
+Q33522: Kabardian
+Q35853: Kabyle
+Q33634: Kalmyk
+Q2574767: Kamba
+Q33673: Kannada
+Q36094: Kanuri
+Q36121: Kapampangan
+Q33714: Karachay-Balkar
+Q33725: Karaim
+Q33541: Karakalpak
+Q33557: Karelian
+Q33552: Kashmiri
+Q33690: Kashubian
+Q49341: Kawi
+Q9252: Kazakh
+Q33575: Khakas
+Q33563: Khanty
+Q33584: Khasi
+Q9205: Khmer
+Q13301: Khoekhoe
+Q938216: Khowar
+Q33138: Khwarezmian
+Q33587: Kikuyu, Gikuyu                   # Gikuyu
+Q33656: Kildin Sami
+Q33573: Kinyarwanda
+Q33583: Kirundi
+Q10134: Klingon
+Q56384: Knaanic
+Q35947: Kokborok
+Q36126: Komi
+Q56318: Komi-Permyak
+Q33702: Kongo
+Q34239: Konkani
+Q9176: Korean
+Q33723: Krymchak
+Q33529: Kumaoni
+Q36209: Kumyk
+Q36368: Kurdish                          # Kurdish language
+Q36163: Kurmanji
+Q33492: Kurukh
+Q165795: Kven
+Q1405077: Kwanyama
+Q9255: Kyrgyz
+Q35833: Ladakhi
+Q36202: Ladin
+Q36196: Ladino, Judaeo-Spanish           # Judaeo-Spanish
+Q36206: Lak
+Q56483: Laki
+Q33474: Lambadi
+Q9211: Lao
+Q36212: Latgalian
+Q397: Latin
+Q9078: Latvian
+Q1160372: Laz
+Q35993: Lepontic
+Q31746: Lezgian
+Q36106: Ligurian
+Q102172: Limburgish
+Q36217: Lingala
+Q146803: Lingua Franca Nova
+Q9083: Lithuanian
+Q33698: Livonian
+Q36350: Lojban
+Q33754: Lombard
+Q35972: Lombardic
+Q25433: Low German
+Q13286: Lower Sorbian
+Q34173: Luba-Kasai
+Q36157: Luba-Katanga
+Q33368: Luganda
+Q56322: Lule Sami
+Q5414796: Luo, Dholuo                    # Dholuo
+Q9051: Luxembourgish
+Q9296: Macedonian
+Q36213: Madurese
+Q33728: Magahi
+Q36109: Maithili
+Q33882: Makhuwa
+Q7930: Malagasy
+Q9237: Malay
+Q36236: Malayalam
+Q9166: Maltese
+Q33638: Manchu
+Q9192: Mandarin
+Q36186: Maninka
+Q33759: Mansi
+Q12175: Manx
+Q33730: Mapudungun
+Q1571: Marathi
+Q973685: Mari
+Q36280: Marshallese
+Q56312: Marwari
+Q13356: Mazanderani
+Q36461: Median
+Q13358: Megleno-Romanian
+Q33868: Meitei
+Q13357: Meänkieli
+Q2016252: Middle Chinese
+Q178806: Middle Dutch
+Q36395: Middle English
+Q1473289: Middle French
+Q837985: Middle High German
+Q505674: Middle Low German
+Q32063: Middle Persian
+Q13324: Minangkabau
+Q13359: Mingrelian
+Q13330: Mirandese
+Q36147: Mizo
+Q13343: Moksha
+Q36392: Moldovan
+Q13349: Mon
+Q9246: Mongolian
+Q8821: Montenegrin
+Q36096: Mooré
+Q317044: Mozarabic                       # Andalusi Romance
+Q668366: Mycenaean Greek
+Q268130: Mòcheno
+Q36451: Māori
+Q765922: Nagpuri
+Q13300: Nahuatl
+Q13307: Nauruan
+Q13310: Navajo
+Q33900: Ndonga
+Q33845: Neapolitan
+Q36452: Nenets
+Q33823: Nepali
+Q33979: Newar
+Q33655: Nigerian Pidgin
+Q36464: Nivkh
+Q33871: Nogai
+Q33850: Norman
+Q36708: Norn
+Q28224: North Frisian
+Q35613: Northern Ndebele
+Q33947: Northern Sami
+Q33890: Northern Sotho
+Q565110: Northern Thai                   # Lanna
+Q9043: Norwegian
+Q36738: Novial
+Q34235: Nuosu, Yi
+Q25164: Nynorsk
+Q14185: Occitan
+Q33810: Odia, Oriya
+Q33875: Ojibwe
+Q34233: Okinawan
+Q35137: Old Chinese
+Q443089: Old Dutch
+Q35228: Old East Slavic
+Q42365: Old English
+Q35222: Old French
+Q35133: Old Frisian
+Q35218: Old High German
+Q35308: Old Irish
+Q35505: Old Norse
+Q35225: Old Persian
+Q35501: Old Prussian
+Q35219: Old Saxon
+Q1088025: Old Spanish
+Q34988: Old Turkic
+Q33864: Oromo
+Q36653: Oscan
+Q33968: Ossetian
+Q36730: Ottoman Turkish
+Q33776: Palauan
+Q36727: Pali
+Q35660: Pannonian Rusyn
+Q33856: Papiamento
+Q25953: Parthian
+Q58680: Pashto
+Q22711: Pennsylvania German
+Q9168: Persian, Farsi
+Q36734: Phoenician
+Q36751: Phrygian
+Q34024: Picard
+Q856383: Pictish
+Q15085: Piedmontese
+Q56314: Pite Sami
+Q1751432: Plautdietsch
+Q36741: Polabian
+Q809: Polish
+Q36748: Pontic Greek
+Q5146: Portuguese
+Q535958: Punic
+Q58635: Punjabi
+Q13192: Qashqai
+Q5218: Quechua
+Q56383: Quenya
+Q13196: Rajasthani
+Q3241177: Rohingya
+Q1641543: Romagnol
+Q13201: Romani
+Q7913: Romanian
+Q13199: Romansh
+Q7737: Russian
+Q26245: Rusyn
+Q56410: S'gaw Karen
+Q636479: Sabir
+Q33963: Salar
+Q34011: Samoan
+Q33954: Sango
+Q11059: Sanskrit
+Q33965: Santali
+Q33902: Saraiki
+Q33976: Sardinian
+Q33873: Sarikoli
+Q27154: Saterland Frisian
+Q14549: Scots
+Q9314: Scottish Gaelic
+Q749834: Scythian
+Q34008: Selkup
+Q9299: Serbian
+Q9301: Serbo-Croatian
+Q34340: Sesotho
+Q56482: Shan
+Q36705: Shelta
+Q36612: Sherpa
+Q1353320: Shina
+Q34004: Shona
+Q56472: Shuadit
+Q33973: Sicilian
+Q35285: Sikkimese Bhutia
+Q30319: Silesian
+Q56437: Sindarin
+Q33997: Sindhi
+Q13267: Sinhala
+Q13271: Skolt Sami
+Q36254: Slavomolisano
+Q9058: Slovak
+Q9063: Slovene, Slovenian
+Q205979: Sogdian
+Q13275: Somali
+Q36811: Sorani
+Q1991779: Southern Altai
+Q36785: Southern Ndebele
+Q13293: Southern Sami
+Q1321: Spanish
+Q33989: Sranan Tongo
+Q2638144: Sukuma
+Q36790: Sumerian
+Q34002: Sundanese
+Q7838: Swahili
+Q34014: Swazi, Swati
+Q9027: Swedish
+Q2044560: Sylheti
+Q33538: Syriac
+Q34057: Tagalog
+Q34128: Tahitian
+Q9260: Tajik
+Q34318: Talysh
+Q49741: Tamazight                        # Central Atlas Tamazight
+Q5885: Tamil
+Q34174: Tarifit, Riffian
+Q34152: Tashelhit
+Q56489: Tat
+Q25285: Tatar
+Q8097: Telugu
+Q34125: Tetum
+Q9217: Thai
+Q36793: Thracian
+Q34271: Tibetan
+Q34129: Tigre
+Q34124: Tigrinya
+Q34159: Tok Pisin
+Q36846: Toki Pona
+Q34094: Tongan
+Q220607: Tsakonian
+Q34327: Tsonga
+Q34137: Tswana
+Q34251: Tulu
+Q34138: Tumbuka
+Q256: Turkish
+Q9267: Turkmen
+Q34119: Tuvan
+Q36850: Twi
+Q13238: Udmurt
+Q36928: Ugaritic
+Q8798: Ukrainian
+Q36957: Umbrian
+Q36983: Umbundu
+Q13244: Unserdeutsch
+Q13248: Upper Sorbian
+Q1617: Urdu
+Q13257: Urum
+Q13263: Uyghur
+Q9264: Uzbek
+Q36835: Vandalic
+Q36858: Vedic Sanskrit
+Q32704: Venda
+Q32724: Venetian
+Q36871: Venetic
+Q32747: Veps
+Q9199: Vietnamese
+Q36986: Volapük
+Q32858: Votic
+Q32762: Võro
+Q34208: Wakhi
+Q34219: Walloon
+Q34279: Waray
+Q9309: Welsh
+Q27175: West Frisian
+Q36943: Wolaytta                         # Wolayttattuwa
+Q34257: Wolof
+Q34290: Wu Chinese
+Q56485: Wymysorys
+Q13218: Xhosa
+Q13220: Xiang Chinese
+Q34247: Yaghnobi
+Q34299: Yakut, Sakha
+Q34200: Yevanic
+Q8641: Yiddish
+Q56395: Yola
+Q34311: Yoruba
+Q13354: Yucatec Maya
+Q10199: Zazaki
+Q13216: Zhuang
+Q10179: Zulu
+Q254950: Övdalian
