@@ -1,0 +1,283 @@
+# name: Religions
+# description: Religions, their branches and movements, and stances such as atheism, most prominent first.
+# tag: culture
+# attribution: From Wikipedia's [list of religions and spiritual traditions](https://en.wikipedia.org/wiki/List_of_religions_and_spiritual_traditions), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.
+
+Catholicism
+Christianity
+Islam
+Buddhism
+Protestantism
+Judaism
+Hinduism
+Eastern Orthodoxy
+Sunni Islam
+Shia Islam
+Lutheranism
+atheism
+Anglicanism
+Zoroastrianism
+Sikhism
+Taoism
+Daoism
+Jehovah's Witnesses
+Confucianism
+Calvinism
+Baháʼí Faith
+Jainism
+Baptists
+agnosticism
+Sufism
+Methodism
+Evangelicalism
+Shinto
+Pentecostalism
+Mormonism
+Presbyterianism
+paganism
+Quakerism
+irreligion
+monotheism
+Zen
+animism
+Gnosticism
+Scientology
+Seventh-day Adventism
+Eastern Catholicism
+Oriental Orthodoxy
+shamanism
+Druze
+polytheism
+Theravada
+Kabbalah
+Tibetan Buddhism
+Anabaptism
+Mahayana
+Arianism
+Rastafari
+deism
+Puritanism
+Hasidism
+Manichaeism
+Mennonites
+Orthodox Judaism
+pantheism
+Ismailism
+Coptic Christianity
+New Age
+Twelver Shi'ism
+ancient Roman religion
+Wahhabism
+Unitarianism
+Amish
+Haredi Judaism
+Vajrayana
+Ahmadiyya
+Salafism
+Nestorianism
+Ibadism
+Reform Judaism
+neopaganism
+Vaishnavism
+Adventism
+Mithraism
+Shaivism
+Kharijites
+Catharism
+Chinese folk religion
+Theosophy
+theism
+Hussites
+Vedanta
+Old Catholicism
+ancient Greek religion
+Zaydism
+Tantra
+Alevism
+Wicca
+ancient Egyptian religion
+Tengrism
+Pharisees
+Karaite Judaism
+Falun Gong
+Satanism
+Moravian Church
+Old Believers
+Conservative Judaism
+Pietism
+Advaita Vedanta
+Mandaeism
+Hermeticism
+Waldensians
+Vedic religion
+Congregationalism
+Nation of Islam
+Shaktism
+nontrinitarianism
+Thelema
+Caodaism
+Christian Science
+Monophysitism
+Anthroposophy
+Yazidism
+Neo-Confucianism
+Pure Land Buddhism
+Unification Church
+Vodun
+Hare Krishna
+Germanic paganism
+panentheism
+Bábism
+Bon
+Ash'arism
+Chan Buddhism
+Slavic paganism
+Restorationism
+henotheism
+Charismatic Christianity
+Yarsanism
+Mu'tazilism
+Shingon Buddhism
+Messianic Judaism
+Tiantai
+Norse paganism
+Sumerian religion
+Quranism
+Bektashism
+Arminianism
+Samaritanism
+Spiritism
+Rabbinic Judaism
+Orphism
+Candomblé
+Sadducees
+Cheondoism
+Bogomilism
+Celtic paganism
+Santería
+Raëlism
+Heathenry
+Tenrikyo
+Mesopotamian religion
+Discordianism
+Zurvanism
+Maturidism
+Christadelphians
+Smartism
+Gelug
+Spiritualism
+Hellenic polytheism
+Nichiren Buddhism
+Hutterites
+Essenes
+Canaanite religion
+Vodou
+Voodoo
+Aum Shinrikyo
+Yoruba religion
+Anglo-Saxon paganism
+Rodnovery
+Transcendental Meditation
+Reconstructionist Judaism
+Miaphysitism
+Rosicrucianism
+Naqshbandi
+nontheism
+Yiguandao
+Umbanda
+Mazdakism
+New Thought
+Hòa Hảo
+Digambara
+Soka Gakkai
+Shugendō
+Druidry
+Qadiriyya
+Ghost Dance
+Nyingma
+pandeism
+Atenism
+Deobandism
+Humanistic Judaism
+Balinese Hinduism
+Ājīvika
+Anglo-Catholicism
+Mevlevi Order
+Yahwism
+Swedenborgianism
+Ayyavazhi
+Marcionism
+Kagyu
+Paulicianism
+Kemetism
+Lingayatism
+Eckankar
+Ifá
+Inuit religion
+Romuva
+Native American Church
+Arya Samaj
+Navayana
+cargo cult
+Maya religion
+Etruscan religion
+Śvetāmbara
+Sakya
+Heaven's Gate
+Cult of the Supreme Being
+Shakers
+Sámi religion
+Tendai
+Aztec religion
+Rajneesh movement
+Sabbateans
+Hoodoo
+Ebionites
+Burkhanism
+Hawaiian religion
+Sanamahism
+apatheism
+Chishti Order
+Cult of Reason
+Gaudiya Vaishnavism
+Mari native religion
+Branch Davidians
+Barelvism
+Christian Identity
+Kejawèn
+Happy Science
+Inca religion
+Palo
+Odinani
+Quimbanda
+Obeah
+ignosticism
+Lollardy
+Sant Mat
+Brahmo Samaj
+Sarnaism
+Winti
+Serer religion
+Oomoto
+Frankism
+Subud
+Đạo Mẫu
+Eastern Lightning
+Swaminarayan Sampradaya
+Midewiwin
+Valentinianism
+Shabakism
+Donyi-Polo
+Kaharingan
+omnism
+Akan religion
+Macumba
+Longhouse Religion
+Sunda Wiwitan
+Brahma Kumaris
+Bimoism
+Zulu traditional religion
+Mapuche religion
+Kiratism
+Alawism
+Waaqeffanna
