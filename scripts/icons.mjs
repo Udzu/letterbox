@@ -2,7 +2,7 @@
 //
 // Usage: node scripts/icons.mjs
 //
-// The PNGs are committed, so this only needs running when icons/icon.svg or icons/maskable.svg change.
+// The PNGs are committed, so this only needs running when an icon's SVG changes.
 
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -14,7 +14,7 @@ const OUTPUTS = [
   ["icon.svg", "icon-192.png", 192],
   ["icon.svg", "icon-512.png", 512],
   ["maskable.svg", "maskable-512.png", 512],
-  ["maskable.svg", "apple-touch-icon.png", 180],
+  ["apple-touch-icon.svg", "apple-touch-icon.png", 180],
 ];
 
 const profile = mkdtempSync(path.join(tmpdir(), "icons-"));

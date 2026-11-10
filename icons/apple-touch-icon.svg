@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- the letter tile for iOS, which rounds the corners itself: no transparent corners, and the letter
+       (with its point value) as large as on the tile and centred -->
+  <rect width="512" height="512" fill="#f8e7c3"/>
+  <g fill="#06c" transform="translate(256 256) scale(1.15) translate(-296 -280)"><path d="M164 120h80v196h108v76H164z"/><path d="M392 380l22-10h14v70h-18v-50l-14 6z"/></g>
+</svg>
