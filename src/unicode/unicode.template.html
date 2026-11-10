@@ -23,6 +23,8 @@
   }
   #filters { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-top: 10px; }
   #filters select { font: inherit; font-size: 0.9rem; max-width: 100%; }
+  /* long block names are cut off in the closed dropdown, so the filters fit on one line */
+  #filters #block { max-width: min(18rem, 100%); }
   #tones { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 8px; }
   #tones .label { color: #666; margin-right: 4px; }
   #tones button { font-size: 1.1rem; padding: 0 4px; border: 1px solid transparent; border-radius: 3px; background: none; cursor: pointer; }

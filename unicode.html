@@ -24,6 +24,8 @@
   }
   #filters { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-top: 10px; }
   #filters select { font: inherit; font-size: 0.9rem; max-width: 100%; }
+  /* long block names are cut off in the closed dropdown, so the filters fit on one line */
+  #filters #block { max-width: min(18rem, 100%); }
   #tones { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 8px; }
   #tones .label { color: #666; margin-right: 4px; }
   #tones button { font-size: 1.1rem; padding: 0 4px; border: 1px solid transparent; border-radius: 3px; background: none; cursor: pointer; }
@@ -386,6 +388,36 @@
     Co: "private use",
     Cn: "unassigned"
   };
+  var MAJOR_ALL = { L: "All letters", M: "All marks", N: "All numbers", P: "All punctuation", S: "All symbols", Z: "All separators", C: "All other" };
+  var MINOR_CATEGORIES = {
+    Lu: "Uppercase letters",
+    Ll: "Lowercase letters",
+    Lt: "Titlecase letters",
+    Lm: "Modifier letters",
+    Lo: "Other letters",
+    Mn: "Nonspacing marks",
+    Mc: "Spacing marks",
+    Me: "Enclosing marks",
+    Nd: "Decimal digits",
+    Nl: "Letter numbers",
+    No: "Other numbers",
+    Pc: "Connectors",
+    Pd: "Dashes",
+    Ps: "Opening brackets",
+    Pe: "Closing brackets",
+    Pi: "Opening quotes",
+    Pf: "Closing quotes",
+    Po: "Other punctuation",
+    Sm: "Math symbols",
+    Sc: "Currency symbols",
+    Sk: "Modifier symbols",
+    So: "Other symbols",
+    Zs: "Spaces",
+    Zl: "Line separator",
+    Zp: "Paragraph separator",
+    Cc: "Controls",
+    Cf: "Format characters"
+  };
   var unicode = new Unicode(characters_default);
   var attribution = /^# attribution: (.*)$/m.exec(characters_default)[1];
   var input = document.getElementById("query");
@@ -421,8 +453,11 @@
   var groupNames = [...new Set(unicode.groups.map((g) => g.group))].filter((g) => g !== "Component");
   var FILTER_OPTIONS = {
     category: {
-      options: [["", "Any category"], ...Object.entries(CATEGORIES)],
-      values: (e) => [e.gc[0]]
+      options: [["", "Any category"], ...Object.entries(CATEGORIES).flatMap(([major, name]) => [
+        [major, MAJOR_ALL[major], name],
+        ...Object.entries(MINOR_CATEGORIES).filter(([gc]) => gc[0] === major).map(([gc, label]) => [gc, label, name])
+      ])],
+      values: (e) => [e.gc[0], e.gc]
     },
     script: {
       options: [["", "Any script"], ...Object.entries(unicode.scriptNames).sort((a, b) => a[1].localeCompare(b[1]))],

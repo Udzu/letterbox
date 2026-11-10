@@ -20,6 +20,19 @@ const GC = {
   Cc: "control", Cf: "format", Cs: "surrogate", Co: "private use", Cn: "unassigned",
 };
 
+// the category filter's options: each major category, then its minor ones (named to make sense on
+// their own, as a closed dropdown doesn't show its section)
+const MAJOR_ALL = { L: "All letters", M: "All marks", N: "All numbers", P: "All punctuation", S: "All symbols", Z: "All separators", C: "All other" };
+const MINOR_CATEGORIES = {
+  Lu: "Uppercase letters", Ll: "Lowercase letters", Lt: "Titlecase letters", Lm: "Modifier letters", Lo: "Other letters",
+  Mn: "Nonspacing marks", Mc: "Spacing marks", Me: "Enclosing marks",
+  Nd: "Decimal digits", Nl: "Letter numbers", No: "Other numbers",
+  Pc: "Connectors", Pd: "Dashes", Ps: "Opening brackets", Pe: "Closing brackets", Pi: "Opening quotes", Pf: "Closing quotes", Po: "Other punctuation",
+  Sm: "Math symbols", Sc: "Currency symbols", Sk: "Modifier symbols", So: "Other symbols",
+  Zs: "Spaces", Zl: "Line separator", Zp: "Paragraph separator",
+  Cc: "Controls", Cf: "Format characters",
+};
+
 const unicode = new Unicode(DATA);
 const attribution = /^# attribution: (.*)$/m.exec(DATA)[1];
 
@@ -66,8 +79,11 @@ function save() {
 const groupNames = [...new Set(unicode.groups.map((g) => g.group))].filter((g) => g !== "Component");
 const FILTER_OPTIONS = {
   category: {
-    options: [["", "Any category"], ...Object.entries(CATEGORIES)],
-    values: (e) => [e.gc[0]],
+    options: [["", "Any category"], ...Object.entries(CATEGORIES).flatMap(([major, name]) => [
+      [major, MAJOR_ALL[major], name],
+      ...Object.entries(MINOR_CATEGORIES).filter(([gc]) => gc[0] === major).map(([gc, label]) => [gc, label, name]),
+    ])],
+    values: (e) => [e.gc[0], e.gc],
   },
   script: {
     options: [["", "Any script"], ...Object.entries(unicode.scriptNames).sort((a, b) => a[1].localeCompare(b[1]))],
