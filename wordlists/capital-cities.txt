@@ -1,0 +1,314 @@
+# name: Capital cities
+# description: Capitals of sovereign states and dependent territories, including every official capital where there are several.
+# tag: geography
+
+# Capitals follow the order of their countries in the Countries list. Where a country has several
+# official capitals, they are all listed, but cities that are only the seat of government in
+# practice (The Hague, Cotonou, Abidjan, Ramallah) are not.
+
+# ================
+# Sovereign states
+# ================
+
+# UN members
+Kabul
+Tirana
+Algiers
+Andorra la Vella
+Luanda
+Saint John's
+Buenos Aires
+Yerevan
+Canberra
+Vienna
+Baku
+Nassau
+Manama
+Dhaka
+Bridgetown
+Minsk
+Brussels
+Belmopan
+Porto-Novo
+Thimphu
+# Bolivia
+Sucre
+La Paz
+Sarajevo
+Gaborone
+Brasília
+Bandar Seri Begawan
+Sofia
+Ouagadougou
+Gitega
+Praia
+Phnom Penh
+Yaoundé
+Ottawa
+Bangui
+N'Djamena
+Santiago
+Beijing
+Bogotá
+Moroni
+Brazzaville
+San José
+Yamoussoukro
+Zagreb
+Havana
+Nicosia
+Prague
+Copenhagen
+Djibouti
+Roseau
+Santo Domingo
+Kinshasa
+Quito
+Cairo
+San Salvador
+Ciudad de la Paz
+Asmara
+Tallinn
+# Eswatini
+Mbabane
+Lobamba
+Addis Ababa
+Suva
+Helsinki
+Paris
+Libreville
+Banjul
+Tbilisi
+Berlin
+Accra
+Athens
+Saint George's
+Guatemala City
+Conakry
+Bissau
+Georgetown
+Port-au-Prince
+# Honduras
+Tegucigalpa
+Comayagüela
+Budapest
+Reykjavík
+New Delhi
+Jakarta
+Tehran
+Baghdad
+Dublin
+Jerusalem
+Rome
+Kingston
+Tokyo
+Amman
+Astana
+Nairobi
+South Tarawa
+Kuwait City
+Bishkek
+Vientiane
+Riga
+Beirut
+Maseru
+Monrovia
+Tripoli
+Vaduz
+Vilnius
+Luxembourg
+Antananarivo
+Lilongwe
+# Malaysia
+Kuala Lumpur
+Putrajaya
+Malé
+Bamako
+Valletta
+Majuro
+Nouakchott
+Port Louis
+Mexico City
+Palikir
+Chișinău
+Monaco
+Ulaanbaatar
+Podgorica
+Rabat
+Maputo
+Naypyidaw
+Windhoek
+Yaren
+Kathmandu
+Amsterdam
+Wellington
+Managua
+Niamey
+Abuja
+Pyongyang
+Skopje
+Oslo
+Muscat
+Islamabad
+Ngerulmud
+Panama City
+Port Moresby
+Asunción
+Lima
+Manila
+Warsaw
+Lisbon
+Doha
+Bucharest
+Moscow
+Kigali
+Basseterre
+Castries
+Kingstown
+Apia
+San Marino
+São Tomé
+Riyadh
+Dakar
+Belgrade
+Victoria
+Freetown
+Singapore
+Bratislava
+Ljubljana
+Honiara
+Mogadishu
+# South Africa
+Pretoria
+Cape Town
+Bloemfontein
+Seoul
+Juba
+Madrid
+# Sri Lanka
+Sri Jayawardenepura Kotte
+Colombo
+Khartoum
+Paramaribo
+Stockholm
+Bern
+Damascus
+Dushanbe
+Dodoma
+Bangkok
+Dili
+Lomé
+Nukuʻalofa
+Port of Spain
+Tunis
+Ankara
+Ashgabat
+Funafuti
+Abu Dhabi
+Kampala
+London
+Kyiv
+Montevideo
+Washington, D.C.
+Tashkent
+Port Vila
+Caracas
+Hanoi
+Sanaa
+Lusaka
+Harare
+
+# UN observer states
+Jerusalem
+Vatican City
+
+# UN non-members
+Avarua
+Pristina
+Alofi
+Taipei
+Laayoune
+
+# Common alternative names
+Kiev
+Kotte
+Luxembourg City
+Nay Pyi Taw
+Prishtina
+Sana'a
+St George's
+St Helier
+St John's
+St Peter Port
+Tarawa
+Ulan Bator
+Washington
+Washington DC
+
+# =====================
+# Dependent territories
+# =====================
+
+# Australia
+Flying Fish Cove
+West Island
+Kingston
+
+# Denmark
+Tórshavn
+Nuuk
+
+# Finland
+Mariehamn
+
+# France
+Cayenne
+Papeete
+Basse-Terre
+Fort-de-France
+Mamoudzou
+Nouméa
+Saint-Denis
+Gustavia
+Marigot
+Saint-Pierre
+Mata Utu
+
+# Netherlands
+Oranjestad
+Willemstad
+Philipsburg
+
+# Norway
+Longyearbyen
+
+# Palestine
+Gaza City
+
+# UK
+London
+Belfast
+Edinburgh
+Cardiff
+Saint Peter Port
+Douglas
+Saint Helier
+The Valley
+Georgetown
+Hamilton
+Road Town
+George Town
+Stanley
+Gibraltar
+Plymouth
+Adamstown
+Jamestown
+Edinburgh of the Seven Seas
+Cockburn Town
+
+# USA
+Pago Pago
+Hagåtña
+Saipan
+San Juan
+Charlotte Amalie
