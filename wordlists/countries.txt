@@ -47,7 +47,7 @@ Colombia
 Comoros
 Congo
 Costa Rica
-Cote d'Ivoire
+Côte d'Ivoire
 Croatia
 Cuba
 Cyprus
@@ -155,7 +155,7 @@ Saint Lucia
 Saint Vincent and the Grenadines
 Samoa
 San Marino
-Sao Tome and Principe
+São Tomé and Príncipe
 Saudi Arabia
 Senegal
 Serbia
@@ -233,7 +233,7 @@ Macedonia
 Nauru
 Saint Kitts
 Saint Vincent
-Sao Tome
+São Tomé
 Swaziland
 Trinidad
 Turkey
@@ -270,7 +270,7 @@ Faroe Islands
 Greenland
 
 # Finland
-Aland
+Åland
 
 # France
 French Guiana
@@ -279,15 +279,15 @@ Guadeloupe
 Martinique
 Mayotte
 New Caledonia
-Reunion
-Saint Barthelemy
+Réunion
+Saint Barthélemy
 Saint Martin
 Saint Pierre and Miquelon
 Wallis and Futuna
 
 # Netherlands
 Aruba
-Curacao
+Curaçao
 Sint Maarten
 
 # New Zealand
