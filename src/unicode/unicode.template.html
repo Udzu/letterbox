@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unicode</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main { max-width: 900px; margin: 0 auto; }
+  .intro { margin: 0 0 24px; color: #666; }
+  #query {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    font-size: 1.2rem;
+    font-family: inherit;
+  }
+  #filters { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-top: 10px; }
+  #filters select { font: inherit; font-size: 0.9rem; max-width: 100%; }
+  /* long block names are cut off in the closed dropdown, so the filters fit on one line */
+  #filters #block { max-width: min(18rem, 100%); }
+  #tones { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 8px; }
+  #tones .label { color: #666; margin-right: 4px; }
+  #tones button { font-size: 1.1rem; padding: 0 4px; border: 1px solid transparent; border-radius: 3px; background: none; cursor: pointer; }
+  #tones button[aria-pressed=true] { border-color: #999; background: #e8e8e8; }
+  #tray-row[hidden] { display: none; }
+  #tray-row { display: flex; gap: 6px; margin-top: 12px; align-items: stretch; }
+  #tray { flex: 1; min-width: 0; padding: 6px 8px; font-size: 1.2rem; font-family: inherit; resize: vertical; min-height: 1.6em; height: 2.4em; box-sizing: border-box; }
+  #tray-row button { font: inherit; font-size: 0.9rem; padding: 0 10px; cursor: pointer; }
+  #summary { margin: 16px 0 8px; color: #444; }
+  #summary:empty { display: none; }
+  #results ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid #ddd; }
+  #results li { display: grid; grid-template-columns: 3.2rem 1fr auto; align-items: start; border-bottom: 1px solid #ddd; }
+  #results li > .details { grid-column: 2 / -1; }
+  button.glyph-button { position: relative; font: inherit; border: none; background: none; padding: 4px 0; cursor: pointer; text-align: center; min-height: 2.6rem; }
+  button.glyph-button:hover, button.glyph-button:focus-visible { background: #f0f0f0; }
+  /* "Copied" over a glyph for a moment after it's clicked */
+  button.glyph-button.copied::after {
+    content: "Copied";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: #333;
+    color: #fff;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1;
+  }
+  button.plus { font: inherit; font-size: 1.3rem; line-height: 1; border: none; background: none; color: #06c; cursor: pointer; padding: 10px 10px; opacity: 0.3; }
+  #results li:hover button.plus, button.plus:focus-visible { opacity: 1; }
+  @media (hover: none) { button.plus { opacity: 1; } }
+  .glyph {
+    font-size: 1.6rem;
+    line-height: 1.6;
+    font-family: system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Noto Sans Symbols 2";
+  }
+  .glyph.invisible, .glyph.space { border: 1px dashed #aaa; border-radius: 2px; }
+  .glyph.invisible { font-size: 0.7rem; line-height: 1; padding: 2px 3px; color: #666; font-family: ui-monospace, monospace; white-space: nowrap; }
+  .glyph.space { white-space: pre; }
+  button.name { font: inherit; text-align: left; border: none; background: none; padding: 6px 4px; cursor: pointer; color: inherit; display: block; width: 100%; }
+  button.name:hover > span:first-child { text-decoration: underline; }
+  button.name .lower { font-style: italic; }
+  button.name .meta { display: block; font-size: 0.85rem; color: #777; overflow-wrap: anywhere; }
+  .details { padding: 0 4px 8px; font-size: 0.9rem; color: #333; }
+  .details p { margin: 2px 0; }
+  .details .label { color: #777; }
+  .details .choices button.glyph-button, .details .grid button.glyph-button { min-height: 0; padding: 0 2px; }
+  .details .choices .glyph, .details .grid .glyph { font-size: 1.3rem; }
+  .details .grid { display: inline-grid; grid-template-columns: repeat(5, auto); vertical-align: top; }
+  button.more { margin: 12px 0; font: inherit; cursor: pointer; }
+  .attribution { margin: 24px 0 0; color: #888; font-size: 0.85rem; }
+  .attribution a { color: #888; }
+  nav { max-width: 900px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <b>Unicode</b> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
+<main>
+  <p class="intro">Find Unicode characters and emoji by name or alias, or paste text (or a codepoint like U+1F600) to see what it's made of. Click a character to copy it, + to collect several, or a name for details.</p>
+  <input id="query" type="text" placeholder="Name, text or U+codepoint..." autocomplete="off" spellcheck="false" autofocus>
+  <div id="filters">
+    <select id="category" aria-label="Category"></select>
+    <select id="script" aria-label="Script"></select>
+    <select id="block" aria-label="Block"></select>
+    <select id="type" aria-label="Type"></select>
+  </div>
+  <div id="tones"></div>
+  <div id="tray-row">
+    <textarea id="tray" aria-label="Tray" placeholder="Tray" spellcheck="false"></textarea>
+    <button type="button" id="copy">Copy</button>
+    <button type="button" id="clear">Clear</button>
+  </div>
+  <p id="summary"></p>
+  <div id="results"></div>
+  <p class="attribution" id="attribution"></p>
+</main>
+<!-- @inline page.js -->
+</body>
+</html>
