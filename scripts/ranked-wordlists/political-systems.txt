@@ -1,6 +1,6 @@
 # name: Political systems and ideologies
 # description: Forms of government and political ideologies, most prominent first.
-# tag: politics
+# tag: politics & religion
 # attribution: From Wikipedia's lists of [forms of government](https://en.wikipedia.org/wiki/List_of_forms_of_government) and [ideologies](https://en.wikipedia.org/wiki/List_of_political_ideologies), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.
 
 # Terms from the two Wikipedia lists whose own articles are about them, with a few that the lists
