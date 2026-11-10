@@ -15,61 +15,82 @@
   main { max-width: 900px; margin: 0 auto; }
   h1 { margin: 0 0 8px; font-size: 1.8rem; }
   .intro { margin: 0 0 24px; color: #666; }
-  ul { list-style: none; margin: 0; padding: 0; }
-  ul + ul { margin-top: 32px; }
-  li { padding: 12px 0; border-bottom: 1px solid #ddd; }
-  li:last-child { border-bottom: none; }
-  a { font-size: 1.2rem; color: #06c; }
-  li p { margin: 4px 0 0; color: #444; }
+  /* each section is a grid of boxes, each box a link: 3 columns on desktop, 1 on narrow phones */
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .grid + .grid { margin-top: 32px; }
+  .grid a {
+    display: block;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    border: 1px solid #cddcee;
+    border-radius: 6px;
+    background: #eef4fb;
+    color: #444;
+    text-decoration: none;
+  }
+  .grid.other a { background: #fbf3e6; border-color: #ecdcbf; }
+  .grid a:hover, .grid a:focus-visible { border-color: #06c; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
+  .grid a:focus-visible { outline: 2px solid #06c; outline-offset: 1px; }
+  .grid .name { display: block; font-size: 1.2rem; font-weight: 600; color: #06c; }
+  .grid .description { display: block; margin-top: 4px; }
+  @media (max-width: 559px) { .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <main>
   <h1>Letterbox</h1>
   <p class="intro">Simple offline web tools.</p>
-  <ul>
-    <li>
-      <a href="anagrams.html">Anagrams</a>
-      <p>Rearrange the letters of a phrase, with unused and unavailable letters highlighted.</p>
-    </li>
-    <li>
-      <a href="lipograms.html">Lipograms</a>
-      <p>Write while avoiding chosen letters, or with word lengths following the digits of π.</p>
-    </li>
-    <li>
-      <a href="palindromes.html">Palindromes</a>
-      <p>Write forwards and backwards at once, with each side mirroring the other's letters.</p>
-    </li>
-    <li>
-      <a href="pangrams.html">Pangrams</a>
-      <p>Use every letter of the alphabet, with counts showing what's missing and what's repeated.</p>
-    </li>
-    <li>
-      <a href="patterns.html">Patterns</a>
-      <p>Explore regular expressions as finite automata, with extra operators for wordplay such as containment and subtraction.</p>
-    </li>
-    <li>
-      <a href="rhymes.html">Rhymes</a>
-      <p>Find rhymes for a word, in General American pronunciation.</p>
-    </li>
-    <li>
-      <a href="unicode.html">Unicode</a>
-      <p>Find characters and emoji by name, or see what a piece of text is made of.</p>
-    </li>
-    <li>
-      <a href="wordlists.html">Wordlists</a>
-      <p>Word lists to download, or load into the other pages (needs a connection).</p>
-    </li>
+  <ul class="grid">
+    <li><a href="anagrams.html">
+      <span class="name">Anagrams</span>
+      <span class="description">Rearrange the letters of a phrase, with unused and unavailable letters highlighted.</span>
+    </a></li>
+    <li><a href="lipograms.html">
+      <span class="name">Lipograms</span>
+      <span class="description">Write while avoiding chosen letters, or with word lengths following the digits of π.</span>
+    </a></li>
+    <li><a href="palindromes.html">
+      <span class="name">Palindromes</span>
+      <span class="description">Write forwards and backwards at once, with each side mirroring the other's letters.</span>
+    </a></li>
+    <li><a href="pangrams.html">
+      <span class="name">Pangrams</span>
+      <span class="description">Use every letter of the alphabet, with counts showing what's missing and what's repeated.</span>
+    </a></li>
+    <li><a href="patterns.html">
+      <span class="name">Patterns</span>
+      <span class="description">Explore regular expressions as finite automata, with extra operators for wordplay such as containment and subtraction.</span>
+    </a></li>
+    <li><a href="rhymes.html">
+      <span class="name">Rhymes</span>
+      <span class="description">Find rhymes for a word, in General American pronunciation.</span>
+    </a></li>
+    <li><a href="unicode.html">
+      <span class="name">Unicode</span>
+      <span class="description">Find characters and emoji by name, or see what a piece of text is made of.</span>
+    </a></li>
+    <li><a href="wordlists.html">
+      <span class="name">Wordlists</span>
+      <span class="description">Word lists to download, or load into the other pages (needs a connection).</span>
+    </a></li>
   </ul>
-  <ul>
-    <li>
-      <a href="dates.html">Dates</a>
-      <p>Find notable anniversaries of a date, from a billion seconds to a first Saturn year.</p>
-    </li>
-    <li>
-      <a href="dice.html">Dice</a>
-      <p>Roll dice, or replace many dice with fewer, keeping the same mean and variance.</p>
-    </li>
+  <ul class="grid other">
+    <li><a href="dates.html">
+      <span class="name">Dates</span>
+      <span class="description">Find notable anniversaries of a date, from a billion seconds to a first Saturn year.</span>
+    </a></li>
+    <li><a href="dice.html">
+      <span class="name">Dice</span>
+      <span class="description">Roll dice, or replace many dice with fewer, keeping the same mean and variance.</span>
+    </a></li>
   </ul>
 </main>
 </body>
