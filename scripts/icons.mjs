@@ -14,7 +14,7 @@ const OUTPUTS = [
   ["icon.svg", "icon-192.png", 192],
   ["icon.svg", "icon-512.png", 512],
   ["maskable.svg", "maskable-512.png", 512],
-  ["apple-touch-icon.svg", "apple-touch-icon.png", 180],
+  ["apple-touch-icon.svg", "apple-touch-icon.png", 1024],
 ];
 
 const profile = mkdtempSync(path.join(tmpdir(), "icons-"));
