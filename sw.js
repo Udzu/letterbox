@@ -10,7 +10,7 @@ const FILES = {
   "pangrams.html": "6d0d24ae5771",
   "patterns.html": "0ad03292fef1",
   "rhymes.html": "c348bf754958",
-  "unicode.html": "691db7082380",
+  "unicode.html": "4c713c0aea77",
   "wordlists.html": "2f58df730c47",
   "manifest.json": "f68ccd90c859",
   "icons/apple-touch-icon.png": "4c8a34053d16",

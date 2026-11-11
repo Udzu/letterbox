@@ -64,6 +64,27 @@ function termLevel(label, term) {
   return label.includes(` ${term}`) ? 1 : 2;
 }
 
+// How a search's terms match keywords: each term must be a whole word (level 0) or the start of a word
+// (level 1) in some keyword. Returns null, or the worst level as the rank and a label listing the best
+// keyword for each term.
+function keywordMatch(keywords, terms) {
+  const used = [];
+  let rank = 0;
+  for (const term of terms) {
+    let best = null;
+    for (const k of keywords) {
+      if (!k.norm.includes(` ${term}`)) continue;
+      const level = termLevel(k.norm, term);
+      if (!best || level < best.level || (level === best.level && k.norm.length < best.k.norm.length)) best = { k, level };
+    }
+    if (!best) return null;
+    rank = Math.max(rank, best.level);
+    if (!used.includes(best.k)) used.push(best.k);
+  }
+  const text = used.map((k) => k.text).join(", ");
+  return { rank, label: { kind: KEYWORDS, text, norm: ` ${used.map((k) => k.norm.trim()).join(" ")} ` } };
+}
+
 // Default ignorable characters that show nothing: variation selectors, tags and the like.
 export const INVISIBLE = /^[\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180f\u200b-\u200f\u202a-\u202e\u2060-\u206f\u3164\ufe00-\ufe0f\ufeff\uffa0\u{1bca0}-\u{1bca3}\u{1d173}-\u{1d17a}\u{e0000}-\u{e0fff}]$/u;
 
@@ -76,10 +97,13 @@ export function isInvisible(entry) {
 // Whether an entry is more than one character (not counting an emoji presentation selector).
 export const isSequence = (entry) => entry.cps.filter((cp) => cp !== 0xfe0f).length > 1;
 
-// The kinds of label an entry can be found by, best first.
+// The kinds of label an entry can be found by, best first: its name, emoji name, aliases, CLDR short
+// name (like "euro") and CLDR keywords.
 const NAME = 0;
-const EMOJI = 1;
+export const EMOJI = 1;
 const ALIAS = 2;
+export const SHORT = 3;
+export const KEYWORDS = 4;
 
 export class Unicode {
   constructor(text) {
@@ -135,6 +159,12 @@ export class Unicode {
       const entry = byKey.get(key(cps)) ?? add({ cps, name: "", aliases: [], gc: this.info(cps[0]).gc });
       entry.name ||= name;
     }
+    for (const [s, short, words] of sections.keywords) {
+      const entry = byKey.get(key(parseSeq(s)));
+      if (!entry) continue;
+      if (short) entry.short = short;
+      entry.keywords = words ? words.split("|").map((text) => ({ text, norm: ` ${normalize(text)} ` })) : [];
+    }
     const compare = (a, b) => {
       for (let i = 0; i < Math.min(a.cps.length, b.cps.length); i++) if (a.cps[i] !== b.cps[i]) return a.cps[i] - b.cps[i];
       return a.cps.length - b.cps.length;
@@ -152,6 +182,7 @@ export class Unicode {
       if (entry.name) label(NAME, entry.name);
       if (entry.emoji) label(EMOJI, entry.emoji.name);
       for (const { type, alias } of entry.aliases) label(ALIAS, alias, type);
+      if (entry.short) label(SHORT, entry.short);
       entry.labels = labels;
     });
     this.entries = entries;
@@ -187,9 +218,12 @@ export class Unicode {
 
   // Entries matching a search, each with the label it matched by (null when listed by filters
   // alone or looked up directly), best first. Each term of the query must be found in the same
-  // label (a name, emoji name or alias); results are ranked by how well the worst term matches
-  // (whole words first, then starts of words, then anywhere), then names before emoji names before
-  // aliases, then shorter labels first. A codepoint (U+1F600) or non-ASCII text is looked up directly.
+  // label (a name, emoji name, alias or short name), or else each term must be a whole word or the
+  // start of a word in one of the entry's keywords (which can differ between terms, so "happy cry"
+  // finds 😂 by "happy" and "crying"); a keyword match is then a label listing the keywords used.
+  // Results are ranked by how well the worst term matches (the whole label first, then whole words,
+  // then starts of words, then anywhere), then by the kind of label (names first, keywords last),
+  // then shorter labels first. A codepoint (U+1F600) or non-ASCII text is looked up directly.
   search(query, filter = () => true) {
     const direct = this.lookup(query);
     if (direct) return direct.map((entry) => ({ entry, label: null }));
@@ -203,6 +237,10 @@ export class Unicode {
         if (!terms.every((t) => label.norm.includes(t))) continue;
         const rank = label.norm === ` ${norm} ` ? -1 : Math.max(...terms.map((t) => termLevel(label.norm, t)));
         if (!best || rank < best.rank || (rank === best.rank && label.kind < best.label.kind)) best = { rank, label };
+      }
+      if (entry.keywords && !(best?.rank <= 0)) {
+        const keywords = keywordMatch(entry.keywords, terms);
+        if (keywords && !(best?.rank <= keywords.rank)) best = keywords;
       }
       if (best && filter(entry)) found.push({ entry, label: best.label, rank: best.rank });
     }
