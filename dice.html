@@ -43,9 +43,9 @@
   #roll-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 24px; }
   #rules { display: flex; gap: 16px; }
   #rules:not(:has(label:not([hidden]))) { display: none; }
-  #breakdown .die.kept { border-color: #080; color: #080; background: #eef8ee; }
-  #breakdown .die.dropped { border-color: #d00; color: #d00; background: #fdeeee; text-decoration: line-through; opacity: 0.7; }
-  #breakdown .die {
+  .die.kept { border-color: #080; color: #080; background: #eef8ee; }
+  .die.dropped { border-color: #d00; color: #d00; background: #fdeeee; text-decoration: line-through; opacity: 0.7; }
+  .die {
     min-width: 1.6em;
     padding: 1px 4px;
     box-sizing: border-box;
@@ -63,16 +63,21 @@
   #history {
     margin: 0;
     padding: 4px 8px;
-    max-height: 15.5em;
+    max-height: 21em; /* 12 single-line rolls, at 1.75em each */
     overflow-y: auto;
     border: 1px solid #ccc;
     list-style: none;
     color: #444;
     font-variant-numeric: tabular-nums;
+    line-height: 1.5;
   }
-  #history li { padding: 2px 0; cursor: default; }
-  #history b { display: inline-block; min-width: 3em; color: #000; }
-  #history .number { display: inline-block; min-width: 2.5em; color: #999; }
+  #history li { display: flex; align-items: baseline; padding: 2px 0; cursor: default; }
+  #history .entry { flex: 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+  #history b { flex: none; min-width: 3em; color: #000; }
+  #history .number { flex: none; min-width: 2.5em; color: #999; }
+  #history .rolled { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; color: #888; font-size: 0.85rem; }
+  #history .part { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; }
+  #history .die { min-width: 1.5em; padding: 0 3px; font-size: 0.8rem; line-height: 1.25; }
   .help { margin-top: 32px; font-size: 0.9rem; color: #666; }
   nav { max-width: 600px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
   nav a { color: #06c; }
@@ -347,7 +352,7 @@
   const historySection = document.getElementById("history-section");
   const historyList = document.getElementById("history");
   let current = null;   // the roll the result line shows, if any
-  let history = [];     // { number, text, total, details }, newest first, for this visit only
+  let history = [];     // { number, text, total, details, rolled }, newest first, for this visit only
   let rollCount = 0;    // numbers the rolls in the history, from 1 since it was last cleared
 
   function rollDie(faces) {
@@ -379,7 +384,8 @@
       const subtotal = g.a > 1 ? ` (×${g.a} = ${sum})` : g.m > 1 && (groups.length > 1 || c !== 0) ? ` (= ${sum})` : "";
       const part = document.createElement("span");
       part.className = "part";
-      part.append(`${term(g)}: `, ...faces.map((face, i) => {
+      // the label is left out of the history when there's only one group
+      part.append(Object.assign(document.createElement("span"), { className: "label", textContent: `${term(g)}: ` }), ...faces.map((face, i) => {
         const die = document.createElement("span");
         die.className = "die";
         if (rule) {
@@ -409,14 +415,17 @@
     void totalSpan.offsetWidth;
     totalSpan.classList.add("fresh");
 
-    history.unshift({ number: ++rollCount, text, total, details });
+    // the history shows the same dice, without the labels if there's only the one group
+    const rolled = parts.map(part => part.cloneNode(true));
+    if (groups.length === 1) rolled[0].querySelector(".label").remove();
+    history.unshift({ number: ++rollCount, text, total, details, rolled });
     renderHistory();
   }
 
   function renderHistory() {
     historySection.hidden = history.length === 0;
     historyList.scrollTop = 0;
-    historyList.replaceChildren(...history.map(({ number, text, total, details }) => {
+    historyList.replaceChildren(...history.map(({ number, text, total, details, rolled }) => {
       const li = document.createElement("li");
       li.title = details;
       const numberCell = document.createElement("span");
@@ -425,7 +434,13 @@
       li.append(numberCell);
       const totalCell = document.createElement("b");
       totalCell.textContent = total;
-      li.append(totalCell, ` ${text}`);
+      const rolledCell = document.createElement("span");
+      rolledCell.className = "rolled";
+      rolledCell.append(...rolled.map(part => part.cloneNode(true)));
+      const entry = document.createElement("span");
+      entry.className = "entry";
+      entry.append(text, rolledCell);
+      li.append(totalCell, entry);
       return li;
     }));
   }
