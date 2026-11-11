@@ -424,3 +424,67 @@ eruv\tE1rUv\tU\t20
   assert.deepEqual(find("care of"), ["eruv", "where've"]);
   assert.deepEqual(find("care of", { looseOnsets: true }), ["eruv", "where've"]);
 });
+
+test("mosaic rhymes: a stressed word that can come before an unstressed tail", () => {
+  const rhymes = new Rhymes(parsePronunciations(`poet\tpo1It\tCU\t42
+know\tno1\tCU\t60\tv
+show\tSo1\tCU\t58\tnv
+no\tno1\tCU\t65
+dough\tdo1\tCU\t35\tn
+po\tpo1\tC\t30\tv
+letter\tlE1tR\tCU\t52
+get\tgE1t\tCU\t65\tv
+pet\tpE1t\tCU\t48\tnv
+off-set\tO2fsE1t\tU\t40\tv
+battle\tba1tVl\tCU\t50
+cat\tka1t\tCU\t50\tnv
+sat\tsa1t\tCU\t50\tv
+it\tI1t\tCU\t70\tn
+her\thR1\tCU\t70\tn
+'ll\tVl\tW\t47
+`).entries);
+  const mosaic = (word, options) => [...rhymes.mosaic(rhymes.pronunciations(word)[0], options).keys()].sort();
+  // know and show can be verbs; no, dough (a noun) and po (the same onset as poet) can't come before it
+  assert.deepEqual(mosaic("poet"), ["know it", "show it"]);
+  assert.deepEqual(mosaic("poet", { sameOnset: true }), ["know it", "po it", "show it"]);
+  // her without its h; not compounds like off-set
+  assert.deepEqual(mosaic("letter"), ["get her", "pet her"]);
+  // 'll after nouns
+  assert.deepEqual(mosaic("battle"), ["cat'll"]);
+  assert.deepEqual(rhymes.mosaic(rhymes.pronunciations("letter")[0]).get("get her").zipf, 65);
+  // you and it can be subjects after conjunctions and adverbs, which have no parts of speech in the data
+  const menu = new Rhymes(parsePronunciations("menu\tmE1nju\tCU\t43\nthen\tDE1n\tCU\t61\nden\tdE1n\tCU\t40\tn\n").entries);
+  assert.deepEqual([...menu.mosaic(menu.pronunciations("menu")[0]).keys()], ["then you"]);
+});
+
+test("phrases with no pronunciation of their own are built from their words", () => {
+  const rhymes = new Rhymes(parsePronunciations(`poet\tpo1It\tCU\t42
+know\tno1\tCU\t60\tv
+it\tI1t\tCU\t70\tn
+cat\tka1t\tCU\t50\tnv
+give\tgI1v\tCU\t60\tv
+up\tV1p\tCU\t60\tp
+the\tDV\tC\t75
+the\tDV1\tC\t75
+black\tbla1k\tCU\t55
+`).entries);
+  // function words are unstressed (it as /ɪt/, not /hɪt/-like forms), so know it rhymes with poet
+  assert.equal(rhymes.phrasePronunciation("know it").pron, "no1 It");
+  assert.deepEqual(rhymes.find(rhymes.phrasePronunciation("know it")), ["poet"]);
+  assert.equal(rhymes.phrasePronunciation("cat'll").pron, "ka1t Vl");
+  // a final particle takes the stress, and earlier words keep theirs as secondary stress
+  assert.equal(rhymes.phrasePronunciation("give up").pron, "gI2v V1p");
+  assert.equal(rhymes.phrasePronunciation("the black cat").pron, "DV bla2k ka1t");
+  assert.ok(rhymes.phrasePronunciation("know it").built);
+  // every word needs a pronunciation, and one word isn't a phrase
+  assert.equal(rhymes.phrasePronunciation("know zzyzx"), null);
+  assert.equal(rhymes.phrasePronunciation("know"), null);
+});
+
+test("parses parts of speech as an optional fifth field", () => {
+  const { entries } = parsePronunciations("cat\tka1t\tCU\t50\tnv\nthe\tDV\tC\t75\n");
+  assert.equal(entries[0].pos, "nv");
+  assert.equal(entries[1].pos, undefined);
+  assert.throws(() => parsePronunciations("cat\tka1t\tCU\t50\tnoun\n"), /line 1: parts of speech/);
+  assert.throws(() => parsePronunciations("cat\tka1t\tCU\t50\tn\tx\n"), /line 1: too many columns/);
+});
