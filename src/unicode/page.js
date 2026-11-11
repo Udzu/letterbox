@@ -3,7 +3,7 @@
 
 import DATA from "../../unicode/characters.txt";
 import { attributionParts } from "../wordlists/lists.js";
-import { ALIAS_TYPES, CATEGORIES, INVISIBLE, TONES, Unicode, codepoints, displayName, isInvisible, isSequence, withTone, withTones } from "./unicode.js";
+import { ALIAS_TYPES, CATEGORIES, EMOJI, INVISIBLE, KEYWORDS, SHORT, TONES, Unicode, codepoints, displayName, isInvisible, isSequence, withTone, withTones } from "./unicode.js";
 
 const STATE_KEY = "unicode-state";
 const PAGE = 200; // results shown at first, and added by each "Show more"
@@ -185,7 +185,9 @@ function glyph(entry, cps) {
 // what a match on a label other than the name shown means
 function explanation(entry, label) {
   if (!label || label.text === displayName(entry)) return "";
-  if (label.kind === 1) return `emoji name “${label.text}”`;
+  if (label.kind === EMOJI) return `emoji name “${label.text}”`;
+  if (label.kind === SHORT) return `short name “${label.text}”`;
+  if (label.kind === KEYWORDS) return `keywords: ${label.text}`;
   return `${ALIAS_TYPES[label.type] ?? label.type} “${label.text}”`;
 }
 
@@ -240,6 +242,7 @@ function details(entry) {
   line("Added in", entry.unassigned ? "not assigned" : `Unicode ${entry.age}${entry.emoji ? ` (Emoji ${entry.emoji.version})` : ""}`);
   if (entry.omit) line("Note", "left out of searches, as its name is just its codepoint");
   if (entry.aliases.length) line("Aliases", entry.aliases.map((a) => `${a.alias} (${ALIAS_TYPES[a.type] ?? a.type})`).join(", "));
+  if (entry.short) line("Short name", entry.short);
   if (entry.emoji) {
     const { group, subgroup } = unicode.groups[entry.emoji.group];
     line("Emoji", `${entry.emoji.name} (${group} › ${subgroup})`);
@@ -261,6 +264,7 @@ function details(entry) {
       line("Mixed tones", grid);
     }
   }
+  if (entry.keywords?.length) line("Keywords", entry.keywords.map((k) => k.text).join(", "));
   const variants = entry.cps.length === 1 ? unicode.variantsOf(entry.cps[0]) : [];
   if (variants.length) {
     line("Variants", el("span", { className: "choices" }, variants.flatMap((v, i) => [...(i ? [" "] : []), glyphButton(entry, v.cps, v.description), ` ${v.description}`])));

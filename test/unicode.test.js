@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { TONES, Unicode, displayName, isInvisible, isSequence, normalize, withTone, withTones } from "../src/unicode/unicode.js";
+import { KEYWORDS, SHORT, TONES, Unicode, displayName, isInvisible, isSequence, normalize, withTone, withTones } from "../src/unicode/unicode.js";
 
 const unicode = new Unicode(readFileSync(new URL("../unicode/characters.txt", import.meta.url), "utf8"));
 const text = (cps) => String.fromCodePoint(...cps);
@@ -56,6 +56,29 @@ test("matches by alias or emoji name say what they matched", () => {
   assert.equal(thumbs.label.text, "thumbs up");
   // controls are shown by their alias
   assert.equal(displayName(unicode.search("U+0000")[0].entry), "NULL");
+});
+
+test("keywords: terms can match different keywords, at the start of a word but not inside one", () => {
+  const [joy] = unicode.search("happy cry");
+  assert.equal(text(joy.entry.cps), "😂");
+  assert.deepEqual([joy.label.kind, joy.label.text], [KEYWORDS, "happy, crying"]);
+  assert.ok(top("laug", 10).includes("😂"));
+  // "art" is inside "heart", so the heart emoji aren't found by their keywords
+  assert.ok(!unicode.search("art").some(({ entry, label }) => label?.kind === KEYWORDS && label.text.includes("heart")));
+  // keyword matches come after name matches that are as good
+  assert.equal(top("cry")[0], "😢");
+  // every emoji has keywords
+  assert.ok(unicode.entries.filter((e) => e.emoji).every((e) => e.keywords?.length));
+});
+
+test("short names: symbols by the names people use", () => {
+  const [euro] = unicode.search("euro");
+  assert.equal(text(euro.entry.cps), "€");
+  assert.deepEqual([euro.label.kind, euro.label.text], [SHORT, "euro"]);
+  assert.equal(top("underscore")[0], "_");
+  assert.equal(top("quid")[0], "£");
+  // short names that are just the name aren't repeated
+  assert.equal(unicode.search("exclamation mark")[0].entry.short, undefined);
 });
 
 test("emoji and named sequences are entries", () => {

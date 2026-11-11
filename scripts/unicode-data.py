@@ -2,8 +2,8 @@
 
 Usage: python3 scripts/unicode-data.py UCD_DIR
 
-UCD_DIR holds the Unicode Character Database files listed in FILES; any that are missing are downloaded
-there first. Writes unicode/characters.txt: a header, then sections that each start with an @name line,
+UCD_DIR holds the Unicode Character Database files listed in FILES and the CLDR annotation files listed in
+CLDR_FILES (in a cldr/ folder); any that are missing are downloaded there first. Writes unicode/characters.txt: a header, then sections that each start with an @name line,
 with tab-separated fields (codepoints in hex, sequences space-separated):
 
 @scripts    code, name                       scripts used by @script
@@ -30,11 +30,16 @@ with tab-separated fields (codepoints in hex, sequences space-separated):
 @sequences  sequence, name                   Unicode named sequences (NamedSequences.txt)
 @variants   sequence, description            standardized variation sequences (StandardizedVariants.txt),
                                              leaving out emoji and text presentation ones
+@keywords   sequence, short name, keywords   CLDR's English keywords for emoji (without skin-tone variants)
+                                             and other symbols, separated by "|", from en with its en_001
+                                             (international English) changes, and CLDR's short name when
+                                             it isn't the character or emoji name (like "euro")
 """
 
 import re
 import sys
 import urllib.request
+import xml.etree.ElementTree as ET
 from collections import defaultdict
 from itertools import product
 from pathlib import Path
@@ -57,13 +62,18 @@ FILES = {
 OMIT = re.compile(r"^(CJK UNIFIED IDEOGRAPH|CJK COMPATIBILITY IDEOGRAPH|TANGUT IDEOGRAPH|TANGUT COMPONENT|"
                   r"SMALL SEAL CHARACTER|JURCHEN CHARACTER|JURCHEN RADICAL|KHITAN SMALL SCRIPT CHARACTER|"
                   r"NUSHU CHARACTER|EGYPTIAN HIEROGLYPH)-")
+# CLDR's English annotations: keywords and short names for emoji and some other symbols, with the derived
+# ones for sequences like flags, keycaps and ZWJ sequences.
+CLDR_VERSION = "49"
+CLDR = f"https://raw.githubusercontent.com/unicode-org/cldr/release-{CLDR_VERSION}/common/"
+CLDR_FILES = [f"{kind}/{locale}.xml" for kind in ("annotationsDerived", "annotations") for locale in ("en", "en_001")]
 TONES = range(0x1F3FB, 0x1F400)
 OUT = Path(__file__).parent.parent / "unicode" / "characters.txt"
 
 HEADER = f"""\
 # name: Unicode characters
-# description: Character names, aliases, scripts, blocks and ages, emoji and named sequences, from Unicode {VERSION[:-2]} (see scripts/unicode-data.py for the format).
-# attribution: From the [Unicode Character Database](https://www.unicode.org/ucd/) and [emoji data](https://www.unicode.org/emoji/), © Unicode, Inc., under the [Unicode License v3](https://www.unicode.org/license.txt).
+# description: Character names, aliases, scripts, blocks and ages, emoji and named sequences, from Unicode {VERSION[:-2]}, and keywords from CLDR {CLDR_VERSION} (see scripts/unicode-data.py for the format).
+# attribution: From the [Unicode Character Database](https://www.unicode.org/ucd/), [emoji data](https://www.unicode.org/emoji/) and [CLDR](https://cldr.unicode.org/), © Unicode, Inc., under the [Unicode License v3](https://www.unicode.org/license.txt).
 """
 
 
@@ -100,12 +110,13 @@ def merge(ranges):
 
 
 def download():
-    for name, base in FILES.items():
-        path = DIR / name
+    files = [(DIR / name, base + name) for name, base in FILES.items()]
+    files += [(DIR / "cldr" / name, CLDR + name) for name in CLDR_FILES]
+    for path, url in files:
         if not path.exists():
-            print(f"downloading {name}", file=sys.stderr)
+            print(f"downloading {url}", file=sys.stderr)
             path.parent.mkdir(parents=True, exist_ok=True)
-            with urllib.request.urlopen(base + name) as response:
+            with urllib.request.urlopen(url) as response:
                 path.write_bytes(response.read())
 
 
@@ -236,6 +247,36 @@ def emoji():
     return groups, rows
 
 
+def keywords(emoji_rows, names):
+    """@keywords rows: (sequence, short name, keywords) for emoji rows and listed characters CLDR annotates,
+    given the listed characters' names. Short names that only repeat the name or emoji name are left out."""
+    found = {}  # text without FE0F -> [keywords, short name]; later files override earlier ones
+    for name in CLDR_FILES:
+        root = ET.parse(DIR / "cldr" / name).getroot()
+        for a in root.iter("annotation"):
+            text = (a.text or "").strip()
+            if text in ("", "↑↑↑"):  # inherited from the parent locale
+                continue
+            entry = found.setdefault(a.get("cp").replace("\uFE0F", ""), [None, None])
+            entry[a.get("type") == "tts"] = text
+    rows = []
+    emoji_names = {"".join(map(chr, cps)).replace("\uFE0F", ""): (cps, row[0]) for cps, row in emoji_rows.items()}
+    for text, (words, short) in found.items():
+        if text in emoji_names:
+            cps, emoji_name = emoji_names[text]
+            short = short if short and short != emoji_name else ""
+        else:
+            cps = tuple(map(ord, text))
+            if any(c in TONES for c in cps) or len(cps) > 1:
+                continue  # skin-tone variants, and sequences that aren't fully-qualified emoji
+            assert cps[0] in names, f"keywords for unlisted {hexseq(cps)}"
+            if short and short.lower() == names[cps[0]].lower():
+                short = ""
+        rows.append((cps, short or "", "|".join(w.strip() for w in (words or "").split("|") if w.strip())))
+    assert all(cps in {r[0] for r in rows} for cps in emoji_rows), "emoji without keywords"
+    return sorted(rows)
+
+
 def main():
     download()
     ranges, chars = characters()
@@ -251,6 +292,8 @@ def main():
     known = {c for c, *_ in chars} | {c for r in ranges for c in range(r[0], r[1] + 1)}
     for cps in [*emoji_rows, *(s for s, _ in sequences), *(s for s, _ in variants)]:
         assert set(cps) <= known, hexseq(cps)
+
+    keyword_rows = keywords(emoji_rows, {c: name for c, _, name, _ in chars})
 
     out = [HEADER]
 
@@ -268,6 +311,7 @@ def main():
     section("emoji", ((hexseq(cps), *row) for cps, row in emoji_rows.items()))
     section("sequences", ((hexseq(s), n) for s, n in sequences))
     section("variants", ((hexseq(s), d) for s, d in variants))
+    section("keywords", ((hexseq(cps), short, words) for cps, short, words in keyword_rows))
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text("".join(out), encoding="utf-8")
 
@@ -275,7 +319,7 @@ def main():
     omitted = sum(r[1] - r[0] + 1 for r in ranges if r[4])
     print(f"{len(chars)} listed characters, {searchable} searchable with Hangul, {omitted} omitted; "
           f"{len(emoji_rows)} emoji ({sum(1 for r in emoji_rows.values() if r[3])} with tones, {sum(1 for r in emoji_rows.values() if r[4])} mixed), "
-          f"{len(sequences)} named sequences, {len(variants)} variants; {OUT.stat().st_size:,} bytes",
+          f"{len(sequences)} named sequences, {len(variants)} variants, {len(keyword_rows)} with keywords; {OUT.stat().st_size:,} bytes",
           file=sys.stderr)
 
 
