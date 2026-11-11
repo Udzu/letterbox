@@ -8,7 +8,7 @@
 //                  grouping to the left, but mixing different ones needs parentheses
 //   concatenation  AB
 //   postfix        A* A+ A? A{m} A{m,} A{m,n} A{,n}
-//   atoms          a \* \Q...\E . @ \d \p{L} [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C) (?<v>A) (?&v)
+//   atoms          a \* \Q...\E . @ _ \d \p{L} [a-z] [^a-z] (A) (?i:A) (?[1:-1]:A) (?z:A/B/C) (?<v>A) (?&v)
 //                  and lookarounds (?=A) (?!A) (?<=A) (?<!A), which are rewritten with & and !
 //                  (see sequence), so they don't appear in the AST
 //
@@ -68,7 +68,7 @@ export const RESERVED = new Set("!\"#$%&()*+,-./:;<=>?@[\\]^_`{|}~");
 // (A-<B: A with B removed from outside, etc). See compile.js for their meanings.
 export const SPATIAL_OPS = [
   "<", ">", "<<", ">>", "^", "<^", ">^", "#", "##",
-  "-", "_-", "-<", "->", "-<<", "->>", "-^", "-<^", "->^", "-#", "-##", "_-##",
+  "-", "~-", "-<", "->", "-<<", "->>", "-^", "-<^", "->^", "-#", "-##", "~-##",
 ];
 // longest first, so that matching the first one that fits gives the longest match; none of
 // these characters can start an operand, so the longest match is always the right one
@@ -83,6 +83,7 @@ export const MODIFIERS = {
   c: { count: "optional" }, // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25, (?c-:A) Atbash
   R: { count: "optional" }, // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
   a: { count: "none" }, //     anagrams (of a finite pattern)
+  X: { count: "none" }, //     crossword: (?X:A) is A with any non-letters anywhere, A^\P{L}*
   t: { count: "optional" }, // transposition: (?t1:A) swaps two adjacent characters, (?t:A) any two
   z: { count: "none", parts: 3 }, // replacement: (?z:A/B/C) is A with a B replaced by a C
   Z: { count: "none", parts: 3 }, // the same, but not at either end
@@ -113,6 +114,20 @@ export function sliceError(start, stop, step) {
   }
   return null;
 }
+
+// _ is shorthand for [A-Za-z], and is kept as that class
+const LETTER = { type: "class", negated: false, ranges: [[0x41, 0x5a], [0x61, 0x7a]] };
+
+// what (?X:A) interleaves A with: any string of non-letters, marked implicit so explanations
+// don't show it
+export const NON_LETTERS = Object.freeze({
+  type: "repeat",
+  node: { type: "shorthand", name: "p", property: "L", negated: true, span: [0, 0] },
+  min: 0,
+  max: null,
+  span: [0, 0],
+  implicit: true,
+});
 
 const NAMED_ESCAPES = { n: 0x0a, r: 0x0d, t: 0x09 };
 const MAX_REPEAT = 1000;
@@ -343,6 +358,9 @@ class Parser {
       case "@":
         this.next();
         return { type: "words", span: [start, this.pos] };
+      case "_":
+        this.next();
+        return { ...LETTER, span: [start, this.pos] };
       case "\\": {
         if (SHORTHANDS.has(this.peek(1) ?? "")) return { type: "shorthand", ...this.parseShorthand(), span: [start, this.pos] };
         if (this.peek(1) === "b" || this.peek(1) === "B") {
