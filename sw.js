@@ -9,7 +9,7 @@ const FILES = {
   "palindromes.html": "3862e9873b17",
   "pangrams.html": "6d0d24ae5771",
   "patterns.html": "0ad03292fef1",
-  "rhymes.html": "c348bf754958",
+  "rhymes.html": "0ff25b8db1cc",
   "unicode.html": "691db7082380",
   "wordlists.html": "2f58df730c47",
   "manifest.json": "f68ccd90c859",
