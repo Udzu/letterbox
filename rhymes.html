@@ -83,7 +83,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <b>Rhymes</b> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Find rhymes in General American English for a word, a phrase, or a pronunciation between slashes, like /ˈhɛd/ or /'hEd/. Click a rhyme to look it up. The pronunciations are fetched online and kept for offline use; you can also download them, or load your own (see the bottom of the page).</p>
+  <p class="intro">Find rhymes in General American English for a word, a phrase, or a pronunciation between slashes, like /ˈhɛd/ or /'hEd/. Mosaic rhymes, like <i>know it</i> for <i>poet</i>, come last. Click a rhyme to look it up. The pronunciations are fetched online and kept for offline use; you can also download them, or load your own (see the bottom of the page).</p>
   <input id="word" type="text" placeholder="Word or phrase..." autocomplete="off" spellcheck="false" autofocus>
   <p id="sound-help" hidden>Type sounds in IPA or using: <span>A</span> ɑ <i>father</i> · <span>a</span> æ <i>cat</i> · <span>^</span> ʌ or <span>@</span> ə <i>cut</i> · <span>O</span> ɔ <i>caught</i> · <span>E</span> ɛ <i>bed</i> · <span>3</span> ɝ/ɚ <i>bird</i> · <span>I</span> ɪ <i>bit</i> · <span>i</span> <i>beat</i> · <span>U</span> ʊ <i>book</i> · <span>u</span> <i>boot</i> · <span>eI</span> <i>bait</i> · <span>aI</span> <i>bite</i> · <span>aU</span> <i>out</i> · <span>oU</span> <i>boat</i> · <span>OI</span> <i>boy</i> · <span>S</span> ʃ <i>ship</i> · <span>Z</span> ʒ <i>measure</i> · <span>tS</span> <i>chip</i> · <span>dZ</span> <i>judge</i> · <span>T</span> θ <i>thin</i> · <span>D</span> ð <i>this</i> · <span>N</span> ŋ <i>sing</i> · <span>j</span>/<span>y</span> <i>yes</i>, others as usual. Put <span>'</span> before the stressed syllable (by default the first) and <span>,</span> before a secondary one, e.g. <span>/'m^Nki/</span> <i>monkey</i>.</p>
   <div id="options">
@@ -394,14 +394,17 @@
         return;
       }
       if (!line.trim()) return;
-      const [word, pron, sources = "", zipf = "", ...rest] = line.split("	");
+      const [word, pron, sources = "", zipf = "", pos = "", ...rest] = line.split("	");
       const where = `line ${i + 1}`;
       if (!word?.trim() || pron === void 0) throw new Error(`${where}: expected a word and a pronunciation separated by a tab`);
       if (rest.length) throw new Error(`${where}: too many columns`);
       if (!PRONUNCIATION.test(pron)) throw new Error(`${where}: "${pron}" isn't a pronunciation in the file's phoneme codes`);
       if (!/^[A-Za-z]*$/.test(sources)) throw new Error(`${where}: sources should be letters, not "${sources}"`);
       if (!/^\d*$/.test(zipf)) throw new Error(`${where}: frequency should be a whole number, not "${zipf}"`);
-      entries.push({ word: word.trim(), pron, sources, zipf: zipf === "" ? COMMON : Number(zipf) });
+      if (!/^[nvp]*$/.test(pos)) throw new Error(`${where}: parts of speech should be n, v or p, not "${pos}"`);
+      const entry = { word: word.trim(), pron, sources, zipf: zipf === "" ? COMMON : Number(zipf) };
+      if (pos) entry.pos = pos;
+      entries.push(entry);
     });
     if (entries.length === 0) throw new Error("no pronunciations found");
     return { attribution: attribution2, entries };
@@ -446,6 +449,28 @@
   }
   var VOWEL_CLASSES = { O: "A", U: "A", a: "E", e: "E", I: "E", V: "R" };
   var indexKey = (rhyme) => rhyme.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) => VOWEL_CLASSES[c]).replaceAll("t", "d").replaceAll("r", "").replace(/(?<=[AERWYioQu])R+/g, "");
+  var MOSAIC_TAILS = [
+    ["it", "It", "vp"],
+    ["her", "R", "vp"],
+    ["'em", "Vm", "vp"],
+    ["us", "Vs", "vp"],
+    ["me", "mi", "vp"],
+    ["you", "ju", "vp"],
+    ["a", "V", "vp"],
+    ["in", "In", "v"],
+    ["'ll", "Vl", "n"]
+  ].map(([word, pron, after]) => ({ word, pron, after, rhyme: pron.replace(/[IU]/g, "V"), attached: word === "'ll" }));
+  var BEFORE_SUBJECT = new Set("when then if so as than now how where why because though and but".split(" "));
+  var UNSTRESSED_HEADS = new Set(`be been being is are was were am shall should will would can cannot could may might
+must ought gonna wanna gotta`.split(/\s+/));
+  var TAIL_PRONS = new Map(MOSAIC_TAILS.map((t) => [t.word, t.pron]));
+  var MOSAIC_WORD = /^\p{L}[\p{Ll}']*\p{Ll}$/u;
+  var FUNCTION_WORDS = new Set(`a an the of to in on at by for with from into onto upon about as than via per off out up
+down over and or but nor if that i me my mine you your yours he him his she her hers it its we us our ours they them
+their theirs one's oneself someone someone's somebody somebody's something anyone anyone's anything who whom whose
+which is are was were be been being am do does did has have had will would shall should can could may might must 's
+'d 'll 're 've 'em`.split(/\s+/));
+  var PARTICLES = new Set("up down out off in on over away back around about through along by apart aside".split(" "));
   var Rhymes = class {
     constructor(entries) {
       this.entries = entries;
@@ -511,6 +536,62 @@
         match.zipf = Math.max(match.zipf, zipf);
         match.syllables.add(syllableCount(p));
         words.set(word, match);
+      }
+      return words;
+    }
+    // A pronunciation for a phrase that has none of its own, built from its words' (as the data file builds
+    // those in the English phrases list): function words unstressed, in their weak forms, the last other
+    // word (or a final particle) with the primary stress, and other words with secondary stress. 'll and
+    // 'd count as words (cat'll). Returns an entry with sources "" and no frequency, or null if a word
+    // has no pronunciation or there's only one word.
+    phrasePronunciation(phrase) {
+      const parts = phrase.trim().split(/[\s-]+|(?='(?:ll|d)$)/).filter(Boolean);
+      if (parts.length < 2) return null;
+      const lower = parts.map((w) => lookupKey(w));
+      const isFunction = (i) => FUNCTION_WORDS.has(lower[i]) && !(i === parts.length - 1 && PARTICLES.has(lower[i]));
+      let main = parts.length - 1;
+      while (main > 0 && isFunction(main)) main--;
+      const prons2 = [];
+      for (const [i, word] of lower.entries()) {
+        const tail = TAIL_PRONS.get(word);
+        const found = this.pronunciations(word);
+        if (!tail && !found.length) return null;
+        let pron;
+        if (i !== main && isFunction(i)) pron = tail ?? (found.find((e) => !/[12]/.test(e.pron)) ?? found[0]).pron.replace(/[12]/g, "");
+        else pron = (found[0]?.pron ?? tail).replace(/1/g, i === main ? "1" : "2");
+        prons2.push(pron);
+      }
+      return { word: phrase.trim(), pron: prons2.join(" "), sources: "", zipf: 0, built: true };
+    }
+    // Mosaic rhymes for an entry (see MOSAIC_TAILS), as a map like matches gives, from each phrase to
+    // the frequency of its stressed word: the phrases whose rhyme, as one pronunciation, would be a rhyme
+    // for the entry with the same options as matches. The stressed word must be a single word (see
+    // MOSAIC_WORD) with parts of speech in the data that the tail can follow.
+    mosaic(entry, options = {}) {
+      const { sameOnset = false, looseOnsets = false } = options;
+      const mergers = Object.keys(MERGERS).some((name) => options[name]);
+      const parts = rhymeParts(entry.pron);
+      const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
+      const self = lookupKey(entry.word);
+      const words = /* @__PURE__ */ new Map();
+      for (const tail of MOSAIC_TAILS) {
+        if (!parts.rhyme.endsWith(tail.rhyme) || parts.rhyme.length === tail.rhyme.length) continue;
+        for (const item of this.byRhyme.get(indexKey(parts.rhyme.slice(0, -tail.rhyme.length))) ?? []) {
+          const { word, pron, pos, zipf } = item.entry;
+          const subject = (tail.word === "it" || tail.word === "you") && BEFORE_SUBJECT.has(word);
+          if (!subject && (!pos || ![...tail.after].some((c) => pos.includes(c)))) continue;
+          if (!MOSAIC_WORD.test(word)) continue;
+          if (!tail.after.includes("n") && word[0] !== word[0].toLowerCase()) continue;
+          if (UNSTRESSED_HEADS.has(word)) continue;
+          const phrase = tail.attached ? word + tail.word : `${word} ${tail.word}`;
+          const whole = rhymeParts(merge(`${pron} ${tail.pron}`, options));
+          if (whole.rhyme !== target.rhyme && !(looseOnsets && whole.loose === target.loose)) continue;
+          if (!sameOnset && item.onset === parts.onset || lookupKey(phrase) === self) continue;
+          const match = words.get(phrase) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
+          match.zipf = Math.max(match.zipf, zipf);
+          match.syllables.add(syllableCount(pron) + syllableCount(tail.pron));
+          words.set(phrase, match);
+        }
       }
       return words;
     }
@@ -627,6 +708,7 @@
   var GROUPING_KEY = "rhymes-grouping";
   var GROUPINGS = { frequency: "by frequency", syllables: "by syllables", letters: "by letters" };
   var BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
+  var MOSAIC = "Mosaic rhymes";
   var SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)", P: "its words' pronunciations" };
   var input = document.getElementById("word");
   var status = document.getElementById("status");
@@ -674,8 +756,9 @@
     const firsts = (key, value) => [...entries.reduce((m, e) => m.has(key(e)) ? m : m.set(key(e), value(e)), /* @__PURE__ */ new Map()).values()];
     const spellings = firsts((e) => lookupKey(e.word), (e) => e.word);
     const ipas = firsts((e) => e.pron.replaceAll("2", ""), (e) => `/${toIpa(e.pron)}/`);
-    const parts = spellings.flatMap((word, i) => [...i ? [", "] : [], el("span", { className: "word", textContent: word }), ...wiktionaryLink(word)]);
+    const parts = spellings.flatMap((word, i) => [...i ? [", "] : [], el("span", { className: "word", textContent: word }), ...entry.built ? [] : wiktionaryLink(word)]);
     parts.push(" ", el("span", { className: "ipa", textContent: ipas[0] }));
+    if (entry.built) parts.push(" ", el("span", { className: "also", textContent: "(from its words)" }));
     if (ipas.length > 1) parts.push(" ", el("span", { className: "also", textContent: `(also ${ipas.slice(1).join(", ")})` }));
     return parts;
   }
@@ -728,10 +811,12 @@
     const options = currentOptions();
     const matches = rhymes.matches(entry, options);
     const count = rhymes.items(matches).length;
+    const already = new Set([...matches.keys()].map((w) => lookupKey(w).replaceAll("-", " ")));
+    const mosaic = rhymes.items(rhymes.mosaic(entry, options)).filter((item) => !already.has(lookupKey(item.word))).map((item) => ({ ...item, band: "mosaic" })).sort((a, b) => b.zipf - a.zipf || compareWords(a.word, b.word));
     const { ipa } = rhymeParts(entry.pron);
     const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
     const text = `${count === 0 ? "No" : count.toLocaleString("en")} ${perfect}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
-    if (count === 0) {
+    if (count === 0 && mosaic.length === 0) {
       summary.textContent = text;
       return;
     }
@@ -748,6 +833,7 @@
     summary.replaceChildren(text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
     const byCount = (groups, unit) => groups.map(({ count: count2, items }) => [`${count2} ${unit}${count2 === 1 ? "" : "s"}`, items]);
     const sections = grouping === "syllables" ? byCount(rhymes.bySyllables(matches), "syllable") : grouping === "letters" ? byCount(rhymes.byLetters(matches), "letter") : Object.entries(rhymes.arrange(matches)).filter(([, items]) => items.length).map(([band, items]) => [BANDS[band], items]);
+    if (mosaic.length) sections.push([MOSAIC, mosaic]);
     results.classList.toggle("by-count", grouping !== "frequency");
     for (const [title, items] of sections) {
       const heading = el("h2", {}, [`${title} `, el("span", { className: "count", textContent: `(${items.length.toLocaleString("en")})` })]);
@@ -799,6 +885,10 @@
       return;
     }
     shown.choices = rhymes.pronunciationGroups(word, currentOptions());
+    if (shown.choices.length === 0) {
+      const built = rhymes.phrasePronunciation(word);
+      if (built) shown.choices = [{ entry: built, others: [] }];
+    }
     showPronunciations();
     if (shown.choices.length === 0) {
       results.replaceChildren();
@@ -836,6 +926,8 @@
       const chosen = shown.choices[shown.choice];
       const entries = chosen ? [chosen.entry, ...chosen.others] : [];
       shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
+      const built = shown.choices.length === 0 && shown.word ? rhymes.phrasePronunciation(shown.word) : null;
+      if (built) shown.choices = [{ entry: built, others: [] }];
       shown.choice = Math.max(0, shown.choices.findIndex((g) => entries.includes(g.entry) || g.others.some((e) => entries.includes(e))));
       showPronunciations();
       showRhymes();
@@ -939,7 +1031,7 @@
     await setStored("loaded", null);
     status.textContent = "Loading pronunciations\u2026";
     try {
-      const response = await fetch(ONLINE);
+      const response = await fetch(ONLINE, { cache: "no-cache" });
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       const text = await response.text();
       useData({ text });

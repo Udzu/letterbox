@@ -1,7 +1,8 @@
 // Pronunciations and rhymes for the Rhymes page.
 //
 // rhymes/pronunciations.txt (built by scripts/rhymes-data.py) has a header of "# key: value" lines,
-// then one line per pronunciation: word, pronunciation, sources and frequency, separated by tabs. A
+// then one line per pronunciation: word, pronunciation, sources, frequency and (for common single
+// words) parts of speech, separated by tabs. A
 // pronunciation has one character per phoneme (see IPA), with a stress digit after a vowel when
 // it's stressed (1 primary, 2 secondary), and a space between the words of a phrase.
 
@@ -173,8 +174,8 @@ export function parseSounds(text) {
 // A pronunciation file's attribution and entries ({ word, pron, sources, zipf }), or an error naming
 // the first bad line. Lines starting with # are comments ("# attribution: …" gives the attribution),
 // and blank lines are skipped. Each other line has a word and a pronunciation, separated by a tab,
-// optionally followed by sources and a frequency (see the top of this file). Without a frequency, a
-// word counts as common.
+// optionally followed by sources, a frequency and parts of speech (see the top of this file and
+// MOSAIC_TAILS). Without a frequency, a word counts as common.
 const PRONUNCIATION = /^(?:[AaVOWYEReIioQUu][12]?|[bCdDfghJklmnNprsStTvwjzZ ])+$/;
 
 export function parsePronunciations(text) {
@@ -188,14 +189,17 @@ export function parsePronunciations(text) {
       return;
     }
     if (!line.trim()) return;
-    const [word, pron, sources = "", zipf = "", ...rest] = line.split("\t");
+    const [word, pron, sources = "", zipf = "", pos = "", ...rest] = line.split("\t");
     const where = `line ${i + 1}`;
     if (!word?.trim() || pron === undefined) throw new Error(`${where}: expected a word and a pronunciation separated by a tab`);
     if (rest.length) throw new Error(`${where}: too many columns`);
     if (!PRONUNCIATION.test(pron)) throw new Error(`${where}: "${pron}" isn't a pronunciation in the file's phoneme codes`);
     if (!/^[A-Za-z]*$/.test(sources)) throw new Error(`${where}: sources should be letters, not "${sources}"`);
     if (!/^\d*$/.test(zipf)) throw new Error(`${where}: frequency should be a whole number, not "${zipf}"`);
-    entries.push({ word: word.trim(), pron, sources, zipf: zipf === "" ? COMMON : Number(zipf) });
+    if (!/^[nvp]*$/.test(pos)) throw new Error(`${where}: parts of speech should be n, v or p, not "${pos}"`);
+    const entry = { word: word.trim(), pron, sources, zipf: zipf === "" ? COMMON : Number(zipf) };
+    if (pos) entry.pos = pos;
+    entries.push(entry);
   });
   if (entries.length === 0) throw new Error("no pronunciations found");
   return { attribution, entries };
@@ -273,6 +277,35 @@ const VOWEL_CLASSES = { O: "A", U: "A", a: "E", e: "E", I: "E", V: "R" };
 const indexKey = (rhyme) => rhyme.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) => VOWEL_CLASSES[c]).replaceAll("t", "d")
   .replaceAll("r", "").replace(/(?<=[AERWYioQu])R+/g, "");
 
+// Mosaic rhymes: a stressed word followed by an unstressed word that leans on it, like know it for
+// poet, get her for letter or cat'll for battle. Each tail has its unstressed pronunciation (as said
+// after another word: her without its h; him isn't needed, as /ɪm/ rhymes like 'em) and the parts of speech (see the data file) that
+// the word before it must be able to have: n for the nouns and pronouns that 'll follows, v and p for
+// the verbs and prepositions that object pronouns and articles follow. It and you can also be
+// subjects, after the conjunctions and adverbs in BEFORE_SUBJECT (then you, so it).
+export const MOSAIC_TAILS = [
+  ["it", "It", "vp"], ["her", "R", "vp"], ["'em", "Vm", "vp"], ["us", "Vs", "vp"],
+  ["me", "mi", "vp"], ["you", "ju", "vp"], ["a", "V", "vp"], ["in", "In", "v"], ["'ll", "Vl", "n"],
+].map(([word, pron, after]) => ({ word, pron, after, rhyme: pron.replace(/[IU]/g, "V"), attached: word === "'ll" }));
+const BEFORE_SUBJECT = new Set("when then if so as than now how where why because though and but".split(" "));
+// words that are never the stressed word of a mosaic rhyme, though Wiktionary says they can be verbs or
+// nouns: forms of be, modals and the like (but not do, have and had, as in do it)
+const UNSTRESSED_HEADS = new Set(`be been being is are was were am shall should will would can cannot could may might
+must ought gonna wanna gotta`.split(/\s+/));
+const TAIL_PRONS = new Map(MOSAIC_TAILS.map((t) => [t.word, t.pron]));
+// what a mosaic rhyme's stressed word must look like: a word of two or more letters, not a compound or
+// abbreviation (wordfreq gives off-set and a-flat the frequencies of their parts)
+const MOSAIC_WORD = /^\p{L}[\p{Ll}']*\p{Ll}$/u;
+
+// Words that are unstressed in a phrase built from its words, and the particles that take the stress at
+// the end of one (give up), as in scripts/rhymes-data/phrases.py.
+const FUNCTION_WORDS = new Set(`a an the of to in on at by for with from into onto upon about as than via per off out up
+down over and or but nor if that i me my mine you your yours he him his she her hers it its we us our ours they them
+their theirs one's oneself someone someone's somebody somebody's something anyone anyone's anything who whom whose
+which is are was were be been being am do does did has have had will would shall should can could may might must 's
+'d 'll 're 've 'em`.split(/\s+/));
+const PARTICLES = new Set("up down out off in on over away back around about through along by apart aside".split(" "));
+
 // A rhyming dictionary over a list of entries.
 export class Rhymes {
   constructor(entries) {
@@ -344,6 +377,64 @@ export class Rhymes {
       match.zipf = Math.max(match.zipf, zipf);
       match.syllables.add(syllableCount(p));
       words.set(word, match);
+    }
+    return words;
+  }
+
+  // A pronunciation for a phrase that has none of its own, built from its words' (as the data file builds
+  // those in the English phrases list): function words unstressed, in their weak forms, the last other
+  // word (or a final particle) with the primary stress, and other words with secondary stress. 'll and
+  // 'd count as words (cat'll). Returns an entry with sources "" and no frequency, or null if a word
+  // has no pronunciation or there's only one word.
+  phrasePronunciation(phrase) {
+    const parts = phrase.trim().split(/[\s-]+|(?='(?:ll|d)$)/).filter(Boolean);
+    if (parts.length < 2) return null;
+    const lower = parts.map((w) => lookupKey(w));
+    const isFunction = (i) => FUNCTION_WORDS.has(lower[i]) && !(i === parts.length - 1 && PARTICLES.has(lower[i]));
+    let main = parts.length - 1;
+    while (main > 0 && isFunction(main)) main--;
+    const prons = [];
+    for (const [i, word] of lower.entries()) {
+      const tail = TAIL_PRONS.get(word);
+      const found = this.pronunciations(word);
+      if (!tail && !found.length) return null;
+      let pron;
+      if (i !== main && isFunction(i)) pron = tail ?? (found.find((e) => !/[12]/.test(e.pron)) ?? found[0]).pron.replace(/[12]/g, "");
+      else pron = (found[0]?.pron ?? tail).replace(/1/g, i === main ? "1" : "2");
+      prons.push(pron);
+    }
+    return { word: phrase.trim(), pron: prons.join(" "), sources: "", zipf: 0, built: true };
+  }
+
+  // Mosaic rhymes for an entry (see MOSAIC_TAILS), as a map like matches gives, from each phrase to
+  // the frequency of its stressed word: the phrases whose rhyme, as one pronunciation, would be a rhyme
+  // for the entry with the same options as matches. The stressed word must be a single word (see
+  // MOSAIC_WORD) with parts of speech in the data that the tail can follow.
+  mosaic(entry, options = {}) {
+    const { sameOnset = false, looseOnsets = false } = options;
+    const mergers = Object.keys(MERGERS).some((name) => options[name]);
+    const parts = rhymeParts(entry.pron);
+    const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
+    const self = lookupKey(entry.word);
+    const words = new Map();
+    for (const tail of MOSAIC_TAILS) {
+      if (!parts.rhyme.endsWith(tail.rhyme) || parts.rhyme.length === tail.rhyme.length) continue;
+      for (const item of this.byRhyme.get(indexKey(parts.rhyme.slice(0, -tail.rhyme.length))) ?? []) {
+        const { word, pron, pos, zipf } = item.entry;
+        const subject = (tail.word === "it" || tail.word === "you") && BEFORE_SUBJECT.has(word);
+        if (!subject && (!pos || ![...tail.after].some((c) => pos.includes(c)))) continue;
+        if (!MOSAIC_WORD.test(word)) continue;
+        if (!tail.after.includes("n") && word[0] !== word[0].toLowerCase()) continue; // names aren't verbs
+        if (UNSTRESSED_HEADS.has(word)) continue;
+        const phrase = tail.attached ? word + tail.word : `${word} ${tail.word}`;
+        const whole = rhymeParts(merge(`${pron} ${tail.pron}`, options));
+        if (whole.rhyme !== target.rhyme && !(looseOnsets && whole.loose === target.loose)) continue;
+        if ((!sameOnset && item.onset === parts.onset) || lookupKey(phrase) === self) continue;
+        const match = words.get(phrase) ?? { zipf: 0, syllables: new Set() };
+        match.zipf = Math.max(match.zipf, zipf);
+        match.syllables.add(syllableCount(pron) + syllableCount(tail.pron));
+        words.set(phrase, match);
+      }
     }
     return words;
   }

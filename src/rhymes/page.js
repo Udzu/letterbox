@@ -10,6 +10,8 @@ const GROUPING_KEY = "rhymes-grouping";
 const GROUPINGS = { frequency: "by frequency", syllables: "by syllables", letters: "by letters" };
 // the sections rhymes are shown in (see Rhymes.arrange), and their headings
 const BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
+// the heading for mosaic rhymes (see Rhymes.mosaic), shown after the others however they're grouped
+const MOSAIC = "Mosaic rhymes";
 const SOURCES = { C: "CMUdict", U: "Wiktionary (US)", W: "Wiktionary", E: "Wiktionary (enPR)", B: "Wiktionary (British, converted)", P: "its words' pronunciations" };
 
 const input = document.getElementById("word");
@@ -68,8 +70,9 @@ function groupLabel({ entry, others }) {
   const firsts = (key, value) => [...entries.reduce((m, e) => (m.has(key(e)) ? m : m.set(key(e), value(e))), new Map()).values()];
   const spellings = firsts((e) => lookupKey(e.word), (e) => e.word);
   const ipas = firsts((e) => e.pron.replaceAll("2", ""), (e) => `/${toIpa(e.pron)}/`);
-  const parts = spellings.flatMap((word, i) => [...(i ? [", "] : []), el("span", { className: "word", textContent: word }), ...wiktionaryLink(word)]);
+  const parts = spellings.flatMap((word, i) => [...(i ? [", "] : []), el("span", { className: "word", textContent: word }), ...(entry.built ? [] : wiktionaryLink(word))]);
   parts.push(" ", el("span", { className: "ipa", textContent: ipas[0] }));
+  if (entry.built) parts.push(" ", el("span", { className: "also", textContent: "(from its words)" }));
   if (ipas.length > 1) parts.push(" ", el("span", { className: "also", textContent: `(also ${ipas.slice(1).join(", ")})` }));
   return parts;
 }
@@ -128,10 +131,14 @@ function showRhymes() {
   const options = currentOptions();
   const matches = rhymes.matches(entry, options);
   const count = rhymes.items(matches).length;
+  // mosaic rhymes, most frequent first, leaving out phrases that are rhymes already (go it)
+  const already = new Set([...matches.keys()].map((w) => lookupKey(w).replaceAll("-", " ")));
+  const mosaic = rhymes.items(rhymes.mosaic(entry, options)).filter((item) => !already.has(lookupKey(item.word)))
+    .map((item) => ({ ...item, band: "mosaic" })).sort((a, b) => b.zipf - a.zipf || compareWords(a.word, b.word));
   const { ipa } = rhymeParts(entry.pron);
   const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
   const text = `${count === 0 ? "No" : count.toLocaleString("en")} ${perfect}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
-  if (count === 0) {
+  if (count === 0 && mosaic.length === 0) {
     summary.textContent = text;
     return;
   }
@@ -152,6 +159,7 @@ function showRhymes() {
   const sections = grouping === "syllables" ? byCount(rhymes.bySyllables(matches), "syllable")
     : grouping === "letters" ? byCount(rhymes.byLetters(matches), "letter")
     : Object.entries(rhymes.arrange(matches)).filter(([, items]) => items.length).map(([band, items]) => [BANDS[band], items]);
+  if (mosaic.length) sections.push([MOSAIC, mosaic]);
   results.classList.toggle("by-count", grouping !== "frequency");
   for (const [title, items] of sections) {
     const heading = el("h2", {}, [`${title} `, el("span", { className: "count", textContent: `(${items.length.toLocaleString("en")})` })]);
@@ -208,6 +216,11 @@ function update({ push = false } = {}) {
     return;
   }
   shown.choices = rhymes.pronunciationGroups(word, currentOptions());
+  // a phrase with no pronunciation of its own gets one built from its words
+  if (shown.choices.length === 0) {
+    const built = rhymes.phrasePronunciation(word);
+    if (built) shown.choices = [{ entry: built, others: [] }];
+  }
   showPronunciations();
   if (shown.choices.length === 0) {
     results.replaceChildren();
@@ -250,6 +263,8 @@ for (const box of Object.values(OPTIONS)) {
     const chosen = shown.choices[shown.choice];
     const entries = chosen ? [chosen.entry, ...chosen.others] : [];
     shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
+    const built = shown.choices.length === 0 && shown.word ? rhymes.phrasePronunciation(shown.word) : null;
+    if (built) shown.choices = [{ entry: built, others: [] }];
     shown.choice = Math.max(0, shown.choices.findIndex((g) => entries.includes(g.entry) || g.others.some((e) => entries.includes(e))));
     showPronunciations();
     showRhymes();
@@ -365,7 +380,9 @@ async function useOnline() {
   await setStored("loaded", null);
   status.textContent = "Loading pronunciations…";
   try {
-    const response = await fetch(ONLINE);
+    // checked with the server every time (a quick request if it hasn't changed), so a new version of the data
+    // isn't missed because the browser's cache thinks its copy is still fresh
+    const response = await fetch(ONLINE, { cache: "no-cache" });
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
     const text = await response.text();
     useData({ text });

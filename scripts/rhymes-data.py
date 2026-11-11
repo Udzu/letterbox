@@ -18,6 +18,10 @@ Everything is General American, in CMUdict's phoneme set (see rhymes-data/phonem
   words' pronunciations (see rhymes-data/phrases.py).
 Pronunciations tagged obsolete, archaic or dialectal, or as having an accent merger, or with a note that
 names another accent, are left out.
+
+Single words with a Zipf frequency of at least 2.5 also get their main parts of speech from Wiktionary, as
+far as the page's mosaic rhymes need them (see POS_CODES): whether they can be a noun (or pronoun, name or
+numeral), which can come before 'll, or a verb or preposition, which can come before an object pronoun.
 """
 
 import gzip
@@ -128,6 +132,8 @@ enprs = defaultdict(list)  # word -> enPR strings
 unstressed = []  # (word, source, transcription, marked) with no stress marks, to try again with more to go on
 main_prons = defaultdict(set)  # word -> pronunciations from US Wiktionary transcriptions that aren't marked
 entry_prons = defaultdict(lambda: defaultdict(set))  # word -> (pos, etymology) -> American IPA pronunciations
+parts_of_speech = defaultdict(Counter)  # word -> Wiktionary part of speech -> number of current senses
+OLD_SENSE_TAGS = {"obsolete", "archaic", "rare", "dialectal", "historical", "nonstandard"}
 notes = Counter()
 
 with gzip.open(KAIKKI, "rt", encoding="utf-8") as f:
@@ -138,6 +144,7 @@ with gzip.open(KAIKKI, "rt", encoding="utf-8") as f:
         word = e["word"]
         if word.startswith("-") or word.endswith("-") or not re.match(r"[^\W_]|['’]", word):
             continue
+        parts_of_speech[word][e.get("pos")] += sum(1 for sense in e.get("senses", []) if not set(sense.get("tags", [])) & OLD_SENSE_TAGS)
         seen = set()
         for sound in e.get("sounds", []):
             kind = "ipa" if "ipa" in sound else "enpr" if "enpr" in sound else None
@@ -563,16 +570,49 @@ rows += built
 stats["phrase pronunciations built"] = len(built)
 
 rows.sort(key=lambda r: (r[0].lower(), r[0], r[1]))
+
+# Wiktionary parts of speech -> the page's codes: n for what can come before 'll, v and p for what can come
+# before an object pronoun or article. A word only gets the parts of speech that have at least POS_SHARE of
+# its current senses (not obsolete, rare and so on), so get isn't a noun and lot isn't a verb.
+POS_CODES = {"noun": "n", "name": "n", "pron": "n", "num": "n", "verb": "v", "prep": "p"}
+POS_MIN_ZIPF = 25
+POS_SHARE = 0.2
+
+
+@cache
+def pos_entries(w):
+    """For each of a word's Wiktionary pronunciations (encoded), the parts of speech of the entries it's in."""
+    found = defaultdict(set)
+    for (pos, _), prons in entry_prons.get(w, {}).items():
+        for p in prons:
+            found[encode(p)].add(pos)
+    return found
+
+
+def pos_code(w, p):
+    """The codes for a pronunciation of a word: its main parts of speech, and if the pronunciation is from
+    Wiktionary, only those of the entries it's in (so do as /doʊ/, the musical note, isn't a verb)."""
+    if " " in w or zipf(w) < POS_MIN_ZIPF:
+        return ""
+    senses = parts_of_speech.get(w, Counter())
+    total = sum(senses.values())
+    main = {pos for pos, n in senses.items() if n and n >= POS_SHARE * total}
+    entries = pos_entries(w).get(p)
+    return "".join(sorted({POS_CODES[pos] for pos in main & (entries or main) if pos in POS_CODES}))
+
+
+stats["words with parts of speech"] = len({w for w, p, _ in rows if pos_code(w, p)})
 OUT.parent.mkdir(exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as o:
     print("""# name: Pronunciations
-# description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10 (capped at 15 for capitalised forms of lowercase words and for words only in CMUdict, unless they're in the English word list, and for pronunciations only from weaker sources, or marked as rare, nonstandard and so on, that rhyme differently from the word's other CMUdict or US ones).
+# description: General American pronunciations: word, pronunciation, sources, wordfreq Zipf frequency × 10 (capped at 15 for capitalised forms of lowercase words and for words only in CMUdict, unless they're in the English word list, and for pronunciations only from weaker sources, or marked as rare, nonstandard and so on, that rhyme differently from the word's other CMUdict or US ones), and for common single words their parts of speech.
 # attribution: From the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (BSD licence) and [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)), with frequencies from [wordfreq](https://github.com/rspeer/wordfreq). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.
 # phonemes: vowels A ɑ, a æ, V ʌ/ə, O ɔ, W aʊ, Y aɪ, E ɛ, R ɝ/ɚ, e eɪ, I ɪ, i i, o oʊ, Q ɔɪ, U ʊ, u u (followed by 1 for primary stress, 2 for secondary); consonants b C=tʃ d D=ð f g h J=dʒ k l m n N=ŋ p r s S=ʃ t T=θ v w j z Z=ʒ; space between words
 # sources: C CMUdict, U Wiktionary (US), W Wiktionary (untagged), E Wiktionary enPR, B Wiktionary (British, converted), P built from the pronunciations of a phrase's words
+# parts of speech (fifth field, for common single words, if any, as far as known for that pronunciation): n noun, pronoun, name or numeral, p preposition, v verb
 """, file=o)
     for w, p, s in rows:
-        print(f"{w}\t{p}\t{s}\t{frequency(w, p, s)}", file=o)
+        print(f"{w}\t{p}\t{s}\t{frequency(w, p, s)}" + (f"\t{pos_code(w, p)}" if pos_code(w, p) else ""), file=o)
 
 # --- Report
 
