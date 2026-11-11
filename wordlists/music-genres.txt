@@ -1,0 +1,576 @@
+# name: Music genres
+# description: Music genres, from broad ones (rock, jazz) to subgenres (shoegaze, math rock), most prominent first.
+# tag: culture
+# attribution: From Wikipedia's [list of music genres and styles](https://en.wikipedia.org/wiki/List_of_music_genres_and_styles), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.
+
+rock
+pop
+jazz
+opera
+hip-hop
+hip hop
+rap
+classical
+classical music
+heavy metal
+metal
+country
+blues
+rhythm and blues
+R&B
+alternative rock
+punk rock
+punk
+electronic
+electronic music
+rock and roll
+rock 'n' roll
+folk
+folk music
+soul
+musical theatre
+hymn
+hard rock
+reggae
+singer-songwriter
+pop rock
+progressive rock
+funk
+indie rock
+J-pop
+new wave
+choral music
+disco
+gospel
+K-pop
+Baroque music
+Baroque
+electronic dance music
+EDM
+contemporary R&B
+house
+hardcore punk
+hardcore
+synth-pop
+grunge
+techno
+psychedelic rock
+post-punk
+ballad
+world music
+black metal
+Romantic music
+death metal
+folk rock
+ska
+jazz fusion
+thrash metal
+contemporary folk
+nu metal
+chamber music
+flamenco
+ambient
+operetta
+Gregorian chant
+indie pop
+dance music
+big band
+glam rock
+experimental music
+blues rock
+drum and bass
+metalcore
+pop-punk
+pop punk
+Classical period
+rockabilly
+dance-pop
+industrial
+emo
+trip hop
+Renaissance music
+reggaeton
+indie
+ghazal
+bossa nova
+garage rock
+trance
+trap
+alternative metal
+psychedelic music
+gothic rock
+post-rock
+Schlager
+medieval music
+samba
+chanson
+progressive metal
+art rock
+oratorio
+swing
+new age
+shoegaze
+bluegrass
+krautrock
+post-hardcore
+power metal
+soft rock
+electropop
+electronica
+glam metal
+Eurodance
+contemporary classical music
+Britpop
+gamelan
+dub
+power pop
+doom metal
+easy listening
+bebop
+experimental rock
+gangsta rap
+salsa
+ragtime
+stoner rock
+polka
+Indian classical music
+noise rock
+lo-fi
+dream pop
+adult contemporary
+industrial metal
+vaporwave
+noise
+grindcore
+dubstep
+dancehall
+Carnatic music
+contemporary Christian music
+Latin
+country rock
+electro
+electronic rock
+musique concrète
+beat
+Merseybeat
+Latin pop
+free jazz
+gothic metal
+Celtic
+madrigal
+calypso
+symphonic metal
+surf
+enka
+Christian rock
+post-grunge
+math rock
+jungle
+Southern rock
+melodic death metal
+Mandopop
+rap rock
+baroque pop
+doo-wop
+anime song
+anison
+industrial rock
+alternative hip-hop
+grime
+Peking opera
+lied
+kayōkyoku
+city pop
+space rock
+march
+gagaku
+breakbeat
+arena rock
+groove metal
+minimalism
+minimal music
+fado
+new jack swing
+acid jazz
+dark wave
+qawwali
+MPB
+folk metal
+lullaby
+extreme metal
+Hindustani classical music
+avant-garde music
+West Coast hip-hop
+Dixieland
+Americana
+speed metal
+sludge metal
+acid house
+hardcore techno
+chiptune
+Cantopop
+pop rap
+zarzuela
+intelligent dance music
+IDM
+spiritual
+Oi!
+early music
+rap metal
+Hi-NRG
+deathcore
+bubblegum
+bhajan
+UK garage
+indie folk
+urban contemporary
+Eurobeat
+mariachi
+carol
+electronic body music
+EBM
+funk rock
+Italo disco
+smooth jazz
+East Coast hip-hop
+rocksteady
+merengue
+ska punk
+avant-garde metal
+hyperpop
+impressionism
+hardcore hip-hop
+Afrobeat
+jangle pop
+boogie-woogie
+electro house
+klezmer
+neo soul
+serialism
+hard bop
+witch house
+nursery rhyme
+crust punk
+crunk
+tango
+downtempo
+bolero
+Neue Deutsche Härte
+traditional pop
+acid rock
+G-funk
+ragga
+lounge
+horrorcore
+psychedelic trance
+funk carioca
+baile funk
+post-metal
+proto-punk
+deep house
+drill
+anarcho-punk
+country pop
+Christian metal
+kirtan
+teen pop
+sea shanty
+shanty
+screamo
+alternative country
+Europop
+roots rock
+skiffle
+dance-rock
+phonk
+dance-punk
+folk-pop
+big beat
+J-rock
+Japanese rock
+avant-garde jazz
+cloud rap
+hardstyle
+post-punk revival
+cool jazz
+drone
+bachata
+electroacoustic music
+progressive house
+Southern hip-hop
+heartland rock
+blue-eyed soul
+funk metal
+dark ambient
+jazz rap
+crossover thrash
+Viking metal
+psychobilly
+nu jazz
+alternative dance
+melodic hardcore
+electroclash
+trot
+skate punk
+mathcore
+pub rock
+technical death metal
+yacht rock
+instrumental rock
+glitch
+C-pop
+sophisti-pop
+neoclassical metal
+Afrobeats
+chill-out
+jazz-funk
+turbo-folk
+gabber
+synthwave
+freestyle
+bhangra
+djent
+neofolk
+Anatolian rock
+Latin rock
+post-disco
+art pop
+mento
+New Romantic
+psychedelic pop
+crunkcore
+tropicália
+neo-psychedelia
+Shibuya-kei
+Eurodisco
+Latin jazz
+vallenato
+underground hip-hop
+hip house
+Gypsy jazz
+jazz manouche
+French house
+raï
+modal jazz
+dangdut
+breakcore
+emo rap
+Tejano
+folktronica
+deathrock
+Delta blues
+soca
+chopped and screwed
+two-tone
+chillwave
+mumble rap
+rebetiko
+Goa trance
+compas
+kompa
+sertanejo
+operatic pop
+Miami bass
+electronicore
+Detroit techno
+horror punk
+work song
+noise pop
+electro-industrial
+laïko
+forró
+art punk
+folk punk
+dansband
+quiet storm
+honky-tonk
+ranchera
+chamber pop
+slowcore
+drone metal
+tech house
+art song
+Chicago blues
+Western swing
+blackgaze
+jump blues
+zouk
+son cubano
+death-doom
+disco polo
+yé-yé
+Andalusi classical music
+Neue Deutsche Welle
+cold wave
+futurepop
+post-bop
+sunshine pop
+digital hardcore
+happy hardcore
+outlaw country
+future bass
+garage house
+electric blues
+baul
+joik
+choro
+jumpstyle
+raga rock
+old-time
+soul jazz
+nu-disco
+kwaito
+college rock
+neo-prog
+rumba
+goregrind
+psychedelic folk
+Celtic rock
+brutal death metal
+Latin trap
+pagan metal
+symphonic black metal
+electro swing
+roots reggae
+amapiano
+pop metal
+moombahton
+country blues
+post-Britpop
+Chicago house
+highlife
+arabesque
+corrido
+plainsong
+plainchant
+alternative pop
+Jersey club
+plunderphonics
+Celtic punk
+Afropop
+zydeco
+oldies
+street punk
+punk jazz
+West Coast jazz
+tropical house
+minimal techno
+V-pop
+twee pop
+boom bap
+chalga
+alternative R&B
+swamp rock
+lament
+cowpunk
+2-step garage
+third stream
+Afro-Cuban jazz
+new rave
+ghettotech
+stride
+country rap
+worldbeat
+kuduro
+vocal jazz
+garage punk
+rock en español
+Chicano rock
+kizomba
+sevdalinka
+melodic metalcore
+Memphis rap
+soukous
+blackened death metal
+Latin ballad
+lo-fi hip-hop
+Northern soul
+hypnagogic pop
+slacker rock
+norteño
+manele
+hip-hop soul
+Cajun
+boogie rock
+speedcore
+new beat
+Japanoise
+avant-pop
+reggae fusion
+ghetto house
+space age pop
+cumbia
+boogie
+acid techno
+progressive pop
+liquid drum and bass
+breakbeat hardcore
+grebo
+swamp pop
+barbershop
+illbient
+trad jazz
+canzone
+nueva canción
+UK hard house
+axé
+Chicano rap
+filmi
+deathgrind
+emo pop
+ambient house
+queercore
+bounce
+Arabic pop
+hyphy
+Latin hip-hop
+boogaloo
+anti-folk
+luk thung
+gqom
+baggy
+hard trance
+punk blues
+Nederpop
+power electronics
+neurofunk
+samba rock
+Baltimore club
+funeral doom
+snap
+bitpop
+funky house
+jùjú
+mambo
+Bongo Flava
+pagode
+kroncong
+coupé-décalé
+frevo
+banda
+huayno
+cha-cha-chá
+morna
+lovers rock
+gnawa
+mbalax
+Congolese rumba
+plena
+mahraganat
+makossa
+bomba
+mor lam
+taarab
+kapa haka
+mbaqanga
+khaliji
+timba
+isicathamiya
+chutney
+marrabenta
+fuji
+kwela
+palm-wine
+benga
+chimurenga
+chaabi
