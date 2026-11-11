@@ -32,7 +32,7 @@ function weaves(a, b, split, w) {
   });
 }
 
-// does w match "A -op B" (mirrored: "A _-op B")? Tries every b up to a length, combined with
+// does w match "A -op B" (mirrored: "A ~-op B")? Tries every b up to a length, combined with
 // w in every way the split allows
 function unweaves(a, b, split, w, bs) {
   const chars = [...w];
@@ -52,7 +52,7 @@ function unweaves(a, b, split, w, bs) {
 
 function oracle(op, a, b, w, bs) {
   if (op in SPLITS) return weaves(a, b, SPLITS[op], w);
-  const mirrored = op.startsWith("_-");
+  const mirrored = op.startsWith("~-");
   const split = SPLITS[op.slice(mirrored ? 2 : 1)];
   return unweaves(a, b, mirrored ? split.replace(/[LR]/g, (c) => (c === "L" ? "R" : "L")) : split, w, bs);
 }
@@ -70,7 +70,7 @@ const EXAMPLES = [
   ["U+##w+", ["UwUwU", "UwUw", "Uw"], ["wUwU", "UwwU", "U"]],
   ["U+#w+", ["UwUwU", "wUwU", "wUw"], ["UwwU"]],
   ["(the|a)-.", ["th", ""], ["the", "t"]],
-  ["(the|a)_-.", ["he", ""], ["th"]],
+  ["(the|a)~-.", ["he", ""], ["th"]],
   ["lo+l->o+", ["ll", "lol"], ["l", "lo"]],
   ["lo+l->>o+", ["ll"], ["l"]],
   ["lo+l-<l", ["lo", "ol", "loo"], ["o", "l", "lol"]],
@@ -80,7 +80,7 @@ const EXAMPLES = [
   ["Madrid-^..", ["Mdrd", "Mdid", "drid"], ["Madrid", "Mad"]],
   ["(me)+-#..", ["mm", "ee"], ["me"]],
   ["abcd-##..", ["ac"], ["bd"]],
-  ["abcd_-##..", ["bd"], ["ac"]],
+  ["abcd~-##..", ["bd"], ["ac"]],
   ["abcd->^..", ["ad"], ["ab", "cd"]],
   ["abcd-<^..", ["bc"], ["ad"]],
   ["a-b-c", [], ["a", ""]],
@@ -157,7 +157,7 @@ test("custom splits generalise the separating and subtraction operators", () => 
     const A = format(randomAst(rand, 2, { chars: ["a", "b"], logic: false }));
     const B = format(randomAst(rand, 2, { chars: ["a", "b"], logic: false }));
     for (const op of SPATIAL_OPS) {
-      const mirrored = op.startsWith("_-");
+      const mirrored = op.startsWith("~-");
       const base = op.slice(mirrored ? 2 : op.startsWith("-") ? 1 : 0);
       let split = SPLITS[base];
       if (mirrored) split = split.replace(/[LR]/g, (c) => (c === "L" ? "R" : "L"));
