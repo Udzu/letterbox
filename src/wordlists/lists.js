@@ -56,6 +56,26 @@ export function downloadText(stripped, attribution) {
 }
 
 // the number of distinct words in a stripped list, counted the way the other pages count them
+// Combining stripped lists: the words of `text` followed by those of `added` that it doesn't
+// already have (comparing NFC forms, like wordCount), so the order of each list is kept.
+export function appendList(text, added) {
+  const lines = (t) => t.split("\n").filter((line) => line !== "");
+  const seen = new Set(lines(text).map((line) => line.normalize("NFC")));
+  const extra = lines(added).filter((line) => !seen.has(line.normalize("NFC")) && seen.add(line.normalize("NFC")));
+  return text + (extra.length ? extra.join("\n") + "\n" : "");
+}
+
+// The words of `text` without those of `removed`, apart from words that are also in one of
+// `kept`, the stripped texts of the lists that stay. Words a list loaded from a file elsewhere
+// shares with `removed` are lost, since that list's own words aren't known any more.
+export function removeList(text, removed, kept) {
+  const set = (t) => new Set(t.split("\n").filter((line) => line !== "").map((line) => line.normalize("NFC")));
+  const gone = set(removed);
+  const stay = new Set(kept.flatMap((t) => [...set(t)]));
+  const lines = text.split("\n").filter((line) => line !== "" && (!gone.has(line.normalize("NFC")) || stay.has(line.normalize("NFC"))));
+  return lines.length === 0 ? "" : lines.join("\n") + "\n";
+}
+
 export function wordCount(stripped) {
   return new Set(stripped.split("\n").filter((line) => line !== "").map((line) => line.normalize("NFC"))).size;
 }
