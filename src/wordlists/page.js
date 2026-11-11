@@ -1,17 +1,20 @@
 // The Wordlists page: the lists in wordlists/, each of which can be loaded as the word list
-// shared by the Anagrams, Pangrams and Patterns pages, or as the @ list that @ stands for on the
-// Patterns page, or downloaded. Whichever it is, the
+// shared by the Anagrams, Pangrams and Patterns pages (or added to it, combining lists), or as
+// the @ list that @ stands for on the Patterns page, or downloaded. Whichever it is, the
 // list is stripped of comments and blank lines (apart from a downloaded list's attribution, which
 // the other pages skip), so a downloaded list loads with the same words.
 
-import { TOPICS, attributionParts, downloadText, stripList, wordCount } from "./lists.js";
+import { TOPICS, appendList, attributionParts, downloadText, removeList, stripList, wordCount } from "./lists.js";
 
 // [{ file, name, description, tag?, attribution?, size }], general lists first and then by name,
 // written into the page by the build
 const LISTS = JSON.parse(document.getElementById("lists-data").textContent);
+const BY_FILE = new Map(LISTS.map((list) => [list.file, list]));
 
 // the stored entries for the word list shared by the Anagrams, Pangrams and Patterns pages, and
-// for the Patterns page's @ list
+// for the Patterns page's @ list: { name, text }, plus, for lists loaded here, the files they
+// came from, as files: [file], in order. The word list can combine several lists, added with
+// the + buttons; its name is then their file names joined by " + ", which the other pages show.
 const DB = { name: "patterns", store: "wordlist" };
 // Each slot's button on a list's row loads it there, or unloads it if it's already there,
 // and shows as pressed while it is.
@@ -24,7 +27,7 @@ const SLOTS = {
     title: (on) => on
       ? "Unload the word list from the Anagrams, Pangrams and Patterns pages"
       : "Load as the word list on the Anagrams, Pangrams and Patterns pages, replacing the one they use now",
-    current: null,
+    current: [],
   },
   at: {
     key: "at-list",
@@ -34,7 +37,7 @@ const SLOTS = {
     title: (on) => on
       ? "Stop using this as the @ list on the Patterns page, so @ stands for the word list again"
       : "Load as the @ list on the Patterns page, so @ stands for these words (matches still come from the word list)",
-    current: null,
+    current: [],
   },
 };
 
@@ -84,24 +87,37 @@ async function listText(list) {
   return texts.get(list.file);
 }
 
-const rows = new Map(); // file -> { li, buttons: { load, at }, status }
+const rows = new Map(); // file -> { li, buttons: { load, add, at }, status }
 
-// show which list (if any) is in a slot: name is null if none, or one not on this page
-function markSlot(slot, name) {
-  slot.current = name;
+// the files a stored list came from: just its name for one loaded elsewhere
+const filesOf = (stored) => (stored === null ? [] : stored.files ?? [stored.name]);
+
+// Show which lists are in a slot, given their files (some of which may not be on this page).
+// The first list in the word list has its Load button pressed, and the others their + buttons.
+function markSlot(slot, files) {
+  slot.current = files;
   for (const [file, row] of rows) {
-    const on = file === name;
+    const first = file === files[0];
     const button = row.buttons[slot.button];
-    row.li.classList.toggle(slot.rowClass, on);
-    button.textContent = slot.label(on);
-    button.title = slot.title(on);
-    button.setAttribute("aria-pressed", on);
+    row.li.classList.toggle(slot.rowClass, files.includes(file));
+    button.textContent = slot.label(first);
+    button.title = slot.title(first);
+    button.setAttribute("aria-pressed", first);
+    if (slot !== SLOTS.words) continue;
+    const added = files.includes(file) && !first;
+    row.buttons.add.setAttribute("aria-pressed", added);
+    row.buttons.add.disabled = first;
+    row.buttons.add.title = first
+      ? "This is the word list already"
+      : added
+        ? "Take this list out of the word list"
+        : "Add this list to the word list on the Anagrams, Pangrams and Patterns pages, after the words already in it";
   }
 }
 
 // lists loaded or cleared elsewhere (on another page, or in another tab) show up on return
 async function refreshLoaded() {
-  for (const slot of Object.values(SLOTS)) markSlot(slot, (await fetchList(slot))?.name ?? null);
+  for (const slot of Object.values(SLOTS)) markSlot(slot, filesOf(await fetchList(slot)));
 }
 
 function setStatus(row, message, error = false) {
@@ -111,8 +127,14 @@ function setStatus(row, message, error = false) {
 
 // the slot's button: load the list there, or unload it if it's there already
 function toggle(list, row, slot) {
-  if (slot.current === list.file) unload(row, slot);
+  if (slot.current[0] === list.file) unload(row, slot);
   else load(list, row, slot);
+}
+
+// the + button: add the list to the word list, or take it out if it's been added
+function toggleAdd(list, row) {
+  if (SLOTS.words.current.includes(list.file)) takeOut(list, row);
+  else add(list, row);
 }
 
 async function unload(row, slot) {
@@ -122,7 +144,7 @@ async function unload(row, slot) {
     setStatus(row, "This browser wouldn't unload the list.", true);
     return;
   }
-  markSlot(slot, null);
+  markSlot(slot, []);
   for (const other of rows.values()) setStatus(other, "");
   setStatus(row, slot === SLOTS.words
     ? "Unloaded. Reload any of the other pages that are already open to see it."
@@ -139,17 +161,62 @@ async function load(list, row, slot) {
     return;
   }
   try {
-    await storeList(slot, { name: list.file, text });
+    await storeList(slot, { name: list.file, text, files: [list.file] });
   } catch {
     setStatus(row, "This browser won't store the list, but you can download it and load it on each page instead.", true);
     return;
   }
-  markSlot(slot, list.file);
+  markSlot(slot, [list.file]);
   for (const other of rows.values()) setStatus(other, "");
   const words = count(wordCount(text), "word");
   setStatus(row, slot === SLOTS.words
     ? `Loaded ${words}. Reload any of the other pages that are already open to see it.`
     : `Loaded ${words} as the @ list, so @ on the Patterns page stands for these words. Reload Patterns if it's already open.`);
+}
+
+// change the word list to the given files and text, reporting how it went in the row
+async function storeWords(row, files, text, done) {
+  try {
+    await storeList(SLOTS.words, { name: files.join(" + "), text, files });
+  } catch {
+    setStatus(row, "This browser won't store the list.", true);
+    return;
+  }
+  markSlot(SLOTS.words, files);
+  for (const other of rows.values()) setStatus(other, "");
+  setStatus(row, `${done} The word list is now ${files.join(" + ")}, with ${count(wordCount(text), "word")}. Reload any of the other pages that are already open to see it.`);
+}
+
+async function add(list, row) {
+  const stored = await fetchList(SLOTS.words);
+  if (stored === null) return load(list, row, SLOTS.words);
+  setStatus(row, "Adding…");
+  let text;
+  try {
+    text = await listText(list);
+  } catch (e) {
+    setStatus(row, `Couldn't fetch the list (${e.message}).`, true);
+    return;
+  }
+  const combined = appendList(stored.text, text);
+  const added = wordCount(combined) - wordCount(stored.text);
+  await storeWords(row, [...filesOf(stored), list.file], combined, `Added ${count(added, "new word")}.`);
+}
+
+async function takeOut(list, row) {
+  const stored = await fetchList(SLOTS.words);
+  const files = filesOf(stored).filter((file) => file !== list.file);
+  if (stored === null || files.length === 0) return unload(row, SLOTS.words);
+  setStatus(row, "Taking out…");
+  let text, kept;
+  try {
+    text = await listText(list);
+    kept = await Promise.all(files.filter((file) => BY_FILE.has(file)).map((file) => listText(BY_FILE.get(file))));
+  } catch (e) {
+    setStatus(row, `Couldn't fetch the lists (${e.message}).`, true);
+    return;
+  }
+  await storeWords(row, files, removeList(stored.text, text, kept), "Taken out.");
 }
 
 async function download(list, row) {
@@ -194,7 +261,7 @@ function attributionElement(attribution) {
 // Between the general lists and the topic and untagged lists after them, an "all" badge, then a
 // badge for each topic in use and an "other" badge for untagged lists, each with its number of
 // lists: pressing a topic or "other" shows only the lists it's for, and pressing it again or
-// pressing "all" shows them all.
+// pressing "all" shows them all. A row's topic badge works like the topic's badge here.
 const listsBox = document.getElementById("lists");
 const filterBox = element("div", "filters");
 filterBox.setAttribute("role", "group");
@@ -220,6 +287,7 @@ for (const name of [...TOPICS, "other"].filter((name) => counts.has(name))) {
   filterBox.append(button);
 }
 const filtered = []; // [{ list, li }] for the lists the filter applies to
+const rowBadges = []; // [{ topic, button }] for the badges on the lists' rows
 
 function setFilter(name) {
   filter = name;
@@ -227,6 +295,10 @@ function setFilter(name) {
   for (const [key, button] of filters) {
     button.setAttribute("aria-pressed", String(key === name));
     button.title = key === name ? "Show all the lists" : `Show only the ${key === "other" ? "untagged" : key} lists`;
+  }
+  for (const { topic, button } of rowBadges) {
+    button.setAttribute("aria-pressed", String(topic === name));
+    button.title = topic === name ? "Show all the lists" : `Show only the ${topic} lists`;
   }
   filterBox.classList.toggle("active", name !== null);
   for (const { list, li } of filtered) li.hidden = name !== null && filterOf(list) !== name;
@@ -244,13 +316,23 @@ for (const list of LISTS) {
     if (!general) listsBox.append(filterBox);
     listsBox.append(group.ul);
   }
-  const buttons = { load: element("button", "load"), at: element("button", "at") };
+  const buttons = { load: element("button", "load"), add: element("button", "add", "+"), at: element("button", "at") };
   const downloadButton = element("button", "", "Download");
   downloadButton.title = `Save the list as ${list.file}`;
   const title = element("div", "title");
   title.append(element("span", "name", list.name));
-  if (list.tag && !general) title.append(element("span", badgeClass(list.tag), list.tag));
-  title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
+  if (list.tag && !general) {
+    const badge = element("button", badgeClass(list.tag), list.tag);
+    // filtering hides rows above this one, so keep its badge where it was on the screen
+    badge.addEventListener("click", () => {
+      const top = badge.getBoundingClientRect().top;
+      setFilter(filter === list.tag ? null : list.tag);
+      window.scrollBy(0, badge.getBoundingClientRect().top - top);
+    });
+    rowBadges.push({ topic: list.tag, button: badge });
+    title.append(badge);
+  }
+  title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.add, buttons.at, downloadButton);
   const status = element("p", "status");
   status.setAttribute("aria-live", "polite");
   const li = element("li");
@@ -263,6 +345,7 @@ for (const list of LISTS) {
   const row = { li, buttons, status };
   rows.set(list.file, row);
   buttons.load.addEventListener("click", () => toggle(list, row, SLOTS.words));
+  buttons.add.addEventListener("click", () => toggleAdd(list, row));
   buttons.at.addEventListener("click", () => toggle(list, row, SLOTS.at));
   downloadButton.addEventListener("click", () => download(list, row));
 }
@@ -270,7 +353,7 @@ for (const list of LISTS) {
 setFilter(null);
 
 // a list loaded from this page (or a file with the same name) is marked as loaded
-for (const slot of Object.values(SLOTS)) markSlot(slot, null);
+for (const slot of Object.values(SLOTS)) markSlot(slot, []);
 refreshLoaded();
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") refreshLoaded();

@@ -1,0 +1,560 @@
+# name: Music genres
+# description: Music genres, from broad ones (rock, jazz) to subgenres (shoegaze, math rock), most prominent first.
+# tag: culture
+# attribution: From Wikipedia's [list of music genres and styles](https://en.wikipedia.org/wiki/List_of_music_genres_and_styles), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.
+
+# Genres from the Wikipedia list (whose broadest genres are headings, so added here), plus classical
+# genres and periods and long-established song types (lullaby, hymn, carol), named as in "I listen
+# to ___" (country, classical, but world music), lowercase unless Wikipedia capitalises them, with
+# common alternative names. Left out: categories by medium or occasion (film scores, Christmas
+# music), scenes and most radio formats, forms and techniques (sonata, a cappella), umbrella traditions
+# and national scenes (Music of Brazil, French pop), and the least prominent micro-genres. Each
+# item's comment names its English Wikipedia article.
+
+Q1751409: 2-step garage                           # 2-step garage
+Q341364: acid house                               # Acid house
+Q221772: acid jazz                                # Acid jazz
+Q236932: acid rock                                # Acid rock
+Q341395: acid techno                              # Acid techno
+Q378988: adult contemporary                       # Adult contemporary music
+Q3163340: Afro-Cuban jazz                         # Afro-Cuban jazz
+Q388296: Afrobeat                                 # Afrobeat
+Q25099840: Afrobeats                              # Afrobeats
+Q972634: Afropop                                  # African popular music
+Q438476: alternative country                      # Alternative country
+Q2187392: alternative dance                       # Alternative dance
+Q438503: alternative hip-hop                      # Alternative hip-hop
+Q20378: alternative metal                         # Alternative metal
+Q95469495: alternative pop                        # Alternative pop
+Q7118426: alternative R&B                         # Alternative R&B
+Q11366: alternative rock                          # Alternative rock
+Q85741139: amapiano                               # Amapiano
+Q193207: ambient                                  # Ambient music
+Q2465085: ambient house                           # Ambient house
+Q2407862: Americana                               # Americana music
+Q486365: anarcho-punk                             # Anarcho-punk
+Q483740: Anatolian rock                           # Anatolian rock
+Q623904: Andalusi classical music                 # Andalusi classical music
+Q608862: anime song, anison                       # Anime song
+Q574651: anti-folk                                # Anti-folk
+Q623824: arabesque                                # Arabesque (Turkish music)
+Q624081: Arabic pop                               # Arabic pop
+Q379033: arena rock                               # Arena rock
+Q25094849: art pop                                # Art pop
+Q659599: art punk                                 # Art punk
+Q217467: art rock                                 # Art rock
+Q4797274: art song                                # Art song
+Q790188: avant-garde jazz                         # Avant-garde jazz
+Q641357: avant-garde metal                        # Avant-garde metal
+Q2332751: avant-garde music                       # Avant-garde music
+Q9162904: avant-pop                               # Avant-pop
+Q1435485: axé                                     # Axé
+Q40461: bachata                                   # Bachata (music)
+Q4841596: baggy                                   # Baggy
+Q182659: ballad                                   # Ballad
+Q4852979: Baltimore club                          # Baltimore club
+Q2812726: banda                                   # Banda music
+Q807820: barbershop                               # Barbershop music
+Q8361: Baroque music, Baroque                     # Baroque music
+Q46046: baroque pop                               # Baroque pop
+Q811449: baul                                     # Baul
+Q546264: beat, Merseybeat                         # Beat music
+Q105513: bebop                                    # Bebop
+Q6301761: benga                                   # Benga music
+Q854775: bhajan                                   # Bhajan
+Q854844: bhangra                                  # Bhangra (music)
+Q207378: big band                                 # Big band
+Q858579: big beat                                 # Big beat
+Q773880: bitpop                                   # Bitpop
+Q132438: black metal                              # Black metal
+Q2599472: blackened death metal                   # Blackened death metal
+Q16855754: blackgaze                              # Blackgaze
+Q885561: blue-eyed soul                           # Blue-eyed soul
+Q213714: bluegrass                                # Bluegrass music
+Q9759: blues                                      # Blues
+Q193355: blues rock                               # Blues rock
+Q15830404: bolero                                 # Bolero
+Q2278063: bomba                                   # Bomba (Puerto Rico)
+Q630689: Bongo Flava                              # Bongo Flava
+Q892958: boogaloo                                 # Boogaloo
+Q4942839: boogie                                  # Boogie (genre)
+Q2266376: boogie rock                             # Boogie rock
+Q212952: boogie-woogie                            # Boogie-woogie
+Q529742: boom bap                                 # Boom bap
+Q486263: bossa nova                               # Bossa nova
+Q4949812: bounce                                  # Bounce music
+Q663519: breakbeat                                # Breakbeat
+Q1585075: breakbeat hardcore                      # Breakbeat hardcore
+Q903735: breakcore                                # Breakcore
+Q189045: Britpop                                  # Britpop
+Q2265866: brutal death metal                      # Brutal death metal
+Q997481: bubblegum                                # Bubblegum music
+Q1192110: C-pop                                   # C-pop
+Q1026089: Cajun                                   # Cajun music
+Q752785: calypso                                  # Calypso music
+Q853873: Cantopop                                 # Cantopop
+Q873000: canzone                                  # Canzone
+Q956883: Carnatic music                           # Carnatic music
+Q503354: carol                                    # Christmas carol
+Q854451: Celtic                                   # Celtic music
+Q1990122: Celtic punk                             # Celtic punk
+Q2662148: Celtic rock                             # Celtic rock
+Q16986699: cha-cha-chá                            # Cha-cha-chá (music)
+Q2961763: chaabi                                  # Chaabi
+Q870340: chalga                                   # Chalga
+Q189201: chamber music                            # Chamber music
+Q22991878: chamber pop                            # Chamber pop
+Q1062400: chanson                                 # Chanson
+Q1071873: Chicago blues                           # Chicago blues
+Q1071961: Chicago house                           # Chicago house
+Q1399695: Chicano rap                             # Chicano rap
+Q16241990: Chicano rock                           # Chicano rock
+Q757143: chill-out                                # Chill-out music
+Q2626684: chillwave                               # Chillwave
+Q5099460: chimurenga                              # Chimurenga music
+Q135637: chiptune                                 # Chiptune
+Q2261628: chopped and screwed                     # Chopped and screwed
+Q131186: choral music                             # Choir
+Q1076539: choro                                   # Choro
+Q822914: Christian metal                          # Christian metal
+Q753520: Christian rock                           # Christian rock
+Q1090048: chutney                                 # Chutney music
+Q11307326: city pop                               # City pop
+Q17723: Classical period                          # Classical period (music)
+Q9730: classical, classical music                 # Classical music
+Q16829781: cloud rap                              # Cloud rap
+Q2343562: cold wave                               # Cold wave (music)
+Q783097: college rock                             # College rock
+Q2726026: compas, kompa                           # Compas
+Q3453150: Congolese rumba                         # Congolese rumba
+Q1379958: contemporary Christian music            # Contemporary Christian music
+Q612024: contemporary classical music             # Contemporary classical music
+Q106298881: contemporary folk                     # Contemporary folk music
+Q850412: contemporary R&B                         # Contemporary R&B
+Q327547: cool jazz                                # Cool jazz
+Q869210: corrido                                  # Corrido
+Q83440: country                                   # Country music
+Q649823: country blues                            # Country blues
+Q2280497: country pop                             # Country pop
+Q2706919: country rap                             # Country rap
+Q613408: country rock                             # Country rock
+Q513357: coupé-décalé                             # Coupé-décalé
+Q2268922: cowpunk                                 # Cowpunk
+Q932977: crossover thrash                         # Crossover thrash
+Q936573: crunk                                    # Crunk
+Q2426383: crunkcore                               # Crunkcore
+Q825769: crust punk                               # Crust punk
+Q107740285: cumbia                                # Cumbia
+Q316930: dance music                              # Dance music
+Q211756: dance-pop                                # Dance-pop
+Q1643549: dance-punk                              # Dance-punk
+Q2281409: dance-rock                              # Dance-rock
+Q474027: dancehall                                # Dancehall
+Q1159539: dangdut                                 # Dangdut
+Q1164847: dansband                                # Dansband
+Q756956: dark ambient                             # Dark ambient
+Q3840596: dark wave                               # Dark wave
+Q483251: death metal                              # Death metal
+Q2089511: death-doom                              # Death-doom
+Q475221: deathcore                                # Deathcore
+Q888612: deathgrind                               # Deathgrind
+Q1164252: deathrock                               # Deathrock
+Q874038: deep house                               # Deep house
+Q1127539: Delta blues                             # Delta blues
+Q526463: Detroit techno                           # Detroit techno
+Q56580: digital hardcore                          # Digital hardcore
+Q58339: disco                                     # Disco
+Q1185390: disco polo                              # Disco polo
+Q906647: Dixieland                                # Dixieland jazz
+Q2532560: djent                                   # Djent
+Q546359: doo-wop                                  # Doo-wop
+Q186170: doom metal                               # Doom metal
+Q251192: downtempo                                # Downtempo
+Q592330: dream pop                                # Dream pop
+Q15697534: drill                                  # Drill music
+Q650316: drone                                    # Drone music
+Q1433387: drone metal                             # Drone metal
+Q188994: drum and bass                            # Drum and bass
+Q212688: dub                                      # Dub music
+Q20474: dubstep                                   # Dubstep
+Q436016: early music                              # Early music
+Q876171: East Coast hip-hop                       # East Coast hip-hop
+Q848399: easy listening                           # Easy listening
+Q640097: electric blues                           # Electric blues
+Q217597: electro                                  # Electro (music)
+Q627906: electro house                            # Electro house
+Q602561: electro swing                            # Electro swing
+Q1403744: electro-industrial                      # Electro-industrial
+Q1326777: electroacoustic music                   # Electroacoustic music
+Q861823: electroclash                             # Electroclash
+Q372103: electronic body music, EBM               # Electronic body music
+Q851213: electronic dance music, EDM              # Electronic dance music
+Q325504: electronic rock                          # Electronic rock
+Q9778: electronic, electronic music               # Electronic music
+Q817138: electronica                              # Electronica
+Q2084353: electronicore                           # Electronicore
+Q188450: electropop                               # Electropop
+Q10926: emo                                       # Emo
+Q3724735: emo pop                                 # Emo pop
+Q12362064: emo rap                                # Emo rap
+Q873478: enka                                     # Enka
+Q848852: Eurobeat                                 # Eurobeat
+Q216961: Eurodance                                # Eurodance
+Q1374731: Eurodisco                               # Eurodisco
+Q517415: Europop                                  # Europop
+Q1640319: experimental music                      # Experimental music
+Q1641839: experimental rock                       # Experimental rock
+Q465978: extreme metal                            # Extreme metal
+Q185676: fado                                     # Fado
+Q6942022: filmi                                   # Hindi film music
+Q9764: flamenco                                   # Flamenco
+Q484179: folk metal                               # Folk metal
+Q1425661: folk punk                               # Folk punk
+Q186472: folk rock                                # Folk rock
+Q43343: folk, folk music                          # Folk music
+Q11700058: folk-pop                               # Folk-pop
+Q1435509: folktronica                             # Folktronica
+Q586110: forró                                    # Forró
+Q211781: free jazz                                # Free jazz
+Q655514: freestyle                                # Freestyle music
+Q1455292: French house                            # French house
+Q1455932: frevo                                   # Frevo
+Q3509353: fuji                                    # Fuji music
+Q2738113: funeral doom                            # Funeral doom
+Q164444: funk                                     # Funk
+Q1931130: funk carioca, baile funk                # Funk carioca
+Q667659: funk metal                               # Funk metal
+Q835891: funk rock                                # Funk rock
+Q949369: funky house                              # Funky house
+Q22908553: future bass                            # Future bass
+Q828243: futurepop                                # Futurepop
+Q1045541: G-funk                                  # G-funk
+Q820049: gabber                                   # Gabber
+Q718540: gagaku                                   # Gagaku
+Q194492: gamelan                                  # Gamelan
+Q753679: gangsta rap                              # Gangsta rap
+Q928825: garage house                             # Garage house
+Q2296495: garage punk                             # Garage punk (fusion genre)
+Q211573: garage rock                              # Garage rock
+Q281111: ghazal                                   # Ghazal
+Q2748817: ghetto house                            # Ghetto house
+Q1521688: ghettotech                              # Ghettotech
+Q188539: glam metal                               # Glam metal
+Q76092: glam rock                                 # Glam rock
+Q1100989: glitch                                  # Glitch (music)
+Q1533184: gnawa                                   # Gnawa
+Q835131: Goa trance                               # Goa trance
+Q1147692: goregrind                               # Goregrind
+Q180268: gospel                                   # Gospel music
+Q178145: gothic metal                             # Gothic metal
+Q485395: gothic rock                              # Gothic rock
+Q29973057: gqom                                   # Gqom
+Q1987105: grebo                                   # Grebo (music)
+Q26473: Gregorian chant                           # Gregorian chant
+Q1166726: grime                                   # Grime music
+Q188534: grindcore                                # Grindcore
+Q241662: groove metal                             # Groove metal
+Q11365: grunge                                    # Grunge
+Q844245: Gypsy jazz, jazz manouche                # Gypsy jazz
+Q339906: happy hardcore                           # Happy hardcore
+Q181010: hard bop                                 # Hard bop
+Q83270: hard rock                                 # Hard rock
+Q832665: hard trance                              # Hard trance
+Q966564: hardcore hip-hop                         # Hardcore hip-hop
+Q10922: hardcore punk, hardcore                   # Hardcore punk
+Q388906: hardcore techno                          # Hardcore (electronic dance music genre)
+Q223840: hardstyle                                # Hardstyle
+Q747717: heartland rock                           # Heartland rock
+Q38848: heavy metal, metal                        # Heavy metal music
+Q606393: Hi-NRG                                   # Hi-NRG
+Q963061: highlife                                 # Highlife
+Q1770695: Hindustani classical music              # Hindustani classical music
+Q601235: hip house                                # Hip house
+Q2256407: hip-hop soul                            # Hip-hop soul
+Q11401: hip-hop, hip hop, rap                     # Hip-hop
+Q1627155: honky-tonk                              # Honky-tonk
+Q830325: horror punk                              # Horror punk
+Q1139136: horrorcore                              # Horrorcore
+Q20502: house                                     # House music
+Q2307786: huayno                                  # Huayno
+Q484692: hymn                                     # Hymn
+Q104695865: hyperpop                              # Hyperpop
+Q2043175: hyphy                                   # Hyphy
+Q25345818: hypnagogic pop                         # Hypnagogic pop
+Q1658757: illbient                                # Illbient
+Q837182: impressionism                            # Impressionism in music
+Q1323698: Indian classical music                  # Indian classical music
+Q42201: indie                                     # Indie music
+Q1317816: indie folk                              # Indie folk
+Q842324: indie pop                                # Indie pop
+Q183504: indie rock                               # Indie rock
+Q487965: industrial                               # Industrial music
+Q208494: industrial metal                         # Industrial metal
+Q968730: industrial rock                          # Industrial rock
+Q1650296: instrumental rock                       # Instrumental rock
+Q660984: intelligent dance music, IDM             # Intelligent dance music
+Q1673922: isicathamiya                            # Isicathamiya
+Q744417: Italo disco                              # Italo disco
+Q131578: J-pop                                    # J-pop
+Q1055871: J-rock, Japanese rock                   # Japanese rock
+Q1190565: jangle pop                              # Jangle pop
+Q2456019: Japanoise                               # Japanoise
+Q8341: jazz                                       # Jazz
+Q105527: jazz fusion                              # Jazz fusion
+Q255406: jazz rap                                 # Jazz rap
+Q38656: jazz-funk                                 # Jazz-funk
+Q4965901: Jersey club                             # Jersey club
+Q744327: joik                                     # Joik
+Q1515757: jump blues                              # Jump blues
+Q389631: jumpstyle                                # Jumpstyle
+Q1102161: jungle                                  # Jungle music
+Q1715700: jùjú                                    # Jùjú music
+Q213665: K-pop                                    # K-pop
+Q3192842: kapa haka                               # Kapa haka
+Q1418683: kayōkyoku                               # Kayōkyoku
+Q585588: khaliji                                  # Khaliji (music)
+Q947155: kirtan                                   # Kirtan
+Q1597549: kizomba                                 # Kizomba
+Q212944: klezmer                                  # Klezmer
+Q320592: krautrock                                # Krautrock
+Q1930107: kroncong                                # Kroncong
+Q1191544: kuduro                                  # Kuduro
+Q956717: kwaito                                   # Kwaito
+Q1736883: kwela                                   # Kwela
+Q2087267: laïko                                   # Laïko
+Q1471717: lament                                  # Lament
+Q18345375: Latin                                  # Latin music
+Q6496560: Latin ballad                            # Latin ballad
+Q3827483: Latin hip-hop                           # Latin hip-hop
+Q837389: Latin jazz                               # Latin jazz
+Q547137: Latin pop                                # Latin pop
+Q185162: Latin rock                               # Latin rock
+Q54329757: Latin trap                             # Latin trap
+Q216860: lied                                     # Lied
+Q2082572: liquid drum and bass                    # Liquid drum and bass
+Q1507298: lo-fi                                   # Lo-fi music
+Q97265899: lo-fi hip-hop                          # Lofi hip-hop
+Q1141081: lounge                                  # Lounge music
+Q1872505: lovers rock                             # Lovers rock
+Q665286: luk thung                                # Luk thung
+Q193605: lullaby                                  # Lullaby
+Q193217: madrigal                                 # Madrigal
+Q25230739: mahraganat                             # Mahraganat
+Q1815364: makossa                                 # Makossa
+Q1646666: mambo                                   # Mambo (music)
+Q973150: Mandopop                                 # Mandopop
+Q642983: manele                                   # Manele
+Q211025: march                                    # March (music)
+Q464129: mariachi                                 # Mariachi
+Q1786724: marrabenta                              # Marrabenta
+Q1132152: math rock                               # Math rock
+Q616679: mathcore                                 # Mathcore
+Q556959: mbalax                                   # Mbalax
+Q1914924: mbaqanga                                # Mbaqanga
+Q163775: medieval music                           # Medieval music
+Q253918: melodic death metal                      # Melodic death metal
+Q542703: melodic hardcore                         # Melodic hardcore
+Q4490718: melodic metalcore                       # Melodic metalcore
+Q6010117: Memphis rap                             # Memphis rap
+Q1262697: mento                                   # Mento
+Q282131: merengue                                 # Merengue music
+Q183862: metalcore                                # Metalcore
+Q546206: Miami bass                               # Miami bass
+Q1430587: minimal techno                          # Minimal techno
+Q572901: minimalism, minimal music                # Minimal music
+Q1127530: modal jazz                              # Modal jazz
+Q21092: moombahton                                # Moombahton
+Q1753803: mor lam                                 # Mor lam
+Q502535: morna                                    # Morna (music)
+Q1046768: MPB                                     # Música popular brasileira
+Q30638997: mumble rap                             # Mumble rap
+Q2743: musical theatre                            # Musical theatre
+Q823560: musique concrète                         # Musique concrète
+Q1936659: Nederpop                                # Nederpop
+Q268253: neo soul                                 # Neo soul
+Q1051843: neo-prog                                # Neo-prog
+Q703778: neo-psychedelia                          # Neo-psychedelia
+Q725011: neoclassical metal                       # Neoclassical metal
+Q775614: neofolk                                  # Neofolk
+Q213572: Neue Deutsche Härte                      # Neue Deutsche Härte
+Q646679: Neue Deutsche Welle                      # Neue Deutsche Welle
+Q967654: neurofunk                                # Neurofunk
+Q213121: new age                                  # New-age music
+Q1890098: new beat                                # New beat
+Q840065: new jack swing                           # New jack swing
+Q1995980: new rave                                # New rave
+Q597240: New Romantic                             # New Romantic
+Q187760: new wave                                 # New wave music
+Q726239: noise                                    # Noise music
+Q2545135: noise pop                               # Noise pop
+Q181861: noise rock                               # Noise rock
+Q1780056: norteño                                 # Norteño (music)
+Q1928583: Northern soul                           # Northern soul
+Q1136331: nu jazz                                 # Nu jazz
+Q263734: nu metal                                 # Nu metal
+Q4045538: nu-disco                                # Nu-disco
+Q1151259: nueva canción                           # Nueva canción
+Q1123037: nursery rhyme                           # Nursery rhyme
+Q274401: Oi!                                      # Oi!
+Q972424: old-time                                 # Old-time music
+Q1852647: oldies                                  # Oldies
+Q1344: opera                                      # Opera
+Q2336819: operatic pop                            # Operatic pop
+Q170384: operetta                                 # Operetta
+Q85477: oratorio                                  # Oratorio
+Q964658: outlaw country                           # Outlaw country
+Q1457545: pagan metal                             # Pagan metal
+Q3360459: pagode                                  # Pagode
+Q5480212: palm-wine                               # Palm-wine music
+Q335101: Peking opera                             # Peking opera
+Q90568328: phonk                                  # Phonk
+Q2707688: plainsong, plainchant                   # Plainsong
+Q2715398: plena                                   # Plena
+Q7205507: plunderphonics                          # Plunderphonics
+Q153071: polka                                    # Polka
+Q37073: pop                                       # Pop music
+Q3908370: pop metal                               # Pop metal
+Q2572585: pop rap                                 # Pop rap
+Q484641: pop rock                                 # Pop rock
+Q487914: pop-punk, pop punk                       # Pop-punk
+Q1092837: post-bop                                # Post-bop
+Q3231749: post-Britpop                            # Post-Britpop
+Q1190485: post-disco                              # Post-disco
+Q379671: post-grunge                              # Post-grunge
+Q377910: post-hardcore                            # Post-hardcore
+Q41343: post-metal                                # Post-metal
+Q598929: post-punk                                # Post-punk
+Q1899347: post-punk revival                       # Post-punk revival
+Q209137: post-rock                                # Post-rock
+Q2687544: power electronics                       # Power electronics (music genre)
+Q57143: power metal                               # Power metal
+Q837837: power pop                                # Power pop
+Q915152: progressive house                        # Progressive house
+Q484344: progressive metal                        # Progressive metal
+Q3397882: progressive pop                         # Progressive pop
+Q49451: progressive rock                          # Progressive rock
+Q27190: proto-punk                                # Proto-punk
+Q1500364: psychedelic folk                        # Psychedelic folk
+Q846119: psychedelic music                        # Psychedelic music
+Q383982: psychedelic pop                          # Psychedelic pop
+Q206159: psychedelic rock                         # Psychedelic rock
+Q622871: psychedelic trance                       # Psychedelic trance
+Q13627677: psychobilly                            # Psychobilly
+Q1431327: pub rock                                # Pub rock (United Kingdom)
+Q2551540: punk blues                              # Punk blues
+Q2736181: punk jazz                               # Punk jazz
+Q3071: punk rock, punk                            # Punk rock
+Q512410: qawwali                                  # Qawwali
+Q930995: queercore                                # Queercore
+Q2746831: quiet storm                             # Quiet storm
+Q1702909: raga rock                               # Raga rock
+Q740911: ragga                                    # Ragga
+Q185652: ragtime                                  # Ragtime
+Q839029: raï                                      # Raï
+Q727634: ranchera                                 # Ranchera
+Q856872: rap metal                                # Rap metal
+Q877693: rap rock                                 # Rap rock
+Q220528: rebetiko                                 # Rebetiko
+Q9794: reggae                                     # Reggae
+Q1606591: reggae fusion                           # Reggae fusion
+Q202930: reggaeton                                # Reggaeton
+Q201405: Renaissance music                        # Renaissance music
+Q45981: rhythm and blues, R&B                     # Rhythm and blues
+Q11399: rock                                      # Rock music
+Q7749: rock and roll, rock 'n' roll               # Rock and roll
+Q2994332: rock en español                         # Rock en español
+Q203720: rockabilly                               # Rockabilly
+Q573484: rocksteady                               # Rocksteady
+Q207591: Romantic music                           # Romantic music
+Q1299260: roots reggae                            # Roots reggae
+Q1929352: roots rock                              # Roots rock
+Q388475: rumba                                    # Cuban rumba
+Q208239: salsa                                    # Salsa music
+Q11403: samba                                     # Samba
+Q834959: samba rock                               # Samba rock
+Q959583: Schlager                                 # Schlager music
+Q11363: screamo                                   # Screamo
+Q1195253: sea shanty, shanty                      # Sea shanty
+Q507246: serialism                                # Serialism
+Q1958273: sertanejo                               # Sertanejo music
+Q674684: sevdalinka                               # Sevdalinka
+Q1207347: Shibuya-kei                             # Shibuya-kei
+Q272167: shoegaze                                 # Shoegaze
+Q488205: singer-songwriter                        # Singer-songwriter
+Q54365: ska                                       # Ska
+Q460674: ska punk                                 # Ska punk
+Q828305: skate punk                               # Skate punk
+Q606089: skiffle                                  # Skiffle
+Q108123046: slacker rock                          # Slacker rock
+Q1490170: slowcore                                # Slowcore
+Q720959: sludge metal                             # Sludge metal
+Q831354: smooth jazz                              # Smooth jazz
+Q2991840: snap                                    # Snap music
+Q1051735: soca                                    # Soca music
+Q217191: soft rock                                # Soft rock
+Q4428744: son cubano                              # Son cubano
+Q264289: sophisti-pop                             # Sophisti-pop
+Q1752683: soukous                                 # Soukous
+Q131272: soul                                     # Soul music
+Q1615483: soul jazz                               # Soul jazz
+Q1253172: Southern hip-hop                        # Southern hip-hop
+Q852767: Southern rock                            # Southern rock
+Q1779294: space age pop                           # Space age pop
+Q236913: space rock                               # Space rock
+Q211723: speed metal                              # Speed metal
+Q848457: speedcore                                # Speedcore
+Q212024: spiritual                                # Spirituals
+Q617240: stoner rock                              # Stoner rock
+Q383615: street punk                              # Street punk
+Q181897: stride                                   # Stride (music)
+Q2461933: sunshine pop                            # Sunshine pop
+Q220830: surf                                     # Surf music
+Q106522115: swamp pop                             # Swamp pop
+Q675553: swamp rock                               # Swamp rock
+Q203775: swing                                    # Swing music
+Q1621467: symphonic black metal                   # Symphonic black metal
+Q486415: symphonic metal                          # Symphonic metal
+Q1298934: synth-pop                               # Synth-pop
+Q19938910: synthwave                              # Synthwave
+Q1564596: taarab                                  # Taarab
+Q14390274: tango                                  # Tango music
+Q598593: tech house                               # Tech house
+Q1076092: technical death metal                   # Technical death metal
+Q170611: techno                                   # Techno
+Q739138: teen pop                                 # Teen pop
+Q431415: Tejano                                   # Tejano music
+Q539089: third stream                             # Third stream
+Q483352: thrash metal                             # Thrash metal
+Q371745: timba                                    # Timba
+Q492643: trad jazz                                # Trad jazz
+Q1196752: traditional pop                         # Traditional pop
+Q170435: trance                                   # Trance music
+Q2913982: trap                                    # Trap music
+Q205560: trip hop                                 # Trip hop
+Q18342587: tropical house                         # Tropical house
+Q1413061: tropicália                              # Tropicália
+Q485915: trot                                     # Trot (music)
+Q786815: turbo-folk                               # Turbo-folk
+Q370778: twee pop                                 # Twee pop
+Q209498: two-tone                                 # Two-tone (music genre)
+Q1165777: UK garage                               # UK garage
+Q1585015: UK hard house                           # UK hard house
+Q965635: underground hip-hop                      # Underground hip-hop
+Q2529400: urban contemporary                      # Urban contemporary music
+Q5398894: V-pop                                   # V-pop
+Q1574985: vallenato                               # Vallenato
+Q15733887: vaporwave                              # Vaporwave
+Q213149: Viking metal                             # Viking metal
+Q18822510: vocal jazz                             # Vocal jazz
+Q429264: West Coast hip-hop                       # West Coast hip-hop
+Q1548603: West Coast jazz                         # West Coast jazz
+Q1730388: Western swing                           # Western swing
+Q1840167: witch house                             # Witch house
+Q502658: work song                                # Work song
+Q205049: world music                              # World music
+Q2064394: worldbeat                               # Worldbeat
+Q28401124: yacht rock                             # Yacht rock
+Q1636684: yé-yé                                   # Yé-yé
+Q148163: zarzuela                                 # Zarzuela
+Q227045: zouk                                     # Zouk
+Q245296: zydeco                                   # Zydeco

@@ -22,7 +22,7 @@
 import { CharSet } from "./charset.js";
 import { compile, definitions, NO_FOLD, SPLITS } from "./compile.js";
 import { mirrorSet, shiftSet } from "./letters.js";
-import { parse } from "./parser.js";
+import { NON_LETTERS, parse } from "./parser.js";
 import { lazyDfa } from "./wordlist.js";
 
 // steps (automaton moves and search states) allowed for one explanation
@@ -201,6 +201,11 @@ function modifier(ctx, node, cells, fold) {
     }
     case "a":
       return sub(anagramSearch(ctx, inner, cells, fold));
+    case "X": {
+      // only the letters (and whatever else A matched) are shown, not the gaps
+      const split = splitAutomaton(ctx, SPLITS["^"]);
+      return sub(weaveSearch(ctx, split, { left: inner, right: NON_LETTERS }, cells, fold)[0]);
+    }
   }
   throw new Error(`No explanation for modifier ${node.flag}`);
 }
@@ -508,7 +513,7 @@ const CLASSES = new Set(["char", "any", "class", "shorthand"]);
 function trivial(node) {
   if (node.type === "empty" || node.implicit || CLASSES.has(node.type)) return true;
   if (node.type === "alt") return node.items.every((item) => item.type !== "empty" && trivial(item));
-  if (node.type === "modifier" && node.flag !== "R") return trivial(node.node);
+  if (node.type === "modifier" && node.flag !== "R" && node.flag !== "X") return trivial(node.node);
   return false;
 }
 export const MAX_ROWS = 200;

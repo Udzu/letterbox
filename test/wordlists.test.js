@@ -2,13 +2,29 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { parseWords } from "../src/patterns/wordlist.js";
-import { attributionParts, downloadText, plainAttribution, readList, sortLists, stripList, wordCount } from "../src/wordlists/lists.js";
+import { attributionParts, downloadText, plainAttribution, readList, removeList, sortLists, stripList, wordCount, appendList } from "../src/wordlists/lists.js";
 
 const HEADER = "# name: Animals\n# description: Some animals.\n# tag: science\n\n";
 
 test("stripList drops comments, blank lines and surrounding spaces", () => {
   assert.equal(stripList("# name: x\r\n\r\ncat\r\n# comment\r\n  big dog \r\n\r\n"), "cat\nbig dog\n");
   assert.equal(stripList("# only comments\n\n"), "");
+});
+
+test("appendList adds the new words after the old ones", () => {
+  assert.equal(appendList("b\na\n", "c\na\nd\nc\n"), "b\na\nc\nd\n");
+  assert.equal(appendList("", "a\nb\n"), "a\nb\n");
+  assert.equal(appendList("a\n", "a\n"), "a\n");
+  assert.equal(appendList("caf\u00e9\n", "cafe\u0301\nx\n"), "caf\u00e9\nx\n");
+});
+
+test("removeList keeps the words the remaining lists share", () => {
+  const text = appendList(appendList("a\nb\n", "b\nc\n"), "c\nd\n");
+  assert.equal(text, "a\nb\nc\nd\n");
+  assert.equal(removeList(text, "b\nc\n", ["a\nb\n", "c\nd\n"]), text);
+  assert.equal(removeList(text, "c\nd\n", ["a\nb\n", "b\nc\n"]), "a\nb\nc\n");
+  assert.equal(removeList(text, "a\nb\n", ["b\nc\n", "c\nd\n"]), "b\nc\nd\n");
+  assert.equal(removeList("a\n", "a\n", []), "");
 });
 
 test("wordCount counts words the way the other pages do", () => {

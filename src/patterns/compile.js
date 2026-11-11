@@ -32,7 +32,7 @@ import { anagram } from "./anagram.js";
 import { CharSet } from "./charset.js";
 import { accentClose, caseClose, mirrorSet, shiftSet } from "./letters.js";
 import { Builder, complement, determinize, intersect, mapLabels, minimize, removeEpsilons, reverse, trim } from "./nfa.js";
-import { parse, PatternError } from "./parser.js";
+import { NON_LETTERS, parse, PatternError } from "./parser.js";
 import { replace } from "./replace.js";
 import { atLeast, exactly, rotate } from "./rotate.js";
 import { shorthandSet } from "./shorthands.js";
@@ -55,12 +55,12 @@ export const SPLITS = {
 };
 
 // How each spatial operator token is built: A op B weaves A and B with SPLITS[op], while
-// A-op B removes B from A (w matches if w op b is in A for some b in B), and A_-op B is
+// A-op B removes B from A (w matches if w op b is in A for some b in B), and A~-op B is
 // the mirror image (b op w is in A).
 export function spatialOp(op) {
   if (op in SPLITS) return { construct: weave, split: SPLITS[op] };
   if (op.startsWith("-")) return { construct: unweave, split: SPLITS[op.slice(1)] };
-  if (op.startsWith("_-")) return { construct: unweave, split: swap(SPLITS[op.slice(2)]) };
+  if (op.startsWith("~-")) return { construct: unweave, split: swap(SPLITS[op.slice(2)]) };
   throw new Error(`Unknown spatial operator ${op}`);
 }
 
@@ -254,6 +254,10 @@ function modifier(b, node, from, options) {
     }
     case "t":
       return embed(b, transpose(removeEpsilons(compile(node.node, options)), count), from);
+    case "X": {
+      const gaps = compile(NON_LETTERS, options);
+      return embed(b, weave(removeEpsilons(compile(node.node, options)), removeEpsilons(gaps), splitDfa(SPLITS["^"])), from);
+    }
     case "a": {
       const anagrams = anagram(compile(node.node, options));
       if (!anagrams) throw new PatternError("Anagrams need a pattern with finitely many strings", ...node.span);
@@ -271,7 +275,7 @@ function slice(a, { start, stop, step }) {
   const length = (n) => compile(parse(`.{${n}}`));
   const anything = compile(parse(".*"));
   const fromEnd = (x, y) => subtract("-", x, y); //   x with y removed from the end
-  const fromStart = (x, y) => subtract("_-", x, y); // x with y removed from the start
+  const fromStart = (x, y) => subtract("~-", x, y); // x with y removed from the start
   let middle;
   if (start === null || start >= 0) {
     const rest = fromStart(a, length(start ?? 0));

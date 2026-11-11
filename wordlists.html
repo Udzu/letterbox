@@ -50,8 +50,11 @@
   .badge.politics-religion { background: #f3f0c4; color: #5f5600; }
   .badge.science { background: #efe6fa; color: #5b2f94; }
   .badge.other { background: #eee; color: #555; }
+  /* a row's badge is a button too, which shows only the lists with that topic, or all of them again */
+  .title button.badge { border: 1px solid transparent; font-family: inherit; line-height: inherit; cursor: pointer; }
+  .title button.badge:hover, .title button.badge[aria-pressed=true] { border-color: currentColor; }
   /* pressed buttons are coloured like the shading of their rows */
-  button.load[aria-pressed=true] { background: #080; border: 1px solid #080; border-radius: 3px; color: #fff; }
+  button.load[aria-pressed=true], button.add[aria-pressed=true] { background: #080; border: 1px solid #080; border-radius: 3px; color: #fff; }
   button.at[aria-pressed=true] { background: #06c; border: 1px solid #06c; border-radius: 3px; color: #fff; }
   .description { margin: 4px 0 0; color: #444; }
   .attribution { margin: 4px 0 0; color: #888; font-size: 0.85rem; }
@@ -67,7 +70,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <b>Wordlists</b> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Word lists for the <a href="anagrams.html">Anagrams</a>, <a href="pangrams.html">Pangrams</a> and <a href="patterns.html">Patterns</a> pages. Load one to use it on those pages straight away (it replaces any list already loaded), or download it as a text file to load later. The <b>@</b> button loads a list as the Patterns page's @ list instead. Unlike the other pages, this one needs an internet connection.</p>
+  <p class="intro">Word lists for the <a href="anagrams.html">Anagrams</a>, <a href="pangrams.html">Pangrams</a> and <a href="patterns.html">Patterns</a> pages. Load one to use it on those pages straight away (it replaces any list already loaded), add it with <b>+</b> to combine it with the lists already loaded, or download it as a text file to load later. The <b>@</b> button loads a list as the Patterns page's @ list instead. Unlike the other pages, this one needs an internet connection.</p>
   <div id="lists"></div>
 </main>
 <script type="application/json" id="lists-data">
@@ -120,6 +123,21 @@
     "size": 959
   },
   {
+    "file": "body-parts.txt",
+    "name": "Body parts",
+    "description": "Parts of the human body, by both common and technical names (kneecap, patella), most prominent first.",
+    "tag": "science",
+    "attribution": "Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.",
+    "size": 418
+  },
+  {
+    "file": "capital-cities.txt",
+    "name": "Capital cities",
+    "description": "Capitals of sovereign states and dependent territories, including every official capital where there are several.",
+    "tag": "geography",
+    "size": 263
+  },
+  {
     "file": "elements.txt",
     "name": "Chemical elements",
     "description": "The 118 chemical elements, with alternative spellings and the Latin names behind some of their symbols.",
@@ -164,6 +182,13 @@
     "size": 290
   },
   {
+    "file": "greek-letters.txt",
+    "name": "Greek letters",
+    "description": "The names of the 24 Greek letters in English and modern Greek, then the main archaic letters.",
+    "tag": "language",
+    "size": 67
+  },
+  {
     "file": "languages.txt",
     "name": "Languages",
     "description": "Languages of the world, living, historical and constructed, most prominent first.",
@@ -172,11 +197,26 @@
     "size": 524
   },
   {
+    "file": "music-genres.txt",
+    "name": "Music genres",
+    "description": "Music genres, from broad ones (rock, jazz) to subgenres (shoegaze, math rock), most prominent first.",
+    "tag": "culture",
+    "attribution": "From Wikipedia's [list of music genres and styles](https://en.wikipedia.org/wiki/List_of_music_genres_and_styles), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.",
+    "size": 571
+  },
+  {
     "file": "instruments.txt",
     "name": "Musical instruments",
     "description": "Musical instruments from around the world, in alphabetical order.",
     "tag": "culture",
     "size": 306
+  },
+  {
+    "file": "nato-alphabet.txt",
+    "name": "NATO phonetic alphabet",
+    "description": "The code words for the 26 letters of the NATO (ICAO) spelling alphabet, then common alternative spellings.",
+    "tag": "language",
+    "size": 29
   },
   {
     "file": "political-systems.txt",
@@ -262,12 +302,26 @@
 
 ${stripped}` : stripped;
   }
+  function appendList(text, added) {
+    const lines = (t) => t.split("\n").filter((line) => line !== "");
+    const seen = new Set(lines(text).map((line) => line.normalize("NFC")));
+    const extra = lines(added).filter((line) => !seen.has(line.normalize("NFC")) && seen.add(line.normalize("NFC")));
+    return text + (extra.length ? extra.join("\n") + "\n" : "");
+  }
+  function removeList(text, removed, kept) {
+    const set = (t) => new Set(t.split("\n").filter((line) => line !== "").map((line) => line.normalize("NFC")));
+    const gone = set(removed);
+    const stay = new Set(kept.flatMap((t) => [...set(t)]));
+    const lines = text.split("\n").filter((line) => line !== "" && (!gone.has(line.normalize("NFC")) || stay.has(line.normalize("NFC"))));
+    return lines.length === 0 ? "" : lines.join("\n") + "\n";
+  }
   function wordCount(stripped) {
     return new Set(stripped.split("\n").filter((line) => line !== "").map((line) => line.normalize("NFC"))).size;
   }
 
   // src/wordlists/page.js
   var LISTS = JSON.parse(document.getElementById("lists-data").textContent);
+  var BY_FILE = new Map(LISTS.map((list) => [list.file, list]));
   var DB = { name: "patterns", store: "wordlist" };
   var SLOTS = {
     words: {
@@ -276,7 +330,7 @@ ${stripped}` : stripped;
       button: "load",
       label: () => "Load",
       title: (on) => on ? "Unload the word list from the Anagrams, Pangrams and Patterns pages" : "Load as the word list on the Anagrams, Pangrams and Patterns pages, replacing the one they use now",
-      current: null
+      current: []
     },
     at: {
       key: "at-list",
@@ -284,7 +338,7 @@ ${stripped}` : stripped;
       button: "at",
       label: () => "@",
       title: (on) => on ? "Stop using this as the @ list on the Patterns page, so @ stands for the word list again" : "Load as the @ list on the Patterns page, so @ stands for these words (matches still come from the word list)",
-      current: null
+      current: []
     }
   };
   function openDb() {
@@ -328,27 +382,37 @@ ${stripped}` : stripped;
     return texts.get(list.file);
   }
   var rows = /* @__PURE__ */ new Map();
-  function markSlot(slot, name) {
-    slot.current = name;
+  var filesOf = (stored) => stored === null ? [] : stored.files ?? [stored.name];
+  function markSlot(slot, files) {
+    slot.current = files;
     for (const [file, row] of rows) {
-      const on = file === name;
+      const first = file === files[0];
       const button = row.buttons[slot.button];
-      row.li.classList.toggle(slot.rowClass, on);
-      button.textContent = slot.label(on);
-      button.title = slot.title(on);
-      button.setAttribute("aria-pressed", on);
+      row.li.classList.toggle(slot.rowClass, files.includes(file));
+      button.textContent = slot.label(first);
+      button.title = slot.title(first);
+      button.setAttribute("aria-pressed", first);
+      if (slot !== SLOTS.words) continue;
+      const added = files.includes(file) && !first;
+      row.buttons.add.setAttribute("aria-pressed", added);
+      row.buttons.add.disabled = first;
+      row.buttons.add.title = first ? "This is the word list already" : added ? "Take this list out of the word list" : "Add this list to the word list on the Anagrams, Pangrams and Patterns pages, after the words already in it";
     }
   }
   async function refreshLoaded() {
-    for (const slot of Object.values(SLOTS)) markSlot(slot, (await fetchList(slot))?.name ?? null);
+    for (const slot of Object.values(SLOTS)) markSlot(slot, filesOf(await fetchList(slot)));
   }
   function setStatus(row, message, error = false) {
     row.status.textContent = message;
     row.status.classList.toggle("error", error);
   }
   function toggle(list, row, slot) {
-    if (slot.current === list.file) unload(row, slot);
+    if (slot.current[0] === list.file) unload(row, slot);
     else load(list, row, slot);
+  }
+  function toggleAdd(list, row) {
+    if (SLOTS.words.current.includes(list.file)) takeOut(list, row);
+    else add(list, row);
   }
   async function unload(row, slot) {
     try {
@@ -357,7 +421,7 @@ ${stripped}` : stripped;
       setStatus(row, "This browser wouldn't unload the list.", true);
       return;
     }
-    markSlot(slot, null);
+    markSlot(slot, []);
     for (const other of rows.values()) setStatus(other, "");
     setStatus(row, slot === SLOTS.words ? "Unloaded. Reload any of the other pages that are already open to see it." : "No longer the @ list, so @ on the Patterns page stands for the word list again. Reload Patterns if it's already open.");
   }
@@ -371,15 +435,56 @@ ${stripped}` : stripped;
       return;
     }
     try {
-      await storeList(slot, { name: list.file, text });
+      await storeList(slot, { name: list.file, text, files: [list.file] });
     } catch {
       setStatus(row, "This browser won't store the list, but you can download it and load it on each page instead.", true);
       return;
     }
-    markSlot(slot, list.file);
+    markSlot(slot, [list.file]);
     for (const other of rows.values()) setStatus(other, "");
     const words = count(wordCount(text), "word");
     setStatus(row, slot === SLOTS.words ? `Loaded ${words}. Reload any of the other pages that are already open to see it.` : `Loaded ${words} as the @ list, so @ on the Patterns page stands for these words. Reload Patterns if it's already open.`);
+  }
+  async function storeWords(row, files, text, done) {
+    try {
+      await storeList(SLOTS.words, { name: files.join(" + "), text, files });
+    } catch {
+      setStatus(row, "This browser won't store the list.", true);
+      return;
+    }
+    markSlot(SLOTS.words, files);
+    for (const other of rows.values()) setStatus(other, "");
+    setStatus(row, `${done} The word list is now ${files.join(" + ")}, with ${count(wordCount(text), "word")}. Reload any of the other pages that are already open to see it.`);
+  }
+  async function add(list, row) {
+    const stored = await fetchList(SLOTS.words);
+    if (stored === null) return load(list, row, SLOTS.words);
+    setStatus(row, "Adding\u2026");
+    let text;
+    try {
+      text = await listText(list);
+    } catch (e) {
+      setStatus(row, `Couldn't fetch the list (${e.message}).`, true);
+      return;
+    }
+    const combined = appendList(stored.text, text);
+    const added = wordCount(combined) - wordCount(stored.text);
+    await storeWords(row, [...filesOf(stored), list.file], combined, `Added ${count(added, "new word")}.`);
+  }
+  async function takeOut(list, row) {
+    const stored = await fetchList(SLOTS.words);
+    const files = filesOf(stored).filter((file) => file !== list.file);
+    if (stored === null || files.length === 0) return unload(row, SLOTS.words);
+    setStatus(row, "Taking out\u2026");
+    let text, kept;
+    try {
+      text = await listText(list);
+      kept = await Promise.all(files.filter((file) => BY_FILE.has(file)).map((file) => listText(BY_FILE.get(file))));
+    } catch (e) {
+      setStatus(row, `Couldn't fetch the lists (${e.message}).`, true);
+      return;
+    }
+    await storeWords(row, files, removeList(stored.text, text, kept), "Taken out.");
   }
   async function download(list, row) {
     let text;
@@ -440,12 +545,17 @@ ${stripped}` : stripped;
     filterBox.append(button);
   }
   var filtered = [];
+  var rowBadges = [];
   function setFilter(name) {
     filter = name;
     allButton.setAttribute("aria-pressed", String(name === null));
     for (const [key, button] of filters) {
       button.setAttribute("aria-pressed", String(key === name));
       button.title = key === name ? "Show all the lists" : `Show only the ${key === "other" ? "untagged" : key} lists`;
+    }
+    for (const { topic, button } of rowBadges) {
+      button.setAttribute("aria-pressed", String(topic === name));
+      button.title = topic === name ? "Show all the lists" : `Show only the ${topic} lists`;
     }
     filterBox.classList.toggle("active", name !== null);
     for (const { list, li } of filtered) li.hidden = name !== null && filterOf(list) !== name;
@@ -460,13 +570,22 @@ ${stripped}` : stripped;
       if (!general) listsBox.append(filterBox);
       listsBox.append(group.ul);
     }
-    const buttons = { load: element("button", "load"), at: element("button", "at") };
+    const buttons = { load: element("button", "load"), add: element("button", "add", "+"), at: element("button", "at") };
     const downloadButton = element("button", "", "Download");
     downloadButton.title = `Save the list as ${list.file}`;
     const title = element("div", "title");
     title.append(element("span", "name", list.name));
-    if (list.tag && !general) title.append(element("span", badgeClass(list.tag), list.tag));
-    title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.at, downloadButton);
+    if (list.tag && !general) {
+      const badge = element("button", badgeClass(list.tag), list.tag);
+      badge.addEventListener("click", () => {
+        const top = badge.getBoundingClientRect().top;
+        setFilter(filter === list.tag ? null : list.tag);
+        window.scrollBy(0, badge.getBoundingClientRect().top - top);
+      });
+      rowBadges.push({ topic: list.tag, button: badge });
+      title.append(badge);
+    }
+    title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.add, buttons.at, downloadButton);
     const status = element("p", "status");
     status.setAttribute("aria-live", "polite");
     const li = element("li");
@@ -478,11 +597,12 @@ ${stripped}` : stripped;
     const row = { li, buttons, status };
     rows.set(list.file, row);
     buttons.load.addEventListener("click", () => toggle(list, row, SLOTS.words));
+    buttons.add.addEventListener("click", () => toggleAdd(list, row));
     buttons.at.addEventListener("click", () => toggle(list, row, SLOTS.at));
     downloadButton.addEventListener("click", () => download(list, row));
   }
   setFilter(null);
-  for (const slot of Object.values(SLOTS)) markSlot(slot, null);
+  for (const slot of Object.values(SLOTS)) markSlot(slot, []);
   refreshLoaded();
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") refreshLoaded();

@@ -97,7 +97,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <b>Unicode</b> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a></nav>
 <main>
-  <p class="intro">Find Unicode characters and emoji by name or alias, or paste text (or a codepoint like U+1F600) to see what it's made of. Click a character to copy it, + to collect several, or a name for details.</p>
+  <p class="intro">Find Unicode characters and emoji by name or alias, or paste text (or a codepoint like U+1F600) to see what it's made of. Click a character to copy it, + to collect several, or a name for details (including emoji styles and skin tone combinations).</p>
   <input id="query" type="text" placeholder="Name, text or U+codepoint..." autocomplete="off" spellcheck="false" autofocus>
   <div id="filters">
     <select id="category" aria-label="Category"></select>
@@ -480,14 +480,14 @@
         ["", "Any type"],
         ["emoji", "Emoji"],
         ["not-emoji", "Not emoji"],
-        ["sequence", "Sequences"],
+        ["emoji-sequence", "Emoji sequences"],
         ["invisible", "Invisible characters"],
         ["new", `New in Unicode ${unicode.latest.replace(/\.0$/, "")}`],
         ...groupNames.map((g) => [`group:${g}`, g, "Emoji groups"])
       ],
       values: (e) => e.types ??= [
         ...e.emoji ? ["emoji", `group:${unicode.groups[e.emoji.group].group}`] : ["not-emoji"],
-        ...isSequence(e) ? ["sequence"] : [],
+        ...e.emoji && isSequence(e) ? ["emoji-sequence"] : [],
         ...isInvisible(e) ? ["invisible"] : [],
         ...e.age === unicode.latest ? ["new"] : []
       ]

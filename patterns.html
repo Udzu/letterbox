@@ -239,7 +239,7 @@
     <table>
       <tr class="heading"><th colspan="2">Characters</th></tr>
       <tr><td><code>a</code> <code>\*</code> <code>\n</code> <code>\u{e9}</code></td><td>a character</td></tr>
-      <tr><td><code>.</code></td><td>any character</td></tr>
+      <tr><td><code>.</code> <code>_</code></td><td>any character; an ASCII letter, the same as <code>[a-zA-Z]</code></td></tr>
       <tr><td><code>[abc]</code> <code>[a-z]</code> <code>[^a-z]</code></td><td>character classes (<code>[]</code> matches nothing)</td></tr>
       <tr><td><code>\d</code> <code>\w</code> <code>\s</code></td><td>an ASCII digit; an ASCII letter or digit, or <code>_</code>; ASCII whitespace. <code>\D</code>, <code>\W</code> and <code>\S</code> are the opposites, and all of these work inside classes too, as in <code>[\d_]</code></td></tr>
       <tr><td><code>\p{L}</code> <code>\P{L}</code></td><td>a character with or without a Unicode property, as in JavaScript (<code>\p{Lu}</code> is an uppercase letter, <code>\p{Script=Greek}</code> a Greek character)</td></tr>
@@ -255,8 +255,8 @@
       <tr><td><code>P^Q</code></td><td>P interleaved with Q (<code>the^A+</code> matches <i>tAAhAe</i>)</td></tr>
       <tr><td><code>P&lt;^Q</code> <code>P&gt;^Q</code></td><td>interleaved strictly inside or outside, with the outer part at both ends</td></tr>
       <tr><td><code>P#Q</code> <code>P##Q</code></td><td>P alternating with Q, in either order; with P first (<code>U+##w+</code> matches <i>UwUwU</i>)</td></tr>
-      <tr><td><code>P-Q</code> <code>P_-Q</code></td><td>P with Q removed from the end or the start (<code>(the|a)-.</code> matches <i>th</i>)</td></tr>
-      <tr><td><code>P-</code><i>op</i><code>Q</code></td><td>P with Q removed according to any operator above: <span class="ops"><code>-&lt;</code> <code>-&gt;</code> <code>-&lt;&lt;</code> <code>-&gt;&gt;</code> <code>-^</code> <code>-&lt;^</code> <code>-&gt;^</code> <code>-#</code> <code>-##</code> <code>_-##</code></span> (<code>Madrid-^..</code> matches <i>Mdrd</i>)</td></tr>
+      <tr><td><code>P-Q</code> <code>P~-Q</code></td><td>P with Q removed from the end or the start (<code>(the|a)-.</code> matches <i>th</i>)</td></tr>
+      <tr><td><code>P-</code><i>op</i><code>Q</code></td><td>P with Q removed according to any operator above: <span class="ops"><code>-&lt;</code> <code>-&gt;</code> <code>-&lt;&lt;</code> <code>-&gt;&gt;</code> <code>-^</code> <code>-&lt;^</code> <code>-&gt;^</code> <code>-#</code> <code>-##</code> <code>~-##</code></span> (<code>Madrid-^..</code> matches <i>Mdrd</i>)</td></tr>
       <tr><td><code>(?w:S/P/Q)</code> <code>(?u:S/P/Q)</code></td><td>P and Q combined by a custom split S, a pattern over L (for P's characters) and R (for Q's), as in the operators above; P with Q removed by S (<code>(?w:L+R+L+/the/[a-z]+)</code> matches <i>tithe</i>)</td></tr>
       <tr class="heading"><th colspan="2">Logic</th></tr>
       <tr><td><code>!P</code></td><td>anything P doesn't match</td></tr>
@@ -276,8 +276,9 @@
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
       <tr><td><code>(?tn:P)</code> <code>(?t:P)</code></td><td>P with two characters n apart swapped (<code>(?t1:the)</code> matches <i>teh</i> and <i>hte</i>); any two</td></tr>
       <tr><td><code>(?a:P)</code></td><td>anagrams of P, which must have finitely many strings, since anagrams of infinite ones may not be regular (<code>(?a:listen)</code> matches <i>silent</i>). <code>(?a:P-^.*)</code> gives sub-anagrams</td></tr>
+      <tr><td><code>(?X:P)</code></td><td>P with non-letters added anywhere, for crossword answers; the same as <code>P^\P{L}*</code> (<code>(?X:a__t)</code> matches <i>abet</i> and <i>a lot</i>)</td></tr>
       <tr><td><code>(?[m:n]:P)</code> <code>(?[m:n:s]:P)</code></td><td>P sliced as in Python: characters m up to but not including n, counting from 0 (from the end if negative); every s-th one. Too-short strings are skipped (<code>(?[1:-1]:spam)</code> matches <i>pa</i>)</td></tr>
-      <tr><td><code>(?z:P/Q/R)</code> <code>(?Z:P/Q/R)</code></td><td>P with a Q replaced by an R; but not at either end (<code>(?z:London/o/u)</code> matches <i>Lundon</i>). To replace at the end or start, write <code>(P-Q)R</code> or <code>R(P_-Q)</code></td></tr>
+      <tr><td><code>(?z:P/Q/R)</code> <code>(?Z:P/Q/R)</code></td><td>P with a Q replaced by an R; but not at either end (<code>(?z:London/o/u)</code> matches <i>Lundon</i>). To replace at the end or start, write <code>(P-Q)R</code> or <code>R(P~-Q)</code></td></tr>
     </table>
     <p>Operators like <code>*</code>, <code>&lt;</code> and <code>&amp;</code> are listed from tightest to loosest binding, so <code>!ab&lt;c|d</code> means <code>(!((ab)&lt;c))|d</code>. One of the operators from <code>&lt;</code> to <code>-</code><i>op</i> can be repeated, as in <code>a-b-c</code>, but different ones need parentheses, as in <code>(a&lt;b)^c</code>.</p>
   </div>
@@ -4489,7 +4490,7 @@
     "#",
     "##",
     "-",
-    "_-",
+    "~-",
     "-<",
     "->",
     "-<<",
@@ -4499,7 +4500,7 @@
     "->^",
     "-#",
     "-##",
-    "_-##"
+    "~-##"
   ];
   var SPATIAL_BY_LENGTH = [...SPATIAL_OPS].sort((x, y) => y.length - x.length);
   var MODIFIERS = {
@@ -4515,6 +4516,8 @@
     // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
     a: { count: "none" },
     //     anagrams (of a finite pattern)
+    X: { count: "none" },
+    //     crossword: (?X:A) is A with any non-letters anywhere, A^\P{L}*
     t: { count: "optional" },
     // transposition: (?t1:A) swaps two adjacent characters, (?t:A) any two
     z: { count: "none", parts: 3 },
@@ -4543,6 +4546,15 @@
     }
     return null;
   }
+  var LETTER = { type: "class", negated: false, ranges: [[65, 90], [97, 122]] };
+  var NON_LETTERS = Object.freeze({
+    type: "repeat",
+    node: { type: "shorthand", name: "p", property: "L", negated: true, span: [0, 0] },
+    min: 0,
+    max: null,
+    span: [0, 0],
+    implicit: true
+  });
   var NAMED_ESCAPES = { n: 10, r: 13, t: 9 };
   var MAX_REPEAT = 1e3;
   var HEX = /^[0-9a-fA-F]{1,6}$/;
@@ -4755,6 +4767,9 @@
         case "@":
           this.next();
           return { type: "words", span: [start, this.pos] };
+        case "_":
+          this.next();
+          return { ...LETTER, span: [start, this.pos] };
         case "\\": {
           if (SHORTHANDS.has(this.peek(1) ?? "")) return { type: "shorthand", ...this.parseShorthand(), span: [start, this.pos] };
           if (this.peek(1) === "b" || this.peek(1) === "B") {
@@ -5583,7 +5598,7 @@
   function spatialOp(op) {
     if (op in SPLITS) return { construct: weave, split: SPLITS[op] };
     if (op.startsWith("-")) return { construct: unweave, split: SPLITS[op.slice(1)] };
-    if (op.startsWith("_-")) return { construct: unweave, split: swap(SPLITS[op.slice(2)]) };
+    if (op.startsWith("~-")) return { construct: unweave, split: swap(SPLITS[op.slice(2)]) };
     throw new Error(`Unknown spatial operator ${op}`);
   }
   function swap(split) {
@@ -5743,6 +5758,10 @@
       }
       case "t":
         return embed(b, transpose(removeEpsilons(compile(node2.node, options)), count2), from);
+      case "X": {
+        const gaps = compile(NON_LETTERS, options);
+        return embed(b, weave(removeEpsilons(compile(node2.node, options)), removeEpsilons(gaps), splitDfa(SPLITS["^"])), from);
+      }
       case "a": {
         const anagrams = anagram(compile(node2.node, options));
         if (!anagrams) throw new PatternError("Anagrams need a pattern with finitely many strings", ...node2.span);
@@ -5756,7 +5775,7 @@
     const length = (n) => compile(parse(`.{${n}}`));
     const anything = compile(parse(".*"));
     const fromEnd = (x, y) => subtract("-", x, y);
-    const fromStart = (x, y) => subtract("_-", x, y);
+    const fromStart = (x, y) => subtract("~-", x, y);
     let middle;
     if (start === null || start >= 0) {
       const rest = fromStart(a, length(start ?? 0));
@@ -5974,6 +5993,10 @@
       }
       case "a":
         return sub(anagramSearch(ctx, inner, cells, fold));
+      case "X": {
+        const split = splitAutomaton(ctx, SPLITS["^"]);
+        return sub(weaveSearch(ctx, split, { left: inner, right: NON_LETTERS }, cells, fold)[0]);
+      }
     }
     throw new Error(`No explanation for modifier ${node2.flag}`);
   }
@@ -6232,7 +6255,7 @@
   function trivial(node2) {
     if (node2.type === "empty" || node2.implicit || CLASSES.has(node2.type)) return true;
     if (node2.type === "alt") return node2.items.every((item) => item.type !== "empty" && trivial(item));
-    if (node2.type === "modifier" && node2.flag !== "R") return trivial(node2.node);
+    if (node2.type === "modifier" && node2.flag !== "R" && node2.flag !== "X") return trivial(node2.node);
     return false;
   }
   var MAX_ROWS = 200;

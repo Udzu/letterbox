@@ -1,0 +1,423 @@
+# name: Body parts
+# description: Parts of the human body, by both common and technical names (kneecap, patella), most prominent first.
+# tag: science
+# attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
+
+brain
+heart
+eye
+organ
+skin
+liver
+vagina
+bone
+lung
+breast
+ear
+anus
+penis
+stomach
+testicle
+testis
+kidney
+vulva
+spine
+backbone
+spinal column
+vertebral column
+mouth
+pancreas
+skull
+cranium
+hair
+abdomen
+belly
+tummy
+tongue
+uterus
+womb
+foot
+instep
+hand
+palm
+nose
+head
+clitoris
+artery
+tooth
+small intestine
+spinal cord
+large intestine
+colon
+nerve
+ovary
+chest
+thorax
+vein
+pharynx
+spleen
+oesophagus
+gullet
+pelvis
+larynx
+voice box
+thyroid
+buttock
+bottom
+joint
+gut
+intestine
+bowel
+gastrointestinal tract
+scrotum
+prostate
+bladder
+rectum
+trachea
+windpipe
+urethra
+pituitary gland
+pituitary
+face
+mandible
+jawbone
+neck
+placenta
+leg
+diaphragm
+nail
+fingernail
+toenail
+retina
+lip
+rib
+vertebra
+lymph node
+lymph gland
+gallbladder
+knee
+knee joint
+adrenal gland
+sternum
+breastbone
+thymus
+clavicle
+collarbone
+femur
+thighbone
+hypothalamus
+pineal gland
+tibia
+shinbone
+shin
+nipple
+thigh
+aorta
+duodenum
+gland
+tendon
+vocal cord
+vocal fold
+shoulder
+cerebellum
+navel
+belly button
+umbilicus
+humerus
+salivary gland
+fallopian tube
+thumb
+scapula
+shoulder blade
+capillary
+finger
+rib cage
+maxilla
+ankle
+appendix
+cerebral cortex
+muscle
+torso
+trunk
+fibula
+arm
+forearm
+bronchus
+jaw
+cornea
+mammary gland
+wrist
+radius
+throat
+hymen
+cerebrum
+ulna
+vagus nerve
+elbow
+cervix
+sacrum
+Adam's apple
+phalanx
+back
+palate
+patella
+kneecap
+toe
+big toe
+hallux
+hip
+hip joint
+glans
+iris
+ureter
+medulla oblongata
+chin
+hippocampus
+peritoneum
+ligament
+cheek
+brainstem
+labia
+carpal
+foreskin
+forehead
+brow
+caecum
+seminal vesicle
+coccyx
+tailbone
+perineum
+metatarsal
+parathyroid
+hyoid bone
+armpit
+axilla
+pupil
+tonsil
+index finger
+forefinger
+amygdala
+thalamus
+occipital bone
+pubis
+pubic bone
+molar
+meninges
+ring finger
+middle finger
+metacarpal
+eyelid
+optic nerve
+canine
+eyetooth
+nasal cavity
+little finger
+pinkie
+midbrain
+temporal bone
+heel
+sebaceous gland
+lens
+ileum
+frontal lobe
+eardrum
+tympanic membrane
+zygomatic bone
+cheekbone
+vas deferens
+alveolus
+incisor
+epididymis
+tarsal
+hip bone
+sphenoid bone
+uvula
+islets of Langerhans
+inner ear
+pulmonary artery
+prefrontal cortex
+pons
+umbilical cord
+sweat gland
+ilium
+trigeminal nerve
+eyebrow
+parietal bone
+talus
+anklebone
+basal ganglia
+ethmoid bone
+pericardium
+waist
+frontal bone
+temporal lobe
+jejunum
+epiglottis
+soft palate
+gum
+gingiva
+temple
+scalp
+biceps
+middle ear
+ventricle
+stapes
+stirrup
+sole
+calf
+sinus
+atrium
+nape
+facial nerve
+pinna
+auricle
+calcaneus
+heel bone
+nasal bone
+eye socket
+orbit
+bile duct
+vomer
+sclera
+groin
+wisdom tooth
+hair follicle
+ischium
+quadriceps
+quads
+scaphoid
+heart valve
+Achilles tendon
+premolar
+eyelash
+atlas
+trapezius
+palatine bone
+deltoid
+hamate
+triceps
+parietal lobe
+areola
+cochlea
+carotid artery
+carotid
+coronary artery
+malleus
+hammer
+conjunctiva
+lacrimal bone
+corpus callosum
+Eustachian tube
+milk tooth
+baby tooth
+dura mater
+sphincter
+pectoralis major
+pec
+incus
+anvil
+pulmonary vein
+latissimus dorsi
+lat
+sternocleidomastoid
+navicular
+aortic valve
+anterior cruciate ligament
+cruciate ligament
+pisiform
+occipital lobe
+gastrocnemius
+intervertebral disc
+lunate
+meniscus
+gluteus maximus
+glute
+taste bud
+nostril
+femoral artery
+mesentery
+hamstring
+vena cava
+brachial plexus
+septum
+mitral valve
+triquetrum
+axis
+cuboid
+macula
+trapezium
+cuneiform
+subclavian artery
+capitate
+sinoatrial node
+fovea
+rectus abdominis
+abs
+six-pack
+ear canal
+psoas
+trapezoid
+hard palate
+shoulder joint
+sciatic nerve
+sartorius
+masseter
+serratus anterior
+tricuspid valve
+supraspinatus
+pelvic floor
+lacrimal gland
+temporomandibular joint
+philtrum
+soleus
+intercostal
+pleura
+external oblique
+oblique
+bronchiole
+semicircular canal
+brachialis
+piriformis
+gluteus medius
+tibialis anterior
+fontanelle
+temporalis
+teres major
+ulnar nerve
+funny bone
+median nerve
+pectoralis minor
+adenoid
+jugular vein
+jugular
+infraspinatus
+phrenic nerve
+radial nerve
+rotator cuff
+transversus abdominis
+erector spinae
+brachioradialis
+orbicularis oculi
+gluteus minimus
+rectus femoris
+levator scapulae
+sacroiliac joint
+solar plexus
+coeliac plexus
+earlobe
+vastus lateralis
+platysma
+buccinator
+rhomboid
+saphenous vein
+orbicularis oris
+omentum
+arch
+tear duct
+ball of the foot
+femoral nerve
+knuckle
+adductor
+flank
+plantar fascia
+crotch
