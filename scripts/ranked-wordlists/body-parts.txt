@@ -1,0 +1,394 @@
+# name: Body parts
+# description: Parts of the human body, by both common and technical names (kneecap, patella), most prominent first.
+# tag: science
+# attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
+
+# Named parts of the human body: regions, organs, bones (each named bone, or its group), the
+# better-known muscles, vessels and nerves, joints, glands, and parts of the brain, eyes, ears and
+# teeth, by common and technical names, with British spellings (oesophagus, caecum). Left out:
+# fluids and substances, cells and tissues, vulgar slang, parts only animals have, plurals and
+# adjectives, and Latin names English doesn't use. Each item's comment names its English
+# Wikipedia article.
+
+# head and face
+Q23640: head                                          # Head
+Q37017: face                                          # Face
+Q41055: forehead, brow                                # Forehead
+Q243999: temple                                       # Temple (anatomy)
+Q47038: cheek                                         # Cheek
+Q82714: chin                                          # Chin
+Q180284: jaw                                          # Jaw
+Q7363: nose                                           # Nose
+Q858590: nostril                                      # Nostril
+Q9635: mouth                                          # Mouth
+Q15173: lip                                           # Lip
+Q9614: tongue                                         # Tongue
+Q172605: palate                                       # Palate
+Q1345983: hard palate                                 # Hard palate
+Q1056395: soft palate                                 # Soft palate
+Q273538: uvula                                        # Uvula
+Q104280: gum, gingiva                                 # Gums
+Q553: tooth                                           # Tooth
+Q7364: eye                                            # Eye
+Q48228: eyelid                                        # Eyelid
+Q160108: eyelash                                      # Eyelash
+Q43748: eyebrow                                       # Eyebrow
+Q7362: ear                                            # Ear
+Q1778517: earlobe                                     # Earlobe
+Q9633: neck                                           # Neck
+Q374727: nape                                         # Nape
+Q16364: throat                                        # Throat
+Q9622: scalp                                          # Scalp
+Q28472: hair                                          # Hair
+Q1074: skin                                           # Skin
+Q36864: nail, fingernail, toenail                     # Nail (anatomy)
+Q352045: Adam's apple                                 # Adam's apple
+Q152092: philtrum                                     # Philtrum
+
+# trunk
+Q9645: chest, thorax                                  # Thorax
+Q9103: breast                                         # Breast
+Q188641: nipple                                       # Nipple
+Q843533: areola                                       # Areola
+Q9597: abdomen, belly, tummy                          # Abdomen
+Q43801: navel, belly button, umbilicus                # Navel
+Q236232: waist                                        # Waist
+Q193818: hip, hip joint                               # Hip
+Q133279: back                                         # Human back
+Q1427103: flank                                       # Flank (anatomy)
+Q16363: shoulder                                      # Shoulder
+Q499: armpit, axilla                                  # Axilla
+Q211159: groin                                        # Groin
+Q17084917: crotch                                     # Crotch
+Q42165: buttock, bottom                               # Buttocks
+Q497: anus                                            # Anus
+Q158716: rectum                                       # Rectum
+Q105499: perineum                                     # Perineum
+Q713102: pelvis                                       # Pelvis
+Q160695: torso, trunk                                 # Torso
+Q482853: spine, backbone, spinal column, vertebral column  # Spinal column
+Q2576226: rib cage                                    # Rib cage
+
+# limbs
+Q43471: arm                                           # Arm
+Q42586: elbow                                         # Elbow
+Q228537: forearm                                      # Forearm
+Q185706: wrist                                        # Wrist
+Q33767: hand, palm                                    # Hand
+Q794715: knuckle                                      # Knuckle
+Q620207: finger                                       # Finger
+Q83360: thumb                                         # Thumb
+Q184848: index finger, forefinger                     # Index finger
+Q167131: middle finger                                # Middle finger
+Q192298: ring finger                                  # Ring finger
+Q228027: little finger, pinkie                        # Little finger
+Q133105: leg                                          # Leg
+Q129757: thigh                                        # Thigh
+Q37425: knee, knee joint                              # Knee
+Q3216080: calf                                        # Calf (leg)
+Q168002: ankle                                        # Ankle
+Q15807: foot, instep                                  # Foot
+Q174647: heel                                         # Heel
+Q876082: sole                                         # Sole (foot)
+Q3563476: arch                                        # Arches of the foot
+Q497220: ball of the foot                             # Ball (foot)
+Q154425: toe, big toe, hallux                         # Toe
+Q196002: hamstring                                    # Hamstring
+Q223172: Achilles tendon                              # Achilles tendon
+Q383204: plantar fascia                               # Plantar fascia
+
+# tissues and systems as parts
+Q265868: bone                                         # Bone
+Q1048687: muscle                                      # Skeletal muscle
+Q232358: tendon                                       # Tendon
+Q39888: ligament                                      # Ligament
+Q9644: joint                                          # Joint
+Q9620: nerve                                          # Nerve
+Q9655: artery                                         # Artery
+Q9609: vein                                           # Vein
+Q103142: capillary                                    # Capillary
+Q712378: organ                                        # Organ (biology)
+Q9647: gland                                          # Gland
+Q170758: lymph node, lymph gland                      # Lymph node
+
+# skull bones
+Q13147: skull, cranium                                # Skull
+Q16295: frontal bone                                  # Frontal bone
+Q16298: parietal bone                                 # Parietal bone
+Q16313: temporal bone                                 # Temporal bone
+Q16317: occipital bone                                # Occipital bone
+Q16321: sphenoid bone                                 # Sphenoid bone
+Q16331: ethmoid bone                                  # Ethmoid bone
+Q38155: nasal bone                                    # Nasal bone
+Q212721: lacrimal bone                                # Lacrimal bone
+Q186102: zygomatic bone, cheekbone                    # Zygomatic bone
+Q182895: maxilla                                      # Maxilla
+Q16370: mandible, jawbone                             # Mandible
+Q237632: palatine bone                                # Palatine bone
+Q193527: vomer                                        # Vomer
+Q16332: hyoid bone                                    # Hyoid bone
+Q319636: malleus, hammer                              # Malleus
+Q497385: incus, anvil                                 # Incus
+Q499897: stapes, stirrup                              # Stapes
+Q752693: fontanelle                                   # Fontanelle
+
+# other bones
+Q180323: vertebra                                     # Vertebra
+Q655357: atlas                                        # Atlas (anatomy)
+Q792567: axis                                         # Axis (anatomy)
+Q233316: sacrum                                       # Sacrum
+Q193176: coccyx, tailbone                             # Coccyx
+Q196672: rib                                          # Rib
+Q8481: sternum, breastbone                            # Sternum
+Q16343: clavicle, collarbone                          # Clavicle
+Q16336: scapula, shoulder blade                       # Scapula
+Q162595: humerus                                      # Humerus
+Q178492: radius                                       # Radius (bone)
+Q199507: ulna                                         # Ulna
+Q232377: carpal                                       # Carpal bones
+Q13143: scaphoid                                      # Scaphoid bone
+Q13141: lunate                                        # Lunate bone
+Q278417: triquetrum                                   # Triquetral bone
+Q691942: pisiform                                     # Pisiform bone
+Q265617: trapezium                                    # Trapezium (bone)
+Q847084: trapezoid                                    # Trapezoid bone
+Q752369: capitate                                     # Capitate bone
+Q54393: hamate                                        # Hamate bone
+Q237229: metacarpal                                   # Metacarpal bones
+Q1057892: phalanx                                     # Phalanx bone
+Q3356933: hip bone                                    # Hip bone
+Q728889: ilium                                        # Ilium (bone)
+Q531029: ischium                                      # Ischium
+Q220815: pubis, pubic bone                            # Pubis
+Q176503: femur, thighbone                             # Femur
+Q229081: patella, kneecap                             # Patella
+Q178366: tibia, shinbone, shin                        # Tibia
+Q302896: fibula                                       # Fibula
+Q1059724: tarsal                                      # Tarsus (skeleton)
+Q13100: talus, anklebone                              # Talus bone
+Q13075: calcaneus, heel bone                          # Calcaneus
+Q958194: navicular                                    # Navicular bone
+Q658424: cuboid                                       # Cuboid bone
+Q1422057: cuneiform                                   # Cuneiform bones
+Q320524: metatarsal                                   # Metatarsal bones
+
+# joints, ligaments and cartilage
+Q1758798: shoulder joint                              # Shoulder joint
+Q827134: temporomandibular joint                      # Temporomandibular joint
+Q1543208: sacroiliac joint                            # Sacroiliac joint
+Q846928: meniscus                                     # Meniscus (anatomy)
+Q611127: anterior cruciate ligament, cruciate ligament  # Anterior cruciate ligament
+Q1764136: rotator cuff                                # Rotator cuff
+Q502781: intervertebral disc                          # Intervertebral disc
+
+# muscles
+Q201363: biceps                                       # Biceps
+Q83379: triceps                                       # Triceps
+Q130243: deltoid                                      # Deltoid muscle
+Q532798: pectoralis major, pec                        # Pectoralis major
+Q757083: pectoralis minor                             # Pectoralis minor
+Q204113: trapezius                                    # Trapezius
+Q283673: latissimus dorsi, lat                        # Latissimus dorsi muscle
+Q3328354: rhomboid                                    # Rhomboid muscles
+Q743294: serratus anterior                            # Serratus anterior muscle
+Q275150: rectus abdominis, abs, six-pack              # Rectus abdominis muscle
+Q746123: external oblique, oblique                    # Abdominal external oblique muscle
+Q1427665: transversus abdominis                       # Transverse abdominal muscle
+Q774933: erector spinae                               # Erector spinae muscles
+Q637545: gluteus maximus, glute                       # Gluteus maximus
+Q1126170: gluteus medius                              # Gluteus medius
+Q523799: gluteus minimus                              # Gluteus minimus
+Q504536: quadriceps, quads                            # Quadriceps
+Q1633822: rectus femoris                              # Rectus femoris muscle
+Q975459: vastus lateralis                             # Vastus lateralis muscle
+Q740337: sartorius                                    # Sartorius muscle
+Q943203: gastrocnemius                                # Gastrocnemius muscle
+Q1954164: soleus                                      # Soleus muscle
+Q975054: tibialis anterior                            # Tibialis anterior muscle
+Q2514016: adductor                                    # Adductor muscles of the hip
+Q1550323: psoas                                       # Psoas major muscle
+Q1144893: piriformis                                  # Piriformis muscle
+Q272830: sternocleidomastoid                          # Sternocleidomastoid muscle
+Q725408: masseter                                     # Masseter muscle
+Q599406: temporalis                                   # Temporalis muscle
+Q530279: orbicularis oculi                            # Orbicularis oculi muscle
+Q302950: orbicularis oris                             # Orbicularis oris muscle
+Q846480: buccinator                                   # Bucinator muscle
+Q841422: platysma                                     # Platysma muscle
+Q9654: diaphragm                                      # Thoracic diaphragm
+Q3302518: intercostal                                 # Intercostal muscles
+Q813683: pelvic floor                                 # Pelvic floor
+Q746416: sphincter                                    # Sphincter
+Q752441: brachialis                                   # Brachialis muscle
+Q385484: brachioradialis                              # Brachioradialis
+Q755141: levator scapulae                             # Levator scapulae muscle
+Q56658: teres major                                   # Teres major muscle
+Q19087: infraspinatus                                 # Infraspinatus muscle
+Q74959: supraspinatus                                 # Supraspinatus muscle
+
+# organs: digestive
+Q1029907: stomach                                     # Stomach
+Q11829360: gut, intestine, bowel, gastrointestinal tract  # Gastrointestinal tract
+Q11090: small intestine                               # Small intestine
+Q11083: large intestine, colon                        # Large intestine
+Q134955: duodenum                                     # Duodenum
+Q185765: jejunum                                      # Jejunum
+Q233345: ileum                                        # Ileum
+Q185317: caecum                                       # Cecum
+Q9656: appendix                                       # Appendix (anatomy)
+Q173710: oesophagus, gullet                           # Esophagus
+Q174778: pharynx                                      # Pharynx
+Q9368: liver                                          # Liver
+Q64386: gallbladder                                   # Gallbladder
+Q851111: bile duct                                    # Bile duct
+Q9618: pancreas                                       # Pancreas
+Q9371: spleen                                         # Spleen
+Q9629: peritoneum                                     # Peritoneum
+Q1135563: mesentery                                   # Mesentery
+Q655501: omentum                                      # Greater omentum
+Q134938: salivary gland                               # Salivary gland
+Q862867: taste bud                                    # Taste bud
+
+# respiratory
+Q9637: larynx, voice box                              # Larynx
+Q235378: epiglottis                                   # Epiglottis
+Q215558: vocal cord, vocal fold                       # Vocal cords
+Q175449: trachea, windpipe                            # Trachea
+Q181602: bronchus                                     # Bronchus
+Q502704: bronchiole                                   # Bronchiole
+Q191341: alveolus                                     # Pulmonary alveolus
+Q7886: lung                                           # Lung
+Q192398: pleura                                       # Pleural cavity
+Q156104: nasal cavity                                 # Nasal cavity
+Q281473: sinus                                        # Paranasal sinuses
+Q500634: septum                                       # Nasal septum
+Q180569: tonsil                                       # Tonsil
+Q552087: adenoid                                      # Adenoid
+
+# heart and vessels
+Q1072: heart                                          # Heart
+Q1074839: atrium                                      # Atrium (heart)
+Q2002035: ventricle                                   # Ventricle (heart)
+Q215620: heart valve                                  # Heart valve
+Q369939: mitral valve                                 # Mitral valve
+Q616071: aortic valve                                 # Aortic valve
+Q1344255: tricuspid valve                             # Tricuspid valve
+Q193302: pericardium                                  # Pericardium
+Q286020: sinoatrial node                              # Sinoatrial node
+Q101004: aorta                                        # Aorta
+Q372409: vena cava                                    # Venae cavae
+Q206280: pulmonary artery                             # Pulmonary artery
+Q535352: pulmonary vein                               # Pulmonary vein
+Q18361829: coronary artery                            # Coronary arteries
+Q214275: carotid artery, carotid                      # Common carotid artery
+Q749592: jugular vein, jugular                        # Jugular vein
+Q707174: femoral artery                               # Femoral artery
+Q490059: subclavian artery                            # Subclavian artery
+Q543323: saphenous vein                               # Great saphenous vein
+
+# urinary and reproductive
+Q9377: kidney                                         # Kidney
+Q9385: ureter                                         # Ureter
+Q9382: bladder                                        # Bladder
+Q9386: urethra                                        # Urethra
+Q9625: prostate                                       # Prostate
+Q9612: uterus, womb                                   # Uterus
+Q9631: ovary                                          # Ovary
+Q1233836: fallopian tube                              # Fallopian tube
+Q666412: cervix                                       # Cervix
+Q5880: vagina                                         # Vagina
+Q2192288: vulva                                       # Vulva
+Q1406501: labia                                       # Labia
+Q873072: clitoris                                     # Clitoris
+Q1640627: hymen                                       # Hymen
+Q58: penis                                            # Penis
+Q673203: foreskin                                     # Foreskin
+Q650891: glans                                        # Glans penis
+Q9384: testicle, testis                               # Testicle
+Q174471: scrotum                                      # Scrotum
+Q1973610: epididymis                                  # Epididymis
+Q735505: vas deferens                                 # Vas deferens
+Q217259: seminal vesicle                              # Seminal vesicles
+Q189961: mammary gland                                # Mammary gland
+Q1212935: placenta                                    # Placenta
+Q172563: umbilical cord                               # Umbilical cord
+
+# glands and immune
+Q16399: thyroid                                       # Thyroid
+Q650401: parathyroid                                  # Parathyroid gland
+Q156871: pituitary gland, pituitary                   # Pituitary gland
+Q198654: pineal gland                                 # Pineal gland
+Q712294: adrenal gland                                # Adrenal gland
+Q163987: thymus                                       # Thymus
+Q243784: sweat gland                                  # Sweat gland
+Q212328: sebaceous gland                              # Sebaceous gland
+Q866324: hair follicle                                # Hair follicle
+Q913628: lacrimal gland                               # Lacrimal gland
+Q526920: tear duct                                    # Nasolacrimal duct
+Q728309: islets of Langerhans                         # Pancreatic islets
+
+# nervous system
+Q1073: brain                                          # Brain
+Q75855: cerebrum                                      # Cerebrum
+Q75839: cerebral cortex                               # Cerebral cortex
+Q130983: cerebellum                                   # Cerebellum
+Q182228: brainstem                                    # Brainstem
+Q189033: medulla oblongata                            # Medulla oblongata
+Q192570: pons                                         # Pons
+Q185080: midbrain                                     # Midbrain
+Q184215: thalamus                                     # Thalamus
+Q164386: hypothalamus                                 # Hypothalamus
+Q48360: hippocampus                                   # Hippocampus
+Q338924: amygdala                                     # Amygdala
+Q223851: corpus callosum                              # Corpus callosum
+Q749520: frontal lobe                                 # Frontal lobe
+Q815334: parietal lobe                                # Parietal lobe
+Q744385: temporal lobe                                # Temporal lobe
+Q848340: occipital lobe                               # Occipital lobe
+Q464210: basal ganglia                                # Basal ganglia
+Q18680: prefrontal cortex                             # Prefrontal cortex
+Q268930: meninges                                     # Meninges
+Q1394389: dura mater                                  # Dura mater
+Q9606: spinal cord                                    # Spinal cord
+Q307869: sciatic nerve                                # Sciatic nerve
+Q190140: vagus nerve                                  # Vagus nerve
+Q186029: optic nerve                                  # Optic nerve
+Q254580: ulnar nerve, funny bone                      # Ulnar nerve
+Q1364876: median nerve                                # Median nerve
+Q1365325: radial nerve                                # Radial nerve
+Q545676: femoral nerve                                # Femoral nerve
+Q189763: trigeminal nerve                             # Trigeminal nerve
+Q242160: facial nerve                                 # Facial nerve
+Q737313: phrenic nerve                                # Phrenic nerve
+Q846961: brachial plexus                              # Brachial plexus
+Q612258: solar plexus, coeliac plexus                 # Celiac plexus
+
+# eye
+Q168291: cornea                                       # Cornea
+Q178748: iris                                         # Iris (anatomy)
+Q173318: pupil                                        # Pupil
+Q146701: lens                                         # Lens (vertebrate anatomy)
+Q169342: retina                                       # Retina
+Q193107: sclera                                       # Sclera
+Q747023: macula                                       # Macula
+Q865103: fovea                                        # Fovea centralis
+Q273554: conjunctiva                                  # Conjunctiva
+Q156075: eye socket, orbit                            # Orbit (anatomy)
+
+# ear
+Q379858: pinna, auricle                               # Auricle (anatomy)
+Q258328: ear canal                                    # Ear canal
+Q173801: eardrum, tympanic membrane                   # Eardrum
+Q501553: middle ear                                   # Middle ear
+Q212344: inner ear                                    # Inner ear
+Q317857: cochlea                                      # Cochlea
+Q1064403: semicircular canal                          # Semicircular canals
+Q320561: Eustachian tube                              # Eustachian tube
+
+# teeth
+Q273543: incisor                                      # Incisor
+Q19625: canine, eyetooth                              # Canine tooth
+Q839483: premolar                                     # Premolar
+Q189218: molar                                        # Molar (tooth)
+Q202517: wisdom tooth                                 # Wisdom tooth
+Q281524: milk tooth, baby tooth                       # Deciduous teeth
