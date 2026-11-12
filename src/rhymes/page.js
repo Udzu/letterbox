@@ -141,7 +141,7 @@ function showRhymes() {
   const mosaic = rhymes.items(rhymes.mosaic(entry, options)).filter((item) => !already.has(lookupKey(item.word)))
     .map((item) => ({ ...item, band: "mosaic" })).sort((a, b) => b.zipf - a.zipf || compareWords(a.word, b.word));
   const { ipa } = rhymeParts(entry.pron);
-  const kind = type === "near" ? "near " : !options.sameOnset && !options.looseOnsets ? "perfect " : "";
+  const kind = type !== "perfect" ? `${type} ` : !options.sameOnset && !options.looseOnsets ? "perfect " : "";
   const text = `${count === 0 ? "No" : count.toLocaleString("en")} ${kind}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
   if (count === 0 && mosaic.length === 0) {
     summary.textContent = text;

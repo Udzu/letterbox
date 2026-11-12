@@ -525,3 +525,28 @@ know\tno1\tCU\t60\tv
   assert.deepEqual(mosaic("owen"), ["know in"]);
   assert.deepEqual(mosaic("owen", { type: "near" }), ["know 'em", "know in"]);
 });
+
+test("additive rhymes: one may have an extra s, z, t, d, m, n or ŋ next to a consonant or at the end", () => {
+  const rhymes = new Rhymes(parsePronunciations(`glance\tgla1ns
+pants\tpa1nts
+plan\tpla1n
+bee\tbi1
+team\tti1m
+seat\tsi1t
+leaf\tli1f
+coal\tko1l
+bold\tbo1ld
+poet\tpo1It
+going\tgo1IN
+showed it\tSo1d It
+`).entries);
+  const find = (word, options) => rhymes.find(rhymes.pronunciations(word)[0], options);
+  assert.deepEqual(find("glance"), []);
+  // an extra t inside a cluster, or s at the end
+  assert.deepEqual(find("glance", { type: "additive" }), ["pants", "plan"]);
+  // an extra m or t at the end, but not f
+  assert.deepEqual(find("bee", { type: "additive" }), ["seat", "team"]);
+  assert.deepEqual(find("coal", { type: "additive" }), ["bold"]);
+  // not a consonant between vowels, which would start a syllable
+  assert.deepEqual(find("poet", { type: "additive" }), []);
+});

@@ -277,20 +277,44 @@ const VOWEL_CLASSES = { O: "A", U: "A", a: "E", e: "E", I: "E", V: "R" };
 const indexKey = (rhyme) => rhyme.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) => VOWEL_CLASSES[c]).replaceAll("t", "d")
   .replaceAll("r", "").replace(/(?<=[AERWYioQu])R+/g, "");
 
-// The types of search, each as a function on rhymes and loose rhymes that makes the sounds it lets
-// differ the same, and a key for its index of candidates (which must also be the same whatever mergers
-// are chosen):
+// The types of search, each with:
+// - matcher: given a rhyme or loose rhyme, a test for the ones that match it
+// - key: a key for its index of candidates, the same for rhymes that match whatever mergers are chosen
+// - shape: what a mosaic rhyme's tail must match at the end of the rhyme, as a function on both
+// The types:
 // - perfect: perfect rhymes
 // - near: near rhymes, whose consonants may differ within a family: voiceless stops p t k, voiced
 //   stops b d g, voiceless fricatives f θ s ʃ tʃ, voiced fricatives v ð z ʒ dʒ, and nasals m n ŋ (so
 //   rhyme and mine, cap and cat). As flapping makes t d, the key doesn't tell voiced and voiceless
 //   stops apart.
+// - additive: additive rhymes, where one may have an extra s, z, t, d, m, n or ŋ next to another
+//   consonant or at the end (glance and pants, bee and beam, coal and cold)
 const FAMILIES = { p: "ptk", b: "bdg", f: "fTsSC", v: "vDzZJ", m: "mnN" };
 const FAMILY = Object.fromEntries(Object.entries(FAMILIES).flatMap(([name, members]) => [...members].map((c) => [c, name])));
 const family = (rhyme) => rhyme.replace(/[ptkbdgfTsSCvDzZJmnN]/g, (c) => FAMILY[c]);
+const ADDABLE = /[sztdmnN]/g;
+// whether a rhyme is another with one extra consonant that additive rhymes allow
+function oneExtra(longer, shorter) {
+  if (longer.length !== shorter.length + 1) return false;
+  for (let i = 0; i < longer.length; i++) {
+    if ("sztdmnN".includes(longer[i]) && longer.slice(0, i) + longer.slice(i + 1) === shorter
+      && (i === longer.length - 1 || !VOWELS.has(longer[i - 1]) || !VOWELS.has(longer[i + 1]))) return true;
+  }
+  return false;
+}
+const same = (rhyme) => rhyme;
 export const TYPES = {
-  perfect: { shape: (rhyme) => rhyme, key: indexKey },
-  near: { shape: family, key: (rhyme) => indexKey(family(rhyme).replaceAll("p", "b")) },
+  perfect: { matcher: (t) => (x) => x === t, key: indexKey, shape: same },
+  near: {
+    matcher: (t) => ((f) => (x) => family(x) === f)(family(t)),
+    key: (rhyme) => indexKey(family(rhyme).replaceAll("p", "b")),
+    shape: family,
+  },
+  additive: {
+    matcher: (t) => (x) => x === t || oneExtra(x, t) || oneExtra(t, x),
+    key: (rhyme) => indexKey(rhyme.replace(ADDABLE, "")),
+    shape: same,
+  },
 };
 
 // Mosaic rhymes: a stressed word followed by an unstressed word that leans on it, like know it for
@@ -458,12 +482,12 @@ export class Rhymes {
   // MOSAIC_WORD) with parts of speech in the data that the tail can follow.
   mosaic(entry, options = {}) {
     const { sameOnset = false, looseOnsets = false, type = "perfect" } = options;
-    const { shape } = TYPES[type];
+    const { matcher, shape } = TYPES[type];
     const index = this.index(type);
     const mergers = Object.keys(MERGERS).some((name) => options[name]);
     const parts = rhymeParts(entry.pron);
     const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
-    const [rhyme, loose] = [shape(target.rhyme), shape(target.loose)];
+    const [isRhyme, isLoose] = [matcher(target.rhyme), matcher(target.loose)];
     const self = lookupKey(entry.word);
     const words = new Map();
     for (const tail of MOSAIC_TAILS) {
@@ -477,7 +501,7 @@ export class Rhymes {
         if (UNSTRESSED_HEADS.has(word)) continue;
         const phrase = tail.attached ? word + tail.word : `${word} ${tail.word}`;
         const whole = rhymeParts(merge(`${pron} ${tail.pron}`, options));
-        if (shape(whole.rhyme) !== rhyme && !(looseOnsets && shape(whole.loose) === loose)) continue;
+        if (!isRhyme(whole.rhyme) && !(looseOnsets && isLoose(whole.loose))) continue;
         if ((!sameOnset && item.onset === parts.onset) || lookupKey(phrase) === self) continue;
         const match = words.get(phrase) ?? { zipf: 0, syllables: new Set() };
         match.zipf = Math.max(match.zipf, zipf);
@@ -519,12 +543,12 @@ export class Rhymes {
   // and the set of their numbers of syllables.
   matches(entry, options = {}) {
     const { sameOnset = false, looseOnsets = false, type = "perfect" } = options;
-    const { shape } = TYPES[type];
+    const { matcher } = TYPES[type];
     const index = this.index(type);
     const mergers = Object.keys(MERGERS).some((name) => options[name]);
     const parts = rhymeParts(entry.pron);
     const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
-    const [rhyme, loose] = [shape(target.rhyme), shape(target.loose)];
+    const [isRhyme, isLoose] = [matcher(target.rhyme), matcher(target.loose)];
     // Loose rhymes also include the strict ones: as loose rhymes split consonants at word breaks, the
     // same sounds can give different loose rhymes (the r of care of ends a syllable, but where've's
     // starts one), so they wouldn't always.
@@ -534,7 +558,7 @@ export class Rhymes {
     const words = new Map();
     for (const item of candidates) {
       const other = mergers ? rhymeParts(merge(item.entry.pron, options)) : item;
-      if (shape(other.rhyme) !== rhyme && !(looseOnsets && shape(other.loose) === loose)) continue;
+      if (!isRhyme(other.rhyme) && !(looseOnsets && isLoose(other.loose))) continue;
       const { word, zipf } = item.entry;
       // (onsets as without mergers, which aren't meant to change them)
       if ((sameOnset || item.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {

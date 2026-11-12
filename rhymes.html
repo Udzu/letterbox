@@ -93,6 +93,7 @@
     <span id="types" class="buttons">
       <button type="button" data-type="perfect" title="Words that sound the same from the stressed vowel on (so time rhymes with rhyme)">Perfect rhyme</button>
       <button type="button" data-type="near" title="Also let consonants after the stressed vowel differ within a family: p t k; b d g; f th s sh ch; v th z zh j; m n ng (so rhyme matches mine, and cap matches cat)">Near rhyme</button>
+      <button type="button" data-type="additive" title="Also match words with one more or one fewer s, z, t, d, m, n or ng after the stressed vowel, next to another consonant or at the end (so glance matches pants and plan, and bee matches beam)">Additive rhyme</button>
     </span>
     <span class="label" title="The consonants that start a syllable">Onsets:</span>
     <div id="options">
@@ -462,9 +463,27 @@
   var FAMILIES = { p: "ptk", b: "bdg", f: "fTsSC", v: "vDzZJ", m: "mnN" };
   var FAMILY = Object.fromEntries(Object.entries(FAMILIES).flatMap(([name, members]) => [...members].map((c) => [c, name])));
   var family = (rhyme) => rhyme.replace(/[ptkbdgfTsSCvDzZJmnN]/g, (c) => FAMILY[c]);
+  var ADDABLE = /[sztdmnN]/g;
+  function oneExtra(longer, shorter) {
+    if (longer.length !== shorter.length + 1) return false;
+    for (let i = 0; i < longer.length; i++) {
+      if ("sztdmnN".includes(longer[i]) && longer.slice(0, i) + longer.slice(i + 1) === shorter && (i === longer.length - 1 || !VOWELS.has(longer[i - 1]) || !VOWELS.has(longer[i + 1]))) return true;
+    }
+    return false;
+  }
+  var same = (rhyme) => rhyme;
   var TYPES = {
-    perfect: { shape: (rhyme) => rhyme, key: indexKey },
-    near: { shape: family, key: (rhyme) => indexKey(family(rhyme).replaceAll("p", "b")) }
+    perfect: { matcher: (t) => (x) => x === t, key: indexKey, shape: same },
+    near: {
+      matcher: (t) => /* @__PURE__ */ ((f) => (x) => family(x) === f)(family(t)),
+      key: (rhyme) => indexKey(family(rhyme).replaceAll("p", "b")),
+      shape: family
+    },
+    additive: {
+      matcher: (t) => (x) => x === t || oneExtra(x, t) || oneExtra(t, x),
+      key: (rhyme) => indexKey(rhyme.replace(ADDABLE, "")),
+      shape: same
+    }
   };
   var MOSAIC_TAILS = [
     ["it", "It", "vp"],
@@ -615,12 +634,12 @@ which is are was were be been being am do does did has have had will would shall
     // MOSAIC_WORD) with parts of speech in the data that the tail can follow.
     mosaic(entry, options = {}) {
       const { sameOnset = false, looseOnsets = false, type: type2 = "perfect" } = options;
-      const { shape } = TYPES[type2];
+      const { matcher, shape } = TYPES[type2];
       const index = this.index(type2);
       const mergers = Object.keys(MERGERS).some((name) => options[name]);
       const parts = rhymeParts(entry.pron);
       const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
-      const [rhyme, loose] = [shape(target.rhyme), shape(target.loose)];
+      const [isRhyme, isLoose] = [matcher(target.rhyme), matcher(target.loose)];
       const self = lookupKey(entry.word);
       const words = /* @__PURE__ */ new Map();
       for (const tail of MOSAIC_TAILS) {
@@ -634,7 +653,7 @@ which is are was were be been being am do does did has have had will would shall
           if (UNSTRESSED_HEADS.has(word)) continue;
           const phrase = tail.attached ? word + tail.word : `${word} ${tail.word}`;
           const whole = rhymeParts(merge(`${pron} ${tail.pron}`, options));
-          if (shape(whole.rhyme) !== rhyme && !(looseOnsets && shape(whole.loose) === loose)) continue;
+          if (!isRhyme(whole.rhyme) && !(looseOnsets && isLoose(whole.loose))) continue;
           if (!sameOnset && item.onset === parts.onset || lookupKey(phrase) === self) continue;
           const match = words.get(phrase) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
           match.zipf = Math.max(match.zipf, zipf);
@@ -673,19 +692,19 @@ which is are was were be been being am do does did has have had will would shall
     // and the set of their numbers of syllables.
     matches(entry, options = {}) {
       const { sameOnset = false, looseOnsets = false, type: type2 = "perfect" } = options;
-      const { shape } = TYPES[type2];
+      const { matcher } = TYPES[type2];
       const index = this.index(type2);
       const mergers = Object.keys(MERGERS).some((name) => options[name]);
       const parts = rhymeParts(entry.pron);
       const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
-      const [rhyme, loose] = [shape(target.rhyme), shape(target.loose)];
+      const [isRhyme, isLoose] = [matcher(target.rhyme), matcher(target.loose)];
       const strict = index.byRhyme.get(index.key(parts.rhyme)) ?? [];
       const candidates = looseOnsets ? [...strict, ...index.byLoose.get(index.key(parts.loose)) ?? []] : strict;
       const self = withoutAccents(lookupKey(entry.word));
       const words = /* @__PURE__ */ new Map();
       for (const item of candidates) {
         const other = mergers ? rhymeParts(merge(item.entry.pron, options)) : item;
-        if (shape(other.rhyme) !== rhyme && !(looseOnsets && shape(other.loose) === loose)) continue;
+        if (!isRhyme(other.rhyme) && !(looseOnsets && isLoose(other.loose))) continue;
         const { word, zipf } = item.entry;
         if ((sameOnset || item.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {
           const match = words.get(word) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
@@ -871,7 +890,7 @@ which is are was were be been being am do does did has have had will would shall
     const already = new Set([...matches.keys()].map((w) => lookupKey(w).replaceAll("-", " ")));
     const mosaic = rhymes.items(rhymes.mosaic(entry, options)).filter((item) => !already.has(lookupKey(item.word))).map((item) => ({ ...item, band: "mosaic" })).sort((a, b) => b.zipf - a.zipf || compareWords(a.word, b.word));
     const { ipa } = rhymeParts(entry.pron);
-    const kind = type === "near" ? "near " : !options.sameOnset && !options.looseOnsets ? "perfect " : "";
+    const kind = type !== "perfect" ? `${type} ` : !options.sameOnset && !options.looseOnsets ? "perfect " : "";
     const text = `${count === 0 ? "No" : count.toLocaleString("en")} ${kind}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
     if (count === 0 && mosaic.length === 0) {
       summary.textContent = text;
