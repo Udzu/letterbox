@@ -507,3 +507,122 @@ test("parses parts of speech as an optional fifth field", () => {
   assert.throws(() => parsePronunciations("cat\tka1t\tCU\t50\tnoun\n"), /line 1: parts of speech/);
   assert.throws(() => parsePronunciations("cat\tka1t\tCU\t50\tn\tx\n"), /line 1: too many columns/);
 });
+
+test("near rhymes: consonants after the stressed vowel may differ within a family", () => {
+  const rhymes = new Rhymes(parsePronunciations(`rhyme\trY1m
+mine\tmY1n
+time\ttY1m
+thing\tTI1N
+ride\trY1d
+lied\tlY1d
+bite\tbY1t
+like\tlY1k
+lice\tlY1s
+cap\tka1p
+bat\tba1t
+bad\tba1d
+happy\tha1pi
+tabby\tta1bi
+daddy\tda1di
+owen\to1In
+know\tno1\tCU\t60\tv
+`).entries);
+  const find = (word, options) => rhymes.find(rhymes.pronunciations(word)[0], options);
+  assert.deepEqual(find("rhyme"), ["time"]);
+  // nasals, but not other consonants, and still not the same onset
+  assert.deepEqual(find("rhyme", { type: "near" }), ["mine", "time"]);
+  // voiceless stops, not voiced ones or fricatives
+  assert.deepEqual(find("bite", { type: "near" }), ["like"]);
+  assert.deepEqual(find("cap", { type: "near" }), ["bat"]);
+  // including the consonants that start later syllables (happy and tabby, but not daddy)
+  assert.deepEqual(find("tabby", { type: "near" }), ["daddy"]);
+  assert.deepEqual(find("happy", { type: "near" }), []);
+  // with flapping, t is d, so a voiced stop
+  assert.deepEqual(find("bite", { type: "near", flapping: true }), ["like"]);
+  // mosaic rhymes too: know 'em for owen
+  const mosaic = (word, options) => [...rhymes.mosaic(rhymes.pronunciations(word)[0], options).keys()].sort();
+  assert.deepEqual(mosaic("owen"), ["know in"]);
+  assert.deepEqual(mosaic("owen", { type: "near" }), ["know 'em", "know in"]);
+});
+
+test("additive rhymes: one may have an extra s, z, t, d, m, n or ŋ next to a consonant or at the end", () => {
+  const rhymes = new Rhymes(parsePronunciations(`glance\tgla1ns
+pants\tpa1nts
+plan\tpla1n
+bee\tbi1
+team\tti1m
+seat\tsi1t
+leaf\tli1f
+coal\tko1l
+bold\tbo1ld
+poet\tpo1It
+going\tgo1IN
+showed it\tSo1d It
+`).entries);
+  const find = (word, options) => rhymes.find(rhymes.pronunciations(word)[0], options);
+  assert.deepEqual(find("glance"), []);
+  // an extra t inside a cluster, or s at the end
+  assert.deepEqual(find("glance", { type: "additive" }), ["pants", "plan"]);
+  // an extra m or t at the end, but not f
+  assert.deepEqual(find("bee", { type: "additive" }), ["seat", "team"]);
+  assert.deepEqual(find("coal", { type: "additive" }), ["bold"]);
+  // not a consonant between vowels, which would start a syllable
+  assert.deepEqual(find("poet", { type: "additive" }), []);
+});
+
+test("same consonants: the same consonants between the vowels, whatever the vowels and stress", () => {
+  const rhymes = new Rhymes(parsePronunciations(`abet\tVbE1t
+Abbott\ta1bVt
+obit\to1bIt
+I bet\tY1 bE1t
+rabbit\tra1bIt
+bet\tbE1t
+boot\tbu1t
+betty\tbE1ti
+let\tlE1t
+cart\tkA1rt
+court\tkO1rt
+carrot\tkE1rVt
+cut\tkV1t
+caught\tkO1t
+bird\tbR1d
+bored\tbO1rd
+bud\tbV1d
+metal\tmE1tVl
+model\tmA1dVl
+`).entries);
+  const find = (word, options = {}) => rhymes.find(rhymes.pronunciations(word)[0], { type: "consonants", ...options });
+  assert.deepEqual(find("abet"), ["Abbott", "I bet", "obit"]);
+  assert.deepEqual(find("bet"), ["boot"]);
+  assert.deepEqual(find("cart"), ["court"]);
+  // ɝ is a vowel and r
+  assert.deepEqual(find("bird"), ["bored"]);
+  // mergers still apply: flapping makes metal match model, and r-dropping makes court match cut (and caught a homophone)
+  assert.deepEqual(find("metal"), []);
+  assert.deepEqual(find("metal", { flapping: true }), ["model"]);
+  assert.deepEqual(find("court", { nonRhotic: true }), ["cut"]);
+  // no mosaic rhymes
+  assert.deepEqual([...rhymes.mosaic(rhymes.pronunciations("abet")[0], { type: "consonants" }).keys()], []);
+});
+
+test("same vowels: the same vowels in order, with the same primary stress, whatever the consonants", () => {
+  const rhymes = new Rhymes(parsePronunciations(`abet\tVbE1t
+a pet\tV pE1t
+Annette\tVnE1t
+upset\tV2psE1t
+Abbott\ta1bVt
+bet\tbE1t
+beer bread\tbI2r brE1d
+caught\tkO1t
+pod\tpA1d
+pen\tpE1n
+tin\ttI1n
+`).entries);
+  const find = (word, options = {}) => rhymes.find(rhymes.pronunciations(word)[0], { type: "vowels", ...options });
+  // not Abbott (different vowels), bet (fewer) or beer bread (ɪ with secondary stress isn't ə)
+  assert.deepEqual(find("abet"), ["a pet", "Annette", "upset"]);
+  // mergers still apply
+  assert.deepEqual(find("caught"), []);
+  assert.deepEqual(find("caught", { cotCaught: true }), ["pod"]);
+  assert.deepEqual(find("pen", { pinPen: true }), ["tin"]);
+});

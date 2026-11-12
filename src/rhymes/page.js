@@ -1,11 +1,12 @@
-// The Rhymes page: look up a word, pick one of its pronunciations, and list its perfect rhymes.
+// The Rhymes page: look up a word, pick one of its pronunciations, and list its rhymes.
 
 import { attributionParts } from "../wordlists/lists.js";
-import { Rhymes, compareWords, lookupKey, parsePronunciations, parseSounds, rhymeParts, toIpa } from "./rhymes.js";
+import { Rhymes, TYPES, compareWords, lookupKey, parsePronunciations, parseSounds, rhymeParts, toIpa } from "./rhymes.js";
 
 const WORD_KEY = "rhymes-word";
 const OPTIONS_KEY = "rhymes-options";
 const GROUPING_KEY = "rhymes-grouping";
+const TYPE_KEY = "rhymes-type";
 // the ways rhymes can be grouped, and their buttons' labels
 const GROUPINGS = { frequency: "by frequency", syllables: "by syllables", letters: "by letters" };
 // the sections rhymes are shown in (see Rhymes.arrange), and their headings
@@ -33,10 +34,14 @@ const OPTIONS = {
   pinPen: document.getElementById("pin-pen"),
   nonRhotic: document.getElementById("non-rhotic"),
 };
-const currentOptions = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
+// type of search -> its button (see TYPES in rhymes.js)
+const TYPE_BUTTONS = Object.fromEntries([...document.querySelectorAll("#types button")].map((b) => [b.dataset.type, b]));
+const checked = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
+const currentOptions = () => ({ ...checked(), type });
 
 let rhymes = null;
 let grouping = GROUPINGS[load(GROUPING_KEY)] ? load(GROUPING_KEY) : "frequency";
+let type = TYPE_BUTTONS[load(TYPE_KEY)] ? load(TYPE_KEY) : "perfect";
 let shown = { word: null, choices: [], choice: 0 };
 
 function load(name) {
@@ -136,10 +141,14 @@ function showRhymes() {
   const mosaic = rhymes.items(rhymes.mosaic(entry, options)).filter((item) => !already.has(lookupKey(item.word)))
     .map((item) => ({ ...item, band: "mosaic" })).sort((a, b) => b.zipf - a.zipf || compareWords(a.word, b.word));
   const { ipa } = rhymeParts(entry.pron);
-  const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
-  const text = `${count === 0 ? "No" : count.toLocaleString("en")} ${perfect}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
+  const kind = type !== "perfect" ? `${type} ` : !options.sameOnset && !options.looseOnsets ? "perfect " : "";
+  const number = `${count === 0 ? "No" : count.toLocaleString("en")}`;
+  // (the pronunciation kept on one line)
+  const shownIpa = el("span", { className: "nowrap", textContent: `/${TYPES[type].whole ? toIpa(entry.pron) : ipa}/` });
+  const text = [TYPES[type].whole ? `${number} word${count === 1 ? "" : "s"} with the same ${type} as `
+    : `${number} ${kind}rhyme${count === 1 ? "" : "s"} on `, shownIpa];
   if (count === 0 && mosaic.length === 0) {
-    summary.textContent = text;
+    summary.replaceChildren(...text);
     return;
   }
   // a button for each way of grouping the rhymes, with the current one pressed
@@ -153,7 +162,7 @@ function showRhymes() {
     });
     return button;
   });
-  summary.replaceChildren(text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
+  summary.replaceChildren(...text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
   // sections of [title, items]: by frequency, or by number of syllables or letters
   const byCount = (groups, unit) => groups.map(({ count, items }) => [`${count} ${unit}${count === 1 ? "" : "s"}`, items]);
   const sections = grouping === "syllables" ? byCount(rhymes.bySyllables(matches), "syllable")
@@ -254,20 +263,43 @@ try {
   const saved = JSON.parse(load(OPTIONS_KEY) || "{}");
   for (const [name, box] of Object.entries(OPTIONS)) box.checked = saved[name] === true;
 } catch (e) {}
+// Show the rhymes again after the options or type change. Mergers and types can change which
+// pronunciations have the same rhymes: regroup, keeping the one chosen.
+function optionsChanged() {
+  if (!rhymes) return;
+  if (shown.sounds) return showRhymes();
+  const chosen = shown.choices[shown.choice];
+  const entries = chosen ? [chosen.entry, ...chosen.others] : [];
+  shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
+  const built = shown.choices.length === 0 && shown.word ? rhymes.phrasePronunciation(shown.word) : null;
+  if (built) shown.choices = [{ entry: built, others: [] }];
+  shown.choice = Math.max(0, shown.choices.findIndex((g) => entries.includes(g.entry) || g.others.some((e) => entries.includes(e))));
+  showPronunciations();
+  showRhymes();
+}
 for (const box of Object.values(OPTIONS)) {
   box.addEventListener("change", () => {
-    save(OPTIONS_KEY, JSON.stringify(currentOptions()));
-    if (!rhymes) return;
-    if (shown.sounds) return showRhymes();
-    // mergers can change which pronunciations have the same rhymes: regroup, keeping the one chosen
-    const chosen = shown.choices[shown.choice];
-    const entries = chosen ? [chosen.entry, ...chosen.others] : [];
-    shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
-    const built = shown.choices.length === 0 && shown.word ? rhymes.phrasePronunciation(shown.word) : null;
-    if (built) shown.choices = [{ entry: built, others: [] }];
-    shown.choice = Math.max(0, shown.choices.findIndex((g) => entries.includes(g.entry) || g.others.some((e) => entries.includes(e))));
-    showPronunciations();
-    showRhymes();
+    save(OPTIONS_KEY, JSON.stringify(checked()));
+    optionsChanged();
+  });
+}
+
+// the type of search, with the current one's button pressed (and the onset options greyed out for
+// types that compare whole words)
+function showType() {
+  Object.entries(TYPE_BUTTONS).forEach(([name, b]) => b.setAttribute("aria-pressed", String(name === type)));
+  for (const box of [OPTIONS.sameOnset, OPTIONS.looseOnsets]) {
+    box.disabled = Boolean(TYPES[type].whole);
+    box.parentElement.classList.toggle("disabled", box.disabled);
+  }
+}
+showType();
+for (const [name, button] of Object.entries(TYPE_BUTTONS)) {
+  button.addEventListener("click", () => {
+    type = name;
+    save(TYPE_KEY, name);
+    showType();
+    optionsChanged();
   });
 }
 

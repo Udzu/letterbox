@@ -30,14 +30,20 @@
     font-size: 1.2rem;
     font-family: inherit;
   }
-  #options { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 10px; }
+  /* the settings: a label, then its choices, all starting at the same offset */
+  #settings { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 8px; align-items: baseline; margin-top: 10px; }
+  #settings .label { color: #666; }
+  /* the type buttons wrap on narrow screens, so each keeps its own border, overlapping its neighbours' */
+  #types { justify-self: start; flex-wrap: wrap; padding: 0 1px 1px 0; }
+  #types button, #types button + button { border-left: 1px solid #bbb; margin: 0 -1px -1px 0; }
+  #types button[aria-pressed=true] { position: relative; border-color: #999; }
+  #options, #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; }
   #options label, #mergers label { cursor: pointer; }
+  #options label.disabled { color: #aaa; cursor: default; }
   #sound-help { margin: 6px 0 0; font-size: 0.85rem; color: #666; line-height: 1.5; }
   #sound-help span { font-family: ui-monospace, monospace; color: #000; background: #f0f0f0; padding: 0 3px; border-radius: 2px; }
   #prons .homophones a { color: #000; text-decoration: none; }
   #prons .homophones a:hover, #prons .homophones a:focus { text-decoration: underline; }
-  #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; }
-  #mergers .label { color: #666; }
   #status { margin: 12px 0 0; color: #666; }
   #status:empty { display: none; }
   #status.error { color: #d00; }
@@ -52,14 +58,15 @@
   a.wiktionary:hover { text-decoration: underline; }
   #summary { margin: 16px 0 8px; font-size: 1.1rem; }
   #summary:empty { display: none; }
-  /* the grouping buttons, joined, with the current one pressed */
+  .nowrap { white-space: nowrap; }
+  /* the type and grouping buttons, joined, with the current one pressed */
   #summary .grouping { margin-left: 12px; font-size: 0.9rem; color: #666; white-space: nowrap; }
-  #summary .buttons { display: inline-flex; vertical-align: middle; }
-  #summary .buttons button { font: inherit; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
-  #summary .buttons button + button { border-left: none; }
-  #summary .buttons button:first-child { border-radius: 3px 0 0 3px; }
-  #summary .buttons button:last-child { border-radius: 0 3px 3px 0; }
-  #summary .buttons button[aria-pressed=true] { background: #e8e8e8; border-color: #999; color: #222; }
+  .buttons { display: inline-flex; vertical-align: middle; }
+  .buttons button { font: inherit; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
+  .buttons button + button { border-left: none; }
+  .buttons button:first-child { border-radius: 3px 0 0 3px; }
+  .buttons button:last-child { border-radius: 0 3px 3px 0; }
+  .buttons button[aria-pressed=true] { background: #e8e8e8; border-color: #999; color: #222; }
   #results section { border: 1px solid #999; padding: 6px 8px; }
   #results section + section { border-top: none; }
   #results h2 { margin: 0 0 4px; font-size: 0.95rem; font-weight: 600; color: #444; }
@@ -86,19 +93,30 @@
   <p class="intro">Find rhymes in General American English for a word, a phrase, or a pronunciation between slashes, like /ˈhɛd/ or /'hEd/. Mosaic rhymes, like <i>know it</i> for <i>poet</i>, come last. Click a rhyme to look it up. The pronunciations are fetched online and kept for offline use; you can also download them, or load your own (see the bottom of the page).</p>
   <input id="word" type="text" placeholder="Word or phrase..." autocomplete="off" spellcheck="false" autofocus>
   <p id="sound-help" hidden>Type sounds in IPA or using: <span>A</span> ɑ <i>father</i> · <span>a</span> æ <i>cat</i> · <span>^</span> ʌ or <span>@</span> ə <i>cut</i> · <span>O</span> ɔ <i>caught</i> · <span>E</span> ɛ <i>bed</i> · <span>3</span> ɝ/ɚ <i>bird</i> · <span>I</span> ɪ <i>bit</i> · <span>i</span> <i>beat</i> · <span>U</span> ʊ <i>book</i> · <span>u</span> <i>boot</i> · <span>eI</span> <i>bait</i> · <span>aI</span> <i>bite</i> · <span>aU</span> <i>out</i> · <span>oU</span> <i>boat</i> · <span>OI</span> <i>boy</i> · <span>S</span> ʃ <i>ship</i> · <span>Z</span> ʒ <i>measure</i> · <span>tS</span> <i>chip</i> · <span>dZ</span> <i>judge</i> · <span>T</span> θ <i>thin</i> · <span>D</span> ð <i>this</i> · <span>N</span> ŋ <i>sing</i> · <span>j</span>/<span>y</span> <i>yes</i>, others as usual. Put <span>'</span> before the stressed syllable (by default the first) and <span>,</span> before a secondary one, e.g. <span>/'m^Nki/</span> <i>monkey</i>.</p>
-  <div id="options">
-    <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> Allow the same onset</label>
-    <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> Allow different onsets after the stress</label>
-  </div>
-  <div id="mergers">
+  <div id="settings">
+    <span class="label" title="What to search for">Type:</span>
+    <span id="types" class="buttons">
+      <button type="button" data-type="perfect" title="Words that sound the same from the stressed vowel on (so time rhymes with rhyme)">Perfect rhyme</button>
+      <button type="button" data-type="near" title="Also let consonants after the stressed vowel differ within a family: p t k; b d g; f th s sh ch; v th z zh j; m n ng (so rhyme matches mine, and cap matches cat)">Near rhyme</button>
+      <button type="button" data-type="additive" title="Also match words with one more or one fewer s, z, t, d, m, n or ng after the stressed vowel, next to another consonant or at the end (so glance matches pants and plan, and bee matches beam)">Additive rhyme</button>
+      <button type="button" data-type="consonants" title="Words with the same consonants throughout, in the same places between the vowels, whatever the vowels and stress (so abet matches Abbott and obit, but not bet or rabbit)">Same consonants</button>
+      <button type="button" data-type="vowels" title="Words with the same vowels in the same order, stressed in the same place, whatever the consonants (so abet matches a pet and Annette, but not Abbott)">Same vowels</button>
+    </span>
+    <span class="label" title="The consonants that start a syllable">Onsets:</span>
+    <div id="options">
+      <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> allow the same</label>
+      <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> allow different after the stress</label>
+    </div>
     <span class="label" title="Treat sounds as the same that many Americans pronounce the same">Merge:</span>
-    <label title="Treat t between vowels, before an unstressed one, as d, as Americans pronounce both as a quick tap (so metal rhymes with pedal, and dirty with wordy)"><input type="checkbox" id="flapping"> <i>latter</i>/<i>ladder</i></label>
-    <label title="Treat the stressed vowels of marry, Mary and merry as the same before r, as most Americans do"><input type="checkbox" id="mary-marry-merry"> <i>marry</i>/<i>merry</i></label>
-    <label title="Treat the stressed vowels of hurry and furry as the same, as most Americans do"><input type="checkbox" id="hurry-furry"> <i>hurry</i>/<i>furry</i></label>
-    <label title="Treat the vowels of cot and caught as the same, as many Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> <i>cot</i>/<i>caught</i></label>
-    <label title="Treat the stressed vowels of poor and pour as the same, as many Americans do (so tour rhymes with more)"><input type="checkbox" id="cure-force"> <i>poor</i>/<i>pour</i></label>
-    <label title="Treat stressed e and i as the same before m and n, as in the South (so pen rhymes with win)"><input type="checkbox" id="pin-pen"> <i>pin</i>/<i>pen</i></label>
-    <label title="Drop r unless a vowel follows, as in traditional New York, Boston and Southern speech (so lord rhymes with flawed, and Dora with explorer). The r after ah is kept: the pronunciations here use the same vowel for father and bother, so dropping it would make card rhyme with cod, which it doesn't for these speakers"><input type="checkbox" id="non-rhotic"> <i>sauce</i>/<i>source</i></label>
+    <div id="mergers">
+      <label title="Treat t between vowels, before an unstressed one, as d, as Americans pronounce both as a quick tap (so metal rhymes with pedal, and dirty with wordy)"><input type="checkbox" id="flapping"> <i>latter</i>/<i>ladder</i></label>
+      <label title="Treat the stressed vowels of marry, Mary and merry as the same before r, as most Americans do"><input type="checkbox" id="mary-marry-merry"> <i>marry</i>/<i>merry</i></label>
+      <label title="Treat the stressed vowels of hurry and furry as the same, as most Americans do"><input type="checkbox" id="hurry-furry"> <i>hurry</i>/<i>furry</i></label>
+      <label title="Treat the vowels of cot and caught as the same, as many Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> <i>cot</i>/<i>caught</i></label>
+      <label title="Treat the stressed vowels of poor and pour as the same, as many Americans do (so tour rhymes with more)"><input type="checkbox" id="cure-force"> <i>poor</i>/<i>pour</i></label>
+      <label title="Treat stressed e and i as the same before m and n, as in the South (so pen rhymes with win)"><input type="checkbox" id="pin-pen"> <i>pin</i>/<i>pen</i></label>
+      <label title="Drop r unless a vowel follows, as in traditional New York, Boston and Southern speech (so lord rhymes with flawed, and Dora with explorer). The r after ah is kept: the pronunciations here use the same vowel for father and bother, so dropping it would make card rhyme with cod, which it doesn't for these speakers"><input type="checkbox" id="non-rhotic"> <i>sauce</i>/<i>source</i></label>
+    </div>
   </div>
   <p id="status"></p>
   <div id="prons"></div>
@@ -449,6 +467,79 @@
   }
   var VOWEL_CLASSES = { O: "A", U: "A", a: "E", e: "E", I: "E", V: "R" };
   var indexKey = (rhyme) => rhyme.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) => VOWEL_CLASSES[c]).replaceAll("t", "d").replaceAll("r", "").replace(/(?<=[AERWYioQu])R+/g, "");
+  var FAMILIES = { p: "ptk", b: "bdg", f: "fTsSC", v: "vDzZJ", m: "mnN" };
+  var FAMILY = Object.fromEntries(Object.entries(FAMILIES).flatMap(([name, members]) => [...members].map((c) => [c, name])));
+  var family = (rhyme) => rhyme.replace(/[ptkbdgfTsSCvDzZJmnN]/g, (c) => FAMILY[c]);
+  var ADDABLE = /[sztdmnN]/g;
+  function oneExtra(longer, shorter) {
+    if (longer.length !== shorter.length + 1) return false;
+    for (let i = 0; i < longer.length; i++) {
+      if ("sztdmnN".includes(longer[i]) && longer.slice(0, i) + longer.slice(i + 1) === shorter && (i === longer.length - 1 || !VOWELS.has(longer[i - 1]) || !VOWELS.has(longer[i + 1]))) return true;
+    }
+    return false;
+  }
+  var same = (rhyme) => rhyme;
+  var consonantPattern = (pron, rhotic = true) => pron.replace(/[ 12]/g, "").replaceAll("R", rhotic ? "_r" : "_").replace(/[AaVOWYEeIioQUu]/g, "_");
+  function vowelPattern(pron) {
+    let pattern = "";
+    for (let i = 0; i < pron.length; i++) {
+      const c = pron[i];
+      if (!VOWELS.has(c)) continue;
+      const stressed = pron[i + 1] === "1";
+      const unstressed = !stressed && pron[i + 1] !== "2";
+      pattern += (unstressed && "IUV".includes(c) ? "V" : c) + (stressed ? "1" : "");
+    }
+    return pattern;
+  }
+  var TYPES = {
+    perfect: { matcher: (t) => (x) => x === t, key: indexKey, shape: same },
+    near: {
+      matcher: (t) => /* @__PURE__ */ ((f) => (x) => family(x) === f)(family(t)),
+      key: (rhyme) => indexKey(family(rhyme).replaceAll("p", "b")),
+      shape: family
+    },
+    additive: {
+      matcher: (t) => (x) => x === t || oneExtra(x, t) || oneExtra(t, x),
+      key: (rhyme) => indexKey(rhyme.replace(ADDABLE, "")),
+      shape: same
+    },
+    consonants: {
+      whole: true,
+      pattern: (pron, options) => consonantPattern(pron, !options.nonRhotic),
+      // as flapping makes t d, and r-dropping drops r and can add ə after a vowel (one loop, as it's run
+      // on every pronunciation when the index is built)
+      key: (pron) => {
+        let key = "";
+        for (const c of pron) {
+          if (c === " " || c === "1" || c === "2" || c === "r") continue;
+          if (VOWELS.has(c)) {
+            if (!key.endsWith("_")) key += "_";
+          } else key += c === "t" ? "d" : c;
+        }
+        return key;
+      }
+    },
+    vowels: {
+      whole: true,
+      pattern: (pron) => vowelPattern(pron),
+      // the vowels in the classes that mergers can't move between (see VOWEL_CLASSES), leaving out ʌ, ɝ,
+      // ɚ and unstressed ɪ, ʊ and ə, as mergers can turn vowels into them and r-dropping adds ə
+      key: (pron) => {
+        let key = "";
+        for (let i = 0; i < pron.length; i++) {
+          const c = pron[i];
+          if (!VOWELS.has(c)) continue;
+          const stressed = pron[i + 1] === "1";
+          const unstressed = !stressed && pron[i + 1] !== "2";
+          const cls = VOWEL_CLASSES[c] ?? c;
+          if (cls !== "R" && !(unstressed && "IU".includes(c))) key += cls;
+          if (stressed) key += "1";
+        }
+        return key;
+      }
+    }
+  };
+  var soundKey = (pron) => pron.replace(/[ 2]/g, "").replace(/[IUV](?!1)/g, "V");
   var MOSAIC_TAILS = [
     ["it", "It", "vp", "go goes went going gone wait waits waited waiting slum slums slummed slumming"],
     ["her", "R", "vp"],
@@ -531,7 +622,7 @@ which is are was were be been being am do does did has have had will would shall
     // between unstressed ɪ, ʊ and ə), as a map like matches gives. The index for this is only built
     // the first time it's needed.
     homophones(pron) {
-      const key = (p) => p.replace(/[ 2]/g, "").replace(/[IUV](?!1)/g, "V");
+      const key = soundKey;
       if (!this.bySound) {
         this.bySound = /* @__PURE__ */ new Map();
         for (const entry of this.entries) {
@@ -573,20 +664,58 @@ which is are was were be been being am do does did has have had will would shall
       }
       return { word: phrase.trim(), pron: prons2.join(" "), sources: "", zipf: 0, built: true };
     }
+    // The index of candidates for a type of search (see TYPES): { byRhyme, byLoose, key }, from the key
+    // of a rhyme or loose rhyme (or for whole types, of a pronunciation, in byRhyme) to the items with
+    // it. Only the perfect rhyme index is built up front.
+    index(type2) {
+      if (type2 === "perfect") return { byRhyme: this.byRhyme, byLoose: this.byLoose, key: indexKey };
+      this.indexes ??= {};
+      if (!this.indexes[type2]) {
+        const { key, whole } = TYPES[type2];
+        const index = { byRhyme: /* @__PURE__ */ new Map(), byLoose: /* @__PURE__ */ new Map(), key };
+        const keys = /* @__PURE__ */ new Map();
+        const keyOf = (rhyme) => {
+          let k = keys.get(rhyme);
+          if (k === void 0) keys.set(rhyme, k = key(rhyme));
+          return k;
+        };
+        const add = (map, k, item) => {
+          const list = map.get(k);
+          if (list) list.push(item);
+          else map.set(k, [item]);
+        };
+        for (const items of this.byRhyme.values()) {
+          for (const item of items) {
+            if (whole) {
+              add(index.byRhyme, key(item.entry.pron), item);
+              continue;
+            }
+            add(index.byRhyme, keyOf(item.rhyme), item);
+            add(index.byLoose, keyOf(item.loose), item);
+          }
+        }
+        this.indexes[type2] = index;
+      }
+      return this.indexes[type2];
+    }
     // Mosaic rhymes for an entry (see MOSAIC_TAILS), as a map like matches gives, from each phrase to
     // the frequency of its stressed word: the phrases whose rhyme, as one pronunciation, would be a rhyme
     // for the entry with the same options as matches. The stressed word must be a single word (see
     // MOSAIC_WORD) with parts of speech in the data that the tail can follow.
     mosaic(entry, options = {}) {
-      const { sameOnset = false, looseOnsets = false } = options;
+      const { sameOnset = false, looseOnsets = false, type: type2 = "perfect" } = options;
+      if (TYPES[type2].whole) return /* @__PURE__ */ new Map();
+      const { matcher, shape } = TYPES[type2];
+      const index = this.index(type2);
       const mergers = Object.keys(MERGERS).some((name) => options[name]);
       const parts = rhymeParts(entry.pron);
       const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
+      const [isRhyme, isLoose] = [matcher(target.rhyme), matcher(target.loose)];
       const self = lookupKey(entry.word);
       const words = /* @__PURE__ */ new Map();
       for (const tail of MOSAIC_TAILS) {
-        if (!parts.rhyme.endsWith(tail.rhyme) || parts.rhyme.length === tail.rhyme.length) continue;
-        for (const item of this.byRhyme.get(indexKey(parts.rhyme.slice(0, -tail.rhyme.length))) ?? []) {
+        if (!shape(parts.rhyme).endsWith(shape(tail.rhyme)) || parts.rhyme.length === tail.rhyme.length) continue;
+        for (const item of index.byRhyme.get(index.key(parts.rhyme.slice(0, -tail.rhyme.length))) ?? []) {
           const { word, pron, pos, zipf } = item.entry;
           const subject = (tail.word === "it" || tail.word === "you") && (BEFORE_SUBJECT.has(word) || CLAUSE_VERBS.has(word));
           if (!subject && !tail.also.has(word) && (!pos || ![...tail.after].some((c) => pos.includes(c)))) continue;
@@ -595,7 +724,7 @@ which is are was were be been being am do does did has have had will would shall
           if (UNSTRESSED_HEADS.has(word)) continue;
           const phrase = tail.attached ? word + tail.word : `${word} ${tail.word}`;
           const whole = rhymeParts(merge(`${pron} ${tail.pron}`, options));
-          if (whole.rhyme !== target.rhyme && !(looseOnsets && whole.loose === target.loose)) continue;
+          if (!isRhyme(whole.rhyme) && !(looseOnsets && isLoose(whole.loose))) continue;
           if (!sameOnset && item.onset === parts.onset || lookupKey(phrase) === self) continue;
           const match = words.get(phrase) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
           match.zipf = Math.max(match.zipf, zipf);
@@ -610,9 +739,11 @@ which is are was were be been being am do does did has have had will would shall
     // and others are the rest.
     pronunciationGroups(word, options = {}) {
       const groups = /* @__PURE__ */ new Map();
+      const { whole, pattern } = TYPES[options.type ?? "perfect"];
       for (const entry of this.pronunciations(word)) {
-        const { rhyme, onset } = rhymeParts(merge(entry.pron, options));
-        const key = `${onset}|${rhyme}`;
+        const merged = merge(entry.pron, options);
+        const { rhyme, onset } = rhymeParts(merged);
+        const key = whole ? pattern(merged, options) : `${onset}|${rhyme}`;
         if (groups.has(key)) groups.get(key).others.push(entry);
         else groups.set(key, { entry, others: [] });
       }
@@ -625,6 +756,7 @@ which is are was were be been being am do does did has have had will would shall
     // - looseOnsets: allow different consonants at the start of the syllables after the stressed one
     //   (so hip-hop and flip-flop)
     // - any of the MERGERS, such as cotCaught: treat those sounds as the same
+    // - type: the type of search (see TYPES), perfect by default
     find(entry, options = {}) {
       return [...this.matches(entry, options).keys()].sort(compareWords);
     }
@@ -632,17 +764,21 @@ which is are was were be been being am do does did has have had will would shall
     // (× 10) of its pronunciations that rhyme (so a word's rare pronunciations don't count as common),
     // and the set of their numbers of syllables.
     matches(entry, options = {}) {
-      const { sameOnset = false, looseOnsets = false } = options;
+      const { sameOnset = false, looseOnsets = false, type: type2 = "perfect" } = options;
+      if (TYPES[type2].whole) return this.wholeMatches(entry, options);
+      const { matcher } = TYPES[type2];
+      const index = this.index(type2);
       const mergers = Object.keys(MERGERS).some((name) => options[name]);
       const parts = rhymeParts(entry.pron);
       const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
-      const strict = this.byRhyme.get(indexKey(parts.rhyme)) ?? [];
-      const candidates = looseOnsets ? [...strict, ...this.byLoose.get(indexKey(parts.loose)) ?? []] : strict;
+      const [isRhyme, isLoose] = [matcher(target.rhyme), matcher(target.loose)];
+      const strict = index.byRhyme.get(index.key(parts.rhyme)) ?? [];
+      const candidates = looseOnsets ? [...strict, ...index.byLoose.get(index.key(parts.loose)) ?? []] : strict;
       const self = withoutAccents(lookupKey(entry.word));
       const words = /* @__PURE__ */ new Map();
       for (const item of candidates) {
         const other = mergers ? rhymeParts(merge(item.entry.pron, options)) : item;
-        if (other.rhyme !== target.rhyme && !(looseOnsets && other.loose === target.loose)) continue;
+        if (!isRhyme(other.rhyme) && !(looseOnsets && isLoose(other.loose))) continue;
         const { word, zipf } = item.entry;
         if ((sameOnset || item.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {
           const match = words.get(word) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
@@ -650,6 +786,28 @@ which is are was were be been being am do does did has have had will would shall
           match.syllables.add(syllableCount(item.entry.pron));
           words.set(word, match);
         }
+      }
+      return words;
+    }
+    // Matches as for matches, for types that compare whole pronunciations (see TYPES): the words whose
+    // pattern is the same as the entry's with the mergers chosen, leaving out homophones and the word
+    // itself. The onset options don't apply.
+    wholeMatches(entry, options) {
+      const { pattern } = TYPES[options.type];
+      const index = this.index(options.type);
+      const merged = merge(entry.pron, options);
+      const target = pattern(merged, options);
+      const sound = soundKey(merged);
+      const self = withoutAccents(lookupKey(entry.word));
+      const words = /* @__PURE__ */ new Map();
+      for (const item of index.byRhyme.get(index.key(entry.pron)) ?? []) {
+        const { word, zipf, pron } = item.entry;
+        const other = merge(pron, options);
+        if (pattern(other, options) !== target || soundKey(other) === sound || withoutAccents(lookupKey(word)) === self) continue;
+        const match = words.get(word) ?? { zipf: 0, syllables: /* @__PURE__ */ new Set() };
+        match.zipf = Math.max(match.zipf, zipf);
+        match.syllables.add(syllableCount(pron));
+        words.set(word, match);
       }
       return words;
     }
@@ -716,6 +874,7 @@ which is are was were be been being am do does did has have had will would shall
   var WORD_KEY = "rhymes-word";
   var OPTIONS_KEY = "rhymes-options";
   var GROUPING_KEY = "rhymes-grouping";
+  var TYPE_KEY = "rhymes-type";
   var GROUPINGS = { frequency: "by frequency", syllables: "by syllables", letters: "by letters" };
   var BANDS = { common: "Common", uncommon: "Less common", rare: "Rare", phrases: "Phrases and hyphenated words" };
   var MOSAIC = "Mosaic rhymes";
@@ -738,9 +897,12 @@ which is are was were be been being am do does did has have had will would shall
     pinPen: document.getElementById("pin-pen"),
     nonRhotic: document.getElementById("non-rhotic")
   };
-  var currentOptions = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
+  var TYPE_BUTTONS = Object.fromEntries([...document.querySelectorAll("#types button")].map((b) => [b.dataset.type, b]));
+  var checked = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
+  var currentOptions = () => ({ ...checked(), type });
   var rhymes = null;
   var grouping = GROUPINGS[load(GROUPING_KEY)] ? load(GROUPING_KEY) : "frequency";
+  var type = TYPE_BUTTONS[load(TYPE_KEY)] ? load(TYPE_KEY) : "perfect";
   var shown = { word: null, choices: [], choice: 0 };
   function load(name) {
     try {
@@ -824,10 +986,12 @@ which is are was were be been being am do does did has have had will would shall
     const already = new Set([...matches.keys()].map((w) => lookupKey(w).replaceAll("-", " ")));
     const mosaic = rhymes.items(rhymes.mosaic(entry, options)).filter((item) => !already.has(lookupKey(item.word))).map((item) => ({ ...item, band: "mosaic" })).sort((a, b) => b.zipf - a.zipf || compareWords(a.word, b.word));
     const { ipa } = rhymeParts(entry.pron);
-    const perfect = !options.sameOnset && !options.looseOnsets ? "perfect " : "";
-    const text = `${count === 0 ? "No" : count.toLocaleString("en")} ${perfect}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
+    const kind = type !== "perfect" ? `${type} ` : !options.sameOnset && !options.looseOnsets ? "perfect " : "";
+    const number = `${count === 0 ? "No" : count.toLocaleString("en")}`;
+    const shownIpa = el("span", { className: "nowrap", textContent: `/${TYPES[type].whole ? toIpa(entry.pron) : ipa}/` });
+    const text = [TYPES[type].whole ? `${number} word${count === 1 ? "" : "s"} with the same ${type} as ` : `${number} ${kind}rhyme${count === 1 ? "" : "s"} on `, shownIpa];
     if (count === 0 && mosaic.length === 0) {
-      summary.textContent = text;
+      summary.replaceChildren(...text);
       return;
     }
     const buttons = Object.entries(GROUPINGS).map(([name, label]) => {
@@ -840,7 +1004,7 @@ which is are was were be been being am do does did has have had will would shall
       });
       return button;
     });
-    summary.replaceChildren(text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
+    summary.replaceChildren(...text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
     const byCount = (groups, unit) => groups.map(({ count: count2, items }) => [`${count2} ${unit}${count2 === 1 ? "" : "s"}`, items]);
     const sections = grouping === "syllables" ? byCount(rhymes.bySyllables(matches), "syllable") : grouping === "letters" ? byCount(rhymes.byLetters(matches), "letter") : Object.entries(rhymes.arrange(matches)).filter(([, items]) => items.length).map(([band, items]) => [BANDS[band], items]);
     if (mosaic.length) sections.push([MOSAIC, mosaic]);
@@ -928,19 +1092,38 @@ which is are was were be been being am do does did has have had will would shall
     for (const [name, box] of Object.entries(OPTIONS)) box.checked = saved[name] === true;
   } catch (e) {
   }
+  function optionsChanged() {
+    if (!rhymes) return;
+    if (shown.sounds) return showRhymes();
+    const chosen = shown.choices[shown.choice];
+    const entries = chosen ? [chosen.entry, ...chosen.others] : [];
+    shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
+    const built = shown.choices.length === 0 && shown.word ? rhymes.phrasePronunciation(shown.word) : null;
+    if (built) shown.choices = [{ entry: built, others: [] }];
+    shown.choice = Math.max(0, shown.choices.findIndex((g) => entries.includes(g.entry) || g.others.some((e) => entries.includes(e))));
+    showPronunciations();
+    showRhymes();
+  }
   for (const box of Object.values(OPTIONS)) {
     box.addEventListener("change", () => {
-      save(OPTIONS_KEY, JSON.stringify(currentOptions()));
-      if (!rhymes) return;
-      if (shown.sounds) return showRhymes();
-      const chosen = shown.choices[shown.choice];
-      const entries = chosen ? [chosen.entry, ...chosen.others] : [];
-      shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
-      const built = shown.choices.length === 0 && shown.word ? rhymes.phrasePronunciation(shown.word) : null;
-      if (built) shown.choices = [{ entry: built, others: [] }];
-      shown.choice = Math.max(0, shown.choices.findIndex((g) => entries.includes(g.entry) || g.others.some((e) => entries.includes(e))));
-      showPronunciations();
-      showRhymes();
+      save(OPTIONS_KEY, JSON.stringify(checked()));
+      optionsChanged();
+    });
+  }
+  function showType() {
+    Object.entries(TYPE_BUTTONS).forEach(([name, b]) => b.setAttribute("aria-pressed", String(name === type)));
+    for (const box of [OPTIONS.sameOnset, OPTIONS.looseOnsets]) {
+      box.disabled = Boolean(TYPES[type].whole);
+      box.parentElement.classList.toggle("disabled", box.disabled);
+    }
+  }
+  showType();
+  for (const [name, button] of Object.entries(TYPE_BUTTONS)) {
+    button.addEventListener("click", () => {
+      type = name;
+      save(TYPE_KEY, name);
+      showType();
+      optionsChanged();
     });
   }
   window.addEventListener("popstate", () => {
