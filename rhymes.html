@@ -30,15 +30,16 @@
     font-size: 1.2rem;
     font-family: inherit;
   }
-  #options { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 10px; }
+  /* the settings: a label, then its choices, all starting at the same offset */
+  #settings { display: grid; grid-template-columns: max-content 1fr; gap: 6px 8px; align-items: baseline; margin-top: 10px; }
+  #settings .label { color: #666; }
+  #types { justify-self: start; }
+  #options, #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; }
   #options label, #mergers label { cursor: pointer; }
   #sound-help { margin: 6px 0 0; font-size: 0.85rem; color: #666; line-height: 1.5; }
   #sound-help span { font-family: ui-monospace, monospace; color: #000; background: #f0f0f0; padding: 0 3px; border-radius: 2px; }
   #prons .homophones a { color: #000; text-decoration: none; }
   #prons .homophones a:hover, #prons .homophones a:focus { text-decoration: underline; }
-  #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; }
-  #mergers .label, #types .label { color: #666; }
-  #types { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 6px; }
   #status { margin: 12px 0 0; color: #666; }
   #status:empty { display: none; }
   #status.error { color: #d00; }
@@ -87,26 +88,27 @@
   <p class="intro">Find rhymes in General American English for a word, a phrase, or a pronunciation between slashes, like /ˈhɛd/ or /'hEd/. Mosaic rhymes, like <i>know it</i> for <i>poet</i>, come last. Click a rhyme to look it up. The pronunciations are fetched online and kept for offline use; you can also download them, or load your own (see the bottom of the page).</p>
   <input id="word" type="text" placeholder="Word or phrase..." autocomplete="off" spellcheck="false" autofocus>
   <p id="sound-help" hidden>Type sounds in IPA or using: <span>A</span> ɑ <i>father</i> · <span>a</span> æ <i>cat</i> · <span>^</span> ʌ or <span>@</span> ə <i>cut</i> · <span>O</span> ɔ <i>caught</i> · <span>E</span> ɛ <i>bed</i> · <span>3</span> ɝ/ɚ <i>bird</i> · <span>I</span> ɪ <i>bit</i> · <span>i</span> <i>beat</i> · <span>U</span> ʊ <i>book</i> · <span>u</span> <i>boot</i> · <span>eI</span> <i>bait</i> · <span>aI</span> <i>bite</i> · <span>aU</span> <i>out</i> · <span>oU</span> <i>boat</i> · <span>OI</span> <i>boy</i> · <span>S</span> ʃ <i>ship</i> · <span>Z</span> ʒ <i>measure</i> · <span>tS</span> <i>chip</i> · <span>dZ</span> <i>judge</i> · <span>T</span> θ <i>thin</i> · <span>D</span> ð <i>this</i> · <span>N</span> ŋ <i>sing</i> · <span>j</span>/<span>y</span> <i>yes</i>, others as usual. Put <span>'</span> before the stressed syllable (by default the first) and <span>,</span> before a secondary one, e.g. <span>/'m^Nki/</span> <i>monkey</i>.</p>
-  <div id="options">
-    <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> Allow the same onset</label>
-    <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> Allow different onsets after the stress</label>
-  </div>
-  <div id="mergers">
-    <span class="label" title="Treat sounds as the same that many Americans pronounce the same">Merge:</span>
-    <label title="Treat t between vowels, before an unstressed one, as d, as Americans pronounce both as a quick tap (so metal rhymes with pedal, and dirty with wordy)"><input type="checkbox" id="flapping"> <i>latter</i>/<i>ladder</i></label>
-    <label title="Treat the stressed vowels of marry, Mary and merry as the same before r, as most Americans do"><input type="checkbox" id="mary-marry-merry"> <i>marry</i>/<i>merry</i></label>
-    <label title="Treat the stressed vowels of hurry and furry as the same, as most Americans do"><input type="checkbox" id="hurry-furry"> <i>hurry</i>/<i>furry</i></label>
-    <label title="Treat the vowels of cot and caught as the same, as many Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> <i>cot</i>/<i>caught</i></label>
-    <label title="Treat the stressed vowels of poor and pour as the same, as many Americans do (so tour rhymes with more)"><input type="checkbox" id="cure-force"> <i>poor</i>/<i>pour</i></label>
-    <label title="Treat stressed e and i as the same before m and n, as in the South (so pen rhymes with win)"><input type="checkbox" id="pin-pen"> <i>pin</i>/<i>pen</i></label>
-    <label title="Drop r unless a vowel follows, as in traditional New York, Boston and Southern speech (so lord rhymes with flawed, and Dora with explorer). The r after ah is kept: the pronunciations here use the same vowel for father and bother, so dropping it would make card rhyme with cod, which it doesn't for these speakers"><input type="checkbox" id="non-rhotic"> <i>sauce</i>/<i>source</i></label>
-  </div>
-  <div id="types">
+  <div id="settings">
     <span class="label" title="What to search for">Type:</span>
-    <span class="buttons">
+    <span id="types" class="buttons">
       <button type="button" data-type="perfect" title="Words that sound the same from the stressed vowel on (so time rhymes with rhyme)">Perfect rhyme</button>
       <button type="button" data-type="near" title="Also let consonants after the stressed vowel differ within a family: p t k; b d g; f th s sh ch; v th z zh j; m n ng (so rhyme matches mine, and cap matches cat)">Near rhyme</button>
     </span>
+    <span class="label" title="The consonants that start a syllable">Onsets:</span>
+    <div id="options">
+      <label title="Also list words that sound the same just before the last stressed vowel, such as behead for head"><input type="checkbox" id="same-onset"> allow the same</label>
+      <label title="Let the syllables after the stressed one start with different consonants, so hip-hop rhymes with flip-flop"><input type="checkbox" id="loose-onsets"> allow different after the stress</label>
+    </div>
+    <span class="label" title="Treat sounds as the same that many Americans pronounce the same">Merge:</span>
+    <div id="mergers">
+      <label title="Treat t between vowels, before an unstressed one, as d, as Americans pronounce both as a quick tap (so metal rhymes with pedal, and dirty with wordy)"><input type="checkbox" id="flapping"> <i>latter</i>/<i>ladder</i></label>
+      <label title="Treat the stressed vowels of marry, Mary and merry as the same before r, as most Americans do"><input type="checkbox" id="mary-marry-merry"> <i>marry</i>/<i>merry</i></label>
+      <label title="Treat the stressed vowels of hurry and furry as the same, as most Americans do"><input type="checkbox" id="hurry-furry"> <i>hurry</i>/<i>furry</i></label>
+      <label title="Treat the vowels of cot and caught as the same, as many Americans do (but not before r, so horse still doesn't rhyme with farce)"><input type="checkbox" id="cot-caught"> <i>cot</i>/<i>caught</i></label>
+      <label title="Treat the stressed vowels of poor and pour as the same, as many Americans do (so tour rhymes with more)"><input type="checkbox" id="cure-force"> <i>poor</i>/<i>pour</i></label>
+      <label title="Treat stressed e and i as the same before m and n, as in the South (so pen rhymes with win)"><input type="checkbox" id="pin-pen"> <i>pin</i>/<i>pen</i></label>
+      <label title="Drop r unless a vowel follows, as in traditional New York, Boston and Southern speech (so lord rhymes with flawed, and Dora with explorer). The r after ah is kept: the pronunciations here use the same vowel for father and bother, so dropping it would make card rhyme with cod, which it doesn't for these speakers"><input type="checkbox" id="non-rhotic"> <i>sauce</i>/<i>source</i></label>
+    </div>
   </div>
   <p id="status"></p>
   <div id="prons"></div>
