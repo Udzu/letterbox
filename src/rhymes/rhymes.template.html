@@ -36,7 +36,8 @@
   #prons .homophones a { color: #000; text-decoration: none; }
   #prons .homophones a:hover, #prons .homophones a:focus { text-decoration: underline; }
   #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; }
-  #mergers .label { color: #666; }
+  #mergers .label, #types .label { color: #666; }
+  #types { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 6px; }
   #status { margin: 12px 0 0; color: #666; }
   #status:empty { display: none; }
   #status.error { color: #d00; }
@@ -51,14 +52,14 @@
   a.wiktionary:hover { text-decoration: underline; }
   #summary { margin: 16px 0 8px; font-size: 1.1rem; }
   #summary:empty { display: none; }
-  /* the grouping buttons, joined, with the current one pressed */
+  /* the type and grouping buttons, joined, with the current one pressed */
   #summary .grouping { margin-left: 12px; font-size: 0.9rem; color: #666; white-space: nowrap; }
-  #summary .buttons { display: inline-flex; vertical-align: middle; }
-  #summary .buttons button { font: inherit; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
-  #summary .buttons button + button { border-left: none; }
-  #summary .buttons button:first-child { border-radius: 3px 0 0 3px; }
-  #summary .buttons button:last-child { border-radius: 0 3px 3px 0; }
-  #summary .buttons button[aria-pressed=true] { background: #e8e8e8; border-color: #999; color: #222; }
+  .buttons { display: inline-flex; vertical-align: middle; }
+  .buttons button { font: inherit; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
+  .buttons button + button { border-left: none; }
+  .buttons button:first-child { border-radius: 3px 0 0 3px; }
+  .buttons button:last-child { border-radius: 0 3px 3px 0; }
+  .buttons button[aria-pressed=true] { background: #e8e8e8; border-color: #999; color: #222; }
   #results section { border: 1px solid #999; padding: 6px 8px; }
   #results section + section { border-top: none; }
   #results h2 { margin: 0 0 4px; font-size: 0.95rem; font-weight: 600; color: #444; }
@@ -98,6 +99,13 @@
     <label title="Treat the stressed vowels of poor and pour as the same, as many Americans do (so tour rhymes with more)"><input type="checkbox" id="cure-force"> <i>poor</i>/<i>pour</i></label>
     <label title="Treat stressed e and i as the same before m and n, as in the South (so pen rhymes with win)"><input type="checkbox" id="pin-pen"> <i>pin</i>/<i>pen</i></label>
     <label title="Drop r unless a vowel follows, as in traditional New York, Boston and Southern speech (so lord rhymes with flawed, and Dora with explorer). The r after ah is kept: the pronunciations here use the same vowel for father and bother, so dropping it would make card rhyme with cod, which it doesn't for these speakers"><input type="checkbox" id="non-rhotic"> <i>sauce</i>/<i>source</i></label>
+  </div>
+  <div id="types">
+    <span class="label" title="What to search for">Type:</span>
+    <span class="buttons">
+      <button type="button" data-type="perfect" title="Words that sound the same from the stressed vowel on (so time rhymes with rhyme)">Perfect rhyme</button>
+      <button type="button" data-type="near" title="Also let consonants after the stressed vowel differ within a family: p t k; b d g; f th s sh ch; v th z zh j; m n ng (so rhyme matches mine, and cap matches cat)">Near rhyme</button>
+    </span>
   </div>
   <p id="status"></p>
   <div id="prons"></div>

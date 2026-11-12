@@ -488,3 +488,40 @@ test("parses parts of speech as an optional fifth field", () => {
   assert.throws(() => parsePronunciations("cat\tka1t\tCU\t50\tnoun\n"), /line 1: parts of speech/);
   assert.throws(() => parsePronunciations("cat\tka1t\tCU\t50\tn\tx\n"), /line 1: too many columns/);
 });
+
+test("near rhymes: consonants after the stressed vowel may differ within a family", () => {
+  const rhymes = new Rhymes(parsePronunciations(`rhyme\trY1m
+mine\tmY1n
+time\ttY1m
+thing\tTI1N
+ride\trY1d
+lied\tlY1d
+bite\tbY1t
+like\tlY1k
+lice\tlY1s
+cap\tka1p
+bat\tba1t
+bad\tba1d
+happy\tha1pi
+tabby\tta1bi
+daddy\tda1di
+owen\to1In
+know\tno1\tCU\t60\tv
+`).entries);
+  const find = (word, options) => rhymes.find(rhymes.pronunciations(word)[0], options);
+  assert.deepEqual(find("rhyme"), ["time"]);
+  // nasals, but not other consonants, and still not the same onset
+  assert.deepEqual(find("rhyme", { type: "near" }), ["mine", "time"]);
+  // voiceless stops, not voiced ones or fricatives
+  assert.deepEqual(find("bite", { type: "near" }), ["like"]);
+  assert.deepEqual(find("cap", { type: "near" }), ["bat"]);
+  // including the consonants that start later syllables (happy and tabby, but not daddy)
+  assert.deepEqual(find("tabby", { type: "near" }), ["daddy"]);
+  assert.deepEqual(find("happy", { type: "near" }), []);
+  // with flapping, t is d, so a voiced stop
+  assert.deepEqual(find("bite", { type: "near", flapping: true }), ["like"]);
+  // mosaic rhymes too: know 'em for owen
+  const mosaic = (word, options) => [...rhymes.mosaic(rhymes.pronunciations(word)[0], options).keys()].sort();
+  assert.deepEqual(mosaic("owen"), ["know in"]);
+  assert.deepEqual(mosaic("owen", { type: "near" }), ["know 'em", "know in"]);
+});
