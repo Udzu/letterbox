@@ -21,7 +21,8 @@ names another accent, are left out.
 
 Single words with a Zipf frequency of at least 2.5 also get their main parts of speech from Wiktionary, as
 far as the page's mosaic rhymes need them (see POS_CODES): whether they can be a noun (or pronoun, name or
-numeral), which can come before 'll, or a verb or preposition, which can come before an object pronoun.
+numeral), which can come before 'll, or a verb or preposition, which can come before an object pronoun
+(unless the verb is intransitive).
 """
 
 import gzip
@@ -116,6 +117,13 @@ def classify(word, sound, kind):
     return "uk" if uk and not us else "mixed" if uk else "W"
 
 
+def transitivity_kind(tags):
+    """Whether a verb sense with these tags is transitive (or can be), intransitive, or not said."""
+    if tags & {"transitive", "ambitransitive", "ditransitive", "ergative"}:
+        return "transitive"
+    return "intransitive" if "intransitive" in tags else "other"
+
+
 def mixed_to_us(body):
     """An untagged transcription with both American and British features: treat the British ones as
     slips."""
@@ -133,6 +141,8 @@ unstressed = []  # (word, source, transcription, marked) with no stress marks, t
 main_prons = defaultdict(set)  # word -> pronunciations from US Wiktionary transcriptions that aren't marked
 entry_prons = defaultdict(lambda: defaultdict(set))  # word -> (pos, etymology) -> American IPA pronunciations
 parts_of_speech = defaultdict(Counter)  # word -> Wiktionary part of speech -> number of current senses
+transitivity = defaultdict(Counter)  # verb -> transitive / intransitive / other -> number of current senses
+verb_lemmas = defaultdict(set)  # inflected verb -> the verbs it's a form of
 OLD_SENSE_TAGS = {"obsolete", "archaic", "rare", "dialectal", "historical", "nonstandard"}
 notes = Counter()
 
@@ -145,6 +155,15 @@ with gzip.open(KAIKKI, "rt", encoding="utf-8") as f:
         if word.startswith("-") or word.endswith("-") or not re.match(r"[^\W_]|['’]", word):
             continue
         parts_of_speech[word][e.get("pos")] += sum(1 for sense in e.get("senses", []) if not set(sense.get("tags", [])) & OLD_SENSE_TAGS)
+        if e.get("pos") == "verb":
+            for sense in e.get("senses", []):
+                tags = set(sense.get("tags", []))
+                if tags & OLD_SENSE_TAGS:
+                    continue
+                if "form-of" in tags:
+                    verb_lemmas[word].update(f["word"] for f in sense.get("form_of", []))
+                else:
+                    transitivity[word][transitivity_kind(tags)] += 1
         seen = set()
         for sound in e.get("sounds", []):
             kind = "ipa" if "ipa" in sound else "enpr" if "enpr" in sound else None
@@ -572,11 +591,33 @@ stats["phrase pronunciations built"] = len(built)
 rows.sort(key=lambda r: (r[0].lower(), r[0], r[1]))
 
 # Wiktionary parts of speech -> the page's codes: n for what can come before 'll, v and p for what can come
-# before an object pronoun or article. A word only gets the parts of speech that have at least POS_SHARE of
-# its current senses (not obsolete, rare and so on), so get isn't a noun and lot isn't a verb.
+# before an object pronoun or article, and i for verbs that can't (see intransitive). A word only gets the
+# parts of speech that have at least POS_SHARE of its current senses (not obsolete, rare and so on), so get
+# isn't a noun and lot isn't a verb.
 POS_CODES = {"noun": "n", "name": "n", "pron": "n", "num": "n", "verb": "v", "prep": "p"}
 POS_MIN_ZIPF = 25
 POS_SHARE = 0.2
+# A verb is intransitive if under INTRANSITIVE_MAX_TRANSITIVE of its current senses are tagged transitive and
+# at least INTRANSITIVE_MIN_SHARE are tagged intransitive. Wiktionary leaves many senses untagged, and tags
+# some that take a clause as intransitive (ensure that…), so only clear cases count: go, fall, arrive.
+INTRANSITIVE_MAX_TRANSITIVE = 0.15
+INTRANSITIVE_MIN_SHARE = 0.5
+# verbs that take an object though Wiktionary tags them intransitive (ensure that…, ensure a fair trial)
+TRANSITIVE_VERBS = {"ensure"}
+
+
+@cache
+def intransitive(w):
+    """Whether a verb is intransitive: its own senses are (if it has any), and so are the verbs it's a form
+    of (if Wiktionary has their senses), so fell (to cut down) isn't, but went and fallen are."""
+    if w in TRANSITIVE_VERBS or verb_lemmas.get(w, set()) & TRANSITIVE_VERBS:
+        return False
+    own = transitivity.get(w)
+    lemmas = [transitivity[lemma] for lemma in verb_lemmas.get(w, ()) if lemma != w and lemma in transitivity]
+    kinds = ([own] if own else []) + lemmas
+    return bool(kinds) and all(
+        k["transitive"] < INTRANSITIVE_MAX_TRANSITIVE * k.total() and k["intransitive"] >= INTRANSITIVE_MIN_SHARE * k.total()
+        for k in kinds)
 
 
 @cache
@@ -598,10 +639,14 @@ def pos_code(w, p):
     total = sum(senses.values())
     main = {pos for pos, n in senses.items() if n and n >= POS_SHARE * total}
     entries = pos_entries(w).get(p)
-    return "".join(sorted({POS_CODES[pos] for pos in main & (entries or main) if pos in POS_CODES}))
+    codes = {POS_CODES[pos] for pos in main & (entries or main) if pos in POS_CODES}
+    if "v" in codes and intransitive(w):
+        codes = codes - {"v"} | {"i"}
+    return "".join(sorted(codes))
 
 
 stats["words with parts of speech"] = len({w for w, p, _ in rows if pos_code(w, p)})
+stats["intransitive verbs"] = len({w for w, p, _ in rows if "i" in pos_code(w, p)})
 OUT.parent.mkdir(exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as o:
     print("""# name: Pronunciations
@@ -609,7 +654,7 @@ with open(OUT, "w", encoding="utf-8") as o:
 # attribution: From the [CMU Pronouncing Dictionary](https://github.com/cmusphinx/cmudict) (BSD licence) and [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)), with frequencies from [wordfreq](https://github.com/rspeer/wordfreq). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.
 # phonemes: vowels A ɑ, a æ, V ʌ/ə, O ɔ, W aʊ, Y aɪ, E ɛ, R ɝ/ɚ, e eɪ, I ɪ, i i, o oʊ, Q ɔɪ, U ʊ, u u (followed by 1 for primary stress, 2 for secondary); consonants b C=tʃ d D=ð f g h J=dʒ k l m n N=ŋ p r s S=ʃ t T=θ v w j z Z=ʒ; space between words
 # sources: C CMUdict, U Wiktionary (US), W Wiktionary (untagged), E Wiktionary enPR, B Wiktionary (British, converted), P built from the pronunciations of a phrase's words
-# parts of speech (fifth field, for common single words, if any, as far as known for that pronunciation): n noun, pronoun, name or numeral, p preposition, v verb
+# parts of speech (fifth field, for common single words, if any, as far as known for that pronunciation): n noun, pronoun, name or numeral, p preposition, v verb that can take an object, i other verb
 """, file=o)
     for w, p, s in rows:
         print(f"{w}\t{p}\t{s}\t{frequency(w, p, s)}" + (f"\t{pos_code(w, p)}" if pos_code(w, p) else ""), file=o)
