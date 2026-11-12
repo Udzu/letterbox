@@ -1,6 +1,6 @@
 # name: Astronomical objects
 # description: Objects in space, both named (Triton, Milky Way) and general (comet, dwarf planet), in alphabetical order.
-# tag: science
+# tag: science & academia
 
 47 Tucanae
 accretion disc

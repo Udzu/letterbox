@@ -48,7 +48,7 @@
   .badge.geography { background: #fcecd9; color: #8a4b00; }
   .badge.language { background: #fde0dc; color: #b3261e; }
   .badge.politics-religion { background: #f3f0c4; color: #5f5600; }
-  .badge.science { background: #efe6fa; color: #5b2f94; }
+  .badge.science-academia { background: #efe6fa; color: #5b2f94; }
   .badge.other { background: #eee; color: #555; }
   /* a row's badge is a button too, which shows only the lists with that topic, or all of them again */
   .title button.badge { border: 1px solid transparent; font-family: inherit; line-height: inherit; cursor: pointer; }
@@ -111,7 +111,7 @@
     "file": "astronomical-objects.txt",
     "name": "Astronomical objects",
     "description": "Objects in space, both named (Triton, Milky Way) and general (comet, dwarf planet), in alphabetical order.",
-    "tag": "science",
+    "tag": "science & academia",
     "size": 494
   },
   {
@@ -126,7 +126,7 @@
     "file": "body-parts.txt",
     "name": "Body parts",
     "description": "Parts of the human body, by both common and technical names (kneecap, patella), most prominent first.",
-    "tag": "science",
+    "tag": "science & academia",
     "attribution": "Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.",
     "size": 418
   },
@@ -141,14 +141,14 @@
     "file": "elements.txt",
     "name": "Chemical elements",
     "description": "The 118 chemical elements, with alternative spellings and the Latin names behind some of their symbols.",
-    "tag": "science",
+    "tag": "science & academia",
     "size": 134
   },
   {
     "file": "element-symbols.txt",
     "name": "Chemical symbols",
     "description": "The symbols of the 118 chemical elements, such as He and Na, in their usual capitalisation.",
-    "tag": "science",
+    "tag": "science & academia",
     "size": 118
   },
   {
@@ -219,6 +219,14 @@
     "size": 29
   },
   {
+    "file": "philosophers.txt",
+    "name": "Philosophers",
+    "description": "Names of philosophers and political and social thinkers, ancient to modern, most prominent first.",
+    "tag": "science & academia",
+    "attribution": "Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.",
+    "size": 409
+  },
+  {
     "file": "political-figures.txt",
     "name": "Political figures",
     "description": "Surnames of politicians, revolutionaries and activists born since 1700, most prominent first.",
@@ -241,6 +249,22 @@
     "tag": "politics & religion",
     "attribution": "From Wikipedia's [list of religions and spiritual traditions](https://en.wikipedia.org/wiki/List_of_religions_and_spiritual_traditions), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.",
     "size": 278
+  },
+  {
+    "file": "scientists.txt",
+    "name": "Scientists",
+    "description": "Names of scientists, mathematicians, doctors, engineers and inventors, most prominent first.",
+    "tag": "science & academia",
+    "attribution": "Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.",
+    "size": 761
+  },
+  {
+    "file": "social-scientists.txt",
+    "name": "Social scientists",
+    "description": "Names of economists, psychologists, sociologists, anthropologists and linguists, most prominent first.",
+    "tag": "science & academia",
+    "attribution": "Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.",
+    "size": 402
   },
   {
     "file": "sports.txt",
@@ -284,7 +308,7 @@
   // src/wordlists/lists.js
   var REQUIRED = ["name", "description"];
   var KEYS = [...REQUIRED, "tag", "attribution"];
-  var TOPICS = ["culture", "geography", "language", "politics & religion", "science"];
+  var TOPICS = ["culture", "geography", "language", "politics & religion", "science & academia"];
   var TAGS = ["general", ...TOPICS];
   function stripList(text) {
     const words = text.split("\n").map((line) => line.trim()).filter((line) => line !== "" && !line.startsWith("#"));

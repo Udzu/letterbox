@@ -1,0 +1,807 @@
+# name: Scientists
+# description: Names of scientists, mathematicians, doctors, engineers and inventors, most prominent first.
+# tag: science & academia
+# attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
+
+# People with a scientific, mathematical, medical, engineering or inventing occupation on Wikidata, articles in at
+# least 8 of the larger Wikipedias and a scientific English description, from all eras, reviewed by hand: left out
+# economists, psychologists and other social scientists, philosophers whose science isn't central, and people best
+# known for something else (writers, politicians, astronauts, Wikipedia figures). Cut at 750 by prominence, with
+# well-known people below the cut (the ranking favours Nobel laureates) added back at the end. Names are the ones
+# each is usually known by in English (Galileo, Leonardo, Rayleigh, Khwarizmi); Chinese names in full.
+
+Q1043: Linnaeus  # Carl Linnaeus
+Q868: Aristotle  # Aristotle
+Q937: Einstein  # Albert Einstein
+Q935: Newton  # Isaac Newton
+Q1035: Darwin  # Charles Darwin
+Q307: Galileo  # Galileo Galilei
+Q762: Leonardo, da Vinci  # Leonardo da Vinci
+Q34943: Ptolemy  # Ptolemy
+Q9191: Descartes  # René Descartes
+Q7186: Curie  # Marie Curie
+Q80: Berners-Lee  # Tim Berners-Lee
+Q9047: Leibniz  # Gottfried Wilhelm Leibniz
+Q9036: Tesla  # Nikola Tesla
+Q34969: Franklin  # Benjamin Franklin
+Q619: Copernicus  # Nicolaus Copernicus
+Q8739: Archimedes  # Archimedes
+Q7604: Euler  # Leonhard Euler
+Q8011: Avicenna  # Avicenna
+Q6722: Gauss  # Carl Friedrich Gauss
+Q9095: Maxwell  # James Clerk Maxwell
+Q8963: Kepler  # Johannes Kepler
+Q7251: Turing  # Alan Turing
+Q17714: Hawking  # Stephen Hawking
+Q9021: Planck  # Max Planck
+Q48246: Haeckel  # Ernst Haeckel
+Q8747: Euclid  # Euclid
+Q10261: Pythagoras  # Pythagoras
+Q8750: Faraday  # Michael Faraday
+Q8958: Gutenberg  # Johannes Gutenberg
+Q8753: Fermi  # Enrico Fermi
+Q1290: Pascal  # Blaise Pascal
+Q529: Pasteur  # Louis Pasteur
+Q39246: Feynman  # Richard Feynman
+Q122701: Kelvin  # William Thomson, 1st Baron Kelvin
+Q9038: Khwarizmi  # Muḥammad ibn Musa al-Khwarizmi
+Q17455: von Neumann  # John von Neumann
+Q9130: Schrödinger  # Erwin Schrödinger
+Q7085: Bohr  # Niels Bohr
+Q9123: Rutherford  # Ernest Rutherford
+Q34286: Bell  # Alexander Graham Bell
+Q9106: Mendeleev  # Dmitri Mendeleev
+Q40904: Heisenberg  # Werner Heisenberg
+Q83552: Prokhorov  # Alexander Prokhorov
+Q82122: Lamarck  # Jean-Baptiste de Lamarck
+Q46830: Hooke  # Robert Hooke
+Q36488: Marconi  # Guglielmo Marconi
+Q5264: Hippocrates  # Hippocrates
+Q36303: Thales  # Thales
+Q9041: Watt  # James Watt
+Q41585: Hilbert  # David Hilbert
+Q8962: Joule  # James Prescott Joule
+Q48983: Pauling  # Linus Pauling
+Q92760: Shannon  # Claude Shannon
+Q159905: Hipparchus  # Hipparchus
+Q37970: Mendel  # Gregor Mendel
+Q47480: Dirac  # Paul Dirac
+Q37463: Curie  # Pierre Curie
+Q83333: Watson  # James Watson
+Q171969: Cuvier  # Georges Cuvier
+Q41390: Gödel  # Kurt Gödel
+Q92743: Cerf  # Vint Cerf
+Q44461: Dawkins  # Richard Dawkins
+Q8778: Galen  # Galen
+Q35149: Röntgen  # Wilhelm Röntgen
+Q193803: Penrose  # Roger Penrose
+Q39607: Lavoisier  # Antoine Lavoisier
+Q47285: Thomson  # Joseph John Thomson
+Q44481: Laplace  # Pierre-Simon Laplace
+Q81082: Poincaré  # Henri Poincaré
+Q39599: Huygens  # Christiaan Huygens
+Q312771: Latreille  # Pierre André Latreille
+Q123280: Crick  # Francis Crick
+Q410: Sagan  # Carl Sagan
+Q58978: Born  # Max Born
+Q80222: Lagrange  # Joseph-Louis Lagrange
+Q41688: Lorentz  # Hendrik Lorentz
+Q43522: Leeuwenhoek  # Antonie van Leeuwenhoek
+Q11826: Biruni  # Al-Biruni
+Q23810: Nobel  # Alfred Nobel
+Q47163: Vitruvius  # Vitruvius
+Q133267: Landau  # Lev Landau
+Q41257: Hertz  # Heinrich Hertz
+Q81130: Celsius  # Anders Celsius
+Q42985: Pavlov  # Ivan Pavlov
+Q153232: d'Alembert  # Jean Le Rond d'Alembert
+Q43027: Hubble  # Edwin Hubble
+Q5354: Mayr  # Ernst Mayr
+Q84296: Boltzmann  # Ludwig Boltzmann
+Q132537: Oppenheimer  # J. Robert Oppenheimer
+Q148109: Chandrasekhar  # Subrahmanyan Chandrasekhar
+Q34253: Torvalds  # Linus Torvalds
+Q680: Volta  # Alessandro Volta
+Q60024: Helmholtz  # Hermann von Helmholtz
+Q949: Bardeen  # John Bardeen
+Q36620: Brahe  # Tycho Brahe
+Q65989: Pauli  # Wolfgang Pauli
+Q122366: Bernoulli  # Daniel Bernoulli
+Q997: Sakharov  # Andrei Sakharov
+Q41269: Becquerel  # Antoine Henri Becquerel
+Q14277: Herschel  # William Herschel
+Q60028: Frege  # Gottlob Frege
+Q37064: Fleming  # Alexander Fleming
+Q183337: Attenborough  # David Attenborough
+Q43393: Boyle  # Robert Boyle
+Q184366: Huxley  # Thomas Henry Huxley
+Q58720: Lomonosov  # Mikhail Lomonosov
+Q8772: Fourier  # Joseph Fourier
+Q37193: Koch  # Robert Koch
+Q310067: Woese  # Carl Woese
+Q155790: Wigner  # Eugene Paul Wigner
+Q78496: Lorenz  # Konrad Lorenz
+Q46633: Babbage  # Charles Babbage
+Q11104: Ibn al-Haytham  # Ibn al-Haytham
+Q85404: Osipov  # Yury Osipov
+Q60429: Raman  # Chandrasekhara Venkata Raman
+Q57073: Fahrenheit  # Daniel Gabriel Fahrenheit
+Q41284: Dalton  # John Dalton
+Q155794: Bethe  # Hans Bethe
+Q163415: Shockley  # William Shockley
+Q183372: Whitehead  # Alfred North Whitehead
+Q83297: Rayleigh  # John William Strutt
+Q17457: Knuth  # Donald Knuth
+Q36330: Bruno  # Giordano Bruno
+Q675: Ampère  # André-Marie Ampère
+Q8814: Cauchy  # Augustin-Louis Cauchy
+Q127234: Michelson  # Albert Abraham Michelson
+Q47087: Clarke  # Arthur C. Clarke
+Q323320: Thorne  # Kip S. Thorne
+Q57384: von Braun  # Wernher von Braun
+Q181369: Yang  # Chen-ning Yang
+Q153243: Gibbs  # Josiah Willard Gibbs
+Q42299: Riemann  # Bernhard Riemann
+Q454117: Cavalier-Smith  # Thomas Cavalier-Smith
+Q131721: van der Waals  # Johannes Diderik van der Waals
+Q234583: Margulis  # Lynn Margulis
+Q76420: Cantor  # Georg Cantor
+Q7259: Lovelace  # Ada Lovelace
+Q37103: Nightingale  # Florence Nightingale
+Q81716: Coulomb  # Charles-Augustin de Coulomb
+Q80884: Chadwick  # James Chadwick
+Q28189: Salam  # Abdus Salam
+Q47434: Halley  # Edmond Halley
+Q169577: Lawrence  # Ernest Lawrence
+Q299595: Bush  # Vannevar Bush
+Q165969: Rabi  # Isidor Isaac Rabi
+Q204815: Minsky  # Marvin Minsky
+Q57065: Hahn  # Otto Hahn
+Q44412: Ørsted  # Hans Christian Ørsted
+Q131761: Davy  # Humphry Davy
+Q172840: Gell-Mann  # Murray Gell-Mann
+Q192112: Higgs  # Peter Higgs
+Q133544: Baird  # John Logie Baird
+Q181685: Carnot  # Nicolas Carnot
+Q6733: Teller  # Edward Teller
+Q130975: Millikan  # Robert Andrews Millikan
+Q171677: Bacon  # Roger Bacon
+Q16389: Kao  # Charles K. Kao
+Q179282: Weinberg  # Steven Weinberg
+Q7504: Joliot-Curie  # Irène Joliot-Curie
+Q8556: Dijkstra  # Edsger W. Dijkstra
+Q12998: Lemaître  # Georges Lemaître
+Q80956: Arrhenius  # Svante August Arrhenius
+Q7474: Franklin  # Rosalind Franklin
+Q302835: Tusi  # Nasir al-Din al-Tusi
+Q155777: Yukawa  # Hideki Yukawa
+Q83428: Paracelsus  # Paracelsus
+Q57075: Haber  # Fritz Haber
+Q211029: Wilson  # Edward O. Wilson
+Q92739: McCarthy  # John McCarthy
+Q216723: Fisher  # Ronald Fisher
+Q30693: Clausius  # Rudolf Clausius
+Q62843: Kahn  # Bob Kahn
+Q11359: Aryabhata  # Aryabhata
+Q172844: Kapitsa  # Pyotr Kapitsa
+Q154824: Borlaug  # Norman Borlaug
+Q6353: Mercator  # Gerardus Mercator
+Q104668: Ginzburg  # Vitaly Ginzburg
+Q11887: Hamilton  # William Rowan Hamilton
+Q483382: Wozniak  # Steve Wozniak
+Q178344: Alvarez  # Luis Walter Alvarez
+Q1585: Ohm  # Georg Simon Ohm
+Q140188: Aristarchus  # Aristarchus of Samos
+Q199654: McClintock  # Barbara McClintock
+Q183279: Alferov  # Zhores Alferov
+Q177681: Morgan  # Thomas Hunt Morgan
+Q151556: Owen  # Richard Owen
+Q123057: de Candolle  # Augustin-Pyramus de Candolle
+Q161853: Hero  # Hero of Alexandria
+Q184577: Brattain  # Walter Houser Brattain
+Q154345: Heaviside  # Oliver Heaviside
+Q312959: Tournefort  # Joseph Pitton de Tournefort
+Q188120: Nambu  # Yoichiro Nambu
+Q57067: von Laue  # Max von Laue
+Q183509: Prigogine  # Ilya Prigogine
+Q178577: Wiener  # Norbert Wiener
+Q62891: Kamerlingh Onnes  # Heike Kamerlingh Onnes
+Q75655: Fermat  # Pierre de Fermat
+Q179759: Kindi  # Al-Kindi
+Q131729: Bragg  # William Lawrence Bragg
+Q127944: Compton  # Arthur Holly Compton
+Q57100: Mayer  # Maria Göppert Mayer
+Q93128: Harvey  # William Harvey
+Q179572: Smoot  # George F. Smoot
+Q25820: Young  # Thomas Young
+Q54945: Alfvén  # Hannes Alfvén
+Q185007: Levi-Montalcini  # Rita Levi-Montalcini
+Q45575: Ritchie  # Dennis M. Ritchie
+Q172877: Penzias  # Arno Allan Penzias
+Q57063: Lenard  # Philipp Lenard
+Q171034: Wilson  # Robert Wilson
+Q183679: Lee  # Tsung-Dao Lee
+Q184566: Townes  # Charles Hard Townes
+Q184563: Tomonaga  # Shinichiro Tomonaga
+Q159636: Priestley  # Joseph Priestley
+Q730065: Nakamura  # Shuji Nakamura
+Q182031: Kilby  # Jack Kilby
+Q173028: Segrè  # Emilio G. Segrè
+Q3571662: LeCun  # Yann LeCun
+Q92854: Hennessy  # John L. Hennessy
+Q107405: Onsager  # Lars Onsager
+Q103835: Debye  # Peter Debye
+Q223963: Jussieu  # Antoine Laurent de Jussieu
+Q60052: Kirchhoff  # Gustav Kirchhoff
+Q172254: Metchnikoff  # Élie Metchnikoff
+Q184499: Blackett  # Patrick Blackett
+Q215022: Eddington  # Arthur Eddington
+Q186465: Schwinger  # Julian Seymour Schwinger
+Q133747: Bragg  # William Henry Bragg
+Q202943: Brahmagupta  # Brahmagupta
+Q57077: Braun  # Karl Ferdinand Braun
+Q190772: Poisson  # Siméon Denis Poisson
+Q40262: Gross  # David Gross
+Q232149: Rankine  # William John Macquorn Rankine
+Q57068: Wien  # Wilhelm Wien
+Q184592: 't Hooft  # Gerard 't Hooft
+Q202631: Wheeler  # John Archibald Wheeler
+Q336893: Whittaker  # Robert Whittaker
+Q7637: Cunningham  # Ward Cunningham
+Q191963: Gray  # John Edward Gray
+Q151564: Sanger  # Frederick Sanger
+Q83233: Cousteau  # Jacques Cousteau
+Q273314: Meucci  # Antonio Meucci
+Q14278: Herschel  # John Frederick William Herschel
+Q297776: Dioscorides  # Pedanius Dioscorides
+Q123022: Bloch  # Felix Bloch
+Q179852: Esaki  # Leo Esaki
+Q316949: Ray  # John Ray
+Q157043: Henry  # Joseph Henry
+Q157501: Hooker  # Joseph Dalton Hooker
+Q107450: Wilczek  # Frank Wilczek
+Q104104: Geim  # Andre Geim
+Q150526: Ramón y Cajal  # Santiago Ramón y Cajal
+Q169234: Razi  # Abu Bakr al-Razi
+Q191799: Popov  # Aleksandr Popov
+Q57089: Ehrlich  # Paul Ehrlich
+Q48973: Seaborg  # Glenn Theodore Seaborg
+Q172118: Bridgman  # Percy Williams Bridgman
+Q172466: Chu  # Steven Chu
+Q150989: Joliot-Curie  # Frédéric Joliot-Curie
+Q170267: Vesalius  # Andreas Vesalius
+Q134085: Perrin  # Jean-Baptiste Perrin
+Q201452: Schmidt  # Brian Schmidt
+Q79000: Zeeman  # Pieter Zeeman
+Q93996: Mach  # Ernst Mach
+Q183270: Purcell  # Edward Mills Purcell
+Q20882: Eiffel  # Gustave Eiffel
+Q103854: Bohr  # Aage Bohr
+Q314267: Bose  # Jagadish Chandra Bose
+Q56068: Doudna  # Jennifer Doudna
+Q155786: Gabor  # Dennis Gabor
+Q191026: Galton  # Francis Galton
+Q156942: Wheatstone  # Charles Wheatstone
+Q151746: Englert  # François Englert
+Q1107006: Thompson  # Ken Thompson
+Q155907: Stokes  # Sir George Stokes, 1st Baronet
+Q296545: Zworykin  # Vladimir K. Zworykin
+Q354863: de Forest  # Lee de Forest
+Q181363: Josephson  # Brian David Josephson
+Q1187542: Mukwege  # Denis Mukwege
+Q180109: Apollonius  # Apollonius of Perga
+Q155768: Lister  # Joseph Lister
+Q185150: Eudoxus  # Eudoxus of Cnidus
+Q57125: Nernst  # Walther Hermann Nernst
+Q153224: Kolmogorov  # Andrey Kolmogorov
+Q360098: Farnsworth  # Philo Farnsworth
+Q190770: Anderson  # Philip W. Anderson
+Q160187: Rømer  # Ole Rømer
+Q58577: Siemens  # Werner von Siemens
+Q76707: Weber  # Wilhelm Eduard Weber
+Q187199: Rubbia  # Carlo Rubbia
+Q153185: Gay-Lussac  # Joseph Louis Gay-Lussac
+Q131733: Cavendish  # Henry Cavendish
+Q104651: Mather  # John C. Mather
+Q170842: Korolev  # Sergei Korolev
+Q234888: Rubin  # Vera Rubin
+Q57070: Hertz  # Gustav Ludwig Hertz
+Q103598: Montagnier  # Luc Montagnier
+Q78610: Zeilinger  # Anton Zeilinger
+Q8763: Fibonacci  # Fibonacci
+Q92604: Wirth  # Niklaus Wirth
+Q5333: Lyell  # Charles Lyell
+Q155773: Koshiba  # Masatoshi Koshiba
+Q80917: Yamanaka  # Shinya Yamanaka
+Q134661: Boole  # George Boole
+Q57066: Franck  # James Franck
+Q83163: Ramanujan  # Srinivasa Ramanujan
+Q173441: Idrisi  # Abu Abdullah Muhammad al-Idrisi al-Qurtubi al-Hasani as-Sabti
+Q151911: Berzelius  # Jöns Jacob Berzelius
+Q12658: Ostwald  # Wilhelm Ostwald
+Q155759: Tamm  # Igor Tamm
+Q391237: Hopfield  # John Hopfield
+Q102490: Torricelli  # Evangelista Torricelli
+Q93182: Braille  # Louis Braille
+Q92602: Hoare  # Tony Hoare
+Q192695: Lederman  # Leon M. Lederman
+Q243419: Huxley  # Julian Huxley
+Q122972: Agassiz  # Louis Agassiz
+Q62897: Cockcroft  # John Cockcroft
+Q190697: Cohen-Tannoudji  # Claude Cohen-Tannoudji
+Q76970: Cherenkov  # Pavel Cherenkov
+Q92614: Engelbart  # Douglas Engelbart
+Q188128: Abrikosov  # Alexei Abrikosov
+Q155764: Brown  # Robert Brown
+Q71029: Weyl  # Hermann Weyl
+Q172183: Weizmann  # Chaim Weizmann
+Q133232: Lippmann  # Gabriel Lippmann
+Q3572699: Bengio  # Yoshua Bengio
+Q1235614: Parisi  # Giorgio Parisi
+Q162900: Wilson  # Charles Thomson Rees Wilson
+Q17280087: Charpentier  # Emmanuelle Charpentier
+Q219982: Rotblat  # Joseph Rotblat
+Q192718: Leggett  # Anthony James Leggett
+Q57246: Minkowski  # Hermann Minkowski
+Q107420: Glashow  # Sheldon Glashow
+Q133846: Thomson  # George Paget Thomson
+Q316371: Vernadsky  # Vladimir Vernadsky
+Q71004: Berliner  # Emile Berliner
+Q57072: Stern  # Otto Stern
+Q76641: Klein  # Felix Klein
+Q205981: Friedmann  # Alexander Friedmann
+Q157224: Mullis  # Kary Mullis
+Q153408: Banks  # Joseph Banks
+Q117346: Perelman  # Grigori Perelman
+Q7487: Hodgkin  # Dorothy Hodgkin
+Q364997: Aspect  # Alain Aspect
+Q71022: Ruska  # Ernst Ruska
+Q192715: Ting  # Samuel C. C. Ting
+Q100948: Carson  # Rachel Carson
+Q187224: de Gennes  # Pierre-Gilles de Gennes
+Q88608397: Karikó  # Katalin Karikó
+Q186497: Lamb  # Willis Lamb
+Q169366: Anderson  # Carl David Anderson
+Q2128461: Weiss  # Rainer Weiss
+Q56189: Meitner  # Lise Meitner
+Q57092: Stark  # Johannes Stark
+Q76323: Wegener  # Alfred Wegener
+Q92766: Metcalfe  # Robert Metcalfe
+Q153890: Tinbergen  # Nikolaas Tinbergen
+Q57103: Weierstraß  # Karl Weierstraß
+Q76474: Bothe  # Walther Bothe
+Q183631: Walton  # Ernest Walton
+Q44645: Thompson  # Benjamin Thompson
+Q106949: Perlmutter  # Saul Perlmutter
+Q59478: Gamow  # George Gamow
+Q231402: Monod  # Jacques Monod
+Q106494: Novoselov  # Konstantin Novoselov
+Q153178: Charpak  # Georges Charpak
+Q1673706: Akasaki  # Isamu Akasaki
+Q45789: Bose  # Satyendra Nath Bose
+Q227897: Bernoulli  # Johann Bernoulli
+Q184659: Wilkins  # Maurice Wilkins
+Q232316: Woodward  # Robert Burns Woodward
+Q184337: Hardy  # G.H. Hardy
+Q40852: Jenner  # Edward Jenner
+Q205954: Cornell  # Eric Allin Cornell
+Q56855591: Strickland  # Donna Strickland
+Q133222: Davisson  # Clinton Davisson
+Q186481: Giacconi  # Riccardo Giacconi
+Q295981: Tao  # Terence Tao
+Q83557: Basov  # Nikolay Basov
+Q60093: Zuse  # Konrad Zuse
+Q71024: von Klitzing  # Klaus von Klitzing
+Q129199: Lobachevsky  # Nikolai Ivanovich Lobachevsky
+Q206379: Wieman  # Carl Wieman
+Q80905: Glaser  # Donald Arthur Glaser
+Q16571: Liebig  # Justus von Liebig
+Q102822: van 't Hoff  # Jacobus Henricus van 't Hoff
+Q70554: Fischer  # Emil Fischer
+Q11538917: Kajita  # Takaaki Kajita
+Q86970: Krausz  # Ferenc Krausz
+Q486088: Ulugh Beg  # Ulugh Beg
+Q106454: Riess  # Adam Riess
+Q192685: Taylor  # Joseph Hooton Taylor
+Q207380: Brunel  # Isambard Kingdom Brunel
+Q76462: Ketterle  # Wolfgang Ketterle
+Q82563: Cooper  # Leon Cooper
+Q193503: Wilson  # Kenneth G. Wilson
+Q77078: Sommerfeld  # Arnold Sommerfeld
+Q153201: Schrieffer  # John Robert Schrieffer
+Q6173703: Dean  # Jeff Dean
+Q202168: Maskawa  # Toshihide Maskawa
+Q64188: Glauber  # Roy J. Glauber
+Q189990: Hewish  # Antony Hewish
+Q46120: Fowler  # William Alfred Fowler
+Q179777: Urey  # Harold Urey
+Q60060: von Frisch  # Karl von Frisch
+Q334760: Yau  # Shing-Tung Yau
+Q107419: Ramsey  # Norman Foster Ramsey
+Q208356: Atiyah  # Michael Atiyah
+Q207534: Tarski  # Alfred Tarski
+Q193655: Van Vleck  # John Hasbrouck Van Vleck
+Q153194: Appleton  # Edward Victor Appleton
+Q107462: Khorana  # Har Gobind Khorana
+Q189485: Mott  # Nevill Francis Mott
+Q202164: Kobayashi  # Makoto Kobayashi
+Q201513: Witten  # Edward Witten
+Q333987: Armstrong  # Edwin Howard Armstrong
+Q130113: Hofstadter  # Robert Hofstadter
+Q318449: Gray  # Elisha Gray
+Q106624: Zewail  # Ahmed Zewail
+Q1589: Galvani  # Luigi Galvani
+Q65332: Carathéodory  # Konstantinos Carathéodory
+Q76425: Behring  # Emil von Behring
+Q184286: Langmuir  # Irving Langmuir
+Q84405: Landsteiner  # Karl Landsteiner
+Q8056214: Ohsumi  # Yoshinori Ohsumi
+Q60116: Gessner  # Conrad Gessner
+Q164396: Ambartsumian  # Victor Ambartsumian
+Q11443689: Amano  # Hiroshi Amano
+Q192839: de Vauban  # Sébastien Le Prestre de Vauban
+Q57120: Grünberg  # Peter Grünberg
+Q78520: Hess  # Victor Francis Hess
+Q192688: Giæver  # Ivar Giæver
+Q191922: Reines  # Frederick Reines
+Q123975: Mayor  # Michel Mayor
+Q218823: Lederberg  # Joshua Lederberg
+Q109588: Haroche  # Serge Haroche
+Q731808: Bentham  # George Bentham
+Q44286: Mössbauer  # Rudolf Ludwig Mössbauer
+Q12674: Diesel  # Rudolf Diesel
+Q57171: Mayer  # Robert Mayer
+Q159592: Napier  # John Napier
+Q184433: Wiles  # Andrew Wiles
+Q208858: Lewis  # Gilbert N. Lewis
+Q202138: Tsui  # Daniel C. Tsui
+Q101740: Mandelbrot  # Benoit Mandelbrot
+Q234463: Brenner  # Sydney Brenner
+Q190766: Ryle  # Martin Ryle
+Q728331: Peebles  # Jim Peebles
+Q180350: Banting  # Frederick Banting
+Q178103: Powell  # Cecil Frank Powell
+Q167852: Jabir  # Jabir ibn Hayyan
+Q190486: Libby  # Willard Libby
+Q706319: Marinus  # Marinus of Tyre
+Q173746: Erdős  # Paul Erdős
+Q7426: Yonath  # Ada Yonath
+Q565544: L'Huillier  # Anne L'Huillier
+Q92596: Codd  # Edgar F. Codd
+Q61045: Wineland  # David J. Wineland
+Q137106: Florey  # Howard Florey
+Q7099: Noether  # Emmy Noether
+Q155781: Néel  # Louis Néel
+Q153219: Fert  # Albert Fert
+Q76606: Bosch  # Carl Bosch
+Q950726: Ramsay  # William Ramsay
+Q71023: Kastler  # Alfred Kastler
+Q175519: Davis  # Raymond Davis Jr.
+Q493956: Ghez  # Andrea M. Ghez
+Q170741: Siegbahn  # Manne Siegbahn
+Q39658: Thunberg  # Carl Peter Thunberg
+Q153717: Dyson  # Freeman Dyson
+Q108602: Tonegawa  # Susumu Tonegawa
+Q43476: Avogadro  # Amedeo Avogadro
+Q234949: Baltimore  # David Baltimore
+Q189987: Bloembergen  # Nicolaas Bloembergen
+Q190503: Schawlow  # Arthur Leonard Schawlow
+Q60061: Ramakrishnan  # Venkatraman Ramakrishnan
+Q462843: Tu Youyou  # Tu Youyou
+Q3675789: Manabe  # Syukuro Manabe
+Q233957: Ochoa  # Severo Ochoa
+Q14279: Cassini  # Giovanni Domenico Cassini
+Q15118973: Sancar  # Aziz Sancar
+Q188293: Zernike  # Frits Zernike
+Q71013: Hänsch  # Theodor W. Hänsch
+Q153210: Steinberger  # Jack Steinberger
+Q150630: Golgi  # Camillo Golgi
+Q170342: Pääbo  # Svante Pääbo
+Q192106: Richter  # Burton Richter
+Q15900993: Barish  # Barry C. Barish
+Q169330: Richardson  # Owen Willans Richardson
+Q192703: Frank  # Ilya Frank
+Q18686107: Li  # Fei-Fei Li
+Q57191: Krebs  # Hans Krebs
+Q35703: Elion  # Gertrude B. Elion
+Q76464: Warburg  # Otto Heinrich Warburg
+Q202149: Veltman  # Martinus J. G. Veltman
+Q906529: Goodenough  # John B. Goodenough
+Q189997: Laughlin  # Robert B. Laughlin
+Q295691: Varmus  # Harold E. Varmus
+Q131171: Imhotep  # Imhotep
+Q65807: Genzel  # Reinhard Genzel
+Q57190: Baer  # Karl Ernst von Baer
+Q124013: Queloz  # Didier Queloz
+Q234050: Darwin  # Erasmus Darwin
+Q133614: Stephenson  # George Stephenson
+Q156286: Hulse  # Russell A. Hulse
+Q2363920: Meyrick  # Edward Meyrick
+Q160522: Barkla  # Charles Glover Barkla
+Q219716: Nurse  # Paul Nurse
+Q1365270: Clauser  # John Clauser
+Q180468: Szent-Györgyi  # Albert Szent-Györgyi
+Q336658: Collins  # Francis Collins
+Q57227: Paul  # Wolfgang Paul
+Q41239: Tsiolkovsky  # Konstantin Tsiolkovsky
+Q76556: Dedekind  # Richard Dedekind
+Q184735: Bolzano  # Bernard Bolzano
+Q218311: Jacob  # François Jacob
+Q313787: Gould  # John Gould
+Q313551: Clapeyron  # Benoît Paul Émile Clapeyron
+Q361305: Chappe  # Claude Chappe
+Q76797: Jensen  # Johannes Hans Daniel Jensen
+Q75845: Bessel  # Friedrich Bessel
+Q102830: Soddy  # Frederick Soddy
+Q123026: Guillaume  # Charles Édouard Guillaume
+Q57999: Hennig  # Willi Hennig
+Q76766: Binnig  # Gerd Binnig
+Q107407: Politzer  # Hugh David Politzer
+Q11641: Hopper  # Grace Hopper
+Q190495: Kendall  # Henry Way Kendall
+Q246731: Dobzhansky  # Theodosius Dobzhansky
+Q191029: Peano  # Giuseppe Peano
+Q193496: Cronin  # James Cronin
+Q156205: Fabricius  # Johan Christian Fabricius
+Q185777: Carrel  # Alexis Carrel
+Q366471: Zeldovich  # Yakov Zeldovich
+Q183655: Chamberlain  # Owen Chamberlain
+Q110925: Sharpless  # Karl Barry Sharpless
+Q92767: Zadeh  # Lotfi A. Zadeh
+Q122999: Lambert  # Johann Heinrich Lambert
+Q7091: Galois  # Évariste Galois
+Q310794: Pearson  # Karl Pearson
+Q107416: Perl  # Martin Lewis Perl
+Q315861: Adanson  # Michel Adanson
+Q206499: Fitch  # Val Logsdon Fitch
+Q156333: Haldane  # J.B.S. Haldane
+Q356407: Snow  # John Snow
+Q187822: Friedman  # Jerome Isaac Friedman
+Q192706: Gilbert  # William Gilbert
+Q104779: van der Meer  # Simon van der Meer
+Q238739: Beadle  # George Wells Beadle
+Q439245: Newell  # Allen Newell
+Q243190: Lee  # Yuan T. Lee
+Q78480: Perutz  # Max Perutz
+Q232583: Malpighi  # Marcello Malpighi
+Q57078: Baeyer  # Adolf von Baeyer
+Q197206: Zhang Heng  # Zhang Heng
+Q104607: Huxley  # Andrew Huxley
+Q92617: Baran  # Paul Baran
+Q123029: Rohrer  # Heinrich Rohrer
+Q76687: Bednorz  # Georg Bednorz
+Q26321: Blackburn  # Elizabeth Blackburn
+Q73058: Boyle  # Willard Boyle
+Q204733: Cori  # Gerty Cori
+Q77174: Nüsslein-Volhard  # Christiane Nüsslein-Volhard
+Q214926: Vavilov  # Nikolai Vavilov
+Q726394: Thouless  # David J. Thouless
+Q70532: Dehmelt  # Hans Georg Dehmelt
+Q155914: Pallas  # Peter Simon Pallas
+Q273219: Moniz  # António Egas Moniz
+Q122298: Müller  # Karl Alexander Müller
+Q57098: Daimler  # Gottlieb Daimler
+Q58575: Wöhler  # Friedrich Wöhler
+Q115462: Zwicky  # Fritz Zwicky
+Q208230: Bernard  # Claude Bernard
+Q178217: Diophantus  # Diophantus of Alexandria
+Q19045: Molina  # Mario Molina
+Q310779: Réaumur  # René Antoine Ferchault de Réaumur
+Q348006: Takhtajan  # Armen Takhtajan
+Q192927: Hutton  # James Hutton
+Q135171: Corey  # Elias James Corey
+Q157210: Noyori  # Ryōji Noyori
+Q57145: Schwarzschild  # Karl Schwarzschild
+Q192712: Siegbahn  # Kai Siegbahn
+Q710597: McDonald  # Arthur B. McDonald
+Q92741: Church  # Alonzo Church
+Q77141: Grothendieck  # Alexander Grothendieck
+Q76373: Smith  # George E. Smith
+Q71015: Störmer  # Horst Ludwig Störmer
+Q214209: Medawar  # Peter Medawar
+Q59736: Semmelweis  # Ignaz Semmelweis
+Q203906: Taylor  # Frederick Winslow Taylor
+Q347356: Gray  # Asa Gray
+Q310767: Carnot  # Lazare Carnot
+Q206390: Hall  # John L. Hall
+Q49347: Calvin  # Melvin Calvin
+Q92742: Kay  # Alan Kay
+Q202136: Marshall  # Barry Marshall
+Q123612: Bauhin  # Gaspard Bauhin
+Q201470: Taylor  # Richard E. Taylor
+Q205667: Luria  # Salvador Luria
+Q43948: Fraunhofer  # Joseph von Fraunhofer
+Q187966: Foucault  # Léon Foucault
+Q107423: Mottelson  # Ben Roy Mottelson
+Q337040: Dantzig  # George Bernard Dantzig
+Q110963: Tanaka  # Koichi Tanaka
+Q219718: Palade  # George Emil Palade
+Q239067: Marcus  # Rudolph A. Marcus
+Q122392: Bernoulli  # Jacob Bernoulli
+Q201484: Dee  # John Dee
+Q184530: Cardano  # Gerolamo Cardano
+Q88608402: Weissman  # Drew Weissman
+Q708472: Ashkin  # Arthur Ashkin
+Q312678: Miller  # Philip Miller
+Q200101: Salk  # Jonas Salk
+Q76951: Hevesy  # George de Hevesy
+Q191021: Legendre  # Adrien-Marie Legendre
+Q60718: Engler  # Adolf Engler
+Q28937: Clairaut  # Alexis Clairaut
+Q76564: Jacobi  # Carl Gustav Jacob Jacobi
+Q57963: Hevelius  # Johannes Hevelius
+Q1700920: Kosterlitz  # J. Michael Kosterlitz
+Q92648: Eich  # Brendan Eich
+Q76784: Kekulé  # August Kekulé
+Q556543: Mourou  # Gérard Mourou
+Q316669: Rothschild  # Walter Rothschild, 2nd Baron Rothschild
+Q92609: Brooks  # Fred Brooks
+Q71031: Bunsen  # Robert Bunsen
+Q77124: Reis  # Johann Philipp Reis
+Q184571: Kusch  # Polykarp Kusch
+Q272512: Black  # Joseph Black
+Q155380: Prusiner  # Stanley B. Prusiner
+Q107402: Yalow  # Rosalyn Sussman Yalow
+Q190745: Rainwater  # James Rainwater
+Q76745: Schwann  # Theodor Schwann
+Q273279: Hoffmann  # Roald Hoffmann
+Q206832: Monge  # Gaspard Monge
+Q48990: Semyonov  # Nikolay Semyonov
+Q28976188: Martinis  # John M. Martinis
+Q188342: Niépce  # Nicéphore Niépce
+Q155525: Milstein  # César Milstein
+Q106547: Lauterbur  # Paul Lauterbur
+Q189741: Schwartz  # Melvin Schwartz
+Q78510: Kohn  # Walter Kohn
+Q378629: Lindley  # John Lindley
+Q102804: Moissan  # Henri Moissan
+Q102379: Berg  # Paul Berg
+Q44111: Shechtman  # Dan Shechtman
+Q57249: Porsche  # Ferdinand Porsche
+Q555849: Clarke  # John Clarke
+Q215574: Capecchi  # Mario Capecchi
+Q216814: Fizeau  # Hippolyte Fizeau
+Q103844: Barré-Sinoussi  # Françoise Barré-Sinoussi
+Q110060: Nirenberg  # Marshall Warren Nirenberg
+Q233976: Hopkins  # Frederick Hopkins
+Q319603: Simpson  # Gaylord Simpson
+Q364857: Rafinesque  # Constantine Samuel Rafinesque
+Q190626: Klug  # Aaron Klug
+Q202001: Archytas  # Archytas
+Q104154: Le Verrier  # Urbain Le Verrier
+Q92746: Backus  # John Backus
+Q193650: Hodgkin  # Alan Lloyd Hodgkin
+Q234145: Natta  # Giulio Natta
+Q217915: Piri Reis  # Piri Reis
+Q57197: Waldseemüller  # Martin Waldseemüller
+Q206405: Osheroff  # Douglas Osheroff
+Q104913: Edwards  # Robert Edwards
+Q313348: Fabre  # Jean-Henri Fabre
+Q217486: Gilbert  # Walter Gilbert
+Q232916: Ortelius  # Abraham Ortelius
+Q200470: Tsien  # Roger Y. Tsien
+Q107441: Kantorovich  # Leonid Kantorovich
+Q43917: Buchner  # Eduard Buchner
+Q19009: McMillan  # Edwin McMillan
+Q81218: Gurdon  # John Gurdon
+Q2095814: Walker  # Francis Walker
+Q234224: Fossey  # Dian Fossey
+Q110916: Shirakawa  # Hideki Shirakawa
+Q4273363: Arnold  # Frances Arnold
+Q183397: Hoyle  # Fred Hoyle
+Q83598: Muller  # Hermann Joseph Muller
+Q5327: Butenandt  # Adolf Butenandt
+Q109370: Hasselmann  # Klaus Hasselmann
+Q450317: Wu  # Chien-Shiung Wu
+Q323316: Guth  # Alan Guth
+Q14524: Messier  # Charles Messier
+Q187241: Fresnel  # Augustin-Jean Fresnel
+Q153238: Szilárd  # Leó Szilárd
+Q157235: Aumann  # Robert Aumann
+Q124115: Abel  # Niels Henrik Abel
+Q232305: Sperry  # Roger Sperry
+Q234590: de Duve  # Christian de Duve
+Q26703310: Devoret  # Michel Devoret
+Q192689: Brockhouse  # Bertram Brockhouse
+Q313059: de Sitter  # Willem de Sitter
+Q192708: Richardson  # Robert Coleman Richardson
+Q57566: Stahl  # Georg Ernst Stahl
+Q201506: Shull  # Clifford Shull
+Q131405: Daguerre  # Louis Daguerre
+Q57020342: Agostini  # Pierre Agostini
+Q92620: Stroustrup  # Bjarne Stroustrup
+Q49351: Robinson  # Robert Robinson
+Q460922: Smeaton  # John Smeaton
+Q7286: du Châtelet  # Émilie du Châtelet
+Q74894: Fowler  # Martin Fowler
+Q102291: Aston  # Francis William Aston
+Q21061207: Ōmura  # Satoshi Ōmura
+Q76579: Agricola  # Georgius Agricola
+Q201853: Lee  # David Lee
+Q72194: Dale  # Henry Hallett Dale
+Q205345: Shimomura  # Osamu Shimomura
+Q379580: Muir  # John Muir
+Q25320: Langevin  # Paul Langevin
+Q743252: Yaghi  # Omar M. Yaghi
+Q2395341: Honjo  # Tasuku Honjo
+Q232308: Waksman  # Selman Abraham Waksman
+Q189488: Einthoven  # Willem Einthoven
+Q233985: Leloir  # Luis Federico Leloir
+Q164374: de Maupertuis  # Pierre-Louis Moreau de Maupertuis
+Q57230: Gmelin  # Johann Friedrich Gmelin
+Q168468: Brewster  # David Brewster
+Q65344: Bechtolsheim  # Andy Bechtolsheim
+Q232295: Kendrew  # John Kendrew
+Q335003: DeBakey  # Michael Ellis DeBakey
+Q271963: Van Allen  # James A. Van Allen
+Q20018: Airy  # George Biddell Airy
+Q83501: Prelog  # Vladimir Prelog
+Q62853: Kuntze  # Otto Kuntze
+Q48956: Staudinger  # Hermann Staudinger
+Q295678: Kornberg  # Arthur Kornberg
+Q273223: Eccles  # John Carew Eccles
+Q157642: Arnold  # Vladimir Arnold
+Q311358: Bishop  # J. Michael Bishop
+Q84284: Doppler  # Christian Doppler
+Q76991: Köppen  # Wladimir Köppen
+Q78483: Kuhn  # Richard Kuhn
+Q17502433: Sakaguchi  # Shimon Sakaguchi
+Q57192: Domagk  # Gerhard Domagk
+Q271421: Wiesel  # Torsten Nils Wiesel
+Q233205: Ciechanover  # Aaron Ciechanover
+Q4701206: Yoshino  # Akira Yoshino
+Q11079: Battani  # Al-Battani
+Q80910: Lefkowitz  # Robert Lefkowitz
+Q182964: Finsen  # Niels Ryberg Finsen
+Q75847: zur Hausen  # Harald zur Hausen
+Q234701: Benacerraf  # Baruj Benacerraf
+Q231292: Adrian  # Edgar Douglas Adrian
+Q109553: Dulbecco  # Renato Dulbecco
+Q77140: Siebold  # Philipp Franz von Siebold
+Q30942: van Rossum  # Guido van Rossum
+
+# Below the cut at 750, added by hand as well known
+Q310903: Tyson  # Neil deGrasse Tyson
+Q192496: Fulton  # Robert Fulton
+Q49285: Ride  # Sally Ride
+Q296898: Carver  # George Washington Carver
+Q268961: Conway  # John Horton Conway
+Q258662: Sacks  # Oliver Sacks
+Q233974: Burnell  # Jocelyn Bell Burnell
+Q1771279: Mirzakhani  # Maryam Mirzakhani
+Q184535: Kovalevskaya  # Sofia Kovalevskaya
+Q187258: Ångström  # Anders Jonas Ångström
+Q193042: Newcomen  # Thomas Newcomen
+Q180217: Banach  # Stefan Banach
+Q200883: Moog  # Robert Moog
+Q310759: Moseley  # Henry Moseley
+Q57475: Fuchs  # Klaus Fuchs
+Q360808: Tyndall  # John Tyndall
+Q190232: Tombaugh  # Clyde Tombaugh
+Q280930: Whitney  # Eli Whitney
+Q188803: Barnard  # Christiaan Barnard
+Q23696: Stevin  # Simon Stevin
+Q151722: Steno  # Nicolas Steno
+Q312547: Whittle  # Frank Whittle
+Q89054: Milanković  # Milutin Milanković
+Q309861: Oort  # Jan Hendrik Oort
+Q192948: Kuiper  # Gerard Kuiper
+Q210898: Lovelock  # James Lovelock
+Q122338: Hofmann  # Albert Hofmann
+Q57189: Geiger  # Hans Geiger
+Q164790: Sabin  # Albert B. Sabin
+Q11740: Johnson  # Katherine Johnson
+Q207667: Goodyear  # Charles Goodyear
+Q183246: Colt  # Samuel Colt
+Q310833: Jacquard  # Joseph Marie Jacquard
+Q57335: Möbius  # August Ferdinand Möbius
+Q217119: Everest  # George Everest
+Q208452: Bayes  # Thomas Bayes
+Q218575: Lowell  # Percival Lowell
+Q268024: Moore  # Patrick Moore
+Q310400: Durrell  # Gerald Durrell
+Q380134: Land  # Edwin H. Land
+Q243442: Baekeland  # Leo Baekeland
+Q92619: Hamming  # Richard Hamming
+Q16080922: Liskov  # Barbara Liskov
+Q486882: Kaku  # Michio Kaku
