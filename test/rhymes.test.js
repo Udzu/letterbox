@@ -432,6 +432,10 @@ show\tSo1\tCU\t58\tnv
 no\tno1\tCU\t65
 dough\tdo1\tCU\t35\tn
 po\tpo1\tC\t30\tv
+go\tgo1\tCU\t70\ti
+glow\tglo1\tCU\t45\ti
+owen\to1In\tCU\t40
+boa\tbo1V\tCU\t35
 letter\tlE1tR\tCU\t52
 get\tgE1t\tCU\t65\tv
 pet\tpE1t\tCU\t48\tnv
@@ -444,9 +448,13 @@ her\thR1\tCU\t70\tn
 'll\tVl\tW\t47
 `).entries);
   const mosaic = (word, options) => [...rhymes.mosaic(rhymes.pronunciations(word)[0], options).keys()].sort();
-  // know and show can be verbs; no, dough (a noun) and po (the same onset as poet) can't come before it
-  assert.deepEqual(mosaic("poet"), ["know it", "show it"]);
-  assert.deepEqual(mosaic("poet", { sameOnset: true }), ["know it", "po it", "show it"]);
+  // know and show can be verbs that take an object, and go it is an idiom; no, dough (a noun), glow (an
+  // intransitive verb) and po (the same onset as poet) can't come before it
+  assert.deepEqual(mosaic("poet"), ["go it", "know it", "show it"]);
+  // in and a can follow intransitive verbs too
+  assert.deepEqual(mosaic("owen"), ["glow in", "go in", "know in", "po in", "show in"]);
+  assert.deepEqual(mosaic("boa"), ["glow a", "go a", "know a", "po a", "show a"]);
+  assert.deepEqual(mosaic("poet", { sameOnset: true }), ["go it", "know it", "po it", "show it"]);
   // her without its h; not compounds like off-set
   assert.deepEqual(mosaic("letter"), ["get her", "pet her"]);
   // 'll after nouns
@@ -455,6 +463,16 @@ her\thR1\tCU\t70\tn
   // you and it can be subjects after conjunctions and adverbs, which have no parts of speech in the data
   const menu = new Rhymes(parsePronunciations("menu\tmE1nju\tCU\t43\nthen\tDE1n\tCU\t61\nden\tdE1n\tCU\t40\tn\n").entries);
   assert.deepEqual([...menu.mosaic(menu.pronunciations("menu")[0]).keys()], ["then you"]);
+  // and after verbs that Wiktionary calls intransitive but can be followed by a clause
+  const clause = new Rhymes(parsePronunciations(`lopit\tlo1pIt\tW\t20
+hope\tho1p\tCU\t55\ti
+cope\tko1p\tCU\t40\ti
+subleeit\tsVbli1It\tW\t20
+agree\tVgri1\tCU\t50\ti
+`).entries);
+  const subjects = (word) => [...clause.mosaic(clause.pronunciations(word)[0]).keys()].sort();
+  assert.deepEqual(subjects("lopit"), ["hope it"]);
+  assert.deepEqual(subjects("subleeit"), ["agree it"]);
 });
 
 test("phrases with no pronunciation of their own are built from their words", () => {
@@ -482,9 +500,10 @@ black\tbla1k\tCU\t55
 });
 
 test("parses parts of speech as an optional fifth field", () => {
-  const { entries } = parsePronunciations("cat\tka1t\tCU\t50\tnv\nthe\tDV\tC\t75\n");
+  const { entries } = parsePronunciations("cat\tka1t\tCU\t50\tnv\nthe\tDV\tC\t75\ngo\tgo1\tCU\t70\ti\n");
   assert.equal(entries[0].pos, "nv");
   assert.equal(entries[1].pos, undefined);
+  assert.equal(entries[2].pos, "i");
   assert.throws(() => parsePronunciations("cat\tka1t\tCU\t50\tnoun\n"), /line 1: parts of speech/);
   assert.throws(() => parsePronunciations("cat\tka1t\tCU\t50\tn\tx\n"), /line 1: too many columns/);
 });
