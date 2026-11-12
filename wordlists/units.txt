@@ -1,0 +1,289 @@
+# name: Units of measurement
+# description: SI, metric, imperial, US and historical units, with SI prefixes and words for counting.
+# tag: science & academia
+
+# =============================
+# SI base and derived units
+# =============================
+
+ampere
+becquerel
+candela
+coulomb
+degree Celsius
+farad
+gram
+gray
+henry
+hertz
+joule
+katal
+kelvin
+kilogram
+lumen
+lux
+metre
+mole
+newton
+ohm
+pascal
+radian
+second
+siemens
+sievert
+steradian
+tesla
+volt
+watt
+weber
+
+# ===============================================
+# SI prefixes, and common units that use them
+# ===============================================
+
+quecto
+ronto
+yocto
+zepto
+atto
+femto
+pico
+nano
+micro
+milli
+centi
+deci
+deca
+hecto
+kilo
+mega
+giga
+tera
+peta
+exa
+zetta
+yotta
+ronna
+quetta
+
+centilitre
+centimetre
+decilitre
+gigabyte
+gigawatt
+hectopascal
+kilobyte
+kilocalorie
+kilohertz
+kilojoule
+kilometre
+kilowatt
+kilowatt-hour
+megabyte
+megahertz
+megapixel
+megaton
+megawatt
+microgram
+micrometre
+microsecond
+millibar
+milligram
+millilitre
+millimetre
+millisecond
+nanometre
+nanosecond
+petabyte
+terabyte
+
+# =====================================
+# Other metric and scientific units
+# =====================================
+
+angstrom
+astronomical unit
+atmosphere
+bar
+barn
+calorie
+carat
+curie
+dalton
+decibel
+denier
+dyne
+electronvolt
+erg
+gauss
+hectare
+light year
+litre
+Mach
+metric ton
+micron
+nit
+parsec
+rad
+rem
+roentgen
+tex
+tonne
+torr
+
+# =====================
+# Imperial and US units
+# =====================
+
+acre
+barrel
+British thermal unit
+bushel
+cable
+chain
+cup
+dash
+degree Fahrenheit
+dessertspoon
+drachm
+dram
+fathom
+fluid ounce
+foot
+foot-candle
+furlong
+gallon
+gill
+grain
+hand
+horsepower
+hundredweight
+inch
+knot
+link
+long ton
+mile
+minim
+nautical mile
+ounce
+peck
+pennyweight
+perch
+pinch
+pint
+pole
+pound
+quart
+quarter
+rod
+rood
+short ton
+stone
+tablespoon
+teaspoon
+therm
+ton
+troy ounce
+yard
+
+# ==========================
+# Time, angle and data
+# ==========================
+
+aeon
+century
+day
+decade
+fortnight
+hour
+millennium
+minute
+month
+week
+year
+
+arcminute
+arcsecond
+degree
+gradian
+revolution
+turn
+
+baud
+bit
+byte
+gibibyte
+gigabit
+kibibyte
+kilobit
+mebibyte
+megabit
+nibble
+tebibyte
+
+# =====================================
+# Historical and traditional units
+# =====================================
+
+arpent
+arshin
+barleycorn
+carucate
+catty
+chaldron
+cubit
+ell
+firkin
+hide
+hogshead
+jin
+kilderkin
+koku
+league
+li
+maund
+momme
+morgen
+nail
+noggin
+oxgang
+pace
+parasang
+pood
+puncheon
+ri
+scruple
+seer
+shaku
+span
+stade
+toise
+tola
+tsubo
+tun
+verst
+virgate
+
+# =================================
+# Counting, printing and paper
+# =================================
+
+baker's dozen
+brace
+crore
+dozen
+great gross
+gross
+lakh
+myriad
+pair
+score
+
+agate
+cicero
+em
+en
+pica
+point
+quire
+ream
