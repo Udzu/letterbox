@@ -401,7 +401,7 @@
       if (!PRONUNCIATION.test(pron)) throw new Error(`${where}: "${pron}" isn't a pronunciation in the file's phoneme codes`);
       if (!/^[A-Za-z]*$/.test(sources)) throw new Error(`${where}: sources should be letters, not "${sources}"`);
       if (!/^\d*$/.test(zipf)) throw new Error(`${where}: frequency should be a whole number, not "${zipf}"`);
-      if (!/^[nvp]*$/.test(pos)) throw new Error(`${where}: parts of speech should be n, v or p, not "${pos}"`);
+      if (!/^[nvip]*$/.test(pos)) throw new Error(`${where}: parts of speech should be n, v, i or p, not "${pos}"`);
       const entry = { word: word.trim(), pron, sources, zipf: zipf === "" ? COMMON : Number(zipf) };
       if (pos) entry.pos = pos;
       entries.push(entry);
@@ -450,17 +450,27 @@
   var VOWEL_CLASSES = { O: "A", U: "A", a: "E", e: "E", I: "E", V: "R" };
   var indexKey = (rhyme) => rhyme.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) => VOWEL_CLASSES[c]).replaceAll("t", "d").replaceAll("r", "").replace(/(?<=[AERWYioQu])R+/g, "");
   var MOSAIC_TAILS = [
-    ["it", "It", "vp"],
+    ["it", "It", "vp", "go goes went going gone wait waits waited waiting slum slums slummed slumming"],
     ["her", "R", "vp"],
     ["'em", "Vm", "vp"],
     ["us", "Vs", "vp"],
     ["me", "mi", "vp"],
     ["you", "ju", "vp"],
-    ["a", "V", "vp"],
-    ["in", "In", "v"],
+    ["a", "V", "vip"],
+    ["in", "In", "vi"],
     ["'ll", "Vl", "n"]
-  ].map(([word, pron, after]) => ({ word, pron, after, rhyme: pron.replace(/[IU]/g, "V"), attached: word === "'ll" }));
+  ].map(([word, pron, after, also = ""]) => ({
+    word,
+    pron,
+    after,
+    also: new Set(also.split(" ")),
+    rhyme: pron.replace(/[IU]/g, "V"),
+    attached: word === "'ll"
+  }));
   var BEFORE_SUBJECT = new Set("when then if so as than now how where why because though and but".split(" "));
+  var CLAUSE_VERBS = new Set(`hope hopes hoped hoping agree agrees agreed agreeing complain complains complained
+complaining daresay speculate speculates speculated speculating surmise surmises surmised surmising theorize
+theorizes theorized theorizing`.split(/\s+/));
   var UNSTRESSED_HEADS = new Set(`be been being is are was were am shall should will would can cannot could may might
 must ought gonna wanna gotta`.split(/\s+/));
   var TAIL_PRONS = new Map(MOSAIC_TAILS.map((t) => [t.word, t.pron]));
@@ -578,8 +588,8 @@ which is are was were be been being am do does did has have had will would shall
         if (!parts.rhyme.endsWith(tail.rhyme) || parts.rhyme.length === tail.rhyme.length) continue;
         for (const item of this.byRhyme.get(indexKey(parts.rhyme.slice(0, -tail.rhyme.length))) ?? []) {
           const { word, pron, pos, zipf } = item.entry;
-          const subject = (tail.word === "it" || tail.word === "you") && BEFORE_SUBJECT.has(word);
-          if (!subject && (!pos || ![...tail.after].some((c) => pos.includes(c)))) continue;
+          const subject = (tail.word === "it" || tail.word === "you") && (BEFORE_SUBJECT.has(word) || CLAUSE_VERBS.has(word));
+          if (!subject && !tail.also.has(word) && (!pos || ![...tail.after].some((c) => pos.includes(c)))) continue;
           if (!MOSAIC_WORD.test(word)) continue;
           if (!tail.after.includes("n") && word[0] !== word[0].toLowerCase()) continue;
           if (UNSTRESSED_HEADS.has(word)) continue;

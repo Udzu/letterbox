@@ -196,7 +196,7 @@ export function parsePronunciations(text) {
     if (!PRONUNCIATION.test(pron)) throw new Error(`${where}: "${pron}" isn't a pronunciation in the file's phoneme codes`);
     if (!/^[A-Za-z]*$/.test(sources)) throw new Error(`${where}: sources should be letters, not "${sources}"`);
     if (!/^\d*$/.test(zipf)) throw new Error(`${where}: frequency should be a whole number, not "${zipf}"`);
-    if (!/^[nvp]*$/.test(pos)) throw new Error(`${where}: parts of speech should be n, v or p, not "${pos}"`);
+    if (!/^[nvip]*$/.test(pos)) throw new Error(`${where}: parts of speech should be n, v, i or p, not "${pos}"`);
     const entry = { word: word.trim(), pron, sources, zipf: zipf === "" ? COMMON : Number(zipf) };
     if (pos) entry.pos = pos;
     entries.push(entry);
@@ -281,13 +281,22 @@ const indexKey = (rhyme) => rhyme.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) =
 // poet, get her for letter or cat'll for battle. Each tail has its unstressed pronunciation (as said
 // after another word: her without its h; him isn't needed, as /ɪm/ rhymes like 'em) and the parts of speech (see the data file) that
 // the word before it must be able to have: n for the nouns and pronouns that 'll follows, v and p for
-// the verbs and prepositions that object pronouns and articles follow. It and you can also be
-// subjects, after the conjunctions and adverbs in BEFORE_SUBJECT (then you, so it).
+// the verbs that can take an object and the prepositions that object pronouns follow, and i for the other
+// verbs, which in and a can follow too (come in, wait a minute, struggle a lot). Some idioms add other
+// words (go it alone). It and you can also be subjects, after the conjunctions and adverbs in
+// BEFORE_SUBJECT (then you, so it) and the verbs in CLAUSE_VERBS (hope it).
 export const MOSAIC_TAILS = [
-  ["it", "It", "vp"], ["her", "R", "vp"], ["'em", "Vm", "vp"], ["us", "Vs", "vp"],
-  ["me", "mi", "vp"], ["you", "ju", "vp"], ["a", "V", "vp"], ["in", "In", "v"], ["'ll", "Vl", "n"],
-].map(([word, pron, after]) => ({ word, pron, after, rhyme: pron.replace(/[IU]/g, "V"), attached: word === "'ll" }));
+  ["it", "It", "vp", "go goes went going gone wait waits waited waiting slum slums slummed slumming"],
+  ["her", "R", "vp"], ["'em", "Vm", "vp"], ["us", "Vs", "vp"], ["me", "mi", "vp"], ["you", "ju", "vp"],
+  ["a", "V", "vip"], ["in", "In", "vi"], ["'ll", "Vl", "n"],
+].map(([word, pron, after, also = ""]) => ({
+  word, pron, after, also: new Set(also.split(" ")), rhyme: pron.replace(/[IU]/g, "V"), attached: word === "'ll",
+}));
 const BEFORE_SUBJECT = new Set("when then if so as than now how where why because though and but".split(" "));
+// verbs that Wiktionary calls intransitive, though they can be followed by a clause
+const CLAUSE_VERBS = new Set(`hope hopes hoped hoping agree agrees agreed agreeing complain complains complained
+complaining daresay speculate speculates speculated speculating surmise surmises surmised surmising theorize
+theorizes theorized theorizing`.split(/\s+/));
 // words that are never the stressed word of a mosaic rhyme, though Wiktionary says they can be verbs or
 // nouns: forms of be, modals and the like (but not do, have and had, as in do it)
 const UNSTRESSED_HEADS = new Set(`be been being is are was were am shall should will would can cannot could may might
@@ -421,8 +430,8 @@ export class Rhymes {
       if (!parts.rhyme.endsWith(tail.rhyme) || parts.rhyme.length === tail.rhyme.length) continue;
       for (const item of this.byRhyme.get(indexKey(parts.rhyme.slice(0, -tail.rhyme.length))) ?? []) {
         const { word, pron, pos, zipf } = item.entry;
-        const subject = (tail.word === "it" || tail.word === "you") && BEFORE_SUBJECT.has(word);
-        if (!subject && (!pos || ![...tail.after].some((c) => pos.includes(c)))) continue;
+        const subject = (tail.word === "it" || tail.word === "you") && (BEFORE_SUBJECT.has(word) || CLAUSE_VERBS.has(word));
+        if (!subject && !tail.also.has(word) && (!pos || ![...tail.after].some((c) => pos.includes(c)))) continue;
         if (!MOSAIC_WORD.test(word)) continue;
         if (!tail.after.includes("n") && word[0] !== word[0].toLowerCase()) continue; // names aren't verbs
         if (UNSTRESSED_HEADS.has(word)) continue;
