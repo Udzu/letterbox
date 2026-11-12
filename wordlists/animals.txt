@@ -1,0 +1,703 @@
+# name: Animals
+# description: Common names of animals by group, then extinct animals, and names for males, females and young.
+# tag: science & academia
+
+# =========
+# Mammals
+# =========
+
+aardvark
+aardwolf
+alpaca
+anteater
+antelope
+ape
+armadillo
+aye-aye
+baboon
+badger
+bandicoot
+bat
+bear
+beaver
+beluga
+binturong
+bison
+black bear
+blue whale
+bobcat
+bongo
+bonobo
+brown bear
+buffalo
+bushbaby
+camel
+capuchin
+capybara
+caracal
+caribou
+cat
+cattle
+cheetah
+chimpanzee
+chinchilla
+chipmunk
+civet
+coati
+colobus
+cougar
+cow
+coyote
+coypu
+deer
+dik-dik
+dingo
+dog
+dolphin
+donkey
+dormouse
+dromedary
+dugong
+echidna
+eland
+elephant
+elephant seal
+elk
+ermine
+fallow deer
+ferret
+fin whale
+fox
+fruit bat
+fur seal
+gazelle
+gemsbok
+gerbil
+gibbon
+giraffe
+gnu
+goat
+gopher
+gorilla
+grey seal
+grey squirrel
+grizzly bear
+groundhog
+guanaco
+guinea pig
+hamster
+hare
+hartebeest
+hedgehog
+hippopotamus
+hog
+honey badger
+horse
+howler monkey
+humpback whale
+hyena
+hyrax
+ibex
+impala
+jackal
+jackrabbit
+jaguar
+jerboa
+kangaroo
+kinkajou
+koala
+kudu
+lemming
+lemur
+leopard
+lion
+llama
+lynx
+macaque
+mammal
+manatee
+mandrill
+mara
+marmoset
+marmot
+marten
+meerkat
+mink
+mole
+mongoose
+monkey
+moose
+mouflon
+mountain goat
+mouse
+mule
+musk ox
+muskrat
+narwhal
+ocelot
+okapi
+opossum
+orangutan
+orca
+oryx
+otter
+ox
+panda
+pangolin
+panther
+peccary
+pig
+pika
+pine marten
+platypus
+polar bear
+polecat
+porcupine
+porpoise
+possum
+prairie dog
+pronghorn
+puma
+quokka
+rabbit
+raccoon
+rat
+red deer
+red fox
+red panda
+red squirrel
+reindeer
+rhinoceros
+roe deer
+sea lion
+seal
+serval
+sheep
+shrew
+skunk
+sloth
+snow leopard
+sperm whale
+springbok
+squirrel
+stoat
+tamarin
+tapir
+tarsier
+Tasmanian devil
+tiger
+vicuña
+vole
+wallaby
+walrus
+warthog
+water buffalo
+weasel
+whale
+wild boar
+wildcat
+wildebeest
+wolf
+wolverine
+wombat
+yak
+zebra
+zebu
+
+# =======
+# Birds
+# =======
+
+albatross
+auk
+avocet
+bald eagle
+barn owl
+bird
+bird of paradise
+bittern
+blackbird
+blackcap
+blue jay
+blue tit
+bluebird
+booby
+budgerigar
+bullfinch
+bunting
+bustard
+buzzard
+canary
+capercaillie
+cardinal
+cassowary
+chaffinch
+chicken
+chiffchaff
+chough
+cockatiel
+cockatoo
+condor
+coot
+cormorant
+corncrake
+crane
+crossbill
+crow
+cuckoo
+curlew
+dipper
+dove
+duck
+dunnock
+eagle
+egret
+eider
+emperor penguin
+emu
+falcon
+finch
+flamingo
+flycatcher
+fulmar
+gannet
+goldcrest
+golden eagle
+goldfinch
+goose
+goshawk
+great tit
+grebe
+greenfinch
+grouse
+guillemot
+guinea fowl
+gull
+harrier
+hawk
+heron
+herring gull
+hoopoe
+hornbill
+hummingbird
+ibis
+jackdaw
+jay
+kakapo
+kea
+kestrel
+kingfisher
+kite
+kiwi
+kookaburra
+lapwing
+lark
+linnet
+lovebird
+lyrebird
+macaw
+magpie
+mallard
+martin
+merlin
+mockingbird
+moorhen
+mynah
+nightingale
+nightjar
+nuthatch
+oriole
+osprey
+ostrich
+owl
+oystercatcher
+parakeet
+parrot
+partridge
+peafowl
+pelican
+penguin
+peregrine
+petrel
+pheasant
+pigeon
+pipit
+plover
+ptarmigan
+puffin
+quail
+rail
+raven
+redstart
+redwing
+rhea
+roadrunner
+robin
+rook
+sandpiper
+secretary bird
+shearwater
+shrike
+siskin
+skua
+skylark
+snipe
+snowy owl
+song thrush
+sparrow
+sparrowhawk
+spoonbill
+starling
+stork
+swallow
+swan
+swift
+tawny owl
+tern
+thrush
+tit
+toucan
+treecreeper
+turkey
+turtle dove
+vulture
+wagtail
+warbler
+waxwing
+weaver
+wheatear
+wigeon
+woodcock
+woodpecker
+woodpigeon
+wren
+yellowhammer
+
+# ==========================
+# Reptiles and amphibians
+# ==========================
+
+adder
+alligator
+amphibian
+anaconda
+axolotl
+black mamba
+boa
+bullfrog
+caecilian
+caiman
+chameleon
+cobra
+crocodile
+frog
+gecko
+gharial
+Gila monster
+grass snake
+iguana
+king cobra
+Komodo dragon
+lizard
+mamba
+monitor lizard
+newt
+python
+rattlesnake
+reptile
+salamander
+sea turtle
+skink
+slow worm
+snake
+terrapin
+toad
+tortoise
+tree frog
+tuatara
+turtle
+viper
+
+# ======
+# Fish
+# ======
+
+anchovy
+angelfish
+anglerfish
+barracuda
+bass
+bream
+brill
+carp
+catfish
+char
+chub
+clownfish
+cod
+coelacanth
+conger
+dab
+dace
+dogfish
+eel
+fish
+flounder
+flying fish
+goby
+goldfish
+gourami
+grayling
+great white shark
+grouper
+guppy
+gurnard
+haddock
+hake
+halibut
+hammerhead
+herring
+John Dory
+koi
+lamprey
+ling
+lionfish
+mackerel
+manta ray
+marlin
+minnow
+monkfish
+moray
+mullet
+perch
+pike
+piranha
+plaice
+pollock
+pufferfish
+ray
+roach
+salmon
+sardine
+seahorse
+shad
+shark
+skate
+sole
+sprat
+stickleback
+stingray
+sturgeon
+sunfish
+swordfish
+tench
+tetra
+tilapia
+trout
+tuna
+turbot
+whale shark
+whiting
+wrasse
+zander
+
+# ======================================
+# Insects and other invertebrates
+# ======================================
+
+ant
+aphid
+arachnid
+barnacle
+bedbug
+bee
+beetle
+black widow
+bluebottle
+bumblebee
+butterfly
+centipede
+cicada
+clam
+cockle
+cockroach
+coral
+crab
+crane fly
+crayfish
+cricket
+crustacean
+cuttlefish
+daddy-long-legs
+damselfly
+dragonfly
+earthworm
+earwig
+firefly
+flatworm
+flea
+fly
+glow-worm
+gnat
+grasshopper
+harvestman
+hermit crab
+hornet
+housefly
+insect
+jellyfish
+krill
+ladybird
+langoustine
+leech
+limpet
+lobster
+locust
+louse
+lugworm
+mantis
+mayfly
+midge
+millipede
+mite
+mollusc
+mosquito
+moth
+mussel
+nautilus
+octopus
+oyster
+prawn
+scallop
+scarab
+scorpion
+sea anemone
+sea cucumber
+sea slug
+sea urchin
+shrimp
+silverfish
+slug
+snail
+spider
+sponge
+squid
+starfish
+stick insect
+tapeworm
+tarantula
+termite
+tick
+tsetse fly
+wasp
+weevil
+whelk
+winkle
+woodlouse
+worm
+
+# ===================================
+# Extinct and prehistoric animals
+# ===================================
+
+allosaurus
+ammonite
+ankylosaurus
+archaeopteryx
+aurochs
+brachiosaurus
+brontosaurus
+dimetrodon
+dinosaur
+diplodocus
+dodo
+great auk
+ichthyosaur
+iguanodon
+mammoth
+mastodon
+megalodon
+moa
+passenger pigeon
+plesiosaur
+pterodactyl
+quagga
+sabre-toothed tiger
+spinosaurus
+stegosaurus
+thylacine
+triceratops
+trilobite
+tyrannosaurus
+velociraptor
+woolly mammoth
+woolly rhinoceros
+
+# ===============================
+# Males, females and young
+# ===============================
+
+billy
+bitch
+buck
+bull
+bullock
+calf
+chick
+cob
+cock
+cockerel
+colt
+cria
+cub
+cygnet
+doe
+drake
+duckling
+elver
+ewe
+fawn
+filly
+foal
+fry
+gander
+gilt
+gosling
+grub
+heifer
+hen
+hind
+hob
+jack
+jenny
+jill
+joey
+kid
+kit
+kitten
+lamb
+larva
+leveret
+maggot
+mare
+nanny
+nymph
+owlet
+peacock
+peahen
+pen
+piglet
+poult
+puppy
+ram
+rooster
+sow
+squab
+stag
+stallion
+steer
+tadpole
+tom
+vixen
+whelp
+yearling
