@@ -4,7 +4,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { parseWords } from "../src/patterns/wordlist.js";
 import { attributionParts, downloadText, plainAttribution, readList, removeList, sortLists, stripList, wordCount, appendList } from "../src/wordlists/lists.js";
 
-const HEADER = "# name: Animals\n# description: Some animals.\n# tag: science\n\n";
+const HEADER = "# name: Animals\n# description: Some animals.\n# tag: science & academia\n\n";
 
 test("stripList drops comments, blank lines and surrounding spaces", () => {
   assert.equal(stripList("# name: x\r\n\r\ncat\r\n# comment\r\n  big dog \r\n\r\n"), "cat\nbig dog\n");
@@ -34,28 +34,28 @@ test("wordCount counts words the way the other pages do", () => {
 });
 
 test("readList reads the header and counts the words", () => {
-  assert.deepEqual(readList(HEADER + "# section\ncat\ndog\n\ncat\n"), { name: "Animals", description: "Some animals.", tag: "science", size: 2 });
-  assert.deepEqual(readList(HEADER.replaceAll("\n", "\r\n") + "cat\r\n"), { name: "Animals", description: "Some animals.", tag: "science", size: 1 });
+  assert.deepEqual(readList(HEADER + "# section\ncat\ndog\n\ncat\n"), { name: "Animals", description: "Some animals.", tag: "science & academia", size: 2 });
+  assert.deepEqual(readList(HEADER.replaceAll("\n", "\r\n") + "cat\r\n"), { name: "Animals", description: "Some animals.", tag: "science & academia", size: 1 });
 });
 
 test("readList reads an optional attribution", () => {
-  const text = "# name: Animals\n# description: Some animals.\n# tag: science\n# attribution: From a zoo.\n\ncat\n";
-  assert.deepEqual(readList(text), { name: "Animals", description: "Some animals.", attribution: "From a zoo.", tag: "science", size: 1 });
+  const text = "# name: Animals\n# description: Some animals.\n# tag: science & academia\n# attribution: From a zoo.\n\ncat\n";
+  assert.deepEqual(readList(text), { name: "Animals", description: "Some animals.", attribution: "From a zoo.", tag: "science & academia", size: 1 });
 });
 
 test("readList reads the optional tag: general or a topic", () => {
   assert.equal(readList("# name: Words\n# description: All words.\n# tag: general\n\ncat\n").tag, "general");
   assert.equal(readList("# name: Words\n# description: All words.\n# tag: geography\n\ncat\n").tag, "geography");
-  assert.throws(() => readList("# name: Words\n# description: All words.\n# tag: topic\n\ncat\n"), { message: /unknown tag "topic" \(expected general, culture, geography, language, politics & religion, science\)/ });
+  assert.throws(() => readList("# name: Words\n# description: All words.\n# tag: topic\n\ncat\n"), { message: /unknown tag "topic" \(expected general, culture, geography, language, politics & religion, science & academia\)/ });
   assert.equal(readList("# name: Words\n# description: All words.\n\ncat\n").tag, undefined);
 });
 
 test("sortLists puts general lists first, then sorts by name", () => {
   const lists = [
-    { name: "countries", tag: "science" },
+    { name: "countries", tag: "science & academia" },
     { name: "English", tag: "general" },
-    { name: "Chemical symbols", tag: "science" },
-    { name: "Chemical elements", tag: "science" },
+    { name: "Chemical symbols", tag: "science & academia" },
+    { name: "Chemical elements", tag: "science & academia" },
     { name: "Bridge terms" },
     { name: "Dutch", tag: "general" },
   ];

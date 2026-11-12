@@ -1,6 +1,6 @@
 # name: Body parts
 # description: Parts of the human body, by both common and technical names (kneecap, patella), most prominent first.
-# tag: science
+# tag: science & academia
 # attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
 
 # Named parts of the human body: regions, organs, bones (each named bone, or its group), the
