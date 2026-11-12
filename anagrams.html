@@ -64,6 +64,8 @@
     resize: none;
     overflow: hidden;
   }
+  /* the textarea's colour is transparent, which Firefox would otherwise use for the placeholder */
+  #editor textarea::placeholder { color: #767676; opacity: 1; }
   #editor textarea::selection { background: rgba(0, 120, 255, 0.25); color: transparent; }
   .bad { color: #d00; }
   .done { color: #080; font-weight: bold; }
