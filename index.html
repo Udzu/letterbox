@@ -10,6 +10,14 @@
 <script>
   // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+  // In the installed app, go to the start page chosen on this page, once per launch: the page stays hidden
+  // until the script at the end checks the choice is still one of the pages (see the start page toggles).
+  try {
+    if ((matchMedia("(display-mode: standalone)").matches || navigator.standalone) && !sessionStorage.getItem("launched")) {
+      sessionStorage.setItem("launched", "1");
+      if (localStorage.getItem("start-page")) document.documentElement.style.visibility = "hidden";
+    }
+  } catch (e) {}
 </script>
 <title>Letterbox</title>
 <style>
@@ -55,6 +63,16 @@
   .grid a:focus-visible { outline: 2px solid #06c; outline-offset: 1px; }
   .grid .name { display: block; font-size: 1.2rem; font-weight: 600; color: #06c; }
   .grid .description { display: block; margin-top: 4px; }
+  /* in the installed app, a toggle on each box for the page the app opens on (see the script below) */
+  .grid li { position: relative; }
+  .app .grid .name { padding-right: 28px; }
+  .grid .home { position: absolute; top: 6px; right: 6px; width: 36px; height: 36px; padding: 0; border: none; border-radius: 6px; background: none; color: #9db4cf; cursor: pointer; }
+  .grid.other .home { color: #cfb88f; }
+  .grid .home:hover, .grid .home:focus-visible { color: #06c; }
+  .grid .home[aria-pressed="true"] { color: #06c; }
+  .grid .home svg { display: block; margin: auto; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+  .grid .home[aria-pressed="true"] svg { fill: currentColor; }
+  .grid .home:focus-visible { outline: 2px solid #06c; }
   @media (max-width: 559px) { .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -112,6 +130,52 @@
     </a></li>
   </ul>
 </main>
+<script>
+  // In the installed app: a toggle on each box to make it the page the app opens on (stored in localStorage
+  // "start-page"; the script in the head hides this page at launch if one is set, and this one goes there).
+  (() => {
+    const html = document.documentElement;
+    let start = null;
+    try {
+      start = localStorage.getItem("start-page");
+    } catch (e) {}
+    const links = [...document.querySelectorAll(".grid a")];
+    if (start && !links.some((a) => a.getAttribute("href") === start)) start = null; // a page since removed
+    if (html.style.visibility === "hidden") {
+      if (start) {
+        location.replace(start);
+        return;
+      }
+      html.style.visibility = "";
+    }
+    if (!(matchMedia("(display-mode: standalone)").matches || navigator.standalone)) return;
+    document.body.classList.add("app");
+    document.querySelector(".intro").textContent += " Tap the house on a tool to open it whenever the app starts.";
+    const buttons = links.map((a) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "home";
+      button.dataset.page = a.getAttribute("href");
+      const name = a.querySelector(".name").textContent;
+      button.title = button.ariaLabel = `Open ${name} when the app starts`;
+      button.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 3.5 3.5 11v9.5h6v-6h5v6h6V11z"/></svg>';
+      a.after(button);
+      return button;
+    });
+    const show = () => buttons.forEach((b) => b.setAttribute("aria-pressed", b.dataset.page === start));
+    show();
+    for (const button of buttons) {
+      button.addEventListener("click", () => {
+        start = button.dataset.page === start ? null : button.dataset.page;
+        try {
+          if (start) localStorage.setItem("start-page", start);
+          else localStorage.removeItem("start-page");
+        } catch (e) {}
+        show();
+      });
+    }
+  })();
+</script>
 <script>
   // Suggest installing the site as an app: on iOS, which never offers it, by saying how; elsewhere with a
   // button for the browser's own install dialog, once the browser says the site can be installed. Not
