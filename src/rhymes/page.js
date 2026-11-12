@@ -143,10 +143,12 @@ function showRhymes() {
   const { ipa } = rhymeParts(entry.pron);
   const kind = type !== "perfect" ? `${type} ` : !options.sameOnset && !options.looseOnsets ? "perfect " : "";
   const number = `${count === 0 ? "No" : count.toLocaleString("en")}`;
-  const text = TYPES[type].whole ? `${number} word${count === 1 ? "" : "s"} with the same ${type} as /${toIpa(entry.pron)}/`
-    : `${number} ${kind}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
+  // (the pronunciation kept on one line)
+  const shownIpa = el("span", { className: "nowrap", textContent: `/${TYPES[type].whole ? toIpa(entry.pron) : ipa}/` });
+  const text = [TYPES[type].whole ? `${number} word${count === 1 ? "" : "s"} with the same ${type} as `
+    : `${number} ${kind}rhyme${count === 1 ? "" : "s"} on `, shownIpa];
   if (count === 0 && mosaic.length === 0) {
-    summary.textContent = text;
+    summary.replaceChildren(...text);
     return;
   }
   // a button for each way of grouping the rhymes, with the current one pressed
@@ -160,7 +162,7 @@ function showRhymes() {
     });
     return button;
   });
-  summary.replaceChildren(text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
+  summary.replaceChildren(...text, " ", el("span", { className: "grouping" }, ["Group: ", el("span", { className: "buttons" }, buttons)]));
   // sections of [title, items]: by frequency, or by number of syllables or letters
   const byCount = (groups, unit) => groups.map(({ count, items }) => [`${count} ${unit}${count === 1 ? "" : "s"}`, items]);
   const sections = grouping === "syllables" ? byCount(rhymes.bySyllables(matches), "syllable")

@@ -30,9 +30,12 @@
     font-family: inherit;
   }
   /* the settings: a label, then its choices, all starting at the same offset */
-  #settings { display: grid; grid-template-columns: max-content 1fr; gap: 6px 8px; align-items: baseline; margin-top: 10px; }
+  #settings { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 8px; align-items: baseline; margin-top: 10px; }
   #settings .label { color: #666; }
-  #types { justify-self: start; }
+  /* the type buttons wrap on narrow screens, so each keeps its own border, overlapping its neighbours' */
+  #types { justify-self: start; flex-wrap: wrap; padding: 0 1px 1px 0; }
+  #types button, #types button + button { border-left: 1px solid #bbb; margin: 0 -1px -1px 0; }
+  #types button[aria-pressed=true] { position: relative; border-color: #999; }
   #options, #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; }
   #options label, #mergers label { cursor: pointer; }
   #options label.disabled { color: #aaa; cursor: default; }
@@ -54,6 +57,7 @@
   a.wiktionary:hover { text-decoration: underline; }
   #summary { margin: 16px 0 8px; font-size: 1.1rem; }
   #summary:empty { display: none; }
+  .nowrap { white-space: nowrap; }
   /* the type and grouping buttons, joined, with the current one pressed */
   #summary .grouping { margin-left: 12px; font-size: 0.9rem; color: #666; white-space: nowrap; }
   .buttons { display: inline-flex; vertical-align: middle; }
@@ -91,11 +95,11 @@
   <div id="settings">
     <span class="label" title="What to search for">Type:</span>
     <span id="types" class="buttons">
-      <button type="button" data-type="perfect" title="Words that sound the same from the stressed vowel on (so time rhymes with rhyme)">Perfect</button>
-      <button type="button" data-type="near" title="Also let consonants after the stressed vowel differ within a family: p t k; b d g; f th s sh ch; v th z zh j; m n ng (so rhyme matches mine, and cap matches cat)">Near</button>
-      <button type="button" data-type="additive" title="Also match words with one more or one fewer s, z, t, d, m, n or ng after the stressed vowel, next to another consonant or at the end (so glance matches pants and plan, and bee matches beam)">Additive</button>
-      <button type="button" data-type="consonants" title="Words with the same consonants throughout, in the same places between the vowels, whatever the vowels and stress (so abet matches Abbott and obit, but not bet or rabbit)">Consonants</button>
-      <button type="button" data-type="vowels" title="Words with the same vowels in the same order, stressed in the same place, whatever the consonants (so abet matches a pet and Annette, but not Abbott)">Vowels</button>
+      <button type="button" data-type="perfect" title="Words that sound the same from the stressed vowel on (so time rhymes with rhyme)">Perfect rhyme</button>
+      <button type="button" data-type="near" title="Also let consonants after the stressed vowel differ within a family: p t k; b d g; f th s sh ch; v th z zh j; m n ng (so rhyme matches mine, and cap matches cat)">Near rhyme</button>
+      <button type="button" data-type="additive" title="Also match words with one more or one fewer s, z, t, d, m, n or ng after the stressed vowel, next to another consonant or at the end (so glance matches pants and plan, and bee matches beam)">Additive rhyme</button>
+      <button type="button" data-type="consonants" title="Words with the same consonants throughout, in the same places between the vowels, whatever the vowels and stress (so abet matches Abbott and obit, but not bet or rabbit)">Same consonants</button>
+      <button type="button" data-type="vowels" title="Words with the same vowels in the same order, stressed in the same place, whatever the consonants (so abet matches a pet and Annette, but not Abbott)">Same vowels</button>
     </span>
     <span class="label" title="The consonants that start a syllable">Onsets:</span>
     <div id="options">
