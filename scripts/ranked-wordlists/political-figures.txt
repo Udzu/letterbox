@@ -1,0 +1,1592 @@
+# name: Political figures
+# description: Surnames of politicians, revolutionaries and activists born since 1700, most prominent first.
+# tag: politics & religion
+# attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
+
+# People born in 1700 or later with a political occupation on Wikidata, articles in at least 8 of the larger
+# Wikipedias and a political English description, reviewed by hand: left out monarchs and royals (but not
+# Napoleon and Napoleon III, who held office first), religious leaders, and people best known for something else
+# (philosophers, writers, scientists, entertainers). Cut at 1,500 by prominence, with well-known people below the
+# cut (mostly activists, who rank lower than office holders) added back at the end. Names are the ones each is
+# usually known by in English: Bismarck, Lloyd George, Saddam; Chinese, Korean and Vietnamese names in full, as
+# in the other lists; British peers by their titles.
+
+Q517: Napoleon, Bonaparte  # Napoleon
+Q7721: Napoleon, Bonaparte  # Napoleon III
+Q352: Hitler  # Adolf Hitler
+Q22686: Trump  # Donald J. Trump
+Q76: Obama  # Barack Obama
+Q855: Stalin  # Joseph Stalin
+Q1394: Lenin  # Vladimir Lenin
+Q8007: Roosevelt  # Franklin Delano Roosevelt
+Q7747: Putin  # Vladimir Putin
+Q207: Bush  # George W. Bush
+Q8016: Churchill  # Winston Churchill
+Q23: Washington  # George Washington
+Q9696: Kennedy  # John F. Kennedy
+Q9960: Reagan  # Ronald Reagan
+Q1124: Clinton  # Bill Clinton
+Q11812: Jefferson  # Thomas Jefferson
+Q91: Lincoln  # Abraham Lincoln
+Q1001: Gandhi  # Mahatma Gandhi
+Q5816: Mao Zedong  # Mao Zedong
+Q9588: Nixon  # Richard Nixon
+Q23559: Mussolini  # Benito Mussolini
+Q30487: Gorbachev  # Mikhail Gorbachev
+Q6279: Biden  # Joe Biden
+Q2042: de Gaulle  # Charles de Gaulle
+Q8027: King  # Martin Luther King Jr.
+Q23685: Carter  # Jimmy Carter
+Q8023: Mandela  # Nelson Mandela
+Q9916: Eisenhower  # Dwight D. Eisenhower
+Q33866: Roosevelt  # Theodore Roosevelt
+Q23505: Bush  # George H. W. Bush
+Q34969: Franklin  # Benjamin Franklin
+Q11613: Truman  # Harry S. Truman
+Q29179: Franco  # Francisco Franco
+Q9640: Johnson  # Lyndon B. Johnson
+Q34296: Wilson  # Woodrow Wilson
+Q8442: Bismarck  # Otto von Bismarck
+Q1316: Saddam, Hussein  # Saddam Hussein
+Q19673: Gore  # Al Gore
+Q35314: Khrushchev  # Nikita Khrushchev
+Q5809: Guevara  # Che Guevara
+Q5152: Atatürk  # Mustafa Kemal Atatürk
+Q3052772: Macron  # Emmanuel Macron
+Q7416: Thatcher  # Margaret Thatcher
+Q11256: Castro  # Fidel Castro
+Q16574: Chiang Kai-shek  # Chiang Kai-shek
+Q9582: Ford  # Gerald Ford
+Q33391: Trotsky  # Leon Trotsky
+Q8605: Bolívar  # Simón Bolívar
+Q15031: Xi Jinping  # Xi Jinping
+Q9161: Tito  # Josip Broz Tito
+Q11813: Madison  # James Madison
+Q11806: Adams  # John Adams
+Q2038: Mitterrand  # François Mitterrand
+Q38823: Khomeini  # Ruhollah Khomeini
+Q43723: Netanyahu  # Benjamin Netanyahu
+Q34453: Yeltsin  # Boris Yeltsin
+Q34836: Grant  # Ulysses S. Grant
+Q6294: Clinton  # Hillary Clinton
+Q66107: Kissinger  # Henry Kissinger
+Q567: Merkel  # Angela Merkel
+Q765165: Brezhnev  # Leonid Brezhnev
+Q34211: Arafat  # Yasser Arafat
+Q9545: Blair  # Tony Blair
+Q23530: Medvedev  # Dmitry Medvedev
+Q19878: Gaddafi  # Muammar Gaddafi
+Q16977: Deng Xiaoping  # Deng Xiaoping
+Q1058: Modi  # Narendra Modi
+Q11817: Jackson  # Andrew Jackson
+Q3874799: Zelenskyy  # Volodymyr Zelenskyy
+Q47906: Göring  # Hermann Göring
+Q41117: Kim Il-sung  # Kim Il-sung
+Q1047: Nehru  # Jawaharlal Nehru
+Q8573: Sun Yat-sen  # Sun Yat-sen
+Q34060: Rabin  # Yizhak Rabin
+Q2514: Brandt  # Willy Brandt
+Q36014: Ho Chi Minh  # Ho Chi Minh
+Q2492: Adenauer  # Konrad Adenauer
+Q57336: Khamenei  # Ali Khamenei
+Q39259: Erdoğan  # Recep Tayyip Erdoğan
+Q35236: Hoover  # Herbert Hoover
+Q39524: Nasser  # Gamal Abdel Nasser
+Q1317: bin Laden  # Osama bin Laden
+Q37181: Lula  # Luiz Inácio Lula da Silva
+Q2105: Chirac  # Jacques Chirac
+Q35171: Cleveland  # Grover Cleveland
+Q42013: Sadat  # Anwar Sadat
+Q41749: Goebbels  # Joseph Goebbels
+Q8440: Chávez  # Hugo Chávez
+Q35648: Taft  # William Howard Taft
+Q444: Wałęsa  # Lech Wałęsa
+Q7231: Luxemburg  # Rosa Luxemburg
+Q329: Sarkozy  # Nicolas Sarkozy
+Q35041: McKinley  # William McKinley
+Q34597: Garfield  # James A. Garfield
+Q28935729: Vance  # JD Vance
+Q368: Pinochet  # Augusto Pinochet
+Q36023: Coolidge  # Calvin Coolidge
+Q1254: Annan  # Kofi Annan
+Q1149: Gandhi  # Indira Gandhi
+Q10853588: Harris  # Kamala Harris
+Q80504: Ceaușescu  # Nicolae Ceaușescu
+Q56226: Kim Jong-un  # Kim Jong-un
+Q178903: Hamilton  # Alexander Hamilton
+Q76127: Sukarno  # Sukarno
+Q2518: Kohl  # Helmut Kohl
+Q58132: Maduro  # Nicolás Maduro
+Q11816: Adams  # John Quincy Adams
+Q8612: Johnson  # Andrew Johnson
+Q57410: Peres  # Shimon Peres
+Q35286: Harding  # Warren G. Harding
+Q11815: Monroe  # James Monroe
+Q2685: Schwarzenegger  # Arnold Schwarzenegger
+Q35498: Arthur  # Chester A. Arthur
+Q165792: Burke  # Edmund Burke
+Q36233: Havel  # Václav Havel
+Q269909: Burnham  # Andy Burnham
+Q130873: Begin  # Menachem Begin
+Q37610: Ben-Gurion  # David Ben-Gurion
+Q231690: Ambedkar  # B. R. Ambedkar
+Q47139: Milošević  # Slobodan Milošević
+Q11860: Berlusconi  # Silvio Berlusconi
+Q12325: Buchanan  # James Buchanan
+Q192: Cameron  # David Cameron
+Q151414: Marshall  # George Marshall
+Q36740: Aung San Suu Kyi  # Aung San Suu Kyi
+Q180589: Johnson  # Boris Johnson
+Q11820: Van Buren  # Martin Van Buren
+Q126462: Paine  # Thomas Paine
+Q2866: Lukashenka  # Alexander Lukashenka
+Q44329: Assad  # Bashar al-Assad
+Q5752: Kropotkin  # Peter Kropotkin
+Q132345: Abe  # Shinzō Abe
+Q2667: Hindenburg  # Paul von Hindenburg
+Q17410: Zhou Enlai  # Zhou Enlai
+Q44819: Suharto  # Suharto
+Q539: Garibaldi  # Giuseppe Garibaldi
+Q32732: Yousafzai  # Malala Yousafzai
+Q44071: Andropov  # Yuri Andropov
+Q131691: Wellington  # Arthur Wellesley, 1st Duke of Wellington
+Q60772: von der Leyen  # Ursula von der Leyen
+Q35686: Hayes  # Rutherford B. Hayes
+Q311440: Guterres  # António Guterres
+Q5721: Pétain  # Philippe Pétain
+Q27645: Bakunin  # Mikhail Bakunin
+Q22316: Kerry  # John Kerry
+Q11891: Polk  # James K. Polk
+Q440: Allende  # Salvador Allende
+Q6383803: Starmer  # Keir Starmer
+Q10665: Kim Jong-il  # Kim Jong-il
+Q451791: Meloni  # Giorgia Meloni
+Q11881: Tyler  # John Tyler
+Q11869: Harrison  # William Henry Harrison
+Q35678: Harrison  # Benjamin Harrison
+Q48259: Cheney  # Dick Cheney
+Q1705028: Takaichi  # Sanae Takaichi
+Q39464: Pol Pot  # Pol Pot
+Q15029: Hu Jintao  # Hu Jintao
+Q158060: Du Bois  # W. E. B. Du Bois
+Q129006: Attlee  # Clement Attlee
+Q132899: Molotov  # Vyacheslav Molotov
+Q134982: Lloyd George  # David Lloyd George
+Q10390: McCain  # John McCain
+Q151813: de Klerk  # F. W. de Klerk
+Q34448: Ahmadinejad  # Mahmoud Ahmadinejad
+Q34105: Mubarak  # Hosni Mubarak
+Q53783: Hoxha  # Enver Hoxha
+Q997: Sakharov  # Andrei Sakharov
+Q157: Hollande  # François Hollande
+Q2107268: Prabowo  # Prabowo Subianto
+Q44197: Robespierre  # Maximilien Robespierre
+Q1267: Hammarskjöld  # Dag Hammarskjöld
+Q566257: Merz  # Friedrich Merz
+Q93330: Perón  # Juan Perón
+Q11896: Taylor  # Zachary Taylor
+Q12312: Pierce  # Franklin Pierce
+Q25310: Kennedy  # Robert F. Kennedy
+Q6070218: Sánchez  # Pedro Sánchez
+Q2124: Giscard d'Estaing  # Valéry Giscard d'Estaing
+Q12306: Fillmore  # Millard Fillmore
+Q181383: Mahathir  # Mahathir Mohamad
+Q10648: Brown  # Gordon Brown
+Q16597: Jiang Zemin  # Jiang Zemin
+Q324546: Rubio  # Marco Rubio
+Q3099714: Trudeau  # Justin Trudeau
+Q10664: Chamberlain  # Neville Chamberlain
+Q885: Piłsudski  # Józef Piłsudski
+Q359442: Sanders  # Bernie Sanders
+Q946: Tusk  # Donald Tusk
+Q45785: Kim Dae-jung  # Kim Dae-jung
+Q1463: Marcos  # Ferdinand Marcos
+Q60206: Sharon  # Ariel Sharon
+Q5749: Proudhon  # Pierre-Joseph Proudhon
+Q1459658: Yanukovych  # Viktor Yanukovych
+Q192533: Carney  # Mark Carney
+Q2530: Schröder  # Gerhard Schröder
+Q57641: Orbán  # Viktor Orbán
+Q76658: Steinmeier  # Frank-Walter Steinmeier
+Q10304982: Bolsonaro  # Jair Bolsonaro
+Q43033: Tutu  # Desmond Tutu
+Q128956: Wilson  # Harold Wilson
+Q2607: Honecker  # Erich Honecker
+Q9559: Major  # John Major
+Q48231: Amin  # Idi Amin
+Q1253: Ban Ki-moon  # Ban Ki-moon
+Q164535: Mobutu  # Mobutu Sese Seko
+Q42992: Meir  # Golda Meir
+Q141829: Beria  # Lavrentiy Beria
+Q82006: Disraeli  # Benjamin Disraeli
+Q10707: Mugabe  # Robert Mugabe
+Q29230: Ahtisaari  # Martti Ahtisaari
+Q2185: Pompidou  # Georges Pompidou
+Q2516: Schmidt  # Helmut Schmidt
+Q160852: Gladstone  # William Ewart Gladstone
+Q264766: May  # Theresa May
+Q439564: Machado  # María Corina Machado
+Q76437: Dönitz  # Karl Dönitz
+Q127442: Chernenko  # Konstantin Chernenko
+Q128604: Pearson  # Lester B. Pearson
+Q43303: Malcolm X  # Malcolm X
+Q103955: Stresemann  # Gustav Stresemann
+Q57371: Aliyev  # Ilham Aliyev
+Q151394: Salazar  # António de Oliveira Salazar
+Q75866: Hess  # Rudolf Hess
+Q14356: Park Chung-hee  # Park Chung-hee
+Q8620: Nkrumah  # Kwame Nkrumah
+Q5771800: Sheinbaum  # Claudia Sheinbaum
+Q186652: Lafayette  # Gilbert du Motier, Marquis de Lafayette
+Q41617: Liu Xiaobo  # Liu Xiaobo
+Q50365049: Abiy  # Abiy Ahmed
+Q180989: Addams  # Jane Addams
+Q101886: Ribbentrop  # Joachim von Ribbentrop
+Q57394: Nazarbayev  # Nursultan Nazarbayev
+Q3956186: Mattarella  # Sergio Mattarella
+Q179871: Satō  # Eisaku Satō
+Q83396: Roosevelt  # Eleanor Roosevelt
+Q45662: Metternich  # Klemens von Metternich
+Q20055561: Sunak  # Rishi Sunak
+Q187336: Mazzini  # Giuseppe Mazzini
+Q179858: Kekkonen  # Urho Kekkonen
+Q24313: Pence  # Mike Pence
+Q182276: Juárez  # Benito Juárez
+Q78492: Masaryk  # Tomáš Garrigue Masaryk
+Q57792: Rutte  # Mark Rutte
+Q160554: Jinnah  # Mohammad Ali Jinnah
+Q123037: Mosaddegh  # Mohammad Mosaddegh
+Q127998: Abbas  # Mahmoud Abbas
+Q3318231: Widodo  # Joko Widodo
+Q1459699: Yushchenko  # Viktor Yushchenko
+Q156844: Vargas  # Getúlio Vargas
+Q134160: San Martín  # José de San Martín
+Q150543: Dubček  # Alexander Dubček
+Q150688: Díaz  # Porfirio Díaz
+Q52395487: Milei  # Javier Milei
+Q128995: Eden  # Anthony Eden
+Q8619: Trudeau  # Pierre Trudeau
+Q161672: Lumumba  # Patrice Lumumba
+Q58077: Poroshenko  # Petro Poroshenko
+Q156349: Radhakrishnan  # Sarvepalli Radhakrishnan
+Q46809: Castro  # Raúl Castro
+Q4496: Romney  # Mitt Romney
+Q57311: Santos  # Juan Manuel Santos
+Q34413: Bhutto  # Benazir Bhutto
+Q174971: Itō  # Itō Hirobumi
+Q170581: Pelosi  # Nancy Pelosi
+Q160847: Tojo  # Hideki Tojo
+Q179888: Briand  # Aristide Briand
+Q133040: Fujimori  # Alberto Fujimori
+Q180588: Malenkov  # Georgy Malenkov
+Q57402: Ortega  # Daniel Ortega
+Q118725: Assad  # Hafez al-Assad
+Q43179: Sirleaf  # Ellen Johnson Sirleaf
+Q61053: Scholz  # Olaf Scholz
+Q4593: Gandhi  # Rajiv Gandhi
+Q307871: Sisi  # Abdel Fattah el-Sisi
+Q186709: Bukharin  # Nikolai Bukharin
+Q528496: Vijay  # C. Joseph Vijay
+Q44003: Herzl  # Theodor Herzl
+Q171684: Syngman Rhee  # Syngman Rhee
+Q128985: Macmillan  # Harold Macmillan
+Q56434717: Thunberg  # Greta Thunberg
+Q55834: Jaruzelski  # Wojciech Jaruzelski
+Q160499: Talleyrand  # Charles-Maurice de Talleyrand-Périgord
+Q11665: Ramos-Horta  # José Ramos-Horta
+Q1480: Aquino  # Corazon Aquino
+Q212648: Giuliani  # Rudy Giuliani
+Q162269: Davis  # Jefferson Davis
+Q48211: Kerensky  # Alexander Kerensky
+Q41921: Parks  # Rosa Parks
+Q41914: Singh  # Manmohan Singh
+Q157068: Mountbatten  # Louis Mountbatten, 1st Earl Mountbatten of Burma
+Q46795: Maathai  # Wangari Muta Maathai
+Q152306: Mannerheim  # Carl Gustaf Emil Mannerheim
+Q47216: Rice  # Condoleezza Rice
+Q15981: Schuman  # Robert Schuman
+Q189197: McCarthy  # Joseph McCarthy
+Q2628: Ulbricht  # Walter Ulbricht
+Q233289: Vajpayee  # Atal Bihari Vajpayee
+Q171834: Moro  # Aldo Moro
+Q335697: Albanese  # Anthony Albanese
+Q188620: Menchú  # Rigoberta Menchú
+Q47900: Makhno  # Nestor Makhno
+Q128967: Heath  # Edward Heath
+Q19880665: Johnson  # Mike Johnson
+Q128902: Pitt  # William Pitt the Younger
+Q40722: Rousseff  # Dilma Rousseff
+Q186185: Voroshilov  # Kliment Voroshilov
+Q9576: Callaghan  # James Callaghan
+Q11270: Batista  # Fulgencio Batista
+Q5933752: Pezeshkian  # Masoud Pezeshkian
+Q57434: Klaus  # Václav Klaus
+Q131152: Ebadi  # Shirin Ebadi
+Q4298520: Mishustin  # Mikhail Mishustin
+Q75849: Rosenberg  # Alfred Rosenberg
+Q2757: Kaczyński  # Lech Kaczyński
+Q38484: Prodi  # Romano Prodi
+Q4967771: Mohammadi  # Narges Mohammadi
+Q57558: Karimov  # Islam Karimov
+Q19901232: Murmu  # Droupadi Murmu
+Q272201: Truss  # Liz Truss
+Q130852: Koizumi  # Junichiro Koizumi
+Q75786: Bernstein  # Eduard Bernstein
+Q185718: Kolchak  # Alexander Kolchak
+Q131248: Lee Kuan Yew  # Kuan Yew Lee
+Q79969: Goldman  # Emma Goldman
+Q150851: Powell  # Colin Powell
+Q11237: Rockefeller  # Nelson Rockefeller
+Q191530: Öcalan  # Abdullah Öcalan
+Q151983: Laval  # Pierre Laval
+Q355522: McConnell  # Mitch McConnell
+Q42410: Morales  # Evo Morales
+Q171730: Clemenceau  # Georges Clemenceau
+Q131355: Bhutto  # Zulfikar Ali Bhutto
+Q1148669: Ramaphosa  # Cyril Ramaphosa
+Q2153: Bose  # Subhas Chandra Bose
+Q2646: Ebert  # Friedrich Ebert
+Q40495: Musharraf  # Pervez Musharraf
+Q184565: Dawes  # Charles G. Dawes
+Q53713: Palme  # Olof Palme
+Q18111: Li Keqiang  # Li Keqiang
+Q202155: Sankara  # Thomas Sankara
+Q150552: von Papen  # Franz von Papen
+Q318508: López Obrador  # Andrés Manuel López Obrador
+Q153832: De Gasperi  # Alcide De Gasperi
+Q125731: Barak  # Ehud Barak
+Q22007112: Murad  # Nadia Murad
+Q348144: Rouhani  # Hassan Rouhani
+Q207191: Calhoun  # John C. Calhoun
+Q156799: González  # Felipe González
+Q5015: Frederiksen  # Mette Frederiksen
+Q202979: Hull  # Cordell Hull
+Q206: Harper  # Stephen Harper
+Q166714: Asquith  # H. H. Asquith
+Q177917: Nagy  # Imre Nagy
+Q28860866: Jetten  # Rob Jetten
+Q380900: Schumer  # Chuck Schumer
+Q41395: Zapatero  # José Luis Rodríguez Zapatero
+Q154545: Senghor  # Léopold Sédar Senghor
+Q50005: Andreotti  # Giulio Andreotti
+Q124488292: Magyar  # Péter Magyar
+Q12927: Le Pen  # Marine Le Pen
+Q58217: Lavrov  # Sergey Lavrov
+Q19008: Balfour  # Arthur Balfour
+Q133308: ElBaradei  # Mohamed ElBaradei
+Q1257: Boutros-Ghali  # Boutros Boutros-Ghali
+Q5738: Thiers  # Adolphe Thiers
+Q461391: Newsom  # Gavin Newsom
+Q299574: Anwar  # Anwar Ibrahim
+Q166646: MacDonald  # Ramsay MacDonald
+Q190894: La Fontaine  # Henri La Fontaine
+Q503143: Stubb  # Alexander Stubb
+Q57274: Museveni  # Yoweri Museveni
+Q215562: Douglass  # Frederick Douglass
+Q75886: Liebknecht  # Karl Liebknecht
+Q155979: Navalny  # Alexei Navalny
+Q607: Bloomberg  # Michael Bloomberg
+Q209989: Humphrey  # Hubert Humphrey
+Q173347: de Valera  # Éamon de Valera
+Q189145: Santa Anna  # Antonio López de Santa Anna
+Q18434: Blum  # Léon Blum
+Q610788: Costa  # António Costa
+Q7934206: Sharaa  # Ahmed al-Sharaa
+Q360: Assange  # Julian Assange
+Q57661: Juncker  # Jean-Claude Juncker
+Q181875: Peel  # Robert Peel
+Q166092: Cavour  # Camillo Benso di Cavour
+Q182788: Gingrich  # Newt Gingrich
+Q49344: Arias  # Óscar Arias Sánchez
+Q12612463: Lee Jae Myung  # Lee Jae Myung
+Q457786: Duterte  # Rodrigo Duterte
+Q58579: Ludendorff  # Erich Ludendorff
+Q2919350: Khamenei  # Mojtaba Khamenei
+Q230578: Cardoso  # Fernando Henrique Cardoso
+Q134549: Kennedy  # Ted Kennedy
+Q151929: Shevardnadze  # Eduard Shevardnadze
+Q629702: Kuchma  # Leonid Kuchma
+Q28034971: Mamdani  # Zohran Mamdani
+Q291169: Corbyn  # Jeremy Corbyn
+Q151364: Quisling  # Vidkun Quisling
+Q11869065: Kallas  # Kaja Kallas
+Q41570: Hua Guofeng  # Hua Guofeng
+Q20089181: Lecornu  # Sébastien Lecornu
+Q184650: Rumsfeld  # Donald Rumsfeld
+Q166635: Baldwin  # Stanley Baldwin
+Q223677: Dulles  # John Foster Dulles
+Q2496: Erhard  # Ludwig Erhard
+Q188999: Chamberlain  # Austen Chamberlain
+Q48283: Tymoshenko  # Yulia Tymoshenko
+Q49216: Mondale  # Walter Mondale
+Q57405: Yudhoyono  # Susilo Bambang Yudhoyono
+Q132596: Asō  # Tarō Asō
+Q152030: Antonescu  # Ion Antonescu
+Q233969: Le Duc Tho  # Le Duc Tho
+Q187099: Jospin  # Lionel Jospin
+Q983324: Marcos  # Bongbong Marcos
+Q320: Bachelet  # Michelle Bachelet
+Q191974: Poincaré  # Raymond Poincaré
+Q174438: Albright  # Madeleine Albright
+Q9513: Kalam  # A. P. J. Abdul Kalam
+Q200850: Kádár  # János Kádár
+Q40933: Perón  # Eva Perón
+Q32024: Shoigu  # Sergei Shoigu
+Q155164: Khan  # Imran Khan
+Q192278: Villa  # Pancho Villa
+Q57665: Stoltenberg  # Jens Stoltenberg
+Q4414390: Li Qiang  # Li Qiang
+Q983258: Herzog  # Isaac Herzog
+Q180795: Khatami  # Mohammad Khatami
+Q99829: Zhao Ziyang  # Zhao Ziyang
+Q220619: Root  # Elihu Root
+Q10819: Rajoy  # Mariano Rajoy
+Q179090: Burr  # Aaron Burr
+Q3048: Maurras  # Charles Maurras
+Q152274: Beneš  # Edvard Beneš
+Q43944: Karzai  # Hamid Karzai
+Q200881: Tokayev  # Kassym-Jomart Tokayev
+Q319129: Goldwater  # Barry Goldwater
+Q19825: Rhodes  # Cecil John Rhodes
+Q43144: Palin  # Sarah Palin
+Q157451: Aliyev  # Heydar Aliyev
+Q17704749: Nawrocki  # Karol Nawrocki
+Q28517: Zhivkov  # Todor Zhivkov
+Q203433: Agnew  # Spiro Agnew
+Q192502: Ngô Đình Diệm  # Ngô Đình Diệm
+Q4631: Morsi  # Mohamed Morsi
+Q93181: Olmert  # Ehud Olmert
+Q104622: Karman  # Tawakkol Karman
+Q233984: Tsai Ing-wen  # Tsai Ing-wen
+Q3847080: Lai Ching-te  # Lai Ching-te
+Q43330: Saakashvili  # Mikheil Saakashvili
+Q192667: Noriega  # Manuel Noriega
+Q1780398: Kristersson  # Ulf Kristersson
+Q2036942: Cruz  # Ted Cruz
+Q473239: Pompeo  # Mike Pompeo
+Q21001: Moon Jae-in  # Moon Jae-in
+Q298180: Veil  # Simone Veil
+Q18342893: Gibran  # Gibran Rakabuming Raka
+Q165854: Kamenev  # Lev Kamenev
+Q138048: Park Geun-hye  # Park Geun-hye
+Q319630: Clay  # Henry Clay
+Q52183: Hasina  # Sheikh Hasina
+Q231178: Steinem  # Gloria Steinem
+Q36965: Pavelić  # Ante Pavelić
+Q14362: Chun Doo-hwan  # Chun Doo-hwan
+Q207459: Zinoviev  # Grigory Zinoviev
+Q1231345: Kagame  # Paul Kagame
+Q1260: Waldheim  # Kurt Waldheim
+Q192894: Primo de Rivera  # Miguel Primo de Rivera, 2nd Marquis of Estella
+Q294460: Draghi  # Mario Draghi
+Q55637: Aznar  # José María Aznar
+Q214367: Suárez  # Adolfo Suárez
+Q202770: Kosygin  # Aleksey Nikolayevich Kosygin
+Q16090635: Yoon Suk Yeol  # Yoon Suk Yeol
+Q191479: Kościuszko  # Tadeusz Kościuszko
+Q193656: Palmerston  # Henry Temple, 3rd Viscount Palmerston
+Q184267: Gromyko  # Andrei Gromyko
+Q192818: Craxi  # Bettino Craxi
+Q205545: Venizelos  # Eleftherios Venizelos
+Q122290: Marat  # Jean-Paul Marat
+Q53620: Branting  # Hjalmar Branting
+Q10819807: Babiš  # Andrej Babiš
+Q650219: Seyss-Inquart  # Arthur Seyss-Inquart
+Q294344: Sieyès  # Emmanuel Joseph Sieyès
+Q186525: Nyerere  # Julius Nyerere
+Q172183: Weizmann  # Chaim Weizmann
+Q471040: Savarkar  # Vinayak Damodar Savarkar
+Q484605: Lagarde  # Christine Lagarde
+Q49214: Quayle  # Dan Quayle
+Q313598: Chiang Ching-kuo  # Chiang Ching-kuo
+Q185107: Menem  # Carlos Menem
+Q552751: Mitsotakis  # Kyriakos Mitsotakis
+Q188570: Dzerzhinsky  # Felix Dzerzhinsky
+Q9151911: Duda  # Andrzej Duda
+Q296718: Cárdenas  # Lázaro Cárdenas
+Q359480: Kishida  # Fumio Kishida
+Q209828: Barre  # Siad Barre
+Q16988: Liu Shaoqi  # Liu Shaoqi
+Q243705: Salisbury  # Robert Gascoyne-Cecil, 3rd Marquess of Salisbury
+Q11734: Dollfuss  # Engelbert Dollfuss
+Q19216: Ma Ying-jeou  # Ma Ying-jeou
+Q186111: Rafsanjani  # Akbar Hashemi Rafsanjani
+Q310586: Jackson  # Jesse Jackson
+Q220430: Kapodistrias  # Ioannis Kapodistrias
+Q75853: Videla  # Jorge Rafael Videla
+Q57606: Fico  # Robert Fico
+Q1224: Ciampi  # Carlo Azeglio Ciampi
+Q204487: Ben Ali  # Zine El Abidine Ben Ali
+Q51330: Howard  # John Howard
+Q12688: Jaurès  # Jean Jaurès
+Q57627: Janša  # Janez Janša
+Q216766: Madero  # Francisco I. Madero
+Q200499: Zia  # Muhammad Zia-ul-Haq
+Q9455: Patel  # Sardar Vallabhbhai Patel
+Q229828: Kalinin  # Mikhail Ivanovich Kalinin
+Q192512: Mengistu  # Mengistu Haile Mariam
+Q118263: Bialiatski  # Ales Bialiatski
+Q315528: Lee Teng-hui  # Lee Teng-hui
+Q301804: Yoshida  # Shigeru Yoshida
+Q57269: Calderón  # Felipe Calderón
+Q128976: Douglas-Home  # Alec Douglas-Home
+Q193630: Hume  # John Hume
+Q57265: Bashir  # Omar al-Bashir
+Q15849: Barroso  # José Manuel Barroso
+Q57308: Bouteflika  # Abd al-Aziz Boutafliqa
+Q102870: Tubman  # Harriet Tubman
+Q160456: Davis  # Angela Davis
+Q200085: Badoglio  # Pietro Badoglio
+Q101547: Mbeki  # Thabo Mbeki
+Q192556: Trimble  # David Trimble
+Q134068: Sharif  # Nawaz Sharif
+Q58583: Röhm  # Ernst Röhm
+Q173139: Weah  # George Weah
+Q2821724: Baghdadi  # Abu Bakr al-Baghdadi
+Q296741: Peña Nieto  # Enrique Peña Nieto
+Q108314: Denikin  # Anton Denikin
+Q107037: Gbowee  # Leymah Roberta Gbowee
+Q14345: Roh Moo-hyun  # Roh Moo-hyun
+Q128633: Mackenzie King  # William Lyon Mackenzie King
+Q155074: Dimitrov  # Georgi Dimitrov
+Q183703: Tuđman  # Franjo Tuđman
+Q159603: Gomułka  # Władysław Gomułka
+Q22368: Chen Shui-bian  # Chen Shui-bian
+Q310847: Jay  # John Jay
+Q57366: Rahmon  # Emomali Rahmon
+Q188783: Dayan  # Moshe Dayan
+Q155824: Kubitschek  # Juscelino Kubitschek
+Q157651: Husák  # Gustáv Husák
+Q467948: Støre  # Jonas Gahr Støre
+Q57373: Zardari  # Asif Ali Zardari
+Q164745: Husseini  # Mohammed Amin al-Husseini
+Q206972: de Gouges  # Olympe de Gouges
+Q189732: Kravchuk  # Leonid Kravchuk
+Q157040: Kossuth  # Lajos Kossuth
+Q78869: Van der Bellen  # Alexander Van der Bellen
+Q26257557: Radev  # Rumen Radev
+Q2594: Heuss  # Theodor Heuss
+Q193009: Kellogg  # Frank B. Kellogg
+Q184351: Shamir  # Isaac Shamir
+Q152437: Myrdal  # Alva Myrdal
+Q190572: Fox  # Vicente Fox
+Q250828: Nakasone  # Yasuhiro Nakasone
+Q189714: Babeuf  # François-Noël Babeuf
+Q251666: Wallace  # Henry A. Wallace
+Q170899: Kirchner  # Néstor Kirchner
+Q183297: İnönü  # İsmet İnönü
+Q41718: Zapata  # Emiliano Zapata
+Q2096387: Sharif  # Shehbaz Sharif
+Q315475: Lin Biao  # Lin Biao
+Q152474: Trujillo  # Rafael Trujillo
+Q217706: Bourgeois  # Léon Bourgeois
+Q1220: Napolitano  # Giorgio Napolitano
+Q122465: Suga  # Yoshihide Suga
+Q15257: Paul  # Ron Paul
+Q123665: Arroyo  # Gloria Macapagal Arroyo
+Q306: Piñera  # Sebastián Piñera
+Q2080040: Pavel  # Petr Pavel
+Q57272: Biya  # Paul Biya
+Q14342: Lee Myung-bak  # Lee Myung-bak
+Q235137: Fujimori  # Keiko Fujimori
+Q207682: Kirov  # Sergei Kirov
+Q205282: Bryan  # William Jennings Bryan
+Q22212: Graham  # Lindsey Graham
+Q1230: Cossiga  # Francesco Cossiga
+Q222031: Vučić  # Aleksandar Vučić
+Q189366: Brown  # John Brown
+Q55636: Hidalgo  # Miguel Hidalgo Y Costilla
+Q297644: Tanaka  # Kakuei Tanaka
+Q184623: Danton  # Georges Danton
+Q244395: MacBride  # Seán MacBride
+Q55832: Bierut  # Bolesław Bierut
+Q212955: Luthuli  # Albert John Mvumbi Luthuli
+Q192245: Anthony  # Susan B. Anthony
+Q529294: Grassley  # Chuck Grassley
+Q16628: Wen Jiabao  # Wen Jiabao
+Q15081116: Rodriguez  # Delcy Rodriguez
+Q191014: Perón  # Isabel Martínez de Perón
+Q315594: Konoe  # Fumimaro Konoe
+Q159700: Monnet  # Jean Monnet
+Q2512: Kiesinger  # Kurt Georg Kiesinger
+Q180409: Passy  # Frédéric Passy
+Q128563: Mulroney  # Brian Mulroney
+Q1259: Pérez de Cuéllar  # Javier Pérez de Cuéllar
+Q214438: Menzies  # Robert Menzies
+Q17712353: Bukele  # Nayib Bukele
+Q191375: Rahman  # Sheikh Mujibur Rahman
+Q23333: Whitlam  # Gough Whitlam
+Q217115: Kadyrov  # Ramzan Kadyrov
+Q43135: Rudd  # Kevin Rudd
+Q297308: Seward  # William H. Seward
+Q1242: Einaudi  # Luigi Einaudi
+Q273212: Breckinridge  # John C. Breckinridge
+Q22303: Wang Jingwei  # Wang Jingwei
+Q434706: Warren  # Elizabeth Warren
+Q7821917: Blinken  # Antony Blinken
+Q217154: Mousavi  # Mir-Hossein Mousavi
+Q1500: Rizal  # José Rizal
+Q123923: Karadžić  # Radovan Karadžić
+Q285514: Sanger  # Margaret Sanger
+Q75784: Lassalle  # Ferdinand Lassalle
+Q169011: Frémont  # John C. Frémont
+Q218661: Desai  # Morarji Desai
+Q319079: Dole  # Bob Dole
+Q57808: Mirziyoyev  # Shavkat Mirziyoyev
+Q153899: Enver  # Enver Pasha
+Q57446: Mukherjee  # Pranab Mukherjee
+Q6029546: Orpo  # Petteri Orpo
+Q131660: de Villepin  # Dominique de Villepin
+Q483672: Saleh  # Ali Abdullah Saleh
+Q57385: Obiang  # Teodoro Obiang
+Q7035479: Pashinyan  # Nikol Pashinyan
+Q193062: Alfonsín  # Raúl Alfonsín
+Q2427046: Madoz  # Pascual Madoz
+Q82918: Nyýazow  # Saparmyrat Nyýazow
+Q128702: Macdonald  # John A. Macdonald
+Q76984: Streicher  # Julius Streicher
+Q179910: Võ Nguyên Giáp  # Võ Nguyên Giáp
+Q2567: Weizsäcker  # Richard von Weizsäcker
+Q153425: Delors  # Jacques Delors
+Q57418: Sassou-Nguesso  # Denis Sassou-Nguesso
+Q55917: Kaczyński  # Jarosław Kaczyński
+Q296054: Gottwald  # Klement Gottwald
+Q643348: Bourguiba  # Habib Bourguiba
+Q191798: Haussmann  # Georges-Eugène Haussmann
+Q16297876: Boric  # Gabriel Boric
+Q208665: Henderson  # Arthur Henderson
+Q179558: Kollontaĭ  # A. Kollontaĭ
+Q213526: Daladier  # Édouard Daladier
+Q7177: Le Pen  # Jean-Marie Le Pen
+Q1264: U Thant  # U Thant
+Q57282: Zuma  # Jacob Zuma
+Q3606816: Ardern  # Jacinda Ardern
+Q296023: Soult  # Jean-de-Dieu Soult
+Q48093: Bulganin  # Nikolai Bulganin
+Q5947347: Raisi  # Ebrahim Raisi
+Q463533: Temer  # Michel Temer
+Q11673: Cuomo  # Andrew Cuomo
+Q561837: Macri  # Mauricio Macri
+Q463557: Paul  # Rand Paul
+Q152378: Haniyeh  # Ismail Haniyeh
+Q1335527: Ishiba  # Shigeru Ishiba
+Q157655: Maguire  # Mairead Maguire
+Q15960598: Arlekar  # Rajendra Arlekar
+Q128543: Chrétien  # Jean Chrétien
+Q316901: Rama  # Edi Rama
+Q244689: Shastri  # Lal Bahadur Shastri
+Q34982: Goulart  # João Goulart
+Q99850: Hu Yaobang  # Hu Yaobang
+Q75823: Zetkin  # Clara Zetkin
+Q41563: Gillard  # Julia Gillard
+Q5937916: Kast  # José Antonio Kast
+Q55758: Kwaśniewski  # Aleksander Kwaśniewski
+Q152534: Stroessner  # Alfredo Stroessner
+Q197736: Prasad  # Rajendra Prasad
+Q310192: McClellan  # George Brinton McClellan
+Q106231: Webster  # Daniel Webster
+Q76887: Frick  # Wilhelm Frick
+Q76179: Megawati  # Megawati Soekarnoputri
+Q336599: De Wever  # Bart De Wever
+Q157324: Guizot  # François Guizot
+Q183848: Izetbegović  # Alija Izetbegović
+Q313122: Carranza  # Venustiano Carranza
+Q47846: Kan  # Naoto Kan
+Q200015: Zhirinovsky  # Vladimir Zhirinovsky
+Q168041: Brzezinski  # Zbigniew Brzezinski
+Q57133: Schleicher  # Kurt von Schleicher
+Q2542: Köhler  # Horst Köhler
+Q920403: Martin  # Micheál Martin
+Q564328: Baerbock  # Annalena Baerbock
+Q211856: Noel-Baker  # Philip Noel-Baker, Baron Noel-Baker
+Q312567: Melbourne  # William Lamb, 2nd Viscount Melbourne
+Q77004: Thälmann  # Ernst Thälmann
+Q1932603: Díaz-Canel  # Miguel Díaz-Canel
+Q189139: Metaxas  # Ioannis Metaxas
+Q44620: Strauß  # Franz Josef Strauß
+Q157690: Williams  # Betty Williams
+Q458702: Pujol  # Jordi Pujol
+Q157280: Bandera  # Stepan Bandera
+Q462981: Thune  # John Thune
+Q315572: Kishi  # Nobusuke Kishi
+Q193156: Nader  # Ralph Nader
+Q2538: Gauck  # Joachim Gauck
+Q42939: Komorowski  # Bronisław Komorowski
+Q310594: Mościcki  # Ignacy Mościcki
+Q47563: Renzi  # Matteo Renzi
+Q157259: Russell  # John Russell, 1st Earl Russell
+Q164373: Thaksin  # Thaksin Shinawatra
+Q138487: Stolypin  # Pyotr Stolypin
+Q310158: Togliatti  # Palmiro Togliatti
+Q212676: Petliura  # Symon Petliura
+Q133009: Brundtland  # Gro Harlem Brundtland
+Q131077: Hatoyama  # Yukio Hatoyama
+Q164723: Cornwallis  # Charles Cornwallis, 1st Marquess Cornwallis
+Q15071069: Sandu  # Maia Sandu
+Q9268379: Nausėda  # Gitanas Nausėda
+Q216594: Miliband  # Ed Miliband
+Q57647: Noda  # Yoshihiko Noda
+Q106235: Genscher  # Hans-Dietrich Genscher
+Q950958: Michel  # Charles Michel
+Q3105215: DeSantis  # Ron DeSantis
+Q180280: Özal  # Turgut Özal
+Q158838: MacMahon  # Patrice de MacMahon
+Q299100: Shazar  # Zalman Shazar
+Q189779: Sucre  # Antonio José de Sucre
+Q297636: Yamagata  # Yamagata Aritomo
+Q5829: Mélenchon  # Jean-Luc Mélenchon
+Q207631: Rákosi  # Mátyás Rákosi
+Q188214: Robinson  # Mary Robinson
+Q151729: Demirel  # Süleyman Demirel
+Q221303: Turgot  # Anne Robert Jacques Turgot
+Q101410: Fillon  # François Fillon
+Q19581: Correa  # Rafael Correa
+Q12959: Balladur  # Édouard Balladur
+Q7351526: Metsola  # Roberta Metsola
+Q12702: Cecil  # Robert Cecil
+Q332400: Mosley  # Oswald Mosley
+Q39318: Bennett  # Naftali Bennett
+Q152738: Mikoyan  # Anastas Mikoyan
+Q155691: Spaak  # Paul-Henri Spaak
+Q29207: Niinistö  # Sauli Niinistö
+Q81923: Royal  # Ségolène Royal
+Q16845347: Kovind  # Ram Nath Kovind
+Q12963: Bayrou  # François Bayrou
+Q220105: Ciano  # Galeazzo Ciano
+Q11163124: Dan  # Nicușor Dan
+Q315633: Salinas  # Carlos Salinas de Gortari
+Q76167: Wahid  # Abdurrahman Wahid
+Q218747: Mirabeau  # Honoré Gabriel Riqueti, comte de Mirabeau
+Q191123: Eshkol  # Levi Eshkol
+Q203843: García Robles  # Alfonso García Robles
+Q18285: Zhu Rongji  # Zhu Rongji
+Q236017: Jiang Qing  # Jiang Qing
+Q103285: Martí  # José Martí
+Q202006: Obasanjo  # Olusegun Obasanjo
+Q242651: Roh Tae-woo  # Roh Tae-woo
+Q296317: Tunku Abdul Rahman  # Tunku Abdul Rahman
+Q173196: Collins  # Michael Collins
+Q313424: Smith  # Ian Douglas Smith
+Q294339: Rykov  # Alexei Rykov
+Q275146: Rao  # P. V. Narasimha Rao
+Q57687: Milanović  # Zoran Milanović
+Q432726: Byrnes  # James F. Byrnes
+Q273546: Hamlin  # Hannibal Hamlin
+Q269372: Hawke  # Bob Hawke
+Q215705: Kaganovich  # Lazar Kaganovich
+Q310855: Boumédiène  # Houari Boumédiène
+Q28930: O'Higgins  # Bernardo O'Higgins
+Q310767: Carnot  # Lazare Carnot
+Q217070: Fabius  # Laurent Fabius
+Q312185: Gierek  # Edward Gierek
+Q188939: Aguinaldo  # Emilio Aguinaldo
+Q361567: Buhari  # Muhammadu Buhari
+Q46052: Rasmussen  # Anders Fogh Rasmussen
+Q371322: Hrushevskyi  # Mykhailo Hrushevskyi
+Q272224: Angell  # Norman Angell
+Q53844829: Conte  # Giuseppe Conte
+Q243201: Potyomkin  # Gregory Potyomkin
+Q187413: Uribe  # Álvaro Uribe Vélez
+Q76520: Bebel  # August Bebel
+Q76156: Habibie  # B. J. Habibie
+Q161590: Dmowski  # Roman Dmowski
+Q273607: Buisson  # Ferdinand Buisson
+Q704022: Petro  # Gustavo Petro
+Q190071: Khan  # Ayub Khan
+Q107957: Haig  # Alexander Haig
+Q202049: Beernaert  # Auguste Beernaert
+Q18301: Li Peng  # Li Peng
+Q181665: Neto  # Agostinho Neto
+Q15850: Turchynov  # Oleksandr Turchynov
+Q233499: Mori  # Yoshirō Mori
+Q959708: Ferry  # Jules Ferry
+Q29213: Halonen  # Tarja Halonen
+Q1396120: Lapid  # Yair Lapid
+Q57788: Hun Sen  # Hun Sen
+Q152777: Phibun  # Plaek Phibunsongkhram
+Q3510872: Tinubu  # Bola Tinubu
+Q201646: Clinton  # George Clinton
+Q192634: Ecevit  # Bülent Ecevit
+Q215778: Carnot  # Sadi Carnot
+Q312555: Tilak  # Bal Gangadhar Tilak
+Q2571: Scheel  # Walter Scheel
+Q42852: Gül  # Abdullah Gül
+Q173563: Kenyatta  # Jomo Kenyatta
+Q214321: Smuts  # Jan Christiaan Smuts
+Q1464: Aquino  # Benigno Aquino III
+Q318471: Farage  # Nigel Farage
+Q455854: Rivlin  # Reuven Rivlin
+Q334155: Khan  # Sadiq Khan
+Q55223040: Ocasio-Cortez  # Alexandria Ocasio-Cortez
+Q189575: Iliescu  # Ion Iliescu
+Q76876: Schirach  # Baldur von Schirach
+Q156781: Soares  # Mário Soares
+Q130327: Raffles  # Thomas Stamford Raffles
+Q378404: Rajagopalachari  # C. Rajagopalachari
+Q217498: Obregón  # Álvaro Obregón
+Q11509: Gusmão  # Xanana Gusmão
+Q193672: Saavedra Lamas  # Carlos Saavedra Lamas
+Q313411: Shultz  # George Shultz
+Q203708: Azaña  # Manuel Azaña
+Q254041: Sarmiento  # Domingo Faustino Sarmiento
+Q179908: Ben Bella  # Ahmad ibn Billah
+Q236503: Collor  # Fernando Collor
+Q219256: Papandreou  # Andreas Papandreou
+Q295090: Gambetta  # Léon Gambetta
+Q158772: Auriol  # Vincent Auriol
+Q215673: Malatesta  # Errico Malatesta
+Q3579995: Philippe  # Édouard Philippe
+Q167211: García  # Alan García
+Q57643: Lee Hsien Loong  # Lee Hsien Loong
+Q16139757: Anutin  # Anutin Charnvirakul
+Q57136: Schwerin von Krosigk  # Lutz Graf Schwerin von Krosigk
+Q186316: Zawahiri  # Ayman al-Zawahiri
+Q122368: Ducommun  # Élie Ducommun
+Q334993: Debs  # Eugene V. Debs
+Q181182: Nasrallah  # Hasan Nasrallah
+Q294072: Gheorghiu-Dej  # Gheorghe Gheorghiu-Dej
+Q189841: Cremer  # Randal Cremer
+Q208663: Pitt, Chatham  # William Pitt, 1st Earl of Chatham
+Q331742: McGovern  # George McGovern
+Q311436: Rosas  # Juan Manuel de Rosas meow
+Q348577: Abbott  # Tony Abbott
+Q315613: López Portillo  # José López Portillo
+Q2434360: Walz  # Tim Walz
+Q206446: Lange  # Christian Lous Lange
+Q57348: Afwerki  # Isaias Afwerki
+Q47904: Monti  # Mario Monti
+Q219797: Gerry  # Elbridge Gerry
+Q213374: Connolly  # James Connolly
+Q30121972: Kirk  # Charlie Kirk
+Q294662: Grey  # Charles Grey, 2nd Earl Grey
+Q212963: Adams  # Samuel Adams
+Q158749: Lebrun  # Albert Lebrun
+Q315565: Miyazawa  # Kiichi Miyazawa
+Q65917: Pieck  # Wilhelm Pieck
+Q11685764: Plenković  # Andrej Plenković
+Q179458: Gobat  # Charles Albert Gobat
+Q29032: Zeman  # Miloš Zeman
+Q156473: Szálasi  # Ferenc Szálasi
+Q2602: Krenz  # Egon Krenz
+Q127868: Ramachandran  # M. G. Ramachandran
+Q273549: Barkley  # Alben W. Barkley
+Q219731: Canning  # George Canning
+Q19217: Lam  # Carrie Lam
+Q243141: Ōkuma  # Ōkuma Shigenobu
+Q271023: Curtis  # Charles Curtis
+Q10287: Valls  # Manuel Valls
+Q313776: Wallace  # George Wallace
+Q76696: Quidde  # Ludwig Quidde
+Q156806: Karamanlis  # Konstantinos Karamanlis
+Q448778: Blaine  # James G. Blaine
+Q298991: Garner  # John Nance Garner
+Q158768: Coty  # René Coty
+Q29032770: Tshisekedi  # Félix Tshisekedi
+Q16146870: Bannon  # Steve Bannon
+Q10831196: Tô Lâm  # Tô Lâm
+Q273228: Fanfani  # Amintore Fanfani
+Q151691: Schacht  # Hjalmar Schacht
+Q5640425: Jeffries  # Hakeem Jeffries
+Q165210: Kim Young-sam  # Kim Young-sam
+Q298149: Zedillo  # Ernesto Zedillo
+Q18809: Lunacharsky  # Anatoly Lunacharsky
+Q377808: Bhagat Singh  # Bhagat Singh
+Q7436908: Morrison  # Scott Morrison
+Q504372: Ye Jianying  # Ye Jianying
+Q6504758: Wong  # Lawrence Wong
+Q77113: Bethmann Hollweg  # Theobald von Bethmann Hollweg
+Q379229: Lang  # Jack Lang
+Q16019: Schäuble  # Wolfgang Schäuble
+Q299168: Huerta  # Victoriano Huerta
+Q381823: Peng Dehuai  # Peng Dehuai
+Q2551: Rau  # Johannes Rau
+Q101137: Fukuda  # Yasuo Fukuda
+Q48905549: Christodoulides  # Nicos Christodoulides
+Q12983: Van Rompuy  # Herman Van Rompuy
+Q5052598: Connolly  # Catherine Connolly
+Q1233: Pertini  # Sandro Pertini
+Q166663: Law  # Bonar Law
+Q205783: Louverture  # Toussaint Louverture
+Q155398: Brüning  # Heinrich Brüning
+Q156058: Kennan  # George F. Kennan
+Q187697: Duvalier  # François Duvalier
+Q319099: Dukakis  # Michael Dukakis
+Q196617: Azad  # Abul Kalam Azad
+Q359888: Kaine  # Tim Kaine
+Q57413: Ouattara  # Alassane Ouattara
+Q274540: Millerand  # Alexandre Millerand
+Q216547: Houston  # Sam Houston
+Q1503: Quezon  # Manuel L. Quezon
+Q2821166: Tebboune  # Abdelmadjid Tebboune
+Q309722: Blanqui  # Louis Auguste Blanqui
+Q57530: Berdimuhamedow  # Gurbanguly Berdimuhamedow
+Q21592171: Badenoch  # Kemi Badenoch
+Q215569: Juppé  # Alain Juppé
+Q11726: Renner  # Karl Renner
+Q40688: Varoufakis  # Yanis Varoufakis
+Q135547: Kabila  # Laurent-Désiré Kabila
+Q202209: Amato  # Giuliano Amato
+Q738635: Schuschnigg  # Kurt Schuschnigg
+Q315066: Calles  # Plutarco Elías Calles
+Q701484: Iohannis  # Klaus Iohannis
+Q1271: Lie  # Trygve Lie
+Q212979: Gates  # Robert Gates
+Q191016: Bajer  # Fredrik Bajer
+Q465749: Noem  # Kristi Noem
+Q296064: Doumergue  # Gaston Doumergue
+Q44517: Kreisky  # Bruno Kreisky
+Q153132: Sikorski  # Władysław Sikorski
+Q11764394: Montenegro  # Luís Montenegro
+Q3462649: Min Aung Hlaing  # Min Aung Hlaing
+Q123062: Necker  # Jacques Necker
+Q57675: Najib  # Najib Razak
+Q223151: Baker  # James Baker
+Q244997: Sarney  # José Sarney
+Q379836: Liang Chi-chao  # Liang Chi-chao
+Q200029: Massoud  # Ahmad Shah Massoud
+Q927550: Turnbull  # Malcolm Turnbull
+Q354687: Inukai  # Inukai Tsuyoshi
+Q333426: Halifax  # Edward Wood, 1st Earl of Halifax
+Q15025: Tang  # Audrey Tang
+Q27764: Saint-Just  # Louis Antoine de Saint-Just
+Q315522: Ne Win  # Ne Win
+Q152451: Brown  # Jerry Brown
+Q105480: Kaunda  # Kenneth Kaunda
+Q38849: Ishihara  # Shintarō Ishihara
+Q378517: Li Hongzhang  # Li Hongzhang
+Q57398: Cavaco Silva  # Aníbal Cavaco Silva
+Q298985: King  # William R. King
+Q311719: Stevenson  # Adlai Stevenson II
+Q2262885: Kurz  # Sebastian Kurz
+Q16986436: Marin  # Sanna Marin
+Q309374: Hashimoto  # Ryutaro Hashimoto
+Q64576653: Stocker  # Christian Stocker
+Q238046: Bakr  # Ahmed Hassan al-Bakr
+Q324719: Thurmond  # Strom Thurmond
+Q57416: Kabila  # Joseph Kabila
+Q105338: Wilders  # Geert Wilders
+Q121160: Parmelin  # Guy Parmelin
+Q234604: Friedan  # Betty Friedan
+Q312569: Liverpool  # Robert Jenkinson, 2nd Earl of Liverpool
+Q153421: Neurath  # Konstantin von Neurath
+Q179493: Ohlin  # Bertil Ohlin
+Q57276: Higgins  # Michael D. Higgins
+Q272504: Garvey  # Marcus Garvey
+Q154346: Tiso  # Jozef Tiso
+Q272774: Hancock  # John Hancock
+Q29050: Hatta  # Mohammad Hatta
+Q296386: Debré  # Michel Debré
+Q172388: Ghani  # Ashraf Ghani
+Q154855: Solana  # Javier Solana
+Q311885: Henry  # Patrick Henry
+Q230969: King  # Coretta Scott King
+Q5605224: Abbott  # Greg Abbott
+Q298384: Sverdlov  # Yakov Sverdlov
+Q57681: Primo de Rivera  # José Antonio Primo de Rivera
+Q323488: Jenkins  # Roy Jenkins
+Q17132: Soong Ching-ling  # Soong Ching-ling
+Q1135767: Booker  # Cory Booker
+Q192618: Arnoldson  # Klas Pontus Arnoldson
+Q319896: Jabotinsky  # Ze'ev Jabotinsky
+Q203966: Ryan  # Paul Ryan
+Q212068: Dessalines  # Jean-Jacques Dessalines
+Q315561: Takeshita  # Noboru Takeshita
+Q58645: Ley  # Robert Ley
+Q238731: d'Estournelles de Constant  # Paul-Henri-Benjamin d'Estournelles de Constant
+Q347118: Botev  # Hristo Botev
+Q10652: Salmond  # Alex Salmond
+Q154240: Pugachev  # Yemelyan Pugachev
+Q212733: Estrada  # Joseph Estrada
+Q133386: Balkenende  # Jan Peter Balkenende
+Q17330556: Pellegrini  # Peter Pellegrini
+Q1071031: Gentiloni  # Paolo Gentiloni
+Q320061: Dewey  # Thomas E. Dewey
+Q3047551: Rinkēvičs  # Edgars Rinkēvičs
+Q163225: Gandhi  # Sonia Gandhi
+Q244620: Rosebery  # Archibald Primrose, 5th Earl of Rosebery
+Q47854: Patil  # Pratibha Patil
+Q314265: Mendès France  # Pierre Mendès France
+Q210069: Obote  # Milton Obote
+Q192778: Hariri  # Rafiq Hariri
+Q312593: North  # Frederick North, 2nd Earl of Guilford
+Q333589: Hatoyama  # Ichirō Hatoyama
+Q433051: Chase  # Salmon P. Chase
+Q12946: Rocard  # Michel Rocard
+Q1580316: Seguro  # António José Seguro
+Q172083: Bongo  # Omar Bongo
+Q313697: Perot  # Ross Perot
+Q312901: Borrell  # Josep Borrell
+Q296691: de la Madrid  # Miguel de la Madrid
+Q2563: Herzog  # Roman Herzog
+Q153509: Makarios  # Makarios III
+Q207728: Najibullah  # Mohammad Najibullah
+Q146496: Mesić  # Stjepan Mesić
+Q6756617: Rebelo de Sousa  # Marcelo Rebelo de Sousa
+Q445392: Sherman  # John Sherman
+Q197358: Zhang Zuolin  # Zhang Zuolin
+Q161076: Reynaud  # Paul Reynaud
+Q218443: Somoza  # Anastasio Somoza Debayle
+Q182654: Matviyenko  # Valentina Matviyenko
+Q369681: Chen Duxiu  # Chen Duxiu
+Q438465: Barnier  # Michel Barnier
+Q2540: Wulff  # Christian Wulff
+Q312015: Tsipras  # Alexis Tsipras
+Q57313: dos Santos  # José Eduardo dos Santos
+Q238955: Ibárruri  # Dolores Ibárruri
+Q433338: Iotova  # Iliana Iotova
+Q17905: Schulz  # Martin Schulz
+Q297032: Lvov  # Georgy Lvov
+Q464318: Besant  # Annie Besant
+Q155402: Touré  # Ahmed Sékou Touré
+Q74370310: Luxon  # Christopher Luxon
+Q58833335: Guaidó  # Juan Guaidó
+Q190884: Chernomyrdin  # Victor Chernomyrdin
+Q16196017: Tedros  # Tedros Adhanom Ghebreyesus
+Q468324: Advani  # L. K. Advani
+Q180383: Clark  # Helen Clark
+Q299001: Marshall  # Thomas R. Marshall
+Q58282: Hague  # William Hague
+Q29021: Koivisto  # Mauno Koivisto
+Q428200: Iwakura  # Iwakura Tomomi
+Q12358575: Karis  # Alar Karis
+Q159048: Katsura  # Katsura Tarō
+Q207879: Zhdanov  # Andrej Aleksandroviç Zhdanov
+Q76638: Strasser  # Gregor Strasser
+Q57350: Déby  # Idriss Déby
+Q20148: Zhang Xueliang  # Zhang Xueliang
+Q483290: Tadić  # Boris Tadić
+Q214407: Houphouët-Boigny  # Félix Houphouët-Boigny
+Q237829: Derby  # Edward Smith-Stanley, 14th Earl of Derby
+Q315507: Belgrano  # Manuel Belgrano
+Q30339350: Attal  # Gabriel Attal
+Q12978: Verhofstadt  # Guy Verhofstadt
+Q440710: Tajani  # Antonio Tajani
+Q1056: Balbo  # Italo Balbo
+Q252847: Artigas  # José Gervasio Artigas
+Q215637: Krupskaya  # Nadezhda Krupskaya
+Q112075625: Noboa  # Daniel Noboa
+Q219918: Machel  # Samora Moisés Machel
+Q331: Lagos  # Ricardo Lagos
+Q216092: Michel  # Louise Michel
+Q465018: Jayalalithaa  # Jayaram Jayalalithaa
+Q436790: Greeley  # Horace Greeley
+Q315584: Fukuda  # Takeo Fukuda
+Q510523: Mnangagwa  # Emmerson Mnangagwa
+Q156505: Papadopoulos  # Georgios Papadopoulos
+Q471730: Yatseniuk  # Arsenii Yatseniuk
+Q50678: Mahama  # John Mahama
+Q25597826: Japarov  # Sadyr Japarov
+Q52920: Reinfeldt  # Fredrik Reinfeldt
+Q182452: Zyuganov  # Gennady Zyuganov
+Q296076: Faure  # Félix Faure
+Q57324: Compaoré  # Blaise Compaoré
+Q137204778: de la Espriella  # Abelardo de la Espriella
+Q66094865: Shmyhal  # Denys Shmyhal
+Q297628: Saionji  # Saionji Kinmochi
+Q299142: Ikeda  # Hayato Ikeda
+Q313339: Obuchi  # Keizō Obuchi
+Q114341246: Traoré  # Ibrahim Traoré
+Q315568: Ōhira  # Masayoshi Ōhira
+Q242654: Keating  # Paul Keating
+Q233992: Perceval  # Spencer Perceval
+Q356411: Gorton  # John Gorton
+Q57279: Băsescu  # Traian Băsescu
+Q208477: Sharett  # Moshe Sharett
+Q612803: Sargsyan  # Serzh Sargsyan
+Q360135: Kang Youwei  # Kang Youwei
+Q124993: Galtieri  # Leopoldo Galtieri
+Q57625: Berisha  # Sali Berisha
+Q312502: La Guardia  # Fiorello H. La Guardia
+Q150281: Day  # Dorothy Day
+Q158813: Huckabee  # Mike Huckabee
+Q310852: Colfax  # Schuyler Colfax
+Q169502: Loubet  # Émile Loubet
+Q179825: El Djezairi  # Abdelkader El Djezairi
+Q55922: Mazowiecki  # Tadeusz Mazowiecki
+Q311447: Miranda  # Francisco de Miranda
+Q189947: Clegg  # Nick Clegg
+Q315579: Kaifu  # Toshiki Kaifu
+Q11771436: Morawiecki  # Mateusz Morawiecki
+Q336363: Larijani  # Ali Larijani
+Q208815: Durruti  # Buenaventura Durruti
+Q128529: Martin  # Paul Martin
+Q270529: Primakov  # Evgeny Primakov
+Q10218: Gandhi  # Rahul Gandhi
+Q202171: Paasikivi  # Juho Kusti Paasikivi
+Q57480: Hadi  # Abdrabbuh Mansour Hadi
+Q766866: McCarthy  # Kevin McCarthy
+Q297190: Giolitti  # Giovanni Giolitti
+Q50002: Bonino  # Emma Bonino
+Q288477: Zemmour  # Éric Zemmour
+Q1240: Segni  # Antonio Segni
+Q12769: Drees  # Willem Drees
+Q9094: Mujica  # José Mujica
+Q70581: Scheidemann  # Philipp Scheidemann
+Q310126: Murayama  # Tomiichi Murayama
+Q311161: Ventura  # Jesse Ventura
+Q57315: Kiir  # Salva Kiir Mayardit
+Q155329: Witte  # Sergei Witte
+Q315979: Fraser  # Malcolm Fraser
+Q296673: Fallières  # Armand Fallières
+Q76139: Adams  # Gerry Adams
+Q212286: Botha  # P. W. Botha
+Q312966: Khan  # Abdul Ghaffar Khan
+Q64543: Wang Huning  # Wang Huning
+Q182397: Rasmussen  # Lars Løkke Rasmussen
+Q467112: Sturgeon  # Nicola Sturgeon
+Q106618: Campbell-Bannerman  # Henry Campbell-Bannerman
+Q4746340: Mohammed  # Amina J. Mohammed
+Q23368: Patten  # Chris Patten
+Q311413: Li Xiannian  # Li Xiannian
+Q317681: Echeverría  # Luis Echeverría
+Q57673: Maliki  # Nouri al-Maliki
+Q332412: Benn  # Tony Benn
+Q701801: Wang Yi  # Wang Yi
+Q151646: Kun  # Béla Kun
+Q127295: Zhao Leji  # Zhao Leji
+Q296661: Vance  # Cyrus Vance
+Q433174: Douglas  # Stephen A. Douglas
+Q2642828: Fernández  # Alberto Fernández
+Q160157: Lieberman  # Joe Lieberman
+Q310843: Hendricks  # Thomas A. Hendricks
+Q298997: Morton  # Levi P. Morton
+Q315338: Singh  # V. P. Singh
+Q37860840: Abela  # Robert Abela
+Q57344: Fischer  # Joschka Fischer
+Q128614: Diefenbaker  # John Diefenbaker
+Q104392: Naguib  # Mohamed Naguib
+Q20297: Li Tsung-jen  # Li Tsung-jen
+Q218435: Gamsakhurdia  # Zviad Gamsakhurdia
+Q161184: Meles  # Meles Zenawi
+Q215351: Ramos  # Fidel Ramos
+Q195725: Ruto  # William Ruto
+Q2573: Heinemann  # Gustav Heinemann
+Q12680: Doumer  # Paul Doumer
+Q128664: Laurier  # Wilfrid Laurier
+Q28650390: Lourenço  # João Lourenço
+Q318461: Levski  # Vasil Levski
+Q16193885: Hassan  # Samia Suluhu Hassan
+Q315555: Hosokawa  # Morihiro Hosokawa
+Q221997: Bush  # Jeb Bush
+Q45380: Lewis  # John Lewis
+Q295713: Khan  # Liaquat Ali Khan
+Q312026: Bidault  # Georges Bidault
+Q310775: Duvalier  # Jean-Claude Duvalier
+Q485946: Franco  # Itamar Franco
+Q57634: Thaçi  # Hashim Thaçi
+Q310849: Dallas  # George M. Dallas
+Q310247: Daoud  # Mohammed Daoud Khan
+Q109463: Johnson  # Richard Mentor Johnson
+Q461657: Jordan  # Barbara Jordan
+Q313696: Kennedy  # Joseph P. Kennedy Sr.
+Q164995: Berlinguer  # Enrico Berlinguer
+Q470875: Karunanidhi  # Muthuvel Karunanidhi
+Q317675: Miki  # Takeo Miki
+Q135645: Rathenau  # Walther Rathenau
+Q291644: Solberg  # Erna Solberg
+Q313805: Deakin  # Alfred Deakin
+Q192138: Rugova  # Ibrahim Rugova
+Q557233: Chen Yun  # Chen Yun
+Q157131: Đinđić  # Zoran Đinđić
+Q12957: Barre  # Raymond Barre
+Q216943: Árbenz  # Jacobo Árbenz
+Q60113: Bülow  # Bernhard von Bülow
+Q315618: Guerrero  # Vicente Guerrero
+Q310839: Stevenson  # Adlai Stevenson I
+Q12940: Chaban-Delmas  # Jacques Chaban-Delmas
+Q1789192: Michal  # Kristen Michal
+Q360570: Newton  # Huey P. Newton
+Q20995518: Tasoulas  # Konstantinos Tasoulas
+Q97010473: Tsikhanouskaya  # Sviatlana Tsikhanouskaya
+Q296083: Grévy  # Jules Grévy
+Q57379: Grybauskaitė  # Dalia Grybauskaitė
+Q48067: Ustinov  # Dmitriy Ustinov
+Q249313: Desmoulins  # Camille Desmoulins
+Q298063: Šešelj  # Vojislav Šešelj
+Q365894: Feng Yuxiang  # Feng Yuxiang
+Q299732: Qasim  # Abd al-Karim Qasim
+Q7981: Companys  # Lluís Companys
+Q313707: Nguyễn Văn Thiệu  # Nguyễn Văn Thiệu
+Q51874548: Berdimuhamedow  # Serdar Berdimuhamedow
+Q311070: Crockett  # Davy Crockett
+Q209439: Svinhufvud  # Pehr Evind Svinhufvud
+Q57306: Talabani  # Jalal Talabani
+Q315637: Díaz-Ordaz  # Gustavo Díaz-Ordaz
+Q194291: Bandaranaike  # Sirimavo Bandaranaike
+Q313117: Carrero Blanco  # Luis Carrero Blanco
+Q434804: Durbin  # Dick Durbin
+Q313302: Wilson  # Henry Wilson
+Q164346: Gerhardsen  # Einar Gerhardsen
+Q334732: Hong Xiuquan  # Hong Xiuquan
+Q48405: Han Zheng  # Han Zheng
+Q295007: de la Rúa  # Fernando de la Rúa
+Q276524: Byrd  # Robert Byrd
+Q310841: Hobart  # Garret Hobart
+Q311488: Choibalsan  # Khorloogiin Choibalsan
+Q632: Moulin  # Jean Moulin
+Q982461: Volodin  # Vyacheslav Volodin
+Q156833: Alia  # Ramiz Alia
+Q273051: Savimbi  # Jonas Malheiro Savimbi
+Q53707: Erlander  # Tage Erlander
+Q674957: Letta  # Enrico Letta
+Q1806261: Klingbeil  # Lars Klingbeil
+Q244631: Panetta  # Leon Panetta
+Q230861: Cresson  # Édith Cresson
+Q49090: Taylor  # Charles Taylor
+Q244407: Kruger  # Paul Kruger
+Q12797332: Pirc Musar  # Nataša Pirc Musar
+Q315553: Hara  # Hara Takashi
+Q33031: Koštunica  # Vojislav Koštunica
+Q294430: Castelo Branco  # Humberto Castelo Branco
+Q57254: Humala  # Ollanta Humala
+Q358443: Sessions  # Jeff Sessions
+Q151917: Papandreou  # Giorgos Papandreou
+Q314362: Mitre  # Bartolomé Mitre
+Q200305: Đukanović  # Milo Đukanović
+Q214758: Acheson  # Dean Acheson
+Q149127: Buchanan  # Pat Buchanan
+Q335198: Suzuki  # Kantarō Suzuki
+Q206719: Kérékou  # Mathieu Kérékou
+Q22237: Klobuchar  # Amy Klobuchar
+Q315888: Talaat  # Talaat Paşa
+Q331401: Tillerson  # Rex Tillerson
+Q2108126: Prayut  # Prayut Chanocha
+Q105180: Truth  # Sojourner Truth
+Q294241: Geisel  # Ernesto Geisel
+Q310046: Mandelson  # Peter Mandelson
+Q151796: Livni  # Tzipi Livni
+Q1235: Leone  # Giovanni Leone
+Q243550: Erbakan  # Necmettin Erbakan
+Q63263: Raffarin  # Jean-Pierre Raffarin
+Q315172: Karađorđe  # Karađorđe
+Q357510: Kelly  # Mark Kelly
+Q312722: Holt  # Harold Holt
+Q313785: Alcalá-Zamora  # Niceto Alcalá-Zamora
+Q319867: Muskie  # Edmund Muskie
+Q2569: Carstens  # Karl Carstens
+Q214029: Ståhlberg  # Kaarlo Juho Ståhlberg
+Q487304: Katz  # Israel Katz
+Q250165: Naidu  # Sarojini Naidu
+Q16120878: Saied  # Kais Saied
+Q200812: Deodoro  # Deodoro da Fonseca
+Q273866: Banisadr  # Abolhassan Banisadr
+Q377935: Yang Shangkun  # Yang Shangkun
+Q299114: Päts  # Konstantin Päts
+Q20020731: Borne  # Élisabeth Borne
+Q22279: Collins  # Susan Collins
+Q297134: Yrigoyen  # Hipólito Yrigoyen
+Q45956: Hochul  # Kathy Hochul
+Q272588: Abdullah Badawi  # Abdullah Ahmad Badawi
+Q156511: Mauroy  # Pierre Mauroy
+Q159840: Lubbers  # Ruud Lubbers
+Q319824: Singh  # Charan Singh
+Q221411: Kok  # Wim Kok
+Q4683097: Adityanath  # Yogi Adityanath
+Q315551: Suzuki  # Zenkō Suzuki
+Q156494: Novotný  # Antonín Novotný
+Q270539: Fairbanks  # Charles W. Fairbanks
+Q24631: Aberdeen  # George Hamilton-Gordon, 4th Earl of Aberdeen
+Q318458: Nguyễn Phú Trọng  # Nguyễn Phú Trọng
+Q53747: Persson  # Göran Persson
+Q3448772: Mullin  # Markwayne Mullin
+Q430714: Smith  # Al Smith
+Q333981: Khan  # Yahya Khan
+Q3344992: Mukherjee  # Shyama Prasad Mukherjee
+Q516646: Sanjō  # Sanjō Sanetomi
+Q592101: Frieden  # Luc Frieden
+Q261703: Koike  # Yuriko Koike
+Q219728: Diouf  # Abdou Diouf
+Q453893: Warner  # Mark Warner
+Q557436: Gantz  # Benny Gantz
+Q334279: Shekhar  # Chandra Shekhar
+Q51002: Rawlings  # Jerry Rawlings
+Q158844: Degrelle  # Léon Degrelle
+Q4935873: Andersson  # Magdalena Andersson
+Q297793: Orlando  # Vittorio Emanuele Orlando
+Q366524: Ryzhkov  # Nikolai Ryzhkov
+Q44274: Haider  # Jörg Haider
+Q356261: McMahon  # William McMahon
+Q29033962: Aoun  # Joseph Aoun
+Q57338: Rajapaksa  # Mahinda Rajapaksa
+Q204027: Ivanov  # Sergei Ivanov
+Q2740012: Löfven  # Stefan Löfven
+Q209617: Aristide  # Jean-Bertrand Aristide
+Q272416: Zourabichvili  # Salome Zourabichvili
+Q23375: Curtin  # John Curtin
+Q491635: Marcos  # Subcomandante Marcos
+Q26258815: Brnabić  # Ana Brnabić
+Q315549: Koiso  # Kuniaki Koiso
+Q380286: Milyukov  # Pavel Milyukov
+Q4911497: de Blasio  # Bill de Blasio
+Q7686199: Rahman  # Tarique Rahman
+Q219861: Wolfowitz  # Paul Wolfowitz
+Q23020745: Hawley  # Josh Hawley
+Q239657: Chisholm  # Shirley Chisholm
+Q153909: Đilas  # Milovan Đilas
+Q57652: Thorning-Schmidt  # Helle Thorning-Schmidt
+Q156379: Luzhkov  # Yury Luzhkov
+Q335: Aylwin  # Patricio Aylwin
+Q22222: Gillibrand  # Kirsten Gillibrand
+Q310123: Quadros  # Jânio Quadros
+Q39659: Santer  # Jacques Santer
+Q152666: Hughes  # Billy Hughes
+Q55910: Buzek  # Jerzy Buzek
+Q234814: Zia  # Khaleda Zia
+Q209901: Hébert  # Jacques Hébert
+Q207426: Toledo  # Alejandro Toledo
+Q157208: Portland  # William Cavendish-Bentinck, 3rd Duke of Portland
+Q271822: Messmer  # Pierre Messmer
+Q7128915: Bondi  # Pam Bondi
+Q58311: Lieberman  # Avigdor Lieberman
+Q332081: Betancourt  # Rómulo Betancourt
+Q503119: Cass  # Lewis Cass
+Q230733: Feinstein  # Dianne Feinstein
+Q311425: Victoria  # Guadalupe Victoria
+Q315656: Casimir-Perier  # Jean Casimir-Perier
+Q57390: Guelleh  # Ismail Omar Guelleh
+Q279397: Széchenyi  # István Széchenyi
+Q58284: Westerwelle  # Guido Westerwelle
+Q4777855: Dissanayake  # Anura Kurankan Dissanayake
+Q1282411: Markey  # Ed Markey
+Q298443: Emanuel  # Rahm Emanuel
+Q2582: Lübke  # Heinrich Lübke
+Q10873: Caprivi  # Leo von Caprivi
+Q103838608: Castillo  # Pedro Castillo
+Q298649: Habash  # George Habash
+Q294651: Bute  # John Stuart, 3rd Earl of Bute
+Q18538164: Bolojan  # Ilie Bolojan
+Q360155: Garrison  # William Lloyd Garrison
+Q207672: Wilberforce  # William Wilberforce
+Q50664: Söder  # Markus Söder
+Q295688: Rydz-Śmigły  # Edward Rydz-Śmigły
+Q152472: Betancourt  # Ingrid Betancourt
+Q333028: Powell  # Enoch Powell
+Q6827147: Mottley  # Mia Mottley
+Q788903: Baka  # András Baka
+Q319153: Mohamud  # Hassan Sheikh Mohamud
+Q456380: Itagaki  # Itagaki Taisuke
+Q217314: Edwards  # John Edwards
+Q198313: Rahman  # Ziaur Rahman
+Q12950: Poher  # Alain Poher
+Q28839536: Ossoff  # Jon Ossoff
+Q295790: Pérez  # Carlos Andrés Pérez
+Q57380: Jonathan  # Goodluck Jonathan
+Q378450: Sakamoto  # Sakamoto Ryōma
+Q52922: Bildt  # Carl Bildt
+Q378043: Rockingham  # Charles Watson-Wentworth, 2nd Marquess of Rockingham
+Q110520817: Paz  # Rodrigo Paz
+Q448803: Stanton  # Edwin M. Stanton
+Q192377: Figueiredo  # João Figueiredo
+Q193492: Moi  # Daniel arap Moi
+Q381027: Kuczynski  # Pedro Pablo Kuczynski
+Q315842: Takahashi  # Takahashi Korekiyo
+Q223545: Tompkins  # Daniel D. Tompkins
+Q332709: Spadolini  # Giovanni Spadolini
+Q311323: Caldera  # Rafael Caldera
+Q11668: Haley  # Nikki Haley
+Q382369: Bazargan  # Mehdi Bazargan
+Q195390: Berkman  # Alexander Berkman
+Q215057: Perry  # Rick Perry
+Q10240: Naoroji  # Dadabhai Naoroji
+Q211519: Pankhurst  # Emmeline Pankhurst
+Q310592: Rajai  # Mohammad-Ali Rajai
+Q57667: Bouterse  # Desi Bouterse
+Q315720: Hata  # Tsutomu Hata
+Q124101558: Koretskyi  # Serhii Koretskyi
+Q154550: Ahern  # Bertie Ahern
+Q4082839: Belousov  # Andrei Belousov
+Q312577: Sidmouth  # Henry Addington, 1st Viscount Sidmouth
+Q7711: Ayrault  # Jean-Marc Ayrault
+Q209435: Ryti  # Risto Ryti
+Q311269: Bolton  # John Bolton
+Q983752: Tharman  # Tharman Shanmugaratnam
+Q465041: Banerjee  # Mamata Banerjee
+Q314338: Shushkievich  # Stanislaw Shushkievich
+Q78525: Coudenhove-Kalergi  # Richard Nikolaus von Coudenhove-Kalergi
+Q377870: Deve Gowda  # H. D. Deve Gowda
+Q3741557: Mogherini  # Federica Mogherini
+Q88866: Weber  # Manfred Weber
+Q459118: Pérez Jiménez  # Marcos Pérez Jiménez
+Q351652: Hirota  # Kōki Hirota
+Q3181500: Fetterman  # John Fetterman
+Q259843: Ordzhonikidze  # Sergo Ordzhonikidze
+Q216983: Evren  # Kenan Evren
+Q57158: Müller  # Hermann Müller
+Q47602: D'Alema  # Massimo D'Alema
+Q44332: Kılıçdaroğlu  # Kemal Kılıçdaroğlu
+Q128911: Weizman  # Ezer Weizman
+Q110719: Lafontaine  # Oskar Lafontaine
+Q475: Frei  # Eduardo Frei Montalva
+Q151735: Bayar  # Celâl Bayar
+Q310000: Svoboda  # Ludvík Svoboda
+Q150080: Fradkov  # Mikhhail Fradkov
+Q327013: Faure  # Edgar Faure
+Q310831: Sherman  # James S. Sherman
+Q115881: Keller-Sutter  # Karin Keller-Sutter
+Q273264: Neves  # Tancredo Neves
+Q363846: Nemtsov  # Boris Nemtsov
+Q44612: Seehofer  # Horst Seehofer
+Q108856371: Frostadóttir  # Kristrún Mjöll Frostadóttir
+Q310870: Caetano  # Marcelo Caetano
+Q719568: Cornyn  # John Cornyn
+Q15027: Tung Chee-hwa  # Tung Chee-hwa
+Q57783: Key  # John Key
+Q76640: Strasser  # Otto Strasser
+Q9099: Vázquez  # Tabaré Vázquez
+Q333843: Barras  # Paul François Jean Nicolas, vicomte de Barras
+Q282498: Jovellanos  # Gaspar Melchor de Jovellanos
+Q274344: Herriot  # Édouard Herriot
+Q613051: Kocharyan  # Robert Kocharyan
+Q333811: Swinney  # John Swinney
+Q179846: Dudayev  # Dzhokhar Dudayev
+Q1228: Scalfaro  # Oscar Luigi Scalfaro
+Q289428: Wells  # Ida B. Wells
+Q244616: Grenville  # George Grenville
+Q312573: Shelburne  # William Petty, 2nd Earl of Shelburne
+Q2851133: Hidalgo  # Anne Hidalgo
+Q17141: Milk  # Harvey Milk
+Q144732: Husain  # Zakir Husain
+Q439729: Scott  # Rick Scott
+Q332365: Bevin  # Ernest Bevin
+Q298355: Bérégovoy  # Pierre Bérégovoy
+Q350843: Schiff  # Adam Schiff
+Q315591: Uno  # Sōsuke Uno
+Q209611: Jagland  # Thorbjørn Jagland
+Q312596: Grenville  # William Wyndham Grenville, 1st Baron Grenville
+Q22338116: Schoof  # Dick Schoof
+Q318320: den Uyl  # Joop den Uyl
+Q333994: Hastings  # Warren Hastings
+Q321322: Guzmán  # Abimael Guzmán
+Q311431: Velasco  # Juan Velasco Alvarado
+Q335194: Katayama  # Tetsu Katayama
+Q332626: Crispi  # Francesco Crispi
+Q283451: Suslov  # Mikhail Suslov
+Q355112: Blanc  # Louis Blanc
+Q13021: Bhave  # Vinoba Bhave
+Q4740163: Puigdemont  # Carles Puigdemont
+Q314459: Reid  # Harry Reid
+Q128553: Campbell  # Kim Campbell
+Q27917049: Barrow  # Adama Barrow
+Q318105: Codreanu  # Corneliu Zelea Codreanu
+Q267304: Matteotti  # Giacomo Matteotti
+Q57775: Borissov  # Boyko Borissov
+Q1857141: Scalise  # Steve Scalise
+Q209441: Kallio  # Kyösti Kallio
+Q351656: Ishibashi  # Tanzan Ishibashi
+Q63831: Amin  # Hafizullah Amin
+Q301282: Xi Zhongxun  # Xi Zhongxun
+Q22360: Murkowski  # Lisa Murkowski
+Q310835: Wheeler  # William A. Wheeler
+Q122304: Kumar  # Nitish Kumar
+Q689660: Hoyle  # Lindsay Hoyle
+Q59315: Leahy  # Patrick Leahy
+Q465335: Stanton  # Elizabeth Cady Stanton
+Q336901: Cánovas  # Antonio Cánovas del Castillo
+Q2610: Stoph  # Willi Stoph
+Q111772343: Shah  # Balendra Shah
+Q313258: Rusk  # Dean Rusk
+Q7173106: Buttigieg  # Pete Buttigieg
+Q309995: Deschanel  # Paul Deschanel
+Q7786750: Tillis  # Thom Tillis
+Q117096: Magsaysay  # Ramon Magsaysay
+Q295128: Thorn  # Gaston Thorn
+Q155385: Eyadéma  # Étienne Gnassingbé Eyadéma
+Q579: Ibáñez  # Carlos Ibáñez del Campo
+Q22695687: Peña  # Santiago Peña
+Q57438: Sall  # Macky Sall
+Q60145: Darré  # Richard Walther Darré
+Q57590: Azarov  # Mykola Azarov
+Q4359688: Peskov  # Dmitry Peskov
+Q356659: Roca  # Julio Argentino Roca
+Q317011: Djemal  # Djemal Pasha
+Q295781: Pidhornyi  # Mykola Pidhornyi
+Q315999: Chamberlain  # Joseph Chamberlain
+Q704098: Mutsu  # Mutsu Munemitsu
+Q128574: Clark  # Joe Clark
+Q313557: Andrássy  # Gyula Andrássy
+Q155684: Horn  # Gyula Horn
+Q297950: Venkataraman  # R. Venkataraman
+Q214473: Biko  # Steve Biko
+Q216958: Fouché  # Joseph Fouché
+Q155860: Vyshinsky  # Andrey Vyshinsky
+Q314545: Pleven  # René Pleven
+Q345571: Betancur  # Belisario Betancur
+
+# Below the cut at 1,500, added by hand as well known
+Q63879: Christie  # Chris Christie
+Q306514: Hoffman  # Abbie Hoffman
+Q213416: Cabral  # Amílcar Cabral
+Q297000: Verwoerd  # Hendrik Frensch Verwoerd
+Q230291: Banna  # Hassan al-Banna
+Q1066198: Sumner  # Charles Sumner
+Q355425: Chavez  # Cesar Chavez
+Q337470: Dean  # Howard Dean
+Q1055449: Salvini  # Matteo Salvini
+Q333533: Hunt  # Jeremy Hunt
+Q4746875: Shah  # Amit Shah
+Q311697: Fortuyn  # Pim Fortuyn
+Q317436: Parnell  # Charles Stewart Parnell
+Q1353767: Stevens  # Thaddeus Stevens
+Q1728820: Varadkar  # Leo Varadkar
+Q155985: Santorum  # Rick Santorum
+Q314917: O'Connell  # Daniel O'Connell
+Q317258: Kinnock  # Neil Kinnock
+Q431223: North  # Oliver North
+Q222805: Aquino  # Ninoy Aquino
+Q194161: Aung San  # Aung San
+Q184945: Banda  # Hastings Banda
+Q32620: Gabbard  # Tulsi Gabbard
+Q272580: Habyarimana  # Juvénal Habyarimana
+Q509860: Carmichael  # Stokely Carmichael
+Q314384: Long  # Huey Long
+Q57670: Yingluck  # Yingluck Shinawatra
+Q196070: Kenyatta  # Uhuru Kenyatta
+Q296597: Paisley  # Ian Paisley
+Q313691: Riel  # Louis Riel
+Q1452355: Hampton  # Fred Hampton
+Q298213: Pankhurst  # Sylvia Pankhurst
+Q22690797: Sinwar  # Yahya Sinwar
+Q274143: Pearse  # Patrick Pearse
+Q332493: Osborne  # George Osborne
+Q27975838: Weidel  # Alice Weidel
+Q333937: Gove  # Michael Gove
+Q239105: Machel  # Graça Machel
+Q521145: Cuomo  # Mario Cuomo
+Q380433: Sharpton  # Al Sharpton
+Q229141: Ferraro  # Geraldine Ferraro
+Q332419: Foot  # Michael Foot
+Q26436159: Omar  # Ilhan Omar
+Q76972: Scholl  # Sophie Scholl
+Q878682: La Follette  # Robert M. La Follette
+Q163042: Duke  # David Duke
+Q214475: Hirsi Ali  # Ayaan Hirsi Ali
+Q121615: Sands  # Bobby Sands
+Q21822: Bo Xilai  # Bo Xilai
+Q717985: Evers  # Medgar Evers
+Q57291: Kibaki  # Mwai Kibaki
+Q229162: Ceaușescu  # Elena Ceaușescu
+Q332460: Hardie  # Keir Hardie
+Q332393: Prescott  # John Prescott
+Q154104: Nujoma  # Sam Nujoma
+Q311214: Cook  # Robin Cook
+Q312845: Inouye  # Daniel Inouye
+Q959635: Young  # Andrew Young
+Q155649: Holbrooke  # Richard Holbrooke
+Q438131: Fox  # Charles James Fox
+Q6837191: O'Neill  # Michelle O'Neill
+Q213746: Sandino  # Augusto César Sandino
+Q40655898: Bardella  # Jordan Bardella
+Q216826: Sadr  # Muqtada al-Sadr
+Q364194: Barghouti  # Marwan Barghouti
+Q467122: Koch  # Ed Koch
+Q220723: Livingstone  # Ken Livingstone
+Q503426: Helms  # Jesse Helms
+Q98380406: Greene  # Marjorie Taylor Greene
+Q271889: Clarke  # Kenneth Clarke
+Q57689: McGuinness  # Martin McGuinness
+Q464724: Abzug  # Bella Abzug
+Q334953: Sandwich  # John Montagu, 4th Earl of Sandwich
+Q212388: Mukhtar  # Omar al-Mukhtar
+Q332483: Galloway  # George Galloway
+Q239062: Madikizela-Mandela  # Winnie Madikizela-Mandela
+Q333050: Castlereagh  # Robert Stewart, Viscount Castlereagh
