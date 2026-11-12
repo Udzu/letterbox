@@ -143,7 +143,7 @@ function showRhymes() {
   const { ipa } = rhymeParts(entry.pron);
   const kind = type !== "perfect" ? `${type} ` : !options.sameOnset && !options.looseOnsets ? "perfect " : "";
   const number = `${count === 0 ? "No" : count.toLocaleString("en")}`;
-  const text = type === "consonants" ? `${number} word${count === 1 ? "" : "s"} with the same consonants as /${toIpa(entry.pron)}/`
+  const text = TYPES[type].whole ? `${number} word${count === 1 ? "" : "s"} with the same ${type} as /${toIpa(entry.pron)}/`
     : `${number} ${kind}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
   if (count === 0 && mosaic.length === 0) {
     summary.textContent = text;

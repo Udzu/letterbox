@@ -294,6 +294,8 @@ const indexKey = (rhyme) => rhyme.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) =
 //   consonant or at the end (glance and pants, bee and beam, coal and cold)
 // - consonants: the same consonants throughout, in the same places between the vowels, whatever the
 //   vowels and stress (abet, Abbott, obit and I bet, but not bet or rabbit; see consonantPattern)
+// - vowels: the same vowels in the same order, with the primary stress on the same one, whatever the
+//   consonants (abet, a pet and Annette; see vowelPattern)
 const FAMILIES = { p: "ptk", b: "bdg", f: "fTsSC", v: "vDzZJ", m: "mnN" };
 const FAMILY = Object.fromEntries(Object.entries(FAMILIES).flatMap(([name, members]) => [...members].map((c) => [c, name])));
 const family = (rhyme) => rhyme.replace(/[ptkbdgfTsSCvDzZJmnN]/g, (c) => FAMILY[c]);
@@ -312,6 +314,20 @@ const same = (rhyme) => rhyme;
 // vowel and r, unless r is dropped (then the merger has left only stressed ɝ, without its r).
 export const consonantPattern = (pron, rhotic = true) =>
   pron.replace(/[ 12]/g, "").replaceAll("R", rhotic ? "_r" : "_").replace(/[AaVOWYEeIioQUu]/g, "_");
+// A pronunciation's vowels, with 1 after the one with primary stress (abet is V E1). As for rhymes,
+// unstressed ɪ, ʊ and ə are the same (but not with secondary stress), and secondary stress is otherwise
+// ignored.
+export function vowelPattern(pron) {
+  let pattern = "";
+  for (let i = 0; i < pron.length; i++) {
+    const c = pron[i];
+    if (!VOWELS.has(c)) continue;
+    const stressed = pron[i + 1] === "1";
+    const unstressed = !stressed && pron[i + 1] !== "2";
+    pattern += (unstressed && "IUV".includes(c) ? "V" : c) + (stressed ? "1" : "");
+  }
+  return pattern;
+}
 export const TYPES = {
   perfect: { matcher: (t) => (x) => x === t, key: indexKey, shape: same },
   near: {
@@ -336,6 +352,25 @@ export const TYPES = {
         if (VOWELS.has(c)) {
           if (!key.endsWith("_")) key += "_";
         } else key += c === "t" ? "d" : c;
+      }
+      return key;
+    },
+  },
+  vowels: {
+    whole: true,
+    pattern: (pron) => vowelPattern(pron),
+    // the vowels in the classes that mergers can't move between (see VOWEL_CLASSES), leaving out ʌ, ɝ,
+    // ɚ and unstressed ɪ, ʊ and ə, as mergers can turn vowels into them and r-dropping adds ə
+    key: (pron) => {
+      let key = "";
+      for (let i = 0; i < pron.length; i++) {
+        const c = pron[i];
+        if (!VOWELS.has(c)) continue;
+        const stressed = pron[i + 1] === "1";
+        const unstressed = !stressed && pron[i + 1] !== "2";
+        const cls = VOWEL_CLASSES[c] ?? c;
+        if (cls !== "R" && !(unstressed && "IU".includes(c))) key += cls;
+        if (stressed) key += "1";
       }
       return key;
     },

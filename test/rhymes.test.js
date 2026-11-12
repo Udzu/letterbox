@@ -585,3 +585,25 @@ model\tmA1dVl
   // no mosaic rhymes
   assert.deepEqual([...rhymes.mosaic(rhymes.pronunciations("abet")[0], { type: "consonants" }).keys()], []);
 });
+
+test("same vowels: the same vowels in order, with the same primary stress, whatever the consonants", () => {
+  const rhymes = new Rhymes(parsePronunciations(`abet\tVbE1t
+a pet\tV pE1t
+Annette\tVnE1t
+upset\tV2psE1t
+Abbott\ta1bVt
+bet\tbE1t
+beer bread\tbI2r brE1d
+caught\tkO1t
+pod\tpA1d
+pen\tpE1n
+tin\ttI1n
+`).entries);
+  const find = (word, options = {}) => rhymes.find(rhymes.pronunciations(word)[0], { type: "vowels", ...options });
+  // not Abbott (different vowels), bet (fewer) or beer bread (ɪ with secondary stress isn't ə)
+  assert.deepEqual(find("abet"), ["a pet", "Annette", "upset"]);
+  // mergers still apply
+  assert.deepEqual(find("caught"), []);
+  assert.deepEqual(find("caught", { cotCaught: true }), ["pod"]);
+  assert.deepEqual(find("pen", { pinPen: true }), ["tin"]);
+});
