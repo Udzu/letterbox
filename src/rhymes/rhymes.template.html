@@ -35,6 +35,7 @@
   #types { justify-self: start; }
   #options, #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; }
   #options label, #mergers label { cursor: pointer; }
+  #options label.disabled { color: #aaa; cursor: default; }
   #sound-help { margin: 6px 0 0; font-size: 0.85rem; color: #666; line-height: 1.5; }
   #sound-help span { font-family: ui-monospace, monospace; color: #000; background: #f0f0f0; padding: 0 3px; border-radius: 2px; }
   #prons .homophones a { color: #000; text-decoration: none; }
@@ -93,6 +94,7 @@
       <button type="button" data-type="perfect" title="Words that sound the same from the stressed vowel on (so time rhymes with rhyme)">Perfect rhyme</button>
       <button type="button" data-type="near" title="Also let consonants after the stressed vowel differ within a family: p t k; b d g; f th s sh ch; v th z zh j; m n ng (so rhyme matches mine, and cap matches cat)">Near rhyme</button>
       <button type="button" data-type="additive" title="Also match words with one more or one fewer s, z, t, d, m, n or ng after the stressed vowel, next to another consonant or at the end (so glance matches pants and plan, and bee matches beam)">Additive rhyme</button>
+      <button type="button" data-type="consonants" title="Words with the same consonants throughout, in the same places between the vowels, whatever the vowels and stress (so abet matches Abbott and obit, but not bet or rabbit)">Same consonants</button>
     </span>
     <span class="label" title="The consonants that start a syllable">Onsets:</span>
     <div id="options">

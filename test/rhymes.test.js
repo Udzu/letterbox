@@ -550,3 +550,38 @@ showed it\tSo1d It
   // not a consonant between vowels, which would start a syllable
   assert.deepEqual(find("poet", { type: "additive" }), []);
 });
+
+test("same consonants: the same consonants between the vowels, whatever the vowels and stress", () => {
+  const rhymes = new Rhymes(parsePronunciations(`abet\tVbE1t
+Abbott\ta1bVt
+obit\to1bIt
+I bet\tY1 bE1t
+rabbit\tra1bIt
+bet\tbE1t
+boot\tbu1t
+betty\tbE1ti
+let\tlE1t
+cart\tkA1rt
+court\tkO1rt
+carrot\tkE1rVt
+cut\tkV1t
+caught\tkO1t
+bird\tbR1d
+bored\tbO1rd
+bud\tbV1d
+metal\tmE1tVl
+model\tmA1dVl
+`).entries);
+  const find = (word, options = {}) => rhymes.find(rhymes.pronunciations(word)[0], { type: "consonants", ...options });
+  assert.deepEqual(find("abet"), ["Abbott", "I bet", "obit"]);
+  assert.deepEqual(find("bet"), ["boot"]);
+  assert.deepEqual(find("cart"), ["court"]);
+  // ɝ is a vowel and r
+  assert.deepEqual(find("bird"), ["bored"]);
+  // mergers still apply: flapping makes metal match model, and r-dropping makes court match cut (and caught a homophone)
+  assert.deepEqual(find("metal"), []);
+  assert.deepEqual(find("metal", { flapping: true }), ["model"]);
+  assert.deepEqual(find("court", { nonRhotic: true }), ["cut"]);
+  // no mosaic rhymes
+  assert.deepEqual([...rhymes.mosaic(rhymes.pronunciations("abet")[0], { type: "consonants" }).keys()], []);
+});

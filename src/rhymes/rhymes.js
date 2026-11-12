@@ -281,6 +281,9 @@ const indexKey = (rhyme) => rhyme.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) =
 // - matcher: given a rhyme or loose rhyme, a test for the ones that match it
 // - key: a key for its index of candidates, the same for rhymes that match whatever mergers are chosen
 // - shape: what a mosaic rhyme's tail must match at the end of the rhyme, as a function on both
+// or, for types that compare whole pronunciations rather than rhymes (whole: true):
+// - pattern: what must be the same, given a pronunciation with mergers applied and the options
+// - key: a key for the index, from a pronunciation without mergers, the same whatever mergers are chosen
 // The types:
 // - perfect: perfect rhymes
 // - near: near rhymes, whose consonants may differ within a family: voiceless stops p t k, voiced
@@ -289,6 +292,8 @@ const indexKey = (rhyme) => rhyme.replace(/Vr/g, "R").replace(/[OUaeIV]/g, (c) =
 //   stops apart.
 // - additive: additive rhymes, where one may have an extra s, z, t, d, m, n or ŋ next to another
 //   consonant or at the end (glance and pants, bee and beam, coal and cold)
+// - consonants: the same consonants throughout, in the same places between the vowels, whatever the
+//   vowels and stress (abet, Abbott, obit and I bet, but not bet or rabbit; see consonantPattern)
 const FAMILIES = { p: "ptk", b: "bdg", f: "fTsSC", v: "vDzZJ", m: "mnN" };
 const FAMILY = Object.fromEntries(Object.entries(FAMILIES).flatMap(([name, members]) => [...members].map((c) => [c, name])));
 const family = (rhyme) => rhyme.replace(/[ptkbdgfTsSCvDzZJmnN]/g, (c) => FAMILY[c]);
@@ -303,6 +308,10 @@ function oneExtra(longer, shorter) {
   return false;
 }
 const same = (rhyme) => rhyme;
+// A pronunciation's consonants, with _ for each vowel (abet, Abbott and I bet are _b_t). ɝ and ɚ are a
+// vowel and r, unless r is dropped (then the merger has left only stressed ɝ, without its r).
+export const consonantPattern = (pron, rhotic = true) =>
+  pron.replace(/[ 12]/g, "").replaceAll("R", rhotic ? "_r" : "_").replace(/[AaVOWYEeIioQUu]/g, "_");
 export const TYPES = {
   perfect: { matcher: (t) => (x) => x === t, key: indexKey, shape: same },
   near: {
@@ -315,7 +324,26 @@ export const TYPES = {
     key: (rhyme) => indexKey(rhyme.replace(ADDABLE, "")),
     shape: same,
   },
+  consonants: {
+    whole: true,
+    pattern: (pron, options) => consonantPattern(pron, !options.nonRhotic),
+    // as flapping makes t d, and r-dropping drops r and can add ə after a vowel (one loop, as it's run
+    // on every pronunciation when the index is built)
+    key: (pron) => {
+      let key = "";
+      for (const c of pron) {
+        if (c === " " || c === "1" || c === "2" || c === "r") continue;
+        if (VOWELS.has(c)) {
+          if (!key.endsWith("_")) key += "_";
+        } else key += c === "t" ? "d" : c;
+      }
+      return key;
+    },
+  },
 };
+// what homophones have in common: their sounds, ignoring secondary stress, word breaks and differences
+// between unstressed ɪ, ʊ and ə
+const soundKey = (pron) => pron.replace(/[ 2]/g, "").replace(/[IUV](?!1)/g, "V");
 
 // Mosaic rhymes: a stressed word followed by an unstressed word that leans on it, like know it for
 // poet, get her for letter or cat'll for battle. Each tail has its unstressed pronunciation (as said
@@ -402,7 +430,7 @@ export class Rhymes {
   // between unstressed ɪ, ʊ and ə), as a map like matches gives. The index for this is only built
   // the first time it's needed.
   homophones(pron) {
-    const key = (p) => p.replace(/[ 2]/g, "").replace(/[IUV](?!1)/g, "V");
+    const key = soundKey;
     if (!this.bySound) {
       this.bySound = new Map();
       for (const entry of this.entries) {
@@ -447,12 +475,13 @@ export class Rhymes {
   }
 
   // The index of candidates for a type of search (see TYPES): { byRhyme, byLoose, key }, from the key
-  // of a rhyme or loose rhyme to the items with it. Only the perfect rhyme index is built up front.
+  // of a rhyme or loose rhyme (or for whole types, of a pronunciation, in byRhyme) to the items with
+  // it. Only the perfect rhyme index is built up front.
   index(type) {
     if (type === "perfect") return { byRhyme: this.byRhyme, byLoose: this.byLoose, key: indexKey };
     this.indexes ??= {};
     if (!this.indexes[type]) {
-      const { key } = TYPES[type];
+      const { key, whole } = TYPES[type];
       const index = { byRhyme: new Map(), byLoose: new Map(), key };
       const keys = new Map();
       const keyOf = (rhyme) => {
@@ -467,6 +496,11 @@ export class Rhymes {
       };
       for (const items of this.byRhyme.values()) {
         for (const item of items) {
+          if (whole) {
+            // (not cached, as pronunciations rarely come up twice)
+            add(index.byRhyme, key(item.entry.pron), item);
+            continue;
+          }
           add(index.byRhyme, keyOf(item.rhyme), item);
           add(index.byLoose, keyOf(item.loose), item);
         }
@@ -482,6 +516,7 @@ export class Rhymes {
   // MOSAIC_WORD) with parts of speech in the data that the tail can follow.
   mosaic(entry, options = {}) {
     const { sameOnset = false, looseOnsets = false, type = "perfect" } = options;
+    if (TYPES[type].whole) return new Map();
     const { matcher, shape } = TYPES[type];
     const index = this.index(type);
     const mergers = Object.keys(MERGERS).some((name) => options[name]);
@@ -517,9 +552,11 @@ export class Rhymes {
   // and others are the rest.
   pronunciationGroups(word, options = {}) {
     const groups = new Map();
+    const { whole, pattern } = TYPES[options.type ?? "perfect"];
     for (const entry of this.pronunciations(word)) {
-      const { rhyme, onset } = rhymeParts(merge(entry.pron, options));
-      const key = `${onset}|${rhyme}`;
+      const merged = merge(entry.pron, options);
+      const { rhyme, onset } = rhymeParts(merged);
+      const key = whole ? pattern(merged, options) : `${onset}|${rhyme}`;
       if (groups.has(key)) groups.get(key).others.push(entry);
       else groups.set(key, { entry, others: [] });
     }
@@ -543,6 +580,7 @@ export class Rhymes {
   // and the set of their numbers of syllables.
   matches(entry, options = {}) {
     const { sameOnset = false, looseOnsets = false, type = "perfect" } = options;
+    if (TYPES[type].whole) return this.wholeMatches(entry, options);
     const { matcher } = TYPES[type];
     const index = this.index(type);
     const mergers = Object.keys(MERGERS).some((name) => options[name]);
@@ -567,6 +605,29 @@ export class Rhymes {
         match.syllables.add(syllableCount(item.entry.pron));
         words.set(word, match);
       }
+    }
+    return words;
+  }
+
+  // Matches as for matches, for types that compare whole pronunciations (see TYPES): the words whose
+  // pattern is the same as the entry's with the mergers chosen, leaving out homophones and the word
+  // itself. The onset options don't apply.
+  wholeMatches(entry, options) {
+    const { pattern } = TYPES[options.type];
+    const index = this.index(options.type);
+    const merged = merge(entry.pron, options);
+    const target = pattern(merged, options);
+    const sound = soundKey(merged);
+    const self = withoutAccents(lookupKey(entry.word));
+    const words = new Map();
+    for (const item of index.byRhyme.get(index.key(entry.pron)) ?? []) {
+      const { word, zipf, pron } = item.entry;
+      const other = merge(pron, options);
+      if (pattern(other, options) !== target || soundKey(other) === sound || withoutAccents(lookupKey(word)) === self) continue;
+      const match = words.get(word) ?? { zipf: 0, syllables: new Set() };
+      match.zipf = Math.max(match.zipf, zipf);
+      match.syllables.add(syllableCount(pron));
+      words.set(word, match);
     }
     return words;
   }

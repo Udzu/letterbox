@@ -1,7 +1,7 @@
 // The Rhymes page: look up a word, pick one of its pronunciations, and list its rhymes.
 
 import { attributionParts } from "../wordlists/lists.js";
-import { Rhymes, compareWords, lookupKey, parsePronunciations, parseSounds, rhymeParts, toIpa } from "./rhymes.js";
+import { Rhymes, TYPES, compareWords, lookupKey, parsePronunciations, parseSounds, rhymeParts, toIpa } from "./rhymes.js";
 
 const WORD_KEY = "rhymes-word";
 const OPTIONS_KEY = "rhymes-options";
@@ -142,7 +142,9 @@ function showRhymes() {
     .map((item) => ({ ...item, band: "mosaic" })).sort((a, b) => b.zipf - a.zipf || compareWords(a.word, b.word));
   const { ipa } = rhymeParts(entry.pron);
   const kind = type !== "perfect" ? `${type} ` : !options.sameOnset && !options.looseOnsets ? "perfect " : "";
-  const text = `${count === 0 ? "No" : count.toLocaleString("en")} ${kind}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
+  const number = `${count === 0 ? "No" : count.toLocaleString("en")}`;
+  const text = type === "consonants" ? `${number} word${count === 1 ? "" : "s"} with the same consonants as /${toIpa(entry.pron)}/`
+    : `${number} ${kind}rhyme${count === 1 ? "" : "s"} on /${ipa}/`;
   if (count === 0 && mosaic.length === 0) {
     summary.textContent = text;
     return;
@@ -259,32 +261,43 @@ try {
   const saved = JSON.parse(load(OPTIONS_KEY) || "{}");
   for (const [name, box] of Object.entries(OPTIONS)) box.checked = saved[name] === true;
 } catch (e) {}
+// Show the rhymes again after the options or type change. Mergers and types can change which
+// pronunciations have the same rhymes: regroup, keeping the one chosen.
+function optionsChanged() {
+  if (!rhymes) return;
+  if (shown.sounds) return showRhymes();
+  const chosen = shown.choices[shown.choice];
+  const entries = chosen ? [chosen.entry, ...chosen.others] : [];
+  shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
+  const built = shown.choices.length === 0 && shown.word ? rhymes.phrasePronunciation(shown.word) : null;
+  if (built) shown.choices = [{ entry: built, others: [] }];
+  shown.choice = Math.max(0, shown.choices.findIndex((g) => entries.includes(g.entry) || g.others.some((e) => entries.includes(e))));
+  showPronunciations();
+  showRhymes();
+}
 for (const box of Object.values(OPTIONS)) {
   box.addEventListener("change", () => {
     save(OPTIONS_KEY, JSON.stringify(checked()));
-    if (!rhymes) return;
-    if (shown.sounds) return showRhymes();
-    // mergers can change which pronunciations have the same rhymes: regroup, keeping the one chosen
-    const chosen = shown.choices[shown.choice];
-    const entries = chosen ? [chosen.entry, ...chosen.others] : [];
-    shown.choices = shown.word ? rhymes.pronunciationGroups(shown.word, currentOptions()) : [];
-    const built = shown.choices.length === 0 && shown.word ? rhymes.phrasePronunciation(shown.word) : null;
-    if (built) shown.choices = [{ entry: built, others: [] }];
-    shown.choice = Math.max(0, shown.choices.findIndex((g) => entries.includes(g.entry) || g.others.some((e) => entries.includes(e))));
-    showPronunciations();
-    showRhymes();
+    optionsChanged();
   });
 }
 
-// the type of search, with the current one's button pressed
-const showType = () => Object.entries(TYPE_BUTTONS).forEach(([name, b]) => b.setAttribute("aria-pressed", String(name === type)));
+// the type of search, with the current one's button pressed (and the onset options greyed out for
+// types that compare whole words)
+function showType() {
+  Object.entries(TYPE_BUTTONS).forEach(([name, b]) => b.setAttribute("aria-pressed", String(name === type)));
+  for (const box of [OPTIONS.sameOnset, OPTIONS.looseOnsets]) {
+    box.disabled = Boolean(TYPES[type].whole);
+    box.parentElement.classList.toggle("disabled", box.disabled);
+  }
+}
 showType();
 for (const [name, button] of Object.entries(TYPE_BUTTONS)) {
   button.addEventListener("click", () => {
     type = name;
     save(TYPE_KEY, name);
     showType();
-    if (rhymes) showRhymes();
+    optionsChanged();
   });
 }
 
