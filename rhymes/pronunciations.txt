@@ -1082,7 +1082,7 @@ abegge	VbE1J	W	0
 abegging	VbE1gIN	W	0
 Abel	e1bVl	CW	35	n
 Abel test	e1bVl tRst	U	35
-abela	AbE1lV	C	15
+Abela	AbE1lV	C	15
 Abelam	VbV1lVm	U	0
 Abelard	a1bIlRd	C	22
 Abelard	a1bVlA2rd	U	22
@@ -2752,8 +2752,8 @@ abyssolith	VbI1sVlIT	U	0
 abyssolithic	VbI2sVlI1TIk	U	0
 abyssopelagic	VbI2sopVla1JIk	U	0
 abyssopelagic zone	VbI2sopVla2JIk zo1n	P	0
-abzug	a1bzU2g	C	15
-abzug	a1bzV2g	C	15
+Abzug	a1bzU2g	C	15
+Abzug	a1bzV2g	C	15
 abzyme	a1bzYm	W	0
 AC	e1si1	C	15	n
 AC/DC	e1sidi2si	W	41
@@ -4788,7 +4788,7 @@ add value machine	a2d va2lju mVSi1n	P	46
 add-in	a1dI2n	W	51	n
 add-on	a2d A1n	P	51	n
 addair	VdE1r	C	0
-addams	a1dVmz	C	15
+Addams	a1dVmz	C	15	n
 addax	a1dVks	W	13
 added	a1dId	CW	52	v
 added	a1dVd	CW	52	v
@@ -4955,8 +4955,8 @@ adelstein	a1dVlstYn	C	15
 adelstein	a1dVlstin	C	15
 Aden	e1dVn	CW	31	n
 adena	a1dInV	C	15
-adenauer	a1dVnW2r	C	15
-adenauer	e1dVnW2r	C	15
+Adenauer	a1dVnW2r	C	15
+Adenauer	e1dVnW2r	C	15
 adenine	a1dInI2n	W	15
 adenine	a1dVni2n	CW	23
 adenines	a1dInInz	W	0
@@ -5622,7 +5622,7 @@ advancers	Vdva1nsRz	C	12
 advances	Vdva1nsIz	C	41	nv
 advances	Vdva1nsVz	C	41	nv
 advancing	Vdva1nsIN	CU	39	nv
-advani	advA1ni	C	15
+Advani	advA1ni	C	15
 advanta	Vdva1ntV	C	15
 advanta	adva1ntV	C	15
 advanta's	Vdva1ntVz	C	0
@@ -6700,7 +6700,7 @@ Agartala	VgV1rtVlV	W	19
 agarwal	A1gArwAl	C	15
 agasp	Vga1sp	C	0
 Agassi	a1gVsi	CW	25	n
-agassiz	Vga1sIz	C	15
+Agassiz	Vga1sIz	C	15	n
 agate	Vge1t	U	28
 agate	a1gIt	W	28	n
 agate	a1gVt	CW	28	n
@@ -7098,7 +7098,7 @@ agoraphobic	a2gRVfo1bIk	U	20
 agorism	a1gVrI2zVm	W	0
 agosta	Ago1stV	C	14
 agostinelli	AgostinE1li	C	13
-agostini	Agosti1ni	C	15
+Agostini	Agosti1ni	C	15
 agostino	AgOsti1no	C	15
 agosto	Ago1sto	C	15
 agoura	VgU1rV	C	15
@@ -7150,7 +7150,7 @@ agribulk	a1grIbV2lk	W	0
 agribusiness	a1grIbI2znVs	U	28	n
 agribusiness	a1grVbI2znVs	C	28	n
 agrico	Vgri1ko	C	0
-agricola	a2grIko1lV	C	15
+Agricola	a2grIko1lV	C	15	n
 agricole	a1grIko2l	C	15
 agricultural	a2grIkV1lCRVl	CU	43	n
 agricultural	a2grVkV1lCRVl	C	43	n
@@ -7308,7 +7308,7 @@ ahem	VhE1m	W	32
 ahemeral	ehE1mRVl	W	0
 ahemeral day	ehE2mRVl de1	P	0
 aherin	A1RIn	C	0
-ahern	VhR1n	C	15
+Ahern	VhR1n	C	15
 aherne	VhR1n	C	15
 aheylite	Vhe1lYt	W	0
 ahh	A1	C	39	nv
@@ -8487,7 +8487,7 @@ albizzia	albI1tsiV	W	0
 albizzia	albI1ziV	U	0
 albo	a1lbo	C	15
 albrecht	O1lbrE2kt	C	15
-albright	O1lbrY2t	C	15
+Albright	O1lbrY2t	C	15	n
 albright's	O1lbrY2ts	C	14
 Albrighton	OlbrY1tVn	B	20
 albrightsville	O1lbrY2tsvIl	C	0
@@ -9648,8 +9648,8 @@ Allahu akbar	A2lVhu A1kbAr	B	26
 Allahu akbar	VlA2hu A1kbAr	B	26
 allain	Vle1n	C	15
 allaire	AlE1r	C	15
-allais	Vle1	C	15
-allais	e1liVs	C	15
+Allais	Vle1	C	15
+Allais	e1liVs	C	15
 Allamakee	A1lVmVki	W	14
 Allamakee	a1lVmVki	W	14
 allamanda	AlVmA1ndV	B	0
@@ -10013,7 +10013,7 @@ alloy wheel	a2lQ2 wi1l	P	36
 alloys	a1lQ2z	C	32	nv
 allperfect	OlpR1fIkt	U	0
 allphin	VlfI1n	C	0
-allport	O1lpO2rt	C	15
+Allport	O1lpO2rt	C	15
 allred	a1lrId	C	15
 allright	AlrY1t	C	15
 alls	O1lz	CW	26	n
@@ -10995,8 +10995,8 @@ alzado	AlzA1do	C	10
 alzado	Alza1do	C	10
 alzena	AlzE1nV	C	0
 alzene	Alzi1n	C	0
-alzheimer	A1ltshY2mR	C	15
-alzheimer	a1lzhY2mR	C	15
+Alzheimer	A1ltshY2mR	C	15
+Alzheimer	a1lzhY2mR	C	15
 alzheimer's	A1tszhY2mRz	C	15
 alzheimer's	a1lzhY2mRz	C	15
 Alzheimer's disease	a1lshYmRz dIzi1z	WE	36
@@ -11074,7 +11074,7 @@ amandine	VmA1ndIn	W	18
 amanita	a2mVnY1tV	W	21
 amanitin	amVnY1tIn	W	10
 amann	a1mVn	C	15
-amano	VmA1no	C	15
+Amano	VmA1no	C	15
 amanpour	A2mA2npU1r	C	15
 amanpour's	A2mA2npU1rz	C	0
 amanse	Vma1nz	W	0
@@ -11152,7 +11152,7 @@ Amati	VmA1ti	C	18
 amatil	a1mVtIl	C	13
 amative	A1mVtIv	B	0
 amativeness	A1mVtIvnIs	B	0
-amato	AmA1to2	C	15
+Amato	AmA1to2	C	15	n
 amato's	AmA1to2z	C	15
 amatol	a1mVtA2l	U	0
 amatory	A1mVtRi	WE	15
@@ -12738,7 +12738,7 @@ anderson's	a1ndRsVnz	C	15
 Andersonian	a2ndRso1niVn	U	0
 andersons	a1ndRsVnz	C	15
 andersonville	a1ndRsVnvIl	C	15
-andersson	a1ndRsVn	C	15
+Andersson	a1ndRsVn	C	15	n
 andert	a1ndRt	C	0
 anderton	a1ndRtVn	C	15
 Andes	a1ndiz	CWE	31	n
@@ -12795,8 +12795,8 @@ andrej	A1ndre	C	15
 andren	a1ndRVn	C	11
 andreoli	Andreo1li	C	14
 andreoni	Andreo1ni	C	11
-andreotti	AndriA1ti	C	15
-andreotti	a2ndriA1di	C	15
+Andreotti	AndriA1ti	C	15
+Andreotti	a2ndriA1di	C	15
 andreozzi	AndriA1tsi	C	0
 andrepont	Andre1pont	C	0
 Andres	A1ndrez	C	31	n
@@ -12850,7 +12850,7 @@ Andromeda	andrA1mVdV	C	32	n
 Andronicus	a2ndrA1nVkVs	U	23
 androphilia	a2ndrofI1liV	U	0
 androphobia	a2ndrofo1biV	U	0
-andropov	andrA1pA2v	C	15
+Andropov	andrA1pA2v	C	15
 androromantic	a2ndrOroma1ntIk	U	0
 andros	a1ndrAs	C	15
 Androscoggin County	a2ndrVskO1gIn kW1nti	W	18
@@ -13069,7 +13069,7 @@ angelist	e1nJVlIst	B	0
 angelita	ANgEli1tV	C	15
 Angelite	e1nJVlYt	B	0
 angelize	e1nJVlYz	B	0
-angell	e1nJVl	C	15
+Angell	e1nJVl	C	15	n
 angelle	eNgE1l	C	13
 angelled	e1nJVld	B	0
 angello	a2nJE1lo	C	15
@@ -15427,8 +15427,8 @@ Aotearoa	A2otiVro1V	U	22
 Aotearoa	W2tiVro1V	U	22
 Aotearoa New Zealand	A2otiVro2V nu zi1lVnd	U	22
 Aotearoan	W2tiVro1Vn	U	0
-aoun	W1Vn	C	15
-aoun	W2u1n	C	15
+Aoun	W1Vn	C	15
+Aoun	W2u1n	C	15
 aoun's	W1Vnz	C	12
 aoun's	W2u1nz	C	12
 aouzou	W2ju1zu	C	0
@@ -16503,7 +16503,7 @@ aquiline	a1kwIlY2n	W	17
 aquiline nose	a2kwIlY2n no1z	P	17
 aquilino	Akwili1no	C	14
 Aquinas	VkwY1nVs	CW	30	n
-aquino	Vki1no	C	15
+Aquino	Vki1no	C	15	n
 aquino's	Vki1noz	C	15
 aquirre	a1kwR	C	0
 Aquitaine	a1kwIten	U	24
@@ -16589,7 +16589,7 @@ arachnoid mater	Vra2knQd me1tR	P	18
 arachnoidian	RaknQ1diVn	B	0
 arachnolysin	ara2knVlY1sIn	W	0
 arachnophobia	ara2knVfo1bIV	B	19
-arafat	E1rVfat	C	15
+Arafat	E1rVfat	C	15	n
 arafat's	A1rVfA2ts	C	15
 arafat's	E1rVfats	C	15
 Aragon	E1rVgA2n	CU	29	n
@@ -17200,7 +17200,7 @@ arencibia	ArEnCi1biV	C	15
 arend	RE1nd	C	15
 arends	RE1ndz	C	15
 arendsee	RE1ndsi2	C	0
-arendt	E1rInt	C	15
+Arendt	E1rInt	C	15	n
 arene	a1rin	W	17
 arene epoxide	a2rin i1pAksYd	P	15
 arene oxide	a2rin A1ksY2d	P	17
@@ -19342,7 +19342,7 @@ aspread	VsprE1d	W	0
 asprout	VsprW1t	W	0
 asquat	VskwA1t	B	0
 asquint	VskwI1nt	W	0
-asquith	a1skwIT	C	15
+Asquith	a1skwIT	C	15	n
 ass	a1s	CUE	50	n
 ass backward	a2s ba1kwRd	P	37
 ass backwards	a2s ba1kwRdz	P	40
@@ -20729,7 +20729,7 @@ Attala	VtA1lV	W	12
 Attala	a1tVlV	W	12
 Attala County	VtA1lV kW1nti	W	12
 Attala County	a1tVlV kW1nti	W	12
-attali	VtA1li	C	13
+Attali	VtA1li	C	13
 Attalla	Vta1lV	CU	13
 attanasio	AtAnA1sio	C	14
 attap	A1tA2p	U	0
@@ -20752,7 +20752,7 @@ attempted rape	VtE2mptId re1p	P	42
 attempting	VtE1mptIN	CW	43	v
 attempts	VtE1mps	C	45	nv
 attempts	VtE1mpts	CW	45	nv
-attenborough	a1tV2nbRo	C	15
+Attenborough	a1tV2nbRo	C	15	n
 attend	VtE1nd	CU	46	v
 attend to	VtE1nd tI	P	46
 attend to	VtE1nd tV	P	46
@@ -20851,7 +20851,7 @@ attkisson	a1tkIsVn	C	15
 attleboro	a1tVlbRo	C	15
 Attleborough	a1tVlbRV	W	19
 Attleborough	a1tVlbrV	W	19
-attlee	a1tli	C	15
+Attlee	a1tli	C	15	n
 attollent	VtA1lVnt	B	0
 attorney	VtR1ni	CU	47	n
 attorney at law	VtR2ni at lO1	P	46
@@ -21289,7 +21289,7 @@ aull	O1l	C	12
 ault	O1lt	C	15
 aultman	O1ltmVn	C	14
 auman	O1mVn	C	12
-aumann	O1mVn	C	14
+Aumann	O1mVn	C	14
 aument	W1mVnt	C	0
 aumiller	W1mVlR	C	0
 auncle	A1NkVl	W	0
@@ -22475,7 +22475,7 @@ axed	a1kst	CW	28	v
 Axel	a1ksVl	CW	15	n
 axel	a1ksVl	CW	33	in
 axelrad	aksE1lrVd	C	12
-axelrod	a1ksVlrA2d	C	15
+Axelrod	a1ksVlrA2d	C	15	n
 axels	a1ksVlz	W	17
 axelsen	aksE1lsVn	C	12
 axelson	a1ksIlsVn	C	15
@@ -22610,8 +22610,8 @@ ayel	e1l	W	0
 ayelp	VjE1lp	W	0
 ayende	VjE1nde	C	0
 ayende	VjE1ndi	C	0
-ayer	Y1R	C	15
-ayer	e1R	C	15
+Ayer	Y1R	C	15	n
+Ayer	e1R	C	15	n
 ayer's	E1rz	C	15
 ayers	Y1Rz	C	15
 ayers	e1Rz	C	15
@@ -22638,8 +22638,8 @@ Aylmer	e1lmR	C	23
 aylor	e1lR	C	10
 aylsworth	e1lswRT	C	0
 aylward	e1lwRd	C	15
-aylwin	Y1lwI2n	C	15
-aylwin	e1lwIn	C	15
+Aylwin	Y1lwI2n	C	15
+Aylwin	e1lwIn	C	15
 aylworth	e1lwRT	C	0
 Aymara	Y2mArA1	UWE	23
 aymond	e1mVnd	C	11
@@ -22904,7 +22904,7 @@ babar	bA2bA1r	C	15
 babar's	bA2bA1rz	C	12
 babax	ba1baks	W	0
 babb	ba1b	C	15
-babbage	ba1bIJ	C	15
+Babbage	ba1bIJ	C	15
 babbage's	ba1bIJIz	C	13
 babber	ba1bR	U	0
 babber-lipped	ba2bR lI1pt	P	0
@@ -24145,7 +24145,7 @@ bael	bE1l	U	18
 bael	bY1l	U	18
 bael	be1l	U	18
 baenopod	bi1nVpA2d	B	0
-baer	bE1r	C	15
+Baer	bE1r	C	15	n
 baerwald	bE1rwOld	C	10
 baeten	bE1tVn	C	0
 baetjer	bE1tJR	C	0
@@ -24741,7 +24741,7 @@ balbach	ba1lbAk	C	0
 balbal	bA1lbVl	U	0
 balbi	ba1lbi	C	15
 balbina	bAlbi1nV	C	0
-balbo	ba1lbo	C	15
+Balbo	ba1lbo	C	15
 Balboa	balbo1V	U	15	n
 balboa	bAlbo1V	C	30	n
 balboni	bAlbo1ni	C	15
@@ -24750,7 +24750,7 @@ balbriggans	balbrI1gVnz	C	0
 balbuties	balbju1Siiz	W	0
 balbuties	balbju1tiiz	W	0
 balcer	be1lsR	C	0
-balcerowicz	balsE1rVwIts	C	11
+Balcerowicz	balsE1rVwIts	C	11
 balcerzak	bVlCR1zVk	C	0
 balch	ba1lC	C	15
 balchunas	ba1lkunVz	C	0
@@ -25014,7 +25014,7 @@ ballade	bVlA1d	C	19
 ballade royal	bVlA2d rQ1Vl	P	19
 balladry	ba1lVdri	W	17
 ballads	ba1lVdz	C	32	n
-balladur	ba1lVdR	C	12
+Balladur	ba1lVdR	C	12
 balladur's	ba1lVdRz	C	0
 ballance	bA1lVns	C	15
 ballantine	ba1lVntY2n	C	15
@@ -25404,7 +25404,7 @@ ban-hound	ba2n hW1nd	P	34	n
 ban-the-bomber	ba2n DV bA1mR	P	38	n
 Banaba	bVnA1bV	W	12
 banacci	bVnA1Ci	C	0
-banach	ba1nVk	C	15
+Banach	ba1nVk	C	15
 banal	bVnA1l	CW	29
 banal	bVna1l	W	15
 banal	be1nVl	W	15
@@ -25676,7 +25676,7 @@ bane of someone's existence	be2n Vv sVmwVnz EgzI1stVns	P	32
 bane of someone's life	be2n Vv sVmwVnz lY1f	P	32
 baned	be1nd	W	0
 banegas	ba1nIgVz	C	0
-banerjee	bVnR1Ji	C	15
+Banerjee	bVnR1Ji	C	15	n
 banes	be1nz	CW	21
 banesto	bVnE1sto	C	0
 banesto's	bVnE1stoz	C	0
@@ -25991,7 +25991,7 @@ bannister	ba1nIstR	C	29	n
 bannister	ba1nVstR	C	29	n
 bannock	ba1nVk	W	22
 Bannockburn	ba1nVkbR2n	W	23
-bannon	ba1nVn	C	15
+Bannon	ba1nVn	C	15	n
 banns	ba1nz	W	20
 banns of marriage	ba2nz Vv mE1rIJ	P	20
 banoffee	bVnO1fi	U	16
@@ -26233,7 +26233,7 @@ Barak	bE1rak	U	27	n
 Barak	bVrA1k	U	27	n
 barakat	bA1rVkA2t	C	15
 baram	bE1ram	C	15
-baran	bArA1n	C	15
+Baran	bArA1n	C	15
 baranek	ba1rVnIk	C	0
 Baranivka	bVrA1nIvkV	W	0
 baranoski	bRVnW1ski	C	0
@@ -26655,7 +26655,7 @@ barings'	bE1rINz	C	15
 baris	bA1riz	C	20
 baris	ba1rIs	W	15
 baris	ba1riz	W	15
-barish	bE1rIS	C	15
+Barish	bE1rIS	C	15
 barista	bAri1stV	C	30	in
 barista	bVrI1stV	U	30	in
 barista	bVri1stV	U	30	in
@@ -26969,7 +26969,7 @@ barrages	bRA1ZIz	C	23
 barramundi	ba2rVmV1ndi	B	19
 barranca	bRra1NkV	B	17
 barranco	bArA1nko	C	17
-barras	ba1rVz	C	15
+Barras	ba1rVz	C	15
 Barrass	ba1rVs	B	14
 Barrasso	bA2rA1so	C	17
 Barrasso	bVrA1so	W	17
@@ -27144,7 +27144,7 @@ barrone	bRo1n	C	0
 barroom	bA1rru2m	C	22
 barroom brawl	bA2rru2m brO1l	P	22
 barros	bA1roz	C	15
-barroso	bA2ro1so	C	15
+Barroso	bA2ro1so	C	15
 Barrow	ba1ro	CU	15	n
 barrow	bE1ro	CW	34	n
 barrow	ba1ro	CE	34	n
@@ -27210,7 +27210,7 @@ barthel	bA1rTVl	C	15
 barthelemy	bA2rTE1lVmi	C	15
 barthelme	bA1rTVlm	C	15
 barthelme's	bA1rTVlmz	C	0
-barthes	bA1rTs	C	15
+Barthes	bA1rTs	C	15
 barthold	bA1rTo2ld	C	14
 bartholdy	bArTo1ldi	C	12
 Bartholin abscess	bA1rtolInz a1bsE2s	U	14
@@ -28149,7 +28149,7 @@ batik	bVti1k	CW	25	nv
 batiks	bVti1ks	C	13
 batiks	ba1tIks	C	13
 bating	be1tIN	W	18
-batista	bVtI1stA	C	15
+Batista	bVtI1stA	C	15	n
 batista's	bVtI1stAz	C	15
 batiste	bVtI1stV	C	21
 batiste	bVti1st	W	15
@@ -28417,7 +28417,7 @@ baulk end	bA2k E1nd	P	21
 baulk line	bA2k lY1n	P	21
 Baum	bO1m	C	15	n
 Baum	bW1m	C	15	n
-bauman	bW1mVn	C	15
+Bauman	bW1mVn	C	15	n
 baumann	bW1mVn	C	15
 baumbach	bW1mbA2k	C	15
 baumberger	bA1mbRgR	C	0
@@ -28556,7 +28556,7 @@ bayadere	bY2VdE1r	B	12
 Bayamón	bYVmo1n	W	11
 Bayan	bA2jA1n	E	24
 bayanjou	bYa1nJu	C	0
-bayar	be1R	C	15
+Bayar	be1R	C	15
 Bayard	be1Rd	CU	15	n
 bayard	be1Rd	CU	28	n
 baybank	be1ba2Nk	C	0
@@ -29998,7 +29998,7 @@ bednarik	bE1dnArIk	C	14
 bednarski	bE1dnArski	C	10
 bednarz	bE1dnArz	C	14
 bedner	bE1dnR	C	0
-bednorz	bE1dnOrz	C	0
+Bednorz	bE1dnOrz	C	0
 bedo	bVdu1	W	10
 Bedok	bVdo1k	B	18
 bedolla	bEdo1lV	C	0
@@ -30714,7 +30714,7 @@ behrend	bE1rEnd	C	15
 behrends	bE1rEndz	C	13
 behrendt	bE1rInt	C	15
 behrens	bE1rVnz	C	15
-behring	bE1rIN	C	15
+Behring	bE1rIN	C	15
 behringer	bE1rINR	C	15
 behringwerke	bE1rI2NwRk	C	0
 behrle	bE1rVl	C	0
@@ -31876,7 +31876,7 @@ bentz	bE1nts	C	15
 bentzel	bE1ntzVl	C	0
 bentzen	bE1ntzVn	C	14
 benumb	binV1m	WE	0
-benveniste	bEnvEni1sti	C	15
+Benveniste	bEnvEni1sti	C	15
 benvenuti	bEnvEnu1ti	C	15
 benvenuto	bEnvEnu1to	C	15
 benware	bE1nwEr	C	0
@@ -32115,7 +32115,7 @@ bergum	bR1gVm	C	0
 bergy	bR1gi	W	17
 bergy bit	bR2gi bI1t	P	17
 berhow	bR1ho	C	0
-beria	bE1riV	C	15
+Beria	bE1riV	C	15
 berimbau	bE2rImbW1	W	12
 bering	bE1rIN	C	15	v
 Bering Sea	bE1rIN si1	W	29
@@ -32146,7 +32146,7 @@ berkland	bR1klVnd	C	0
 berklee	bR1kli	C	15
 berkley	bR1kli	C	15
 berkline	bR1klY2n	C	0
-berkman	bR1kmVn	C	15
+Berkman	bR1kmVn	C	15
 berko	bR1ko	C	16
 berkoff	bR1kOf	C	15
 berkovitz	bR1kVvIts	C	0
@@ -32187,7 +32187,7 @@ Berlioz	bR1lioz	C	15
 berlitz	bRlI1ts	C	15
 berlottes	bRlA1ts	C	0
 berls	bR1lz	C	0
-berlusconi	bR2lVsko1ni	C	15
+Berlusconi	bR2lVsko1ni	C	15	n
 berlusconi's	bR2lVsko1niz	C	15
 berm	bR1m	CW	24
 berman	bR1mVn	C	15
@@ -32415,7 +32415,7 @@ besaiel	bIse1l	W	0
 besalted	bIsA1ltId	W	0
 besan	be1sVn	W	14
 besancon	bIsa1nkVn	C	15
-besant	bE1zVnt	C	15
+Besant	bE1zVnt	C	15
 Besançon	bVza1nsVn	U	17
 besatcheled	bIsa1CVld	B	0
 besaw	bi1sO	C	0
@@ -32703,8 +32703,8 @@ betakeren	bE2tVkE1rVn	C	0
 betalain	bi1tVlen	W	0
 betamax	be1tVmaks	C	15
 betamethasone	be2tVmE1TVso2n	U	17
-betancourt	bE1tVnkOrt	C	15
-betancur	bVta1NkR	C	15
+Betancourt	bE1tVnkOrt	C	15
+Betancur	bVta1NkR	C	15
 betar	bE1tAr	C	14
 betas	be1tVz	C	25	nv
 betaseron	be2tVsE1rA2n	C	0
@@ -32967,7 +32967,7 @@ bever	bi1vR	UE	19
 beverage	bE1vRIJ	CU	37	n
 beverage	bE1vrIJ	CU	37	n
 beverages	bE1vrIJIz	C	36	n
-beveridge	bE1vRIJ	C	15
+Beveridge	bE1vRIJ	C	15	n
 Beverley	bE1vRli	CW	30	n
 beverlin	bE1vRlIn	C	0
 Beverly	bE1vRli	C	39	n
@@ -32978,7 +32978,7 @@ bevil	bE1vVl	C	15
 bevilacqua	bEvilA1kwV	C	15
 bevill	bE1vVl	C	15
 beville	bi1vIl	C	14
-bevin	bE1vIn	C	15
+Bevin	bE1vIn	C	15	n
 bevington	bE1vINtVn	C	15
 bevins	bE1vInz	C	15
 Bevis	bE1vIs	CW	21
@@ -33160,7 +33160,7 @@ Bhutan	bu2ta1n	CW	31	n
 Bhutan	butA1n	W	31	n
 Bhutanese	bUtA2ni1z	B	24
 Bhutanese	bu2tVni1z	B	24
-bhutto	bu1to	C	15
+Bhutto	bu1to	C	15	n
 bhutto's	bu1toz	C	15
 bi	bY1	CW	40	n
 bi	bi1	UE	40	n
@@ -34065,7 +34065,7 @@ bikini top	bIki2ni tA1p	P	37
 bikini wax	bIki2ni wa1ks	P	35
 bikini waxing	bIki2ni wa1ksIN	P	29
 bikinis	bVki1niz	C	30	n
-biko	bi1ko	C	15
+Biko	bi1ko	C	15
 biko's	bi1koz	C	13
 bil	bI1l	C	15	n
 bila	bi1lV	C	15
@@ -34099,7 +34099,7 @@ bilby	bI1lbi	C	15
 bild	bI1ld	C	15
 bilderback	bY1ldRbak	C	0
 bildner	bI1ldnR	C	0
-bildt	bI1lt	C	15
+Bildt	bI1lt	C	15
 bildt's	bI1lts	C	0
 bildungsroman	bI1ldUNzro2mVn	W	19
 bildungsroman	bI1ldUNzromA2n	W	19
@@ -36355,7 +36355,7 @@ blacker	bla1kR	CU	27	n
 blackerby	bla1kRbi	C	0
 blackest	bla1kVst	CW	27
 blacketer	bla1kitR	C	0
-blackett	bla1kIt	C	15
+Blackett	bla1kIt	C	15
 Blackface	bla1kfe2s	W	15	n
 blackface	bla1kfe2s	W	29	n
 blackfellow	blA1kfElo	B	0
@@ -36562,7 +36562,7 @@ blammo	bla1mo	U	14
 blammy	bla1mi	W	0
 blampied	bla1mpid	C	0
 blan	bla1n	C	15
-blanc	bla1Nk	C	15	n
+Blanc	bla1Nk	C	15	n
 blanc de Chine	bla2Nk di2 CY1n	P	25
 blanc de chine	bla2Nk di2 CY1n	P	25
 blanc mange	bla2Nk me1nJ	P	24
@@ -37158,7 +37158,7 @@ blink-and-you-miss-it	blI2Nk Vnd ju mI1s It	P	37
 blink-eyed	blI2Nk Y1d	P	35
 blinkard	blI1NkRd	W	0
 blinked	blI1Nkt	C	30	v
-blinken	blI1NkVn	C	15
+Blinken	blI1NkVn	C	15
 blinker	blI1NkR	U	24
 blinker fluid	blI2NkR flu1Id	P	23
 blinkie	blI1Nki	W	0
@@ -38449,7 +38449,7 @@ bluhm	blV1m	C	15
 bluing	blu1IN	C	18
 bluish	blu1IS	CW	29
 bluitt	blu1t	C	0
-blum	blu1m	C	15
+Blum	blu1m	C	15	n
 blumberg	blV1mbRg	C	15
 blume	blu1m	C	25
 blumea	blu1miV	U	10
@@ -39392,7 +39392,7 @@ Bohol	bo1hOl	U	23
 Bohol Sea	bo2hOl si1	P	23
 Boholiubove	bO2hAlju1bAve	E	0
 bohon	bo1hVn	C	0
-bohr	bO1r	C	15	n
+Bohr	bO1r	C	15	n
 bohren	bO1rVn	C	14
 bohrer	bO1rR	C	15
 bohrium	bO1riVm	WE	0
@@ -39868,7 +39868,7 @@ Bonaire	bAnE1r	U	22
 bonanni	bonA1ni	C	12
 bonanno	bonA1no	C	15
 bonanza	bVna1nzV	CW	30	n
-bonaparte	bo1nVpA2rt	C	15
+Bonaparte	bo1nVpA2rt	C	15	n
 bonaparte's	bo1nVpA2rts	C	15
 Bonapartism	bo2nVpA1rtI2zVm	U	12
 bonar	bo1nR	C	15
@@ -39928,7 +39928,7 @@ bonderman	bA1ndRmVn	C	13
 bondholder	bA1ndho2ldR	C	18
 bondholders	bA1ndho2ldRz	C	28	n
 bondholders'	bA1ndho2ldRz	C	15
-bondi	bA1ndi	C	15
+Bondi	bA1ndi	C	15	n
 Bondi Beach	bA1ndY biC	B	30
 Bondi Junction	bA1ndY JV1NkSVn	E	29
 bondieuserie	bAndi1VzRi	B	0
@@ -40100,7 +40100,7 @@ boning	bo1nIN	CU	25	n
 boning knife	bo2nIN nY1f	P	25
 boning rod	bo2nIN rA1d	P	25
 bonini	boni1ni	C	13
-bonino	boni1no	C	15
+Bonino	boni1no	C	15
 bonior	bo1niR	C	14
 bonior	bo2nwA1r	C	14
 Bonism	bA1nIzVm	U	0
@@ -40555,7 +40555,7 @@ bookwalter	bU1kwVltR	C	14
 bookworm	bU1kwR2m	C	26	n
 booky	bU1ki	W	17
 Boolarra	bVlV1rV	B	0
-boole	bu1l	C	15
+Boole	bu1l	C	15
 Boolean	bu1lIVn	E	15	n
 Boolean	bu1liVn	U	15	n
 Boolean	bulI1Vn	E	15	n
@@ -40824,7 +40824,7 @@ bopeep	bopi1p	C	0
 bopera	bopE1rV	C	0
 bopha	bo1fV	C	15
 bophuthatswana	bo2fuTAtswA1nV	C	15
-bopp	bA1p	C	15
+Bopp	bA1p	C	15
 bopper	bA1pR	C	21
 boppers	bA1pRz	C	19
 boppy	bA1pi	B	17
@@ -41097,7 +41097,7 @@ borre	bO1r	C	15
 borrego	bOrE1go	C	15
 borrel	bA1rVl	U	12
 borrel	bO1rVl	U	12
-borrell	bOre1l	C	15
+Borrell	bOre1l	C	15
 borrelli	bOrE1li	C	15
 borrello	bO2rE1lo	C	12
 borrero	bOrE1ro	C	15
@@ -41299,7 +41299,7 @@ boston's	bO1stVnz	C	15
 Bostonian	bO2sto1niVn	C	22
 bostonians	bA1stoniVnz	C	15
 bostra	bA1strV	C	0
-bostrom	bA1strVm	C	15
+Bostrom	bA1strVm	C	15
 bostwick	bA1stwIk	C	15
 bosu ball	bo1su bO2l	W	17
 Boswell	bA1zwEl	CU	29	n
@@ -41361,13 +41361,13 @@ both-handedly	bo2T ha1ndIdli	P	32
 both-handedness	bo2T ha1ndVdnVs	P	26	n
 both-sided	bo2T sY1dId	P	39
 both-sides	bo2T sY1dz	P	47	v
-botha	bA1TV	C	15
-botha	bo1tV2	C	15
+Botha	bA1TV	C	15	n
+Botha	bo1tV2	C	15	n
 botha's	bA1TVz	C	15
 botha's	bo1tV2z	C	15
 botham	bA1TVm	C	15
 botham's	bA1TVmz	C	13
-bothe	bo1D	C	15
+Bothe	bo1D	C	15
 bothell	bA1TVl	C	15
 bother	bA1DR	CUWE	44	nv
 bother one's arse	bA2DR wVnz A1rs	P	34
@@ -41727,7 +41727,7 @@ boulder clay	bo2ldR kle1	P	36
 boulder holder	bo2ldR ho1ldR	P	36
 boulder opal	bo2ldR o1pVl	P	31
 boulders	bo1ldRz	C	32	n
-boulding	bo1ldI2N	C	15
+Boulding	bo1ldI2N	C	15
 boule	bu1l	CW	21
 bouler	bW1lR	C	0
 boulet	bulE1t	C	15
@@ -41886,7 +41886,7 @@ Bourges	bU1rZ	U	20
 bourget	bUrZE1t	C	15
 bourgie	bu1Zi	E	15
 bourgoin	bUrgQ1n	C	13
-bourguiba	bOrgwi1bV	C	15
+Bourguiba	bOrgwi1bV	C	15
 bourguignon	bO2rginjo1n	U	21
 bourguignon	bU2rginjo1n	C	21
 bourguignonne	bO2rginjA1n	U	0
@@ -42144,7 +42144,7 @@ bowl-off	bo2l O1f	P	46	n
 bowl-out	bo2l W1t	P	46	n
 bowl-shaped	bo2l Se1pt	P	42
 bowland	bo1lVnd	C	15
-bowlby	bo1lbi	C	15
+Bowlby	bo1lbi	C	15
 bowlds	bo1ldz	C	0
 bowled	bo1ld	CU	32	v
 bowled around the legs	bo2ld VrW2nd DV lE1gz	P	32
@@ -42488,7 +42488,7 @@ boykisser	bQ1kI2sR	U	0
 boyko	bQ1ko	C	15
 boylan	bQ1lVn	C	15
 boyland	bQ1lVnd	C	15
-boyle	bQ1l	C	15
+Boyle	bQ1l	C	15	n
 boylen	bQ1lVn	C	15
 boyles	bQ1lz	C	15
 boyleston	bQ1lstVn	C	0
@@ -43138,7 +43138,7 @@ brands	bra1ndz	C	43	nv
 brands'	bra1ndz	C	15
 brands's	bra1ndzIz	C	0
 brandstetter	bra1ndstItR	C	0
-brandt	bra1nt	C	15
+Brandt	bra1nt	C	15	n
 brandtner	bra1ntnR	C	0
 brandvold	bra1ndvo2ld	C	0
 brandwein	bra1ndwY2n	C	11
@@ -43334,7 +43334,7 @@ brats	bra1ts	CWE	29	in
 bratsch	bra1C	C	0
 Bratt	bra1t	CU	21
 bratt pan	bra2t pa1n	P	21
-brattain	brVte1n	C	12
+Brattain	brVte1n	C	12
 brattaslava	brA2tVslA1vV	C	0
 brattaslava's	brA2tVslA1vVz	C	0
 bratten	bra1tVn	C	10
@@ -44125,7 +44125,7 @@ brennecke	brE1nIk	C	12
 brenneke	brE1nVki	C	0
 brenneman	brE1nmVn	C	15
 Brennen	brE1nVn	C	20
-brenner	brE1nR	C	15
+Brenner	brE1nR	C	15	n
 brenning	brE1nIN	C	0
 Brennschluss	brE1nSlUs	W	0
 brensinger	brE1nsINR	C	0
@@ -44272,7 +44272,7 @@ Briana	bria1nV	C	25	n
 briana's	briA1nVz	C	12
 briana's	bria1nVz	C	12
 briancon	brY1VnsVn	C	11
-briand	brY1Vnd	C	15
+Briand	brY1Vnd	C	15
 Brianna	briA1nV	U	29	n
 Brianna	bria1nV	CU	29	n
 brianna's	bria1nVz	C	15
@@ -44487,7 +44487,7 @@ bridging loan	brI2JIN lo1n	P	32
 bridging plate	brI2JIN ple1t	P	32
 bridging visa	brI2JIN vi1zV	P	32
 bridgings	brI1JINz	W	0
-bridgman	brI1JmVn	C	15
+Bridgman	brI1JmVn	C	15
 bridgmanite	brI1JmVnYt	W	0
 bridi	bri1di	W	0
 bridie	brI1di	C	22
@@ -45185,7 +45185,7 @@ brocket	brA1kIt	B	18
 brockett	brA1kIt	C	15
 brockhaus	brA1khW2s	C	15
 brockhoff	brA1khO2f	C	12
-brockhouse	brA1khW2s	C	11
+Brockhouse	brA1khW2s	C	11
 brockie	brA1ki	C	15
 brockington	brA1kINtVn	C	15
 brockle	brA1kVl	W	0
@@ -46012,7 +46012,7 @@ bruncor	brV1nkO2r	C	0
 brundage	brV1ndIJ	C	15
 Brundidge	brV1ndIJ	CU	10
 brundige	brV1ndIg	C	0
-brundtland	brV1ntlVnd	C	15
+Brundtland	brV1ntlVnd	C	15
 brune	bru1n	C	15
 bruneau	brVno1	C	15
 Brunei	brunY1	CU	32	n
@@ -46025,7 +46025,7 @@ brunella	bru2nE1lV	C	11
 brunelle	brVnE1l	C	15
 brunelli	brunE1li	C	14
 Brunellian	brunE1liVn	W	0
-bruner	bru1nR	C	15
+Bruner	bru1nR	C	15	n
 brunet	brunE1t	CU	24
 brunett	brV1nIt	C	10
 brunetta	brunE1tV	C	13
@@ -46254,7 +46254,7 @@ Brysonian	brYso1niVn	U	0
 Brython	brI1TVn	W	0
 Brythonic	brITA1nIk	B	15
 brzeska	brE1zkA2	C	0
-brzezinski	brIzI1nski	C	15
+Brzezinski	brIzI1nski	C	15
 brzoska	bro1skV	C	0
 brzozowski	brVzO1fski	C	12
 brzycki	brI1tski	C	0
@@ -46365,7 +46365,7 @@ bubby bush	bU2bi bU1S	P	21
 bubeck	bu1bEk	C	0
 bubel	bu1bVl	C	0
 bubele	bU1bVlV	W	0
-buber	bu1bR2	C	15
+Buber	bu1bR2	C	15
 bubier	bju1biR	C	0
 bubinga	bVbI1NgV	C	12
 bubka	bV1bkV	C	15
@@ -46455,7 +46455,7 @@ buchman	bV1kmVn	C	15
 buchmann	bV1kmVn	C	14
 buchmiller	bU1kmVlR	C	0
 buchmiller	bV1kmVlR	C	0
-buchner	bV1knR	C	15
+Buchner	bV1knR	C	15
 bucholtz	bU1kolts	C	11
 bucholtz	bV1kolts	C	11
 bucholz	bV1kolz	C	15
@@ -47172,7 +47172,7 @@ bukavu's	bukA1vu2z	C	0
 Bukele	buke1le	U	0
 buker	bju1kR	C	0
 Bukhara	bukA1rV	W	21
-bukharin	bV1khRIn	C	15
+Bukharin	bV1khRIn	C	15
 Bukharinism	bUkA1rInIzVm	W	0
 Bukit Merah	bU1kIt mE2rA	W	21
 bukkake	bu2kA1kE2	C	23
@@ -47778,7 +47778,7 @@ bungalow	bV1NgVlo2	CU	33	n
 bungalows	bV1NgVlo2z	C	28	n
 bungard	bV1NgRd	C	0
 Bungay	bV1Ngi	W	19
-bunge	bV1nJ	C	15
+Bunge	bV1nJ	C	15
 bungee	bV1nJi	CW	28	nv
 bungee cord	bV2nJi kO1rd	P	28
 bungee jump	bV2nJi JV1mp	P	28
@@ -49524,7 +49524,7 @@ buzan	bju1zVn	C	14
 buzard	bjuzA1rd	C	0
 buzbee	bV1zbi2	C	15
 buzby	bV1zbi	C	14
-buzek	bu1zEk	C	11
+Buzek	bu1zEk	C	11
 buzz	bV1z	CWE	40	nv
 buzz about	bV2z VbW1t	P	40
 buzz bar	bV2z bA1r	P	40
@@ -49899,7 +49899,7 @@ byrle	bY1rVl	C	0
 byrn	bI1rn	C	13
 Byrne	bR1n	C	35	n
 byrne's	bR1nz	C	15
-byrnes	bR1nz	C	15
+Byrnes	bR1nz	C	15	n
 byrnie	bR1ni	U	0
 byrns	bI1rnz	C	13
 byrom	bY1rVm	C	15
@@ -50262,7 +50262,7 @@ Cabot	ka1bVt	CW	30	n
 cabot's	ka1bVts	C	15
 cabotage	kA1bVtAZ	U	15
 cabotage	ka1bVtIJ	CU	15
-cabral	ka1brVl	C	15
+Cabral	ka1brVl	C	15
 cabrales	kAbrA1lEs	C	15
 cabrall	kVbrA1l	C	0
 cabrall's	kVbrA1lz	C	0
@@ -50557,7 +50557,7 @@ caesium hydroxide	si2ziVm hYdrA1ksYd	P	21
 caesium iodide	si2ziVm Y1VdY2d	P	20
 caesium nitrate	si2ziVm nY1tre2t	P	22
 caesura	sVZU1rV	U	17
-caetano	kVtA1no	C	15
+Caetano	kVtA1no	C	15
 caf	ka1f	WE	29	n
 caf up	ka2f V1p	P	29
 CAFAB	ke1fab	WE	0
@@ -51370,7 +51370,7 @@ caller's	kO1lRz	C	15
 caller-ID	kO2lR Ydi1	P	36	n
 callers	kO1lRz	C	31	n
 callery	ka1lRi	C	15
-calles	ke1lz	C	15
+Calles	ke1lz	C	15
 callet	ka1lVt	W	11
 calley	ka1li	C	15
 Callias	ka1liVs	W	14
@@ -53745,7 +53745,7 @@ cardoni	kArdo1ni	C	0
 cardoon	kArdu1n	CW	13
 cardosa	kArdo1sV	C	0
 cardosi	kArdo1si	C	0
-cardoso	kArdo1so	C	15
+Cardoso	kArdo1so	C	15
 cardoso's	kArdo1soz	C	0
 cardoza	kArdo1zV	C	15
 cardozo	kArdo1zo	C	15
@@ -54365,7 +54365,7 @@ carragher	ka1rVgR	C	15
 carraher	ka1rVhR	C	0
 carranco	kArA1nko	C	0
 carrano	kA2rA1no	C	13
-carranza	kArA1nzV	C	15
+Carranza	kArA1nzV	C	15
 carrara	kA2rA1rV	C	15
 carras	ka1rVz	C	13
 carrasco	kArA1sko	C	15
@@ -54594,7 +54594,7 @@ carson's	kA1rsVnz	C	15
 Carsonian	kArso1niVn	U	0
 carstarphen	kArstA1rfVn	C	0
 carsten	kA1rstVn	C	15
-carstens	kA1rstVnz	C	15
+Carstens	kA1rstVnz	C	15
 carstensen	kArstE1nsVn	C	15
 Carstensz Pyramid	kA1rstVns pI1rVmId	U	0
 carswell	kA1rswE2l	C	15
@@ -55137,7 +55137,7 @@ cassidy's	ka1sIdiz	C	15
 Cassie	ka1si	CU	33	n
 cassin	ka1sIn	C	15
 cassinelli	kAsinE1li	C	0
-cassini	kVsi1ni	C	15
+Cassini	kVsi1ni	C	15	n
 cassini's	kVsi1niz	C	15
 cassino	kVsi1no	C	23
 Cassiopeia	kV2siVpi1V	C	24
@@ -55288,8 +55288,8 @@ Castilianism	kastI1ljVnIzVm	W	0
 castilla	kAstI1lV	C	15
 castille	ka2stI1l	C	15
 castilleja	kAstile1jV	C	13
-castillo	ka2stI1lo	C	15
-castillo	ka2sti1o	C	15
+Castillo	ka2stI1lo	C	15	n
+Castillo	ka2sti1o	C	15	n
 castillon	ka1stIlAn	C	14
 castine	kAsti1ni	C	15
 casting	ka1stIN	CUE	42	n
@@ -56118,7 +56118,7 @@ cattalo	ka1tVlo	U	0
 cattanach	ka1tVnaC	C	13
 cattaneo	kAtA1nio	C	15
 cattani	kAtA1ni	C	15
-cattell	kVtE1l	C	15
+Cattell	kVtE1l	C	15
 cattelo	ka1tVlo	U	0
 catterall	ka1tRO2l	C	15
 catterson	ka1tRsVn	C	11
@@ -57546,7 +57546,7 @@ ceres	sI1riz	C	29	n
 Ceresian	sVri1ziVn	W	0
 cerezo	sE2re1zo	C	15
 cerezo	sRe1zo	C	15
-cerf	sR1f	C	15
+Cerf	sR1f	C	15
 ceridian	sRI1diVn	C	14
 cerino	CRi1no	C	0
 cerio	CE1rio	C	0
@@ -59388,9 +59388,9 @@ chaver	kAvE1r	U	0
 chavers	Ce1vRz	C	0
 chaves	Ce1vz	C	15
 chavette	CavE1t	W	0
-chavez	Ca1vE2z	C	15
-chavez	SA1vEz	C	15
-chavez	SVvE1z	C	15
+Chavez	Ca1vE2z	C	15	n
+Chavez	SA1vEz	C	15	n
+Chavez	SVvE1z	C	15	n
 chavin	Ce1vIn	C	15
 chavira	kAvI1rV	C	10
 chavis	Ca1vIs	C	15
@@ -60124,7 +60124,7 @@ Cheriton	CE1rItVn	W	16
 chermak	CR1mVk	C	0
 chern	CR1n	C	15
 cherne	CR1n	C	10
-chernenko	CRnE1Nko	C	15
+Chernenko	CRnE1Nko	C	15
 cherney	CR1ni	C	15
 chernick	CR1nIk	C	10
 Chernihiv	CRni1hiv	U	12
@@ -60134,7 +60134,7 @@ Chernivtsi	CRnivtsi1	U	16
 Chernobyl	CRno1bVl	CU	31	n
 chernobyl's	CRno1bVlz	C	12
 chernoff	kR1nOf	C	15
-chernomyrdin	CE2rnomI1rdVn	C	14
+Chernomyrdin	CE2rnomI1rdVn	C	14
 chernomyrdin's	CE2rnomI1rdVnz	C	0
 chernow	CR1no	C	15
 chernozem	CR1nVzE2m	W	13
@@ -61444,7 +61444,7 @@ chipsoft	CI1psO2ft	C	0
 chiquita	CIki1tV	C	15
 chiquita	CIkwi1tV	C	15
 chiquita	kIkwi1tV	C	15
-chirac	SIra1k	C	15
+Chirac	SIra1k	C	15
 chirac's	SIra1ks	C	14
 chiral	kY1rVl	WE	27
 chiral center	kY2rVl sE1nR	P	27
@@ -61898,7 +61898,7 @@ chomper	CA1mpR	U	15
 chomping	CA1mpIN	C	26	nv
 chomps	CA1mps	E	15
 chomps	CO1mps	U	18
-chomsky	CA1mski2	C	15
+Chomsky	CA1mski2	C	15	n
 Chomsky hierarchy	CA1mski hY1RArki	B	29
 Chomsky hierarchy	CA1mski hY1rArki	B	29
 CHON	CA1n	CW	24
@@ -62892,7 +62892,7 @@ ciaccio	CO1Cio	C	0
 Cialis	si2A1lVs	C	26	n
 Cialis	sia1lIs	U	26	n
 ciampa	CO1mpV	C	15
-ciampi	CO1mpi	C	13
+Ciampi	CO1mpi	C	13
 cian	Si1n	C	15
 cianci	CO1nCi	C	15
 ciancio	CO1nCio	C	11
@@ -62902,7 +62902,7 @@ cianciulli	CO1nCuli	C	0
 ciani	CO1ni	C	14
 Cianjhen	Cji2nJV1n	E	0
 Cianjin	Cji2nJI1n	E	0
-ciano	CiA1no	C	15
+Ciano	CiA1no	C	15
 ciao	CW1	CW	28	n
 ciao bella	CW2 bE1lV	P	28
 ciaobella	CW2bE1lV	C	0
@@ -64451,7 +64451,7 @@ claus'	klO1z	C	15
 clause	klO1z	CU	40	n
 clausell	klO1zVl	C	0
 clausen	klW1sVn	C	15
-clauser	klO1zR	C	12
+Clauser	klO1zR	C	12
 clauses	klO1zIz	C	34	nv
 clauses	klO1zVz	C	34	nv
 Clausewitz	klO1zVwIts	W	22
@@ -64794,7 +64794,7 @@ cleft palate	klE2ft pa1lVt	P	28
 cleft sentence	klE2ft sE1ntVns	P	29
 cleft stick	klE2ft stI1k	P	29
 cleg	klE1g	W	12
-clegg	klE1g	C	15	n
+Clegg	klE1g	C	15	n
 cleghorn	klE1ghRn	C	15
 cleidoic	klYdo1Ik	W	0
 cleistothecial	klYstoTi1SVl	W	0
@@ -67221,7 +67221,7 @@ coda	ko1dV	CU	27	n
 codag	ko1da1g	C	0
 coday	ko1de1	C	0
 CODBLOPS	kA1dblAps	B	0
-codd	kA1d	C	15
+Codd	kA1d	C	15
 codding	kA1dIN	C	13
 coddington	kA1dINtVn	C	15
 coddle	kA1dVl	CU	23
@@ -68418,7 +68418,7 @@ colling	kA1lIN	C	15
 collinge	kA1lInJ	C	15
 collings	kA1lINz	C	15
 collingsworth	kVlI1NzwRT	C	14
-collingwood	kA1lINwU2d	C	15
+Collingwood	kA1lINwU2d	C	15	n
 Collins	kA1lInz	CU	15	n
 collins	kA1lInz	CU	42	n
 collins'	kA1lInz	C	15
@@ -68468,8 +68468,8 @@ colloquialize	kVlo1kwiVlY2z	B	0
 colloquially	kVlo1kwiVli	U	27
 colloquium	kVlo1kwiVm	CE	25	n
 colloquy	kA1lVkwi	C	19
-collor	kA1lR	C	15
-collor	kO1lR	C	15
+Collor	kA1lR	C	15
+Collor	kO1lR	C	15
 collor's	kA1lRz	C	0
 collosio	kVlo1sio	C	0
 collosio's	kVlo1sioz	C	0
@@ -72307,7 +72307,7 @@ connoisseur	kA2nVsU1r	U	29	n
 connoisseurs	kA2nVsR1z	C	26	n
 connoisseurship	kA2nVsR1SI2p	W	16
 connole	kA1nVl	C	0
-connolly	kO1nVli	C	15
+Connolly	kO1nVli	C	15	n
 connon	kA1nVn	C	15
 Connop	kA1nVp	B	0
 Connor	kA1nR	CU	38	n
@@ -74271,7 +74271,7 @@ copenhaver	kVpE1nhVvR	C	14
 copepod	ko1pIpAd	W	19
 copernican	kVpR1nVkVn	C	15
 copernicium	kopRnI1siVm	WE	0
-copernicus	kVpR1nVkVs	C	15
+Copernicus	kVpR1nVkVs	C	15	n
 copes	ko1ps	C	25	nv
 copetas	kVpe1tVs	C	0
 copetas	kVpi1tVs	C	0
@@ -74998,7 +74998,7 @@ cornucopia sofa	kO2rnVko2piV so1fV	P	25
 cornute	kOrnju1t	B	0
 Cornwall	kO1rnwOl	CU	38	n
 cornwall's	kO1rnwOlz	C	15
-cornwallis	kOrnwO1lVs	C	15
+Cornwallis	kOrnwO1lVs	C	15	n
 Cornwallis Square	kO1rnwAlIs skwE1r	W	26
 Cornwell	kO1rnwE2l	CU	26	n
 Cornwell	kO1rnwVl	U	26	n
@@ -75204,7 +75204,7 @@ corrales	kRA1lEs	C	15
 corralled	kRa1ld	C	21
 corralling	kRa1lIN	C	18
 corrao	kO1rW	C	0
-correa	kO1riV	C	15
+Correa	kO1riV	C	15	n
 correal	kRri1Vl	B	0
 correale	kO1riVl	C	0
 correct	kRE1kt	C	48	v
@@ -75648,7 +75648,7 @@ cosset	kA1sVt	C	14
 cossette	kVsE1t	C	12
 cossey	kA1si	C	12
 cossid	kA1sId	B	0
-cossiga	kO2si1gV	C	10
+Cossiga	kO2si1gV	C	10
 cossin	kA1sIn	C	0
 cossman	kO1smVn	C	12
 cost	kA1st	C	52	nv
@@ -75960,7 +75960,7 @@ Cottus	kA1tVs	U	12
 cotty	kA1ti	C	12
 cotugno	kotu1gno	C	0
 Cotulla	kVtju1lV	W	12
-coty	ko1ti	C	15
+Coty	ko1ti	C	15
 cotyle	kA1tIli	B	0
 cotyledon	kA2tVli1dVn	U	17
 cotyledon	kO1tVli2dVn	C	17
@@ -76862,7 +76862,7 @@ cousins	kV1zVns	U	40	in
 cousins	kV1zVnz	C	40	in
 cousins	kV1zns	U	40	in
 cousinship	kV1zVnSI2p	W	0
-cousteau	ku2sto1	C	15
+Cousteau	ku2sto1	C	15
 cousteau's	ku2sto1z	C	13
 cousy	ku1zi	C	15
 coutant	kutO1nt	C	0
@@ -77945,7 +77945,7 @@ crawly	krO1li	C	20
 crawmer	krO1mR	C	0
 crawshaw	krO1SO2	C	15
 Crawshay	krO1Se	W	13
-craxi	kra1ksi	C	13
+Craxi	kra1ksi	C	13
 Craxism	kra1ksIzVm	WE	0
 cray	kra1I	W	15	n
 cray	kre1	C	30	n
@@ -78440,7 +78440,7 @@ creme soda	kri2m so1dV	P	31
 creme-y	kri2m wY1	P	31
 cremeans	krE1mVnz	C	0
 cremeens	krImi1nz	C	0
-cremer	kri1mR	C	15
+Cremer	kri1mR	C	15
 cremin	krE1mIn	C	15
 crenarchaeote	krInA1rkiot	B	0
 crenate	kri1net	W	14
@@ -78522,7 +78522,7 @@ cressey	krE1si	C	15
 Cressidian	krEsI1diVn	W	0
 cressler	krE1slR	C	0
 cressman	krE1smVn	C	15
-cresson	krE1sVn	C	15
+Cresson	krE1sVn	C	15
 cresswell	krE1swE2l	C	15
 cressy	krE1si	CW	20
 crest	krE1st	CW	36	nv
@@ -79089,7 +79089,7 @@ croats	kro1A2ts	C	15
 croc	krA1k	CU	30	n
 croc-off	krA2k O1f	P	30	n
 crocco	krA1ko	C	11
-croce	kro1Ci	C	15
+Croce	kro1Ci	C	15	n
 croceate	kro1siet	U	0
 crochet	kroSe1	CU	32	nv
 crochet hook	kroSe2 hU1k	P	32
@@ -79188,7 +79188,7 @@ croner	kro1nR	C	13
 croney	kro1ni	C	0
 Cronian	kro1niVn	U	0
 cronies	kro1niz	C	30	n
-cronin	kro1nIn	C	15
+Cronin	kro1nIn	C	15	n
 cronk	krA1Nk	C	15
 cronkhite	krA1NkhY2t	C	11
 cronkite	krA1NkY2t	C	15
@@ -81191,7 +81191,7 @@ cuntwaffle	kV1ntwO2fVl	U	0
 cunty	kV1nti	W	20
 cuny	kju1ni	C	15	n
 cuoco	kwo1ko	C	15
-cuomo	kwo1mo	C	15
+Cuomo	kwo1mo	C	15	n
 cuomo's	kwo1moz	C	15
 Cuomosexual	kwo2mosE1kSuVl	W	0
 cuong	kwO1N	C	15
@@ -83903,7 +83903,7 @@ Dantean	dA1nteIn	U	10
 Dantean	dA1ntiIn	U	10
 Dantesque	dAntE1sk	W	0
 dantin	da1ntIn	C	0
-danton	da1ntVn	C	15	v
+Danton	da1ntVn	C	15	n
 dantoni	dAnto1ni	C	0
 dantonio	da2nto1nio	C	15
 dantrell	da2ntrE1l	C	0
@@ -83933,7 +83933,7 @@ Daocheng	dW2CV1N	E	0
 Daoism	dW1IzVm	W	20
 Daoism	tW1IzVm	W	20
 Daoist	dW1Ist	W	21
-daoud	dW1d	C	15
+Daoud	dW1d	C	15
 daoust	dW1st	C	15
 Daozang	dW2za1N	W	0
 dap	da1p	W	28	nv
@@ -84759,7 +84759,7 @@ Davidman	de1vVdmVn	W	12
 davidoff	de1vIdOf	C	15
 davidow	da1vIdo	C	13
 davids	de1vIdz	C	15
-davidson	de1vIdsVn	C	15
+Davidson	de1vIdsVn	C	15	n
 davidson's	de1vIdsVnz	C	15
 Davie	de1vi	C	28	n
 davies	de1viz	C	39	n
@@ -84781,7 +84781,7 @@ davis'	de1vVsVz	C	15
 davis's	de1vIsIz	C	15
 davis's	de1vVsVz	C	15
 Davison	de1vIsVn	C	31	n
-davisson	da1vIsVn	C	15
+Davisson	da1vIsVn	C	15
 davit	da1vVt	W	19
 davit	de1vIt	W	19
 davitt	dVvI1t	C	15
@@ -84979,7 +84979,7 @@ day-worker	de2 wR1kR	P	44	n
 day-year principle	de2 jI2r prI1nsVpVl	P	43
 Daya	dY1V	C	26	n
 daya's	dY1Vz	C	12
-dayan	de1Vn	C	15
+Dayan	de1Vn	C	15
 daybeam	de1bi2m	W	0
 daybed	de1bE2d	W	18
 dayboard	de1bO2rd	B	0
@@ -85563,7 +85563,7 @@ deagle	di1gVl	W	17
 deahl	di1l	C	0
 deak	di1k	C	15
 deak's	di1ks	C	0
-deakin	di1kIn	C	15
+Deakin	di1kIn	C	15	n
 deakins	di1kInz	C	15
 Deal	di1l	CW	15	n
 deal	di1l	CW	53	nv
@@ -85870,7 +85870,7 @@ deathward	dE1TwRd	B	0
 deathwatch	dE1TwA2C	C	19
 deathwatch beetle	dE2TwA2C bi1tVl	P	19
 deatley	di1tli	C	0
-deaton	di1tVn	C	15
+Deaton	di1tVn	C	15
 deatrick	di1trIk	C	0
 deats	di1ts	C	12
 deauthorize	diO1TRYz	B	0
@@ -85886,7 +85886,7 @@ debacle	dVbA1kVl	CU	32	n
 debacle	debA1kVl	U	32	n
 debacles	debA1kVlz	C	18
 debag	diba1g	W	0
-debakey	dIbe1ki	C	15
+DeBakey	dIbe1ki	C	15
 Debaltseve	dEbA1ltsEve	W	16
 Debaltseve	dEba1ltsEve	E	16
 Debaltsevo	dIbA1ltsIvV	W	0
@@ -86030,7 +86030,7 @@ Deborah	dE1bRV	C	36	n
 Deborah	dE1brV	C	36	n
 deborah's	dE1bRVz	C	15
 deborah's	dE1brVz	C	15
-debord	dIbO1rd	C	15
+Debord	dIbO1rd	C	15
 deborde	dIbO1rd	C	0
 debose	dE1bVs	C	0
 deboss	dIbA1s	B	0
@@ -88571,7 +88571,7 @@ delorey	dE1lRi	C	0
 deloria	dElO1riV	C	15
 deloris	dE1lRIs	C	15
 delorme	dElO1rmi	C	15
-delors	dVlO1rz	C	15
+Delors	dVlO1rz	C	15
 delosh	dE1lVS	C	0
 delosreyes	dElosre1Vz	C	0
 delosreyes	dElosre1z	C	0
@@ -88935,7 +88935,7 @@ demipointe	dE2mipQ1nt	WE	0
 demipointe	dVmipwa1nt	W	0
 demiquaver	dE1mIkwevR	B	0
 demirag	de2mIrA1J	C	0
-demirel	dVmI1rVl	C	15
+Demirel	dVmI1rVl	C	15
 demirep	dE1mIrEp	B	0
 demirjian	dImR1JiVn	C	0
 demisch	dVmI1S	C	0
@@ -89372,7 +89372,7 @@ denne	dE1n	C	15
 dennehy	dE1nIhi	C	15
 dennen	dE1nVn	C	15
 denner	dE1nR	C	17
-dennett	dE1nIt	C	15
+Dennett	dE1nIt	C	15
 denney	dE1ni	C	15
 Denni	dVni1	B	13
 dennie	dE1ni	C	15
@@ -90131,7 +90131,7 @@ derr-brain	dE2r bre1n	P	20
 derrick	dE1rIk	C	35	nv
 derrickson	dE1rIksVn	C	15
 derrico	dIri1ko	C	0
-derrida	dE2ri2dA1	C	15
+Derrida	dE2ri2dA1	C	15	n
 derrig	dE1rIg	C	0
 derring	dE1rIN	C	20
 derring-do	dE2rINdu1	U	20
@@ -90172,7 +90172,7 @@ des res	dE2s re1z	P	37
 des-gamma carboxyprothrombin	dEz ga1mV kArbA2ksiproTrA1mbIn	W	0
 des-moines	dE2mQ1n	C	15
 des-moines	dI2mQ1n	C	15
-desai	desA1i	C	15
+Desai	desA1i	C	15	n
 desalinate	disa1lInet	B	15
 desalination	dise2lIne1SVn	C	28	n
 desalination plant	dise2lIne2SVn pla1nt	P	28
@@ -90181,7 +90181,7 @@ desalvo	dIsA1lvo	C	15
 desanctis	dEsa1NktIs	C	0
 desanti	dIsA1nti	C	0
 desantiago	dIsAntiA1go	C	0
-desantis	desA1ntIs	C	15
+DeSantis	desA1ntIs	C	15
 desanto	dIsA1nto	C	11
 desantos	desA1ntoz	C	0
 desaturase	disa1CRez	B	16
@@ -95416,7 +95416,7 @@ disquieting	dIskwY1VtIN	C	23
 disquietude	dIskwY1Itjud	U	11
 disquietude	dIskwY1Vtud	U	11
 disquisition	dI2skwVzI1SVn	U	16
-disraeli	dIzre1li	C	15
+Disraeli	dIzre1li	C	15	n
 disrecommend	dI2srEkVmE1nd	U	0
 disregard	dI2srIgA1rd	CU	37	nv
 disregarded	dI2srIgA1rdId	CU	31	v
@@ -99153,7 +99153,7 @@ douchebaggery	du1Sba2gRi	W	14
 douchebaggery	du2Sba1gRi	W	14
 douchy	du1Si	W	15
 doud	dW1d	C	15
-doudna	dW1dnV	C	15
+Doudna	dW1dnV	C	15
 douds	dW1dz	C	13
 Doug	dV1g	CUE	40	n
 doug's	dV1gz	C	15
@@ -101900,8 +101900,8 @@ duckweed fern	dV2kwi2d fR1n	P	18
 Duckworth	dV1kwR2T	CW	28	n
 ducky	dV1ki2	CU	27	n
 duclos	dVklo1z	C	15
-ducommun	dukA1mVn	C	12
-ducommun	dukA1mu1n	C	12
+Ducommun	dukA1mVn	C	12
+Ducommun	dukA1mu1n	C	12
 ducote	dVko1t	C	11
 duct	dV1kt	CWE	36	nv
 duct detector	dV2kt dItE1ktR	P	33
@@ -101925,12 +101925,12 @@ ducts	dV1kts	C	31	nv
 ductule	dV1ktjul	W	0
 ductus	dV1ktVs	W	18
 dud	dV1d	CWE	30	n
-duda	du1dV	C	15
+Duda	du1dV	C	15	n
 dudack	du1dak	C	0
 dudar	du1dR	C	0
 dudas	du1dVz	C	14
 dudash	dV1dVS	C	0
-dudayev	dudY1E2v	C	14
+Dudayev	dudY1E2v	C	14
 dudayev's	dudY1E2vz	C	0
 dudd	dV1d	C	0
 dudder	dV1dR	W	0
@@ -101949,7 +101949,7 @@ dudeck	du1dEk	C	0
 dudeck's	du1dEks	C	0
 dudeen	dudi1n	B	0
 dudek	du1dIk	C	15
-duden	du1dVn	C	15
+Duden	du1dVn	C	15
 dudenhoeffer	dV1dInhofR	C	0
 duderus	du1dRVs	W	0
 dudes	dju1dz	C	40	nv
@@ -102103,7 +102103,7 @@ Duisburg	du1sbRg	CUE	22
 Duisburg	du1zbRg	UE	22
 duitsman	du1tsmVn	C	0
 duk	dV1k	C	15
-dukakis	dukA1kIs	C	15
+Dukakis	dukA1kIs	C	15
 dukakis'	dukA1kIs	C	15
 dukakis'	dukA1kIsIz	C	15
 dukakis's	dukA1kIsIz	C	0
@@ -102170,7 +102170,7 @@ dulled	dV1ld	CW	25	v
 dulled	dVld	W	25	v
 dullen	dV1lVn	W	0
 duller	dV1lR	C	24
-dulles	dV1lVs	C	15
+Dulles	dV1lVs	C	15	n
 dullest	dV1lVst	C	22
 dulling	dV1lIN	CW	21
 dullness	dV1lnVs	CW	24
@@ -102795,7 +102795,7 @@ durio	dU1rio	C	11
 duriron	dUrI1rVn	C	0
 duris	djU1rIs	C	15
 durkee	dR1ki	C	15
-durkheim	dR1khY2m	C	15
+Durkheim	dR1khY2m	C	15
 durkheim's	dR1khY2mz	C	0
 durkin	dR1kIn	C	15
 durland	dR1lVnd	C	11
@@ -102818,7 +102818,7 @@ durr-brain	dR2 bre1n	P	22
 durrah	dU1rV	C	0
 durrance	dU1rVns	C	15
 durrant	dUra1nt	C	15
-durrell	dU1rVl	C	15
+Durrell	dU1rVl	C	15
 durrence	dU1rVns	C	0
 durrett	dU1rIt	C	15
 durry	dV1ri	U	11
@@ -103018,7 +103018,7 @@ duumvirate	djuV1mvIrVt	B	11
 duuumb	dV1mb	W	0
 duva	du1vV	C	14
 duval	duva1l	C	15
-duvalier	duva1ljR	C	15
+Duvalier	duva1ljR	C	15
 duvaliers	duve1ljRz	C	0
 duvall	duvA1l	C	15
 duve	du1v	C	13
@@ -103169,7 +103169,7 @@ dwire	dwY1r	C	0
 dwivedi	dwIvE1di	C	15
 dworak	dwR1Vk	C	0
 dworin	dwO1rIn	C	0
-dworkin	dwO1rkIn	C	15
+Dworkin	dwO1rkIn	C	15
 dworsky	dwR1ski	C	13
 DWP	di2dV2bVljupi1	W	26	n
 dwyer	dwY1R	C	15
@@ -104925,7 +104925,7 @@ eccrine gland	E2krIn gla1nd	P	16
 ecdyse	E1kdYz	W	0
 ecdysiast	EkdI1ziast	W	0
 ecesic	Isi1sIk	W	0
-ecevit	E1sVvIt	C	14
+Ecevit	E1sVvIt	C	14
 Echard	E1CArd	W	12
 Echard	E1CRd	CW	12
 echard	E1kA2rd	W	12
@@ -106214,7 +106214,7 @@ ehrich	E1rIk	C	14
 ehrig	E1rIg	C	0
 ehrke	E1rk	C	0
 ehrler	E1rlR	C	11
-ehrlich	R1lIk	C	15
+Ehrlich	R1lIk	C	15	n
 ehrlich's	R1lIks	C	15
 ehrlichman	R1lIkmVn	C	15
 ehrman	E1rmVn	C	15
@@ -106223,7 +106223,7 @@ ehrsam	E1rsVm	C	0
 ehud	EhV1d	C	15
 Eiao	Y1W	W	0
 eiben	Y1bVn	C	11
-eich	Y1k	C	15
+Eich	Y1k	C	15
 eichberg	Y1kbRg	C	0
 eichel	Y1kVl	C	15
 eichelberger	Y1kVlbRgR	C	15
@@ -109739,11 +109739,11 @@ Englee	E2ngVli1	W	0
 englehardt	I1NVlhArt	C	13
 englehart	I1NVlhArt	C	15
 engleman	I1NVlmVn	C	13
-engler	E1NgVlR	C	15
-engler	E1NglR	C	15
+Engler	E1NgVlR	C	15
+Engler	E1NglR	C	15
 engler's	E1NgVlRz	C	0
 engler's	E1NglRz	C	0
-englert	I1NlRt	C	15
+Englert	I1NlRt	C	15
 englerth	I1NlRT	C	0
 engles	I1NVlz	C	15
 englewood	E1NgVlwU2d	C	15
@@ -111278,7 +111278,7 @@ erawan	E1rVwA2n	C	15
 erazo	ErA1zo	C	11
 erb	R1b	C	15
 erbacher	R1bAkR	C	0
-erbakan	RbAkA1n	C	12
+Erbakan	RbAkA1n	C	12
 erbakan's	RbAkA1nz	C	0
 erbamont	R1bVmA2nt	C	0
 erbamont's	R1bVmA2nts	C	0
@@ -111374,7 +111374,7 @@ ergotamine	RgA1tVmin	B	14
 ergotism	R1gVtI2zVm	C	13
 ergotoxine	RgVtA1ksin	B	0
 ergots	R1gVts	C	0
-erhard	E1rhArd	C	15
+Erhard	E1rhArd	C	15
 erhardt	R1hArt	C	15
 erhart	R1hArt	C	15
 erhu	Rhu1	W	15
@@ -112215,7 +112215,7 @@ Estonian	Esto1njVn	U	31	n
 Estonian Sign Language	Esto2niVn sY2n la1NgwIJ	P	31
 estonians	Esto1niVnz	C	15
 estop	IstA1p	B	12
-estrada	EstrA1dV	C	15
+Estrada	EstrA1dV	C	15	n
 estrade	IstrA1d	W	0
 estradiol	E2strVdY1O2l	U	27	n
 estragole	E1strVgo2l	U	0
@@ -113255,8 +113255,8 @@ everblowing	E1vRblo2IN	U	0
 everding	E1vRdIN	C	0
 eveready	E1vRrE2di	C	15
 evered	E1vRd	C	12
-everest	E1vRVst	C	15
-everest	E1vrVst	C	15
+Everest	E1vRVst	C	15	nv
+Everest	E1vrVst	C	15	nv
 everest's	E1vRVsts	C	15
 everest's	E1vrVsts	C	15
 Everester	E1vRIstR	U	0
@@ -113297,7 +113297,7 @@ everman	E1vRmVn	C	14
 evermore	E1vRmO2r	C	27
 evermore	E2vRmO1r	UW	27
 evermore	mO1r	E	27
-evers	E1vRz	C	15
+Evers	E1vRz	C	15	n
 evers'	E1vRz	C	15
 everse	IvR1s	W	0
 everseeing	E1vRsi2IN	U	0
@@ -113583,7 +113583,7 @@ evokes	Ivo1ks	C	31	v
 evokes	ivo1ks	C	31	v
 evoking	Ivo1kIN	C	28	v
 evoking	ivo1kIN	C	28	v
-evola	Evo1lV	C	15
+Evola	Evo1lV	C	15
 evolocumab	E2vVlA1kjVma2b	U	15
 evolution	E2vVlu1SVn	CUE	44	n
 evolution	E2vVlu1Sn	U	44	n
@@ -113620,7 +113620,7 @@ evolving	ivA1lvIN	C	38	v
 evon	E1vVn	C	15
 evonne	E2vA1n	C	15
 evrard	E1vrRd	C	14
-evren	E1vrVn	C	15
+Evren	E1vrVn	C	15
 Evropa	Evro1pV	W	14
 Evrope	E1vrVp	W	0
 Evrope	jE1vrVp	W	0
@@ -115835,7 +115835,7 @@ fable	fe1bVl	CWE	32	n
 fabled	fe1bVld	C	29	v
 fables	fe1bVlz	C	30	nv
 faboo	fabu1	W	0
-fabre	fe1bR	C	15
+Fabre	fe1bR	C	15
 fabri	fa1bri	C	15
 fabric	fa1brIk	CW	41	n
 fabric conditioner	fa2brIk kVndI1SVnR	P	33
@@ -117161,7 +117161,7 @@ fam	fa1m	W	35	n
 fam bam	fa2m ba1m	P	33
 fam trip	fa2m trI1p	P	35
 fam-bam	fa2m ba1m	P	33	n
-fama	fA1mV	C	15
+Fama	fA1mV	C	15
 Famagusta	fA2mVgu1stV	U	19
 famble	fa1mbVl	W	0
 fambro	fa1mbro	C	0
@@ -117821,7 +117821,7 @@ farnes	fA1rnz	C	14
 farney	fA1rni	C	12
 farnham	fA1rnVm	C	15
 farnley	fA1rnli	C	15
-farnsworth	fA1rnswRT	C	15
+Farnsworth	fA1rnswRT	C	15	n
 farnum	fA1rnVm	C	15
 Farnworth	fA1rnwRT	CW	18
 faro	fE1ro	C	26	n
@@ -118450,7 +118450,7 @@ Fauntleroy	fA1ntlRQ	U	22
 Fauntleroy	fO1ntlRQ2	C	22
 fauntroy	fO1ntrQ2	C	15
 faupel	fopE1l	C	0
-faure	fO1r	C	15
+Faure	fO1r	C	15
 faurot	fOro1	C	12
 fauroux	fOru1	C	0
 faus	fO1z	C	12
@@ -119837,7 +119837,7 @@ Ferrari	fRA1ri	C	39	n
 Ferrari	fVrA1ri	U	39	n
 ferrario	fRA1rio	C	13
 ferraris	fRA1rIs	C	15
-ferraro	fRA1ro	C	15
+Ferraro	fRA1ro	C	15
 ferraro's	fRA1roz	C	12
 ferrata	fRrA1tV	B	18
 ferre	fE1r	C	15
@@ -120107,7 +120107,7 @@ fetter	fE1tR	CU	21
 fettered	fE1tRd	CU	18
 fetterhoff	fE1tRhOf	C	0
 fetterly	fE1tRli	C	0
-fetterman	fE1tRmVn	C	15
+Fetterman	fE1tRmVn	C	15
 fetterolf	fE1tRolf	C	0
 fetters	fE1tRz	C	22
 fettes	fE1ts	C	15
@@ -120202,7 +120202,7 @@ fewtrils	fju1trIlz	W	0
 fey	fe1	CW	30	n
 feyen	fY1n	C	0
 feygele	fe1gVlV	W	0
-feynman	fe1nmVn	C	15
+Feynman	fe1nmVn	C	15	n
 Feynman diagram	fY1nmVn dY1Vgram	U	26
 Fez	fE1z	CW	15	n
 fez	fE1z	CU	30	n
@@ -120268,7 +120268,7 @@ fiberglass	fY1bRgla2s	C	30	nv
 fiberoptic	fY1bRA2ptIk	C	17
 fibers	fY1bRz	C	36	n
 fiberweb	fY1bRwE2b	C	0
-fibonacci	fI2bVnA1Ci	C	15
+Fibonacci	fI2bVnA1Ci	C	15	n
 fibranne	fIbra1n	W	0
 fibre	fY1bR	C	37	n
 fibre bundle	fY2bR bV1ndVl	P	35
@@ -120927,7 +120927,7 @@ figments	fI1gmInts	C	20
 figone	fI1gVn	C	0
 figs	fI1gz	CW	34	n
 figueira	figE1rV	C	15
-figueiredo	figRe1do	C	15
+Figueiredo	figRe1do	C	15
 figueras	figE1rAz	C	15
 figueredo	figEre1do	C	13
 figueroa	figEro1V	C	15
@@ -122785,7 +122785,7 @@ fischbach	fI1SbA2k	C	15
 fischbach's	fI1SbA2ks	C	0
 fischbein	fI1SbY2n	C	0
 fischel	fI1SVl	C	15
-fischer	fI1SR	C	15
+Fischer	fI1SR	C	15	n
 fischer's	fI1SRz	C	15
 fischetti	fiskE1ti	C	14
 fischl	fI1skVl	C	15
@@ -124942,7 +124942,7 @@ florescue	flO1rVskju	C	0
 floresheim	flO1rSY2m	C	0
 floret	flOrE1t	W	18
 floret	flVrE1t	W	18
-florey	flO1ri	C	15
+Florey	flO1ri	C	15
 florez	flOrE1z	C	15
 flori	flO1ri	C	15
 floria	flO1riV	C	15
@@ -125799,7 +125799,7 @@ fodder radish	fA2dR ra1dIS	P	27
 Foddian	fA1diVn	B	0
 fodera	fodE1rV	C	12
 FODMAP	fA1dmap	U	19
-fodor	fo1dR	C	15
+Fodor	fo1dR	C	15
 foe	fo1	CU	35	n
 foeder	fu1dR	W	0
 foederati	fidErA1ti	W	0
@@ -125852,7 +125852,7 @@ fog-pond	fA2g pA1nd	P	36	n
 fogal	fo1JVl	C	0
 fogarty	fA1gA2rti	C	15
 fogarty	fo1gA2rti	C	15
-fogel	fo1gVl	C	15
+Fogel	fo1gVl	C	15
 fogelberg	fo1gVlbRg	C	14
 fogelberg's	fo1gVlbRgz	C	0
 fogelman	fo1gVlmVn	C	15
@@ -128023,7 +128023,7 @@ fossett	fA1sIt	C	15
 fossett's	fA1sIts	C	0
 fossette	fA2sE1t	U	0
 fossette	fO2sE1t	U	0
-fossey	fA1si	C	15
+Fossey	fA1si	C	15
 fossey's	fA1siz	C	0
 fossick	fA1sIk	U	0
 fossil	fA1sVl	CU	40	n
@@ -128079,7 +128079,7 @@ fotive	fo1tIv	B	0
 fotopoulos	fVtA1pVlIs	C	0
 Fou-hsin	fo2SI1n	E	21
 fouad	fu1ad	C	15
-foucault	fu2ko1	C	15
+Foucault	fu2ko1	C	15	n
 fouch	fW1C	C	11
 fouche	fW1C	C	15
 foucher	fW1kR	C	14
@@ -129126,7 +129126,7 @@ Frayne	fre1n	CU	16
 frays	fre1z	U	17
 fraze	fre1z	C	11
 frazee	frVzi1	C	15
-frazer	fre1zR	C	15
+Frazer	fre1zR	C	15	n
 frazier	fre1ZR	C	15
 frazil	fra1zVl	W	12
 frazil	fre1zVl	W	12
@@ -129212,7 +129212,7 @@ frederico	frEdRi1ko	C	15
 Fredericton	frE1drIktVn	W	25	n
 Frederictonian	frE2drIkto1niVn	U	0
 frederika	fredEri1kV	C	14
-frederiksen	frE1dRIksVn	C	15
+Frederiksen	frE1dRIksVn	C	15
 frederking	frE1dRkI2N	C	0
 frederking	fri1dRkI2N	C	0
 fredette	frIdE1t	C	15
@@ -129686,7 +129686,7 @@ Fregean	fre1giVn	W	0
 fregeau	frIZo1	C	0
 fregia	fri1JiV	C	0
 fregoso	frEgo1so	C	0
-frei	frY1	C	15
+Frei	frY1	C	15
 freia	fri1V	C	15
 freiberg	frY1bRg	C	15
 freiberger	frY1bRgR	C	11
@@ -129736,7 +129736,7 @@ freimark	frY1mArk	C	0
 freimuth	frY1muT	C	0
 frein	fre1n	C	12
 freind	frY1nd	C	15
-freire	frI1r	C	15
+Freire	frI1r	C	15
 freis	fri1z	C	0
 freise	fri1s	C	0
 freit	fri1t	B	0
@@ -130065,11 +130065,11 @@ fried slice	frY2d slY1s	P	37
 fried-egg plant	frY2d E2g pla1nt	P	39
 fried-eggy	frY2d E1gi	P	22
 Frieda	fri1dV	CW	27	n
-friedan	fri1dVn	C	15
+Friedan	fri1dVn	C	15
 friedberg	frY1dbRg	C	15
 friede	fri1d	C	15
 friedel	fri1dVl	C	15
-frieden	fri1dVn	C	15
+Frieden	fri1dVn	C	15
 friedenberg	fri1dVnbRg	C	13
 frieder	frY1dR	C	15
 friederich	fri1dRIk	C	15
@@ -130085,7 +130085,7 @@ friedline	fri1dlY2n	C	0
 friedly	fri1dli	C	0
 Friedman	fri1dmVn	CW	35	n
 friedman's	fri1dmVnz	C	15
-friedmann	fri1dmVn	C	15
+Friedmann	fri1dmVn	C	15
 Friedrich	fri1drIk	C	33	n
 friedrichs	fri1drIks	C	15
 friedrichsen	fri1drIksVn	C	0
@@ -130584,7 +130584,7 @@ frombuger's	fro1mbju2gRz	C	0
 frome	fro1m	C	15
 fromenty	frA1mVnti	U	0
 fromer	fro1mR	C	14
-fromm	frA1m	C	15
+Fromm	frA1m	C	15	n
 fromme	frA1m	C	15
 frommelt	frA1mIlt	C	0
 frommer	frA1mR	C	15
@@ -131374,7 +131374,7 @@ Fujihara	fu2JihA1rV	W	0
 fujii	fuJi1i	C	15
 fujikawa	fu2JikA1wV	C	15
 fujikura	fu2JIkU1rV	C	15
-fujimori	fu2JimO1ri	C	15
+Fujimori	fu2JimO1ri	C	15
 fujimori's	fu2JimO1riz	C	12
 fujimoto	fu2Jimo1to	C	15
 fujimycin	fu2JImY1sIn	W	0
@@ -131405,13 +131405,13 @@ Fukien	fu2kjE1n	E	16
 fuklah	fu1klV	C	0
 fuklah's	fu1klVz	C	0
 fukowoka	fu2kowO1kV	C	0
-fukuda	fuku1dV	C	15
+Fukuda	fuku1dV	C	15
 fukui	fuku1i	C	15
 fukumoto	fukumo1to	C	14
 fukunaga	fukunA1gV	C	15
 Fukuoka	fu2ku2o1kV	CU	27	n
 fukushima	fukuSi1mV	C	15
-fukuyama	fu2ku2jA1mV	C	15
+Fukuyama	fu2ku2jA1mV	C	15
 Fula	fu1lV	W	17
 Fulani	fu2lA1ni	C	15	n
 fulbright	fU1lbrY2t	C	15
@@ -132714,7 +132714,7 @@ Gabonese	gabVni1z	B	19
 Gabonese Republic	gabVni2z rIpV1blIk	P	19
 Gaboon	gVbu1n	W	13
 gaboon viper	gVbu2n vY1pR	P	13
-gabor	gVbO1r	C	15
+Gabor	gVbO1r	C	15	n
 gaboriault	ga1bRio	C	0
 Gaborone	ga2bVro1ni	B	22
 gaboury	ga1bUri	C	0
@@ -132916,7 +132916,7 @@ gai-lon	ge2 lA1n	P	27	n
 Gaia	gY1V	CU	30	n
 Gaia	ge1V	U	30	n
 Gaian	gY1Vn	W	12
-gaidar	gY1dA2r	C	15
+Gaidar	gY1dA2r	C	15
 gaidar's	gY1dA2rz	C	0
 gaier	ge1R	C	11
 gaiety	ge1Iti	W	26	n
@@ -133084,7 +133084,7 @@ galban	ga1lbVn	C	0
 galbanum	ga1lbVnVm	W	13
 galbe	ga1lb	W	0
 galbo	ga1lbo	C	0
-galbraith	ga1lbre2T	C	15
+Galbraith	ga1lbre2T	C	15	n
 galbreath	ga1lbrE2T	C	15
 gale	ge1l	CW	36	nv
 gale force	ge2l fO1rs	P	36
@@ -133296,7 +133296,7 @@ gallow character	ga2lo ka1rVktR	P	16
 gallow character	ga2lo ka1rktR	P	16
 gallow glyph	ga2lo glI1f	P	15
 gallow tree	ga2lo tri1	P	16
-galloway	ga1lowe2	C	15	n
+Galloway	ga1lowe2	C	15	n
 galloways	ga1lowe2z	C	13
 gallows	ga1loz	CU	31	nv
 gallows frame	ga2loz fre1m	P	31
@@ -133641,8 +133641,8 @@ gamomaniac	gamVme1nIak	W	0
 gamons	ga1mVnz	C	0
 gamp	ga1mp	CU	18
 gamper	ga1mpR	C	15
-gamsakhurdia	gamsVkR1diV	C	12
-gamsakhurdia	gamsVkR1djV	C	12
+Gamsakhurdia	gamsVkR1diV	C	12
+Gamsakhurdia	gamsVkR1djV	C	12
 gamunde	gVmu1nd	C	0
 gamunde's	gVmu1ndz	C	0
 gamut	ga1mIt	W	29	n
@@ -133839,7 +133839,7 @@ gantry scaffold	ga2ntri ska1fVld	P	25
 gantry scaffold	ga2ntri ska1fld	P	25
 gantt	ga1nt	C	15
 Gantt chart	ga1nt CA2rt	W	23
-gantz	ga1nts	C	15
+Gantz	ga1nts	C	15
 ganus	ge1nIs	C	0
 Ganxian	gA2nSjE1n	E	0
 Ganymede	ga1nImid	W	25	n
@@ -135354,7 +135354,7 @@ geimer	gY1mR	C	13
 geis	gE1S	W	15
 geis	gY1z	C	19
 geise	gY1s	C	11
-geisel	gY1sVl	C	15
+Geisel	gY1sVl	C	15
 geiselman	gY1sVlmVn	C	0
 geisen	gY1sVn	C	0
 geiser	gY1sR	C	15
@@ -135443,7 +135443,7 @@ gelling	JE1lIN	W	23
 gelling agent	JE2lIN e1JVnt	P	23
 gellis	gE1lIs	C	0
 gellman	gE1lmVn	C	15
-gellner	gE1lnR	C	15
+Gellner	gE1lnR	C	15
 gelman	gE1lmVn	C	15
 gelotology	JE2lVtA1lVJi	U	0
 gelotophile	JE1lVtVfY2l	W	0
@@ -136077,7 +136077,7 @@ genrich	gE1nrIk	C	0
 genro	gE1nro	B	12
 gens	JE1nz	CU	29	n
 gens	gE1ns	U	29	n
-genscher	gE1nSR	C	15
+Genscher	gE1nSR	C	15
 gensel	gE1nsVl	C	0
 gensia	JE2nsi1V	C	0
 genske	JE1nsk	C	0
@@ -136711,7 +136711,7 @@ gessel	gE1sVl	C	0
 gessert	gE1sRt	C	0
 gessler	gE1sVlR	C	15
 gessler	gE1slR	C	15
-gessner	gE1snR	C	15
+Gessner	gE1snR	C	15
 gesso	JE1so	B	20
 gesso duro	JE2so dU1ro2	P	18
 gest	JE1st	CU	20
@@ -137414,7 +137414,7 @@ ghettoize	gE1toY2z	CU	0
 ghettos	gE1toz	C	28	n
 Ghey	JY1	W	13
 ghey	ge1	W	13
-ghez	gE1z	C	13
+Ghez	gE1z	C	13
 ghezzi	gE1zi	C	10
 Ghibelline	gI1bVlVn	U	15
 Ghibelline	gI1bVlYn	U	15
@@ -137442,7 +137442,7 @@ ghorbanifar	gOrba1nIfAr	C	11
 ghorbanifar	gOrba1nIfR	C	11
 ghormley	gO1rmli	C	12
 ghose	go1z	C	15
-ghosh	gA1S	C	15
+Ghosh	gA1S	C	15	n
 Ghosn	go1n	U	19
 ghost	go1st	CU	44	nv
 ghost ant	go2st a1nt	P	38
@@ -137839,7 +137839,7 @@ gick	JI1k	C	12
 giclée	Zikle1	W	11
 GID	Ji1 Y1 di1	W	23
 gidcumb	gI1dkVm	C	0
-giddens	gI1dVnz	C	15
+Giddens	gI1dVnz	C	15
 giddings	gI1dINz	C	15
 giddy	gI1di	CU	32
 giddy as a windmill	gI2di az V wI1ndmI2l	P	29
@@ -138052,7 +138052,7 @@ gilbey	gI1lbi	C	15
 gilbo	Ji1lbo	C	0
 gilboy	gI1lbQ	C	0
 gilbreath	gI1lbrE2T	C	14
-gilbreth	gI1lbrIT	C	15
+Gilbreth	gI1lbrIT	C	15
 gilbride	gI1lbrY2d	C	15
 gilby	gI1lbi	C	15
 gilchrest	gI1lkRIst	C	13
@@ -138122,7 +138122,7 @@ gillam	gI1lVm	C	15
 Gillams	gI1lVmz	W	0
 gillan	gI1lVn	C	15
 gilland	gI1lVnd	C	10
-gillard	ZIlA1rd	C	15
+Gillard	ZIlA1rd	C	15	n
 gillaspie	gI1lVspi	C	14
 gillaspy	gI1lVspi	C	0
 gille	gY1l	C	15
@@ -138458,7 +138458,7 @@ giraldo	JIrA1ldo	C	15
 girandola	JIra1ndVlV	W	0
 girandole	JI1rVndo2l	U	0
 girandole clock	JI2rVndo2l klA1k	P	0
-girard	JRA1rd	C	15
+Girard	JRA1rd	C	15	n
 girardi	JIrA1rdi	C	15
 girardin	ZI2rA1rdEn	C	15
 girardot	ZI1rA2rdo	C	14
@@ -139186,12 +139186,12 @@ glasby	gla1sbi	C	14
 glasco	glA1sko	C	13
 glascock	gla1skVk	C	15
 glascoe	gla1sko	C	0
-glaser	gle1zR	C	15
+Glaser	gle1zR	C	15	n
 Glasgow	gla1sgo2	CU	42	n
 Glasgow	gla1sko2	C	42	n
 Glasgowian	glAzgo1iVn	B	0
 glasheen	glVSi1n	C	0
-glashow	gla1SW	C	13
+Glashow	gla1SW	C	13
 glasner	gla1snR	C	12
 glasnost	glO1sno2st	C	22
 glasnost	glO1stno2st	C	22
@@ -139321,7 +139321,7 @@ glatt	gla1t	CW	19
 glatz	gla1ts	C	14
 glatzer	gle1tzR	C	14
 glaub	glO1b	C	0
-glauber	glW1bR	C	15
+Glauber	glW1bR	C	15
 Glauce	glO1si	U	0
 glaucescence	glAkE1sVns	U	0
 glaucocystophyte	glO2kVsI1stVfYt	W	0
@@ -141041,7 +141041,7 @@ Godzone	gA1dzo2n	U	0
 goe	go1	C	15
 goeas	go1iVz	C	0
 goeas	go1jVz	C	0
-goebbels	go1bVlz	C	15
+Goebbels	go1bVlz	C	15	n
 goebel	go1bVl	C	15
 goecke	go1k	C	0
 goedde	go1d	C	0
@@ -141101,7 +141101,7 @@ goff	gO1f	C	15	n
 goffer	gA1fR	B	0
 goffin	gA1fIn	C	15
 goffinet	gA1fInIt	C	0
-goffman	gA1fmVn	C	15
+Goffman	gA1fmVn	C	15
 goffman's	gA1fmVnz	C	0
 goffney	gA1fni	C	0
 goffredo	gofre1do	C	15
@@ -141681,7 +141681,7 @@ goldsworthy	go1ldzwR2Di	C	15
 goldthwaite	go1ldTwe2t	C	15
 goldurn	gA1ldRn	B	0
 goldwasser	go1ldwOsR	C	15
-goldwater	go1ldwO2tR	C	15
+Goldwater	go1ldwO2tR	C	15	n
 goldwater's	go1ldwO2tRz	C	15
 goldwin	go1ldwIn	C	15
 goldwire	go1ldwY2r	C	0
@@ -141729,7 +141729,7 @@ golfing	gA1lfIN	C	32	in
 golfing	gO1lfIN	C	32	in
 golfman	gA1lfmVn	C	0
 golfs	gA1lfs	C	20
-golgi	go1lJi	C	15
+Golgi	go1lJi	C	15	n
 golgo	go1lgo	C	14
 Golgotha	gA1lgVTV	B	22
 Golgotha	gAlgA1TV	B	22
@@ -142476,8 +142476,8 @@ gorazde	gO2rA1ZdV	C	11
 gorazde	gRA1ZdV	C	11
 gorazde's	gO2rA1ZdVz	C	0
 gorazde's	gRA1ZdVz	C	0
-gorbachev	gO1rbVCEv	C	15
-gorbachev	gO1rbVCO2f	C	15
+Gorbachev	gO1rbVCEv	C	15	n
+Gorbachev	gO1rbVCO2f	C	15	n
 gorbachev's	gO1rbVCEvz	C	15
 gorbachev's	gO1rbVCO2fs	C	15
 gorbachevs	gO1rbVCEvz	C	0
@@ -142777,7 +142777,7 @@ Gottschalk	gA1CVk	C	15
 gottschalks	gA1CVks	C	0
 gottschall	gA1CVl	C	11
 gottshall	gA1CVl	C	0
-gottwald	gA1twVld	C	15
+Gottwald	gA1twVld	C	15
 gotwalt	gA1twVlt	C	0
 gotz	gA1ts	C	15
 gouache	gu1A2S	C	24
@@ -142813,7 +142813,7 @@ gouin	gwi1n	C	15
 goujon	gu1JAn	B	14
 goujon	guZA1n	B	14
 gouker	gW1kR	C	0
-goulart	gulA1rt	C	15
+Goulart	gulA1rt	C	15
 goulash	gu1lA2S	CU	22
 goulash communism	gu2lA2S kA1mjVnI2zVm	P	22
 Gould	gu1ld	C	34	n
@@ -143232,7 +143232,7 @@ gradus	gre1dVs	CW	16
 Grady	gre1di	CW	31	n
 Graeae	gri1i	W	0
 Graeae	gri1ji	W	0
-graeber	grE1bR	C	15
+Graeber	grE1bR	C	15
 graebner	grE1bnR	C	15
 Graecity	gri1sIti	B	0
 Graeco-Roman	grE2kOro1mVn	U	21
@@ -145308,7 +145308,7 @@ greenback's	gri1nba2ks	C	0
 greenbacks	gri1nba2ks	C	22
 greenbaum	gri1nbW2m	C	15
 greenbelt	gri1nbE2lt	C	28	n
-greenberg	gri1nbRg	C	15
+Greenberg	gri1nbRg	C	15	n
 greenberg's	gri1nbRgz	C	15
 greenberger	gri1nbRgR	C	15
 greenblatt	gri1nblVt	C	15
@@ -145707,7 +145707,7 @@ gribble	grI1bVl	CW	22
 gribbles	grI1bVlz	C	0
 gribbon	grI1bVn	C	11
 gribenes	grI1bVnVs	W	0
-grice	grY1s	C	15
+Grice	grY1s	C	15
 grid	grI1d	CW	42	nv
 grid butt	grI2d bV1t	P	39
 grid cell	grI2d sE1l	P	41
@@ -146166,7 +146166,7 @@ gromek	gro1mIk	C	11
 gromer	gro1mR	C	0
 gromes	gro1mz	C	0
 grommet	grA1mIt	U	21
-gromyko	gromi1ko	C	15
+Gromyko	gromi1ko	C	15
 gronau	gro1nW	C	11
 gronberg	grA1nbRg	C	0
 grondahl	grA1ndA2l	C	11
@@ -147225,8 +147225,8 @@ guettler	gE1tVlR	C	0
 guettler	gE1tlR	C	0
 gueuze	gU1z	U	13
 gueuze	gu1z	U	13
-guevara	gVvA1rV	C	15
-guevara	gevA1rV	C	15
+Guevara	gVvA1rV	C	15	n
+Guevara	gevA1rV	C	15	n
 guevara's	gVvA1rVz	C	15
 guevara's	gevA1rVz	C	15
 guez	gE1z	C	14
@@ -147353,7 +147353,7 @@ guileless	gY1llVs	CW	19
 guilelessness	gY1llIsnIs	U	11
 guiles	gY1lz	CW	11
 guilfoil	gIlfQ1l	C	0
-guilford	gI1lfRd	C	15
+Guilford	gI1lfRd	C	15	n
 guilford's	gI1lfRdz	C	0
 guilfoyle	gI1lfQl	C	15
 guiliani	gi2liA1ni	C	15
@@ -148094,7 +148094,7 @@ guterman	gju1tRmVn	C	11
 gutermuth	gV1tRmuT	C	0
 gutfeld	gV1tfE2ld	C	15
 gutfreund	gU1tfrE2nd	C	11
-guth	gu1T	C	15
+Guth	gu1T	C	15
 gutherie	gV1TRi	C	0
 guthery	gV1TRi	C	0
 guthmiller	gV1TmIlR	C	0
@@ -148517,7 +148517,7 @@ haarder	hA1rdR	W	0
 haas	hA1s	C	15
 haase	hA1s	C	15
 haass	hA1s	C	15
-haavelmo	hA2vE1lmo	C	0
+Haavelmo	hA2vE1lmo	C	0
 Habakkuk	hVba1kVk	U	20
 Habakkuk	ha1bVkUk	U	20
 Habakkuk	ha1bVkVk	U	20
@@ -148537,7 +148537,7 @@ habel-habel	ha2bVl ha1bVl	P	12
 habemus papam	hVbe1mVs pa1pam	W	10
 habemus papam	hVbi1mVs pa1pam	W	10
 habenicht	ha1bInIkt	C	0
-haber	he1bR	C	15
+Haber	he1bR	C	15	n
 haberdash	ha1bRda2S	W	0
 haberdash	ha2bRda1S	W	0
 haberdasher	ha1bRda2SR	B	19
@@ -148558,7 +148558,7 @@ haberson	he1bRsIn	C	0
 haberstroh	hAbE1rstro	C	12
 Habib	hVbi1b	C	29	n
 habibi	hVbi1bi	C	15
-habibie	hVbi1bi	C	15
+Habibie	hVbi1bi	C	15
 habich	ha1bIk	C	10
 habicht	ha1bIkt	C	14
 habig	ha1bIg	C	0
@@ -148632,8 +148632,8 @@ habromania	ha2brome1nijV	U	0
 habs	ha1bz	C	15	n
 Habsburg	ha1psbRg	CW	26	n
 haby	he1bi	C	0
-habyarimana	ha2biArimA1nV	C	15
-habyarimana	ha2biRimA1nA2	C	15
+Habyarimana	ha2biArimA1nV	C	15
+Habyarimana	ha2biRimA1nA2	C	15
 hace	he1s	W	22
 HACEK	ha1sEk	W	0
 HACEK	he1sEk	W	0
@@ -151310,7 +151310,7 @@ har	hA1r	CUE	32
 har de har har	hA2r di2 hA2r hA1r	P	27
 har gau	hA2r go1	P	24
 har gow	hA2r gW1	P	26
-hara	hE1rV	C	15
+Hara	hE1rV	C	15	n
 hara-kiri	hA1rIkI1ri	C	25	n
 hara-kiri	hA2rVkI1ri	W	25	n
 hara-kiri	hE2rikE1ri	W	15	n
@@ -151357,7 +151357,7 @@ harassment	hVra1smVnt	W	40	n
 harassment	ha1rVsmVnt	W	15	n
 harassment and interdiction	hVra2smVnt Vnd I2ntRdI1kSVn	P	26
 haraszti	hRa1sti	C	0
-haraway	hA1rVwe	C	15
+Haraway	hA1rVwe	C	15
 harb	hA1rb	C	15
 harbach	hA1rbA2k	C	15
 harbaugh	hA1rbO2	C	15
@@ -151854,7 +151854,7 @@ harima	hEri1mV	C	15
 haring	hE1rIN	C	24
 Haringey	ha1rINge	B	24
 Haripur	hV2ri1pUr	E	13
-hariri	hRI1ri	C	15
+Hariri	hRI1ri	C	15
 haris	hA1ris	C	15
 haris	hE1rIs	C	15
 harissa	hVrI1sV	W	20
@@ -152423,7 +152423,7 @@ hashgacha	hVSgV1kV	W	0
 hashhouse	hA1ShWs	B	0
 hashi	ha1Si2	C	15
 Hashim	ha1SIm	C	26	n
-hashimoto	hASimo1to	C	15
+Hashimoto	hASimo1to	C	15	n
 hashing	ha1SIN	C	26	nv
 hashish	hVSi1S	CW	26	n
 hashish	ha1SIS	CW	26	n
@@ -152812,7 +152812,7 @@ hausse-col	o2s kA1l	P	0
 hausser	hW1sR	C	12
 haussler	hW1sVlR	C	15
 haussler	hW1slR	C	15
-haussmann	hW1smVn	C	15
+Haussmann	hW1smVn	C	15
 haustorium	hOstO1riVm	U	0
 haustrum	hO1strVm	B	0
 hausummi	hWsu1mi	C	0
@@ -153321,7 +153321,7 @@ hawaiite	hVwY1Yt	W	0
 hawaij	hVwY1J	W	0
 hawaij	hVwY1VJ	W	0
 hawala	hVwA1lV	W	19
-hawass	ha1wAs	C	15
+Hawass	ha1wAs	C	15
 hawbaker	hO1be2kR	C	0
 hawe	hO1	C	13
 hawed	hO1d	U	15
@@ -153352,7 +153352,7 @@ hawk-nose	hO2k no1z	P	37	n
 hawk-owl	hO2k W1l	P	35	n
 hawkbill	hO1kbI2l	C	0
 hawkbill's	hO1kbI2lz	C	0
-hawke	hO1k	C	15
+Hawke	hO1k	C	15	n
 hawke's	hO1ks	C	15
 Hawke's Bay	hA1ks be1	B	22
 hawked	hO1kt	C	19
@@ -153381,7 +153381,7 @@ hawksley	hO1ksli	C	15
 hawkweed	hA1kwi2d	U	12
 hawkweed	hO1kwi2d	U	12
 hawkweed	hO2kwi1d	E	12
-hawley	hO1li	C	15
+Hawley	hO1li	C	15	n
 hawley's	hO1liz	C	15
 hawn	hO1n	C	15
 haworth	ha1wRT	C	15
@@ -153455,7 +153455,7 @@ haydon	he1dVn	C	15
 haydu	he1du	C	0
 hayduk	he1dVk	C	0
 haye	he1	C	15	n
-hayek	he1Ik	C	15
+Hayek	he1Ik	C	15	n
 hayen	he1Vn	C	0
 hayenga	hee1NgV	C	0
 hayer	he1R	C	13
@@ -154659,7 +154659,7 @@ heckled	hE1kVld	C	24
 heckler	hE1klR	CU	26	n
 hecklers	hE1klRz	C	22
 heckling	hE1klIN	C	25	nv
-heckman	hE1kmVn	C	15
+Heckman	hE1kmVn	C	15
 heckmann	hE1kmVn	C	13
 Heckmondwike	hE1kmVndwYk	W	13
 heckuva	hE1kVvV	CW	16
@@ -155045,7 +155045,7 @@ Heine	hY1n	C	15	n
 heinecke	hY1nIk	C	0
 heineken	hY1nVkVn	C	15
 heineman	hY1nmVn	C	15
-heinemann	hY1nmVn	C	15
+Heinemann	hY1nmVn	C	15	n
 heinen	hY1nVn	C	15
 heiner	hY1nR	C	15
 heines	hY1nz	C	10
@@ -155711,7 +155711,7 @@ hemp-derived cannabinoid	hE2mp dRY2vd ka1nVbVnQ2d	P	24
 hemp-nettle	hE2mp nE1tVl	P	26	n
 hemp-vine	hE2mp vY1n	P	32	n
 hemp-widow	hE2mp wI1do	P	33	n
-hempel	hE1mpVl	C	15
+Hempel	hE1mpVl	C	15
 hempen	hE1mpVn	CW	14
 hempfling	hE1mpfVlIN	C	0
 hempfling	hE1mpflIN	C	0
@@ -155878,7 +155878,7 @@ hennessey's	hE1nVsiz	C	12
 Hennessy	hE1nVsi	CW	30	n
 henney	hE1ni	C	15
 hennick	hE1nIk	C	0
-hennig	hE1nIg	C	15
+Hennig	hE1nIg	C	15
 hennigan	hE1nIgVn	C	15
 hennigar	hE1nIgR	C	0
 henning	hE1nIN	C	15	v
@@ -156588,7 +156588,7 @@ herzfeld	hR1zfEld	C	15
 herzig	hR1zIg	C	15
 herzing	hR1zIN	C	13
 herzlinger	hR1zlI2NR	C	0
-herzog	hR1zAg	C	15	n
+Herzog	hR1zAg	C	15	n
 hes	hE1s	W	40	n
 hes	hE1z	W	40
 hes	hi1z	W	40	n
@@ -158207,8 +158207,8 @@ hippocampian	hIpVka1mpiVn	W	0
 hippocampus	hI2pVka1mpVs	U	30	n
 hippocampus	hI2poka1mpVs	CU	30	n
 hippocras	hI1pokras	U	0
-hippocrates	hI1pVkre2ts	C	15
-hippocrates	hIpO1krVtiz	C	15
+Hippocrates	hI1pVkre2ts	C	15	n
+Hippocrates	hIpO1krVtiz	C	15	n
 hippocratic	hIpVkra1tIk	C	15
 Hippocrene	hI2pVkri1ni	W	13
 hippocrepiform	hI2pVkrE1pIfOrm	W	0
@@ -158304,14 +158304,14 @@ hirose	hIro1se	C	15
 Hiroshi	hIro1Si	C	29	n
 Hiroshima	hI2ro1SImV	CU	33	n
 Hiroshima	hI2roSi1mV	CU	33	n
-hirota	hIro1tV	C	15
+Hirota	hIro1tV	C	15
 hiroyuki	hI2roju1ki	C	15
 hirquine	hR1kwYn	U	0
 hirs	hI1rz	WE	13
 hirsch	hR1S	C	15
 hirsch's	hR1SIz	C	15
 hirschberg	hR1SbRg	C	15
-hirschfeld	hR1SfEld	C	15
+Hirschfeld	hR1SfEld	C	15
 hirschfield	hR1skfild	C	14
 hirschhorn	hR1ShRn	C	15
 hirschi	hI1rski	C	15
@@ -158795,7 +158795,7 @@ hoarder	hO1rdR	U	27	n
 hoarding	hO1rdIN	C	31	n
 hoarding disorder	hO2rdIN dIsO1rdR	P	31
 hoards	hO1rdz	C	26	nv
-hoare	hO1r	C	15
+Hoare	hO1r	C	15	n
 hoared	hO1rd	W	0
 hoark	hO1rk	W	0
 hoarse	hO1rs	CE	27	v
@@ -159108,7 +159108,7 @@ hofi	ho1fi	C	10
 hofland	hA1flVnd	C	12
 hofler	hA1flR	C	0
 hofman	hA1fmVn	C	15
-hofmann	hA1fmVn	C	15
+Hofmann	hA1fmVn	C	15	n
 hofmeister	hA1fmYstR	C	15
 hofrichter	hA1frIktR	C	0
 hofstad	hA1fstad	C	0
@@ -159365,7 +159365,7 @@ holbert	ho1lbRt	C	15
 Holborn	hA1lbRn	B	27	n
 Holborn	ho1bRn	B	27	n
 holbrook	ho1lbrU2k	C	15
-holbrooke	ho1lbrUk	C	15
+Holbrooke	ho1lbrUk	C	15
 holbrooke's	ho1lbrUks	C	0
 holbrooks	ho1lbrUks	C	12
 holcad	hA1lkad	B	0
@@ -160512,7 +160512,7 @@ hone	ho1n	CU	32	nv
 hone in	ho1n I1n	U	32
 honea	hA1niV	C	14
 honeck	ho1nEk	C	11
-honecker	ho1nEkR	C	15
+Honecker	ho1nEkR	C	15
 honecker's	ho1nEkRz	C	0
 honed	ho1nd	CU	30	v
 honed dace	ho2nd de1s	P	21
@@ -161172,7 +161172,7 @@ hoplophobia	hA2plVfo1biV	B	0
 hopman	hA1pmVn	C	15
 hopp	hA1p	C	15
 hoppa	hA1pV	C	15
-hoppe	hA1p	C	15
+Hoppe	hA1p	C	15
 Hoppean	hA1piVn	W	0
 Hoppean	hO1piVn	W	0
 hopped	hA1pt	C	33	v
@@ -161421,7 +161421,7 @@ hornet fly	hO2rnIt flY1	P	31
 hornet's	hO1rnVts	C	15
 hornet's nest	hO2rnVts nE1st	P	22
 hornets	hO1rnVts	C	33	n
-horney	hO1rni	C	15
+Horney	hO1rni	C	15
 horngry	hO1rNgri	B	0
 hornick	hO1rnIk	C	13
 hornig	hO1rnIg	C	15
@@ -161814,7 +161814,7 @@ hosni	hO1sni	C	15
 hosni	ho1zni	C	15
 hosoka	ho2sA1kV	C	0
 hosoka's	ho2sA1kVz	C	0
-hosokawa	ho2sVkA1wV	C	15
+Hosokawa	ho2sVkA1wV	C	15
 hosokawa's	ho2sVkA1wVz	C	11
 hospice	hA1spIs	U	34	n
 hospice	hA1spVs	C	34	n
@@ -162898,7 +162898,7 @@ Howie	hW1i	CW	32	n
 howie's	hW1iz	C	15
 howington	hW1INtVn	C	0
 howison	hW1IsVn	C	14
-howitt	hW1It	C	15
+Howitt	hW1It	C	15
 howitzer	hW1ItsR	U	25	nv
 howitzer	hW1VtsR	C	25	nv
 howitzers	hW1VtsRz	C	24
@@ -163287,8 +163287,8 @@ Huelva	wE1lvA	U	19
 huemul	wemu1l	W	0
 huenink	hU1nINk	C	0
 huerst	hR1st	C	0
-huerta	hwE1rtV2	C	15	n
-huerta	wE1rtV2	C	15	n
+Huerta	hwE1rtV2	C	15	n
+Huerta	wE1rtV2	C	15	n
 huerter	hR1tR	C	12
 hues	hju1z	CW	31	n
 Huesca	wE1skA	W	16
@@ -163579,7 +163579,7 @@ hulon's	hju1lVnz	C	0
 hulond	hju1lVnd	C	0
 hulond's	hju1lVndz	C	0
 huls	hV1lz	C	0
-hulse	hV1ls	C	15
+Hulse	hV1ls	C	15
 hulsebus	hV1lsIbIs	C	0
 hulsey	hV1lsi	C	15
 hulsizer	hV1lsY2zR	C	0
@@ -164364,8 +164364,8 @@ hussar	hV1sR	CW	21
 hussar	hVzA1r	W	15
 Hussein	huse1n	C	35	n
 hussein's	huse1nz	C	15
-husseini	hjuse1ni	C	15
-husseini	huse1ni	C	15
+Husseini	hjuse1ni	C	15
+Husseini	huse1ni	C	15
 husser	hV1sR	C	0
 hussey	hV1si	C	15
 hussite	hV1sY2t	C	15
@@ -164411,7 +164411,7 @@ hutchcraft	hV1Ckra2ft	C	0
 hutchens	hV1CVnz	C	15
 hutcheon	hV1CiVn	C	15
 hutcherson	hV1CRsVn	C	15
-hutcheson	hV1CIsVn	C	15
+Hutcheson	hV1CIsVn	C	15
 Hutchin	hV1CIn	W	0
 hutchings	hV1CINz	C	15
 Hutchins	hV1CInz	W	15	n
@@ -166524,7 +166524,7 @@ ikebana	I2kVbA1nV	U	19
 ikebana	I2kebA1nV	U	19
 ikebana	i2kVbA1nV	U	19
 ikebana	i2kebA1nV	U	19
-ikeda	Ike1dV	C	15
+Ikeda	Ike1dV	C	15
 ikejime	i2keJi1me	W	0
 ikenberry	Y1kVnbE2ri	C	14
 ikerd	I1kRd	C	0
@@ -166581,7 +166581,7 @@ Iliad	I1liVd	CU	29	n
 Iliad	I1lia2d	U	29	n
 iliano	I2liA1no	C	0
 ilidza	I2lI1dzV	C	0
-iliescu	I2liE1skju2	C	14
+Iliescu	I2liE1skju2	C	14
 Iliff	I1lIf	C	16
 Iliff	Y1lIf	W	15
 Iliffe	Y1lIf	W	16
@@ -171301,7 +171301,7 @@ inotropic	Y2nVtro1pIk	U	15
 inotropic	i2nVtrA1pIk	U	15
 inotropic	i2nVtro1pIk	U	15
 inoue	I2no1e2	C	15
-inouye	I2nu1e2	C	15
+Inouye	I2nu1e2	C	15
 Inowrocław	i2nVvrA1tswaf	B	0
 inpat	I1npa2t	W	0
 inpatient	I1npe2SVnt	C	32	n
@@ -174399,7 +174399,7 @@ ishee	I1Si	C	0
 isherwood	I1SRwU2d	C	15
 ishi	I1Si	C	15
 ishi's	I1Siz	C	0
-ishibashi	I2Si2bA1Si2	C	15
+Ishibashi	I2Si2bA1Si2	C	15
 ishida	I2Si1dA2	C	15
 Ishihara	I2Si2hA1rA2	C	15
 ishii	I2Si1i2	C	15
@@ -175475,7 +175475,7 @@ jacoba	jAko1bV	C	14
 jacobe	Ja1kVb	C	0
 jacobean	Ja2kVbi1Vn	C	15
 jacober	Je1kVbR	C	0
-jacobi	jAko1bi	C	15
+Jacobi	jAko1bi	C	15	n
 Jacobian	JVko1biVn	W	21
 Jacobin	Ja1kVbIn	CU	24
 Jacobin	Ja1kVbVn	CU	24
@@ -176083,8 +176083,8 @@ Jarrow	Ja1ro	W	22
 jarryd	Ja1rId	C	15
 jars	JA1rz	CU	34	nv
 Jaruda	hV2du1dV2	B	0
-jaruzelski	JE2rVzE1lski	C	15
-jaruzelski	ja2rVzE1lski	C	15
+Jaruzelski	JE2rVzE1lski	C	15
+Jaruzelski	ja2rVzE1lski	C	15
 jarvi	JA1rvi	C	12
 jarvia	JA1rviV	C	0
 jarvie	JA1rvi	C	15
@@ -176411,7 +176411,7 @@ jeffress	JE1frIs	C	15
 Jeffrey	JE1fri	CW	39	n
 jeffrey's	JE1friz	C	15
 jeffreys	JE1friz	C	15
-jeffries	JE1friz	C	15
+Jeffries	JE1friz	C	15	n
 Jeffry	JE1fri	C	20
 jeffs	JE1fs	C	15
 jeffus	JE1fVs	C	0
@@ -176541,7 +176541,7 @@ Jenn	JE1n	CW	29	n
 jenn's	JE1nz	C	15
 Jenna	JE1nV	CW	35	n
 jenne	JE1n	C	15
-jenner	JE1nR	C	15
+Jenner	JE1nR	C	15	n
 jenness	JE1nIs	C	15
 jennet	JE1nIt	W	17
 jennett	JE1nIt	C	14
@@ -176726,7 +176726,7 @@ Jeshua	JE1SuV	W	14
 jeske	JE1sk	C	13
 jesmer	JE1sVmR	C	0
 jesper	JE1spR	C	15
-jespersen	JE1spRsVn	C	15
+Jespersen	JE1spRsVn	C	15
 jesperson	JE1spRsVn	C	13
 Jess	JE1s	CWE	15	n
 jess	JE1s	CWE	37	nv
@@ -178018,7 +178018,7 @@ Josephite	Jo1sVfY2t	U	0
 Josephite	Jo1zVfY2t	U	0
 josephs	Jo1sIfs	C	22
 josephs	Jo1zIfs	C	22
-josephson	Jo1sVfsVn	C	15
+Josephson	Jo1sVfsVn	C	15
 josephthal	Jo1sVfTO2l	C	0
 Josephus	Josi1fVs	C	28	n
 joser	Jo1zR	C	0
@@ -178039,7 +178039,7 @@ joskin	JA1skIn	U	0
 josleyn	JA1slI2n	C	0
 joslin	JA1slIn	C	15
 Joslyn	JO1slIn	C	22
-jospin	JA1spIn	C	15
+Jospin	JA1spIn	C	15
 joss	JO1s	CU	31	n
 joss paper	JO2s pe1pR	P	31
 joss stick	JO2s stI1k	P	31
@@ -179245,7 +179245,7 @@ kabel	ka1bVl	C	15
 kabeljou	kA1bVljW	W	0
 kabi	kA1bi	C	15
 kabi	ka1bi	C	15
-kabila	kVbI1lV	C	15
+Kabila	kVbI1lV	C	15
 kabila's	kVbI1lVz	C	14
 kabivitrum	kVbI1vItrVm	C	0
 kablam	kVbla1m	W	12
@@ -179394,7 +179394,7 @@ kahle	kA1l	C	15
 kahler	kA1lR	C	15
 kahley	kA1li	C	0
 Kahlúa	kVlu1V	W	14
-kahn	kA1n	C	15
+Kahn	kA1n	C	15	n
 kahn's	kA1nz	C	15
 Kahnawake	gA2nVwA1ge	W	14
 kahng	kA1N	C	0
@@ -179553,7 +179553,7 @@ kallal	ka1lVl	C	0
 kallam	ka1lVm	C	0
 Kallang Wave	kA1lAN wev	W	17
 Kallangur	kVla1NgR	W	11
-kallas	ka1lVz	C	15
+Kallas	ka1lVz	C	15
 kallay	ka1le	C	0
 kallen	kO1lVn	C	15
 kallenbach	ka1lInbAk	C	13
@@ -179563,7 +179563,7 @@ kalliel	ka1liVl	C	0
 kallikrein	kVlI1kriIn	U	15
 kallikrein	ka2lVkri1In	U	15
 kallins	ka1lInz	C	0
-kallio	ka1lio	C	15
+Kallio	ka1lio	C	15
 Kallipolis	kVlI1pVlIs	W	0
 kallis	ka1lIs	C	15
 kallman	kO1lmVn	C	15
@@ -179842,7 +179842,7 @@ kansas-city	ka1nzVssI1ti	C	15
 kansian	ka1nziVn	C	0
 Kansu	gA2nsu1	E	13
 Kansu	ka2nsu1	E	13
-kant	ka1nt	C	15
+Kant	ka1nt	C	15	n
 kantar	kVntA1r	U	21
 kantele	kA1ntEle	U	11
 kantele	kA1ntVle	U	11
@@ -179863,8 +179863,8 @@ Kanye	kA1nje	U	38	nv
 kanz	ka1nz	C	12
 kanzi	kA1nzi	C	15
 kanzler	ka1nzlR	C	12
-kao	kW1	C	15
-kao	ke1o2	C	15
+Kao	kW1	C	15	n
+Kao	ke1o2	C	15	n
 Kao-hsiung	gW2SjU1N	E	18
 Kaohsiung	gW2 SjU1N	W	15
 Kaohsiung	gW2SjU1N	E	15
@@ -180037,7 +180037,7 @@ Karin	ka1rIn	W	15	n
 Karina	kAri1nV	C	29	n
 karino	kE2ri1no	C	0
 kariotis	kA2rio1tIs	C	0
-karis	kE1riz	C	15
+Karis	kE1riz	C	15
 Karl	kA1rl	C	40	n
 karl's	kA1rlz	C	15
 Karla	kA1rlV	C	29	n
@@ -180063,7 +180063,7 @@ karma whore	kA2rmV hO1r	P	36
 karma-marga	kA2rmV mA1rgV	P	22
 karma-whore	kA2rmV hO1r	P	36	nv
 karma-yoga	kA2rmV jo1gV	P	37	n
-karman	kA1rmVn	C	15
+Karman	kA1rmVn	C	15
 karmic	kA1rmIk	U	26
 karmic blowback	kA2rmIk blo1ba2k	P	24
 karmic debt	kA2rmIk dE1t	P	26
@@ -180248,7 +180248,7 @@ kastens	ke1sVnz	C	0
 kaster	ka1stR	C	15
 kastl	ka1stVl	C	0
 kastle	ka1sVl	C	15
-kastler	ka1stlR	C	11
+Kastler	ka1stlR	C	11
 Kastner	ka1stnR	CW	20
 kastom	kA1stAm	U	0
 kasun	kA1sun	C	0
@@ -180281,7 +180281,7 @@ katara	kVtA1rV	W	25	n
 katarina	kA2tRi1nV	C	15
 katarina's	kA2tRi1nVz	C	13
 katashiba	ka2tVSi1bV	C	0
-katayama	kAtAjA1mV	C	15
+Katayama	kAtAjA1mV	C	15
 katayan	kA1tVjAn	C	0
 katcher	ka1CR	C	13
 Kate	ke1t	CW	43	n
@@ -180391,7 +180391,7 @@ kaumatua	kWmA1tuV	B	0
 kaumography	komA1grVfi	C	0
 kaunakakai	kW2nV1kVkY	C	0
 Kaunas	kW1nVs	W	22
-kaunda	kO1ndV	C	15
+Kaunda	kO1ndV	C	15
 Kaunje	kW1nJi	U	0
 kaup	kO1p	C	14
 kaupp	kO1p	C	0
@@ -180574,7 +180574,7 @@ keast	ki1st	C	15
 keath	ki1T	C	12
 keathley	ki1Tli	C	11
 keathley's	ki1Tliz	C	0
-keating	ki1tIN	C	15
+Keating	ki1tIN	C	15	n
 keating's	ki1tINz	C	15
 keatley	ki1tli	C	15
 Keaton	ki1tVn	CW	32	n
@@ -181199,7 +181199,7 @@ kenn	kE1n	C	15
 Kenna	kE1nV	CW	25	n
 kennamer	kE1nVmR	C	0
 kennametal	kE1nVmE2tVl	C	12
-kennan	kE1nVn	C	15
+Kennan	kE1nVn	C	15
 Kennard	kE1nRd	C	25	n
 kenneally	kE1nVli	C	15
 Kennebec County	kE1nVbEk kW1nti	W	23
@@ -181315,7 +181315,7 @@ kepco	kE1pko	C	15
 kephart	kE1fArt	C	15
 kepi	kE1pi	W	15
 Keping	kV2pI1N	E	11
-kepler	kE1plR	C	15
+Kepler	kE1plR	C	15	n
 kepley	kE1pli	C	10
 keplinger	kE1pVlINR	C	12
 keplinger	kE1plINR	C	12
@@ -181871,7 +181871,7 @@ khaltura	kaltU1rV	U	0
 Kham	kA1m	E	15
 Kham	kV1m	U	21
 Khamas	kVmA1s	U	0
-khamenei	kVme1ni2	C	15
+Khamenei	kVme1ni2	C	15	n
 Khampa	kV1mpV	U	11
 khamsin	ka1msIn	W	12
 khamsin	kamsi1n	W	12
@@ -181911,7 +181911,7 @@ khat	kA1t	CW	22
 khat	ka1t	W	15
 khata	kA1tV	W	14
 khata	ka1tV	W	14
-khatami	kVtA1mi	C	15
+Khatami	kVtA1mi	C	15
 khatami's	kVtA1miz	C	12
 Khatsyetava	kAtsjE1tAvV	W	0
 khatyrkite	ka1tIrkY2t	B	0
@@ -181983,8 +181983,8 @@ Khotin	ko1tIn	W	0
 khouri	kW1ri	C	15
 khoury	kW1ri	C	15
 khramulya	krVmu1ljV	U	0
-khrushchev	kru1sCE2v	C	15
-khrushchev	kru1sCO2f	C	15
+Khrushchev	kru1sCE2v	C	15	n
+Khrushchev	kru1sCO2f	C	15	n
 khrushchev's	kru1sCE2vz	C	15
 khrushchev's	kru1sCO2fs	C	15
 khu	ku1	W	17
@@ -182419,7 +182419,7 @@ kilbride	kI1lbrY2d	C	15
 kilburg	kI1lbRg	C	0
 kilburn	kI1lbRn	C	15
 kilbury	kI1lbE2ri	C	0
-kilby	kI1lbi	C	15
+Kilby	kI1lbi	C	15
 kilby's	kI1lbiz	C	0
 Kilchoan	kIlko1Vn	B	0
 kilcoin	kI1lkQn	C	0
@@ -183162,7 +183162,7 @@ kirchen	kR1kVn	C	14
 kircher	kR1kR	C	15
 kirchgessner	kR1kgIsnR	C	0
 kirchhofer	kR1khVfR	C	0
-kirchhoff	kR1khOf	C	15
+Kirchhoff	kR1khOf	C	15
 kirchman	kR1kmVn	C	0
 Kirchner	kR1knR	C	15	n
 kirchners	kR1knRz	C	11
@@ -183286,7 +183286,7 @@ kiser	kY1zR	C	15
 kish	kI1S	CW	24
 kisha	kI1SV	C	15
 kishbaugh	kI1SbW	C	0
-kishi	ki1Si	C	15
+Kishi	ki1Si	C	15
 kishke	kI1SkV	W	0
 Kishore	ki1SO2r	C	24
 kisiel	kI1sil	C	13
@@ -183828,7 +183828,7 @@ klinefelter	klI1nIfIltR	C	15
 klinefelter	klY1nfIltR	C	15
 kling	klI1N	C	15
 klingaman	klI1NgVmVn	C	0
-klingbeil	klI1NbYl	C	10
+Klingbeil	klI1NbYl	C	10
 klingberg	klI1NbRg	C	15
 klinge	klI1nJ	C	12
 klingel	klI1NgVl	C	0
@@ -183919,7 +183919,7 @@ kludt	klV1dt	C	0
 kluender	klU1ndR	C	0
 kluesner	klU1snR	C	0
 kluever	klU1vR	C	0
-klug	klV1g	C	15
+Klug	klV1g	C	15
 kluge	klu1J	CW	20
 kluge's	klu1JIz	C	0
 kluger	klu1gR	C	15
@@ -184730,7 +184730,7 @@ Kobabe	kobe1b	U	0
 kobacker	ko1ba2kR	C	0
 kobak	ko1bVk	C	0
 Kobane	kV2bA1ni	U	20
-kobayashi	ko2bAjA1Si	C	15
+Kobayashi	ko2bAjA1Si	C	15	n
 Kobayashi Maru	ko1bAjASi mVru1	W	26
 Kobe	ko1be	CU	36	n
 Kobe	ko1bi2	U	36	n
@@ -184871,7 +184871,7 @@ kohl pencil	ko2l pE1nsVl	P	28
 kohl rabi	ko2l rA1bi	P	23
 kohl's	ko1lz	C	15
 kohlbeck	ko1lbE2k	C	0
-kohlberg	ko1lbRg	C	15
+Kohlberg	ko1lbRg	C	15
 kohlberg's	ko1lbRgz	C	0
 kohlenberg	ko1lVnbRg	C	0
 kohler	ko1lR	C	15
@@ -184886,7 +184886,7 @@ kohlmeyer	ko1lmYR	C	12
 kohlrabi	kOlrA1bi	C	18
 kohlrabi	kolrA1bi	U	18
 kohls	ko1lz	CU	22
-kohn	kA1n	C	15
+Kohn	kA1n	C	15	n
 Kohne	ko1n	CW	0
 kohnen	ko1nVn	C	0
 kohner	ko1nR	C	13
@@ -184904,7 +184904,7 @@ koi koi	kQ2 kQ1	P	28
 koi-koi	kQ1kQ	W	28	n
 Koichi	koi1Ci	C	26	n
 koido	kQ1do	C	0
-koike	kQ1k	C	15
+Koike	kQ1k	C	15
 koilocytosis	kQ2lVsYto1sIs	U	0
 Koine	kQ1ne2	U	15
 Koine	kQ1ni2	U	15
@@ -184918,11 +184918,11 @@ koinonia	kQ2noni1V	W	17
 koinëisation	kQ2neYze1SVn	W	0
 koito	kQ1to2	C	11
 koito	ko2i1to2	C	11
-koivisto	kQ2vI1sto	C	13
+Koivisto	kQ2vI1sto	C	13
 kojak	ko1Ja2k	C	15
 koji	ko1Ji	CU	26	n
 kojima	kVjY1mV	C	15
-kok	kA1k	C	15
+Kok	kA1k	C	15	n
 kokan	ko1kVn	C	14
 kokan's	ko1kVnz	C	0
 kokate	ko2kA1te2	C	0
@@ -185060,7 +185060,7 @@ Komodo	komo1do	C	26	n
 Komodo dragon	kVmo1do dra1gVn	W	26
 komori	komO1ri	C	15
 komorny	komO1rni	C	0
-komorowski	kVmRO1fski	C	15
+Komorowski	kVmRO1fski	C	15
 komoto	komo1to	C	10
 komp	kA1mp	C	12
 kompanek	kA2mpA1nE2k	C	0
@@ -185305,7 +185305,7 @@ korman	kO1rmVn	C	15
 kormos	kO1rmoz	C	12
 korn	kO1rn	C	15
 kornacki	kRnA1tski	C	13
-kornberg	kO1rnbRg	C	15
+Kornberg	kO1rnbRg	C	15
 kornblum	kO1rnblVm	C	15
 kornbluth	kO1rnbluT	C	13
 kornegay	kO1rnIge	C	15
@@ -185418,7 +185418,7 @@ Kosraean	koSY1Vn	W	0
 koss	kO1s	C	23
 kossman	kO1smVn	C	0
 kossow	kA1so	C	0
-kossuth	kA1sVT	C	15
+Kossuth	kA1sVT	C	15
 kost	kA1st	C	15
 kosta	ko1stV	C	15
 kostal	kA1stVl	C	0
@@ -185441,8 +185441,8 @@ kostrzewski	kO2stRzE1wski	C	0
 kosub	ko1sVb	C	0
 kosy	ko1si	C	0
 kosyakov	ko1sjAkOv	C	0
-kosygin	ko1sIgIn	C	15
-kosygin	ko1sigIn	C	15
+Kosygin	ko1sIgIn	C	15
+Kosygin	ko1sigIn	C	15
 kot	kA1t	C	15
 kotara	kotA1rV	C	12
 kotarski	kVtA1rski	C	0
@@ -185706,7 +185706,7 @@ kraushaar	krW1SA2r	C	14
 krauskopf	krW1skOf	C	15
 krauss	krW1s	C	15
 krausse	krO1s	C	0
-krausz	krW1S	C	13
+Krausz	krW1S	C	13
 Kraut	krW1t	CW	24
 kraut juice	krW2t Ju1s	P	24
 krauter	krW1tR	C	0
@@ -185714,7 +185714,7 @@ krauth	krO1T	C	12
 krauthammer	krW1tha2mR	C	15
 krauze	krW1z	C	15
 Krav Maga	krAv mVgA1	W	23
-kravchuk	krA1vCU2k	C	15
+Kravchuk	krA1vCU2k	C	15
 kravchuk's	krA1vCU2kz	C	0
 kravetz	kra1vIts	C	11
 kravis	kra1vIs	C	15
@@ -185730,7 +185730,7 @@ kraynak	kre1nVk	C	0
 kreager	kri1gR	C	0
 kreamer	kri1mR	C	12
 krebbs	krE1bz	C	11
-krebs	krE1bz	C	15
+Krebs	krE1bz	C	15	n
 krebs's	krE1bzIz	C	0
 krebsbach	krE1bzbAk	C	0
 krech	krE1k	C	12
@@ -185776,7 +185776,7 @@ krejci	krE1Jsi	C	15
 krell	krE1l	C	15
 Kremenchuk	krE2mEnCU1k	E	0
 Kremenchuk	krEmInCu1k	E	0
-kremer	kri1mR	C	15
+Kremer	kri1mR	C	15
 kremers	kri1mRz	C	14
 Kremlin	krE1mlIn	CW	34	n
 Kremlin	krE1mlVn	C	34	n
@@ -185796,7 +185796,7 @@ krenn	krE1n	C	11
 krentz	krE1nts	C	14
 krenwinkle	krE1nwI2NkVl	C	0
 krenwinkle's	krE1nwI2NkVlz	C	0
-krenz	krE1nz	C	15
+Krenz	krE1nz	C	15
 krenzer	krE1nzR	C	0
 krepps	krE1ps	C	0
 kreps	krE1ps	C	15
@@ -185910,7 +185910,7 @@ kroboth	krA1bVT	C	0
 kroc	krA1k	C	15
 kroc's	krA1ks	C	0
 krock	krA1k	C	14
-kroeber	kro1bR	C	15
+Kroeber	kro1bR	C	15
 kroeber's	kro1bRz	C	0
 kroeger	kro1gR	C	15
 kroeger's	kro1gRz	C	0
@@ -185985,10 +185985,10 @@ krudman's	krV1dmVnz	C	0
 krueger	kru1gR	C	15
 kruer	kru1R	C	0
 krug	krV1g	C	15
-kruger	kru1gR	C	15
+Kruger	kru1gR	C	15	n
 krugerrand	krugE1rand	C	14
 krugh	krV1	C	0
-krugman	krV1gmVn	C	15
+Krugman	krV1gmVn	C	15	n
 kruk	krV1k	C	15
 krukowski	krVkO1fski	C	0
 krul	krV1l	C	15
@@ -186124,13 +186124,13 @@ kuchinski	kVCI1nski	C	0
 kuchinsky	kVCI1nski	C	0
 kuchler	kV1kVlR	C	15
 kuchler	kV1klR	C	15
-kuchma	ku1CmV	C	15
+Kuchma	ku1CmV	C	15
 kuchma's	ku1CmVz	C	0
 kuchta	kV1CtV	C	14
 kucinski	kVCI1nski	C	0
 kuck	kV1k	C	15
 kuczek	kV1CEk	C	0
-kuczynski	kVCI1nski	C	15
+Kuczynski	kVCI1nski	C	15
 kuda	ku1dV	W	20
 kuder	kju1dR	C	12
 kudla	kV1dlV	C	13
@@ -186201,7 +186201,7 @@ kuhle	ku1Vl	C	12
 kuhlenschmidt	kju1lVnSmI2t	C	0
 kuhlman	ku1lmVn	C	15
 kuhlmann	ku1lmVn	C	15
-kuhn	ku1n	C	15
+Kuhn	ku1n	C	15	n
 kuhne	kV1n	C	12
 kuhner	ku1nR	C	10
 kuhnert	ku1nRt	C	0
@@ -186342,7 +186342,7 @@ kunstler	kV1nslR	C	15
 kunstler	kV1nstlR	C	15
 kuntsler	kV1ntslR	C	0
 kuntz	kV1nts	C	15
-kuntze	kV1ntz	C	15
+Kuntze	kV1ntz	C	15
 kuntzman	kV1ntsmVn	C	0
 Kununurra	kV2nVnA1rV	B	16
 Kununurra	kV2nVnV1rV	B	16
@@ -186438,7 +186438,7 @@ kurumizowa	kU2rumizo1V	C	0
 kurumizowa's	kU2rumizo1Vz	C	0
 kury	kjU1ri	C	0
 kurylo	kRI1lo	C	0
-kurz	kR1z	C	15
+Kurz	kR1z	C	15
 kurzawa	kUrzA1wV	C	14
 kurzban	kR1zba2n	C	0
 Kurzweil	kRzwY1l	C	23
@@ -186446,7 +186446,7 @@ Kurzweil	kV1rtsvYl	U	23
 kus	kV1s	C	15
 kusa	ku1sV	C	15
 kusa	ku1zV	C	15
-kusch	kV1S	C	11
+Kusch	kV1S	C	11
 kuschel	kV1SVl	C	0
 kuse	kju1z	C	11
 kusek	ku1sEk	C	0
@@ -186507,7 +186507,7 @@ kuze	kju1z	C	15
 kuzel	ku1zVl	C	0
 kuzma	kV1zmV	C	15
 kuzminski	kVzmI1nski	C	0
-kuznets	kV1znE2ts	C	15
+Kuznets	kV1znE2ts	C	15
 Kuznets curve	kV1znEts kRv	W	17
 Kuznetsovsk	kUznE2tsA1vsk	B	0
 kuznia	kV1zniV	C	0
@@ -186987,7 +186987,7 @@ lac scale	la2k ske1l	P	33
 lac tree	la2k tri1	P	33
 lac's	la1ks	C	11
 Lac-Mégantic	lA1k me2gAntI1k	W	18
-lacan	lAkA1n	C	15
+Lacan	lAkA1n	C	15
 lacana	lAka1nV	C	0
 Lacanian	lVke1niVn	W	19
 lacasse	lAkA1si	C	15
@@ -187393,7 +187393,7 @@ lafever	la1fEvR	C	0
 lafevers	la1fEvRz	C	0
 lafeyette	lA2fiE1t	C	0
 laff	la1f	C	22
-laffer	la1fR	C	15
+Laffer	la1fR	C	15
 lafferty	la1fRti	C	15
 laffey	la1fi	C	15
 laffin	la1fIn	C	15
@@ -187414,7 +187414,7 @@ lafollette	la1fVlEt	C	15
 lafon	la1fVn	C	14
 lafond	lVfA1nd	C	15
 lafont	lVfA1nt	C	15
-lafontaine	la1fVnte2n	C	15
+Lafontaine	la1fVnte2n	C	15
 lafontant	lAfA1ntVnt	C	0
 laforce	lVfO1rs	C	15
 laforest	lVfO1rVst	C	12
@@ -187444,7 +187444,7 @@ lagace	lAgA1Ci	C	11
 Lagan	la1gVn	CW	15
 lagan	la1gVn	CW	21
 lagana	lAga1nV	C	15
-lagarde	lAgA1rdi	C	15
+Lagarde	lAgA1rdi	C	15
 lagardere	lAgArdI1r	C	12
 lagasse	lAgA1si	C	15
 lagattuta	lAgAtu1tV	C	0
@@ -187605,7 +187605,7 @@ lajeunesse	lVJV1nEs	C	14
 lajoie	la1JwA	C	15
 lajous	lVZu1s	C	0
 Lak	la1k	C	24
-lakatos	la1kVtoz	C	15
+Lakatos	la1kVtoz	C	15
 lake	le1k	CUE	48	nv
 Lake America	le2k VmE1rIkV	P	47
 Lake America	le2k VmE1rkV	P	47
@@ -189044,7 +189044,7 @@ largo	lA1rgo	C	30	n
 lariat	lE1riVt	C	23
 lariat ether	lE2riVt i1TR	P	22
 lariccia	lAri1CV	C	0
-larijani	lE2rIJA1ni	C	15
+Larijani	lE2rIJA1ni	C	15
 larimer	la1rImR	C	15
 larimore	lAri1mOr	C	14
 larina	lAri1nV	C	14
@@ -189309,7 +189309,7 @@ lasso	la1su	UE	27	nv
 lasso cell	la2so sE1l	P	27
 lasso peptide	la2so pE1ptY2d	P	26
 lasso up	la2so V1p	P	27
-lasswell	la1swE2l	C	15
+Lasswell	la1swE2l	C	15
 last	la1s	C	59	v
 last	la1st	CUE	59	v
 last antecedent rule	la2st a2ntIsi2dVnt ru1l	P	26
@@ -189675,7 +189675,7 @@ latona	lAto1nV	C	15
 latonia	lAto1niV	C	12
 Latonian	lVto1niVn	U	0
 latorre	lAtO1ri	C	15
-latour	lVtU1r	C	15
+Latour	lVtU1r	C	15	n
 latourette	la1tUrEt	C	15
 Latoya	lVtQ1V	C	21
 latoya's	lVtQ1Vz	C	0
@@ -189880,8 +189880,8 @@ laughingly	la1fINli	C	21
 laughingstock	la1fINstA2k	C	22
 laughler	la1flR	C	0
 laughless	la1flVs	U	0
-laughlin	lA1flIn	C	15
-laughlin	lA1klIn	C	15
+Laughlin	lA1flIn	C	15	n
+Laughlin	lA1klIn	C	15	n
 laughman	la1fmVn	C	0
 laughner	la1fnR	C	0
 laughrey	la1fri	C	0
@@ -191007,7 +191007,7 @@ leake	li1k	C	15
 leaked	li1kt	CW	40	v
 leaker	li1kR	C	26	n
 leakers	li1kRz	C	23
-leakey	li1ki	C	15
+Leakey	li1ki	C	15
 leaking	li1kIN	CW	37	nv
 leakings	li1kINz	W	0
 leakproof	li1kpruf	W	15
@@ -191407,7 +191407,7 @@ lebowski	lIbA1fski	C	15
 lebrecht	lE1brIkt	C	13
 lebreton	lE1brItAn	C	15
 lebron	lE1brVn	C	15
-lebrun	lE1brVn	C	15
+Lebrun	lE1brVn	C	15
 lebsack	lE1bsVk	C	0
 lebudde	lVbV1d	C	0
 lecates	lIke1ts	C	0
@@ -191493,7 +191493,7 @@ leder	lE1dR	C	15
 lederer	lE1dRR	C	15
 lederhosen	le1dRho2zVn	U	21
 lederle	lE1dRli	C	12
-lederman	li1dRmVn	C	15
+Lederman	li1dRmVn	C	15
 ledesma	lEdE1smV	C	15
 ledet	lE1dIt	C	14
 ledezma	lede1zmV	C	14
@@ -191601,7 +191601,7 @@ lefcourt	lE1fkO2rt	C	14
 lefeber	lVfe1bR	C	0
 lefebre	lVfe1bR	C	11
 lefebure	lE1fIbjUr	C	0
-lefebvre	lVfe1bR	C	15
+Lefebvre	lVfe1bR	C	15	n
 lefever	lVfe1vR	C	15
 lefevers	lVfe1vRz	C	0
 lefevre	lVfe1vR	C	15
@@ -191615,7 +191615,7 @@ leffingwell	lE1fINgwEl	C	15
 leffler	lE1flR	C	15
 Lefkada	lEfkA1dV	W	16
 Lefkas	lEfka1s	W	0
-lefkowitz	lE1fkVwIts	C	15
+Lefkowitz	lE1fkVwIts	C	15
 lefler	lE1flR	C	14
 lefleur	lIflR1	C	11
 leflore	lE1flR	C	15
@@ -191931,7 +191931,7 @@ legendarian	lE2JVndE1riVn	U	0
 legendarium	lEJVndE1riVm	U	13
 legendary	lE1JVndE2ri	CU	42	n
 legendary Pokémon	lE2JVndE2ri po1kimA2n	P	36
-legendre	lE1gIndre	C	15
+Legendre	lE1gIndre	C	15
 legends	lE1JVndz	C	41	n
 legent	lE1JVnt	C	0
 legent's	lE1JVnts	C	0
@@ -191949,7 +191949,7 @@ Legge	lE1g	CW	24
 legged	lE1gId	W	35
 legged	lE1gVd	CW	35
 legged	lE1gd	CW	35	v
-leggett	lE1gIt	C	15	n
+Leggett	lE1gIt	C	15	n
 leggette	lE1gE1t	C	0
 Leggian	lE1giVn	W	0
 legging	lE1gIN	CW	22
@@ -192396,7 +192396,7 @@ Lenagan Island	lE1nVgVn Y1lVnd	W	0
 lenahan	lE1nVhan	C	14
 Lenape	lVnA1pi	U	20
 Lenapehoking	lEnA2peho1kIN	UE	0
-lenard	lE1nRd	C	15
+Lenard	lE1nRd	C	15
 lenart	lE1nRt	C	11
 lenarz	le1nArz	C	0
 lencioni	lEnCo1ni	C	10
@@ -192738,7 +192738,7 @@ lerew	lE1ru	C	0
 lerhman	lR1mVn	C	0
 lerma	lR1mV	C	15
 lerman	lE1rmVn	C	15
-lerner	lR1nR	C	15
+Lerner	lR1nR	C	15
 lerner's	lR1nRz	C	15
 Leroux	lRu1	C	15
 Leroy	lI1rQ2	CW	34	n
@@ -193517,7 +193517,7 @@ Lewes	lu1Is	W	28	n
 lewey	lu1i	C	0
 lewi	lu1i	C	15
 lewicki	luI1tski	C	15
-lewin	lu1In	C	15
+Lewin	lu1In	C	15	n
 Lewin's Cove	lu1Inz ko1v	W	15
 lewing	lu1IN	C	0
 lewins	lu1Inz	C	12
@@ -194132,12 +194132,12 @@ liebelt	li1bIlt	C	0
 liebenow	li1bIno	C	0
 lieber	li1bR	C	15
 lieberal	lY1bRVl	UE	0
-lieberman	li1bRmVn	C	15
+Lieberman	li1bRmVn	C	15	n
 lieberman's	li1bRmVnz	C	15
 Liebermann	li1bRmVn	C	15
 liebert	li1bRt	C	15
 lieberthal	li1bRTO2l	C	14
-liebig	li1bIg	C	15
+Liebig	li1bIg	C	15
 liebl	li1bVl	C	0
 liebler	li1blR	C	10
 liebling	li1bVlIN	C	15
@@ -195144,7 +195144,7 @@ likes	lY1ks	CW	47	nv
 likesome	lY1ksVm	WE	0
 likewise	lY1kwY2z	CW	40
 likey	lY1ki	W	23
-likhachov	lI1kVCAv	C	0
+Likhachov	lI1kVCAv	C	0
 likhyani	lIkjA1ni	C	0
 likin	li2JI1n	E	18
 likin	li2kI1n	W	18
@@ -195542,7 +195542,7 @@ lindhorst	lI1ndhOrst	C	0
 lindig	lI1ndIg	C	0
 Lindisfarne	lI1ndIsfArn	U	22
 lindler	lI1ndlR	C	0
-lindley	lI1ndli	C	15
+Lindley	lI1ndli	C	15	n
 lindman	lI1ndmVn	C	13
 lindmark	lI1ndmA2rk	C	0
 lindner	lI1ndnR	C	15
@@ -196267,7 +196267,7 @@ lippincott	lI1pInkVt	C	15
 lippitt	lI1pIt	C	15
 lipple	lI1pVl	W	0
 lippman	lI1pmVn	C	15
-lippmann	lI1pmVn	C	15
+Lippmann	lI1pmVn	C	15
 lippo	lI1po	C	15
 lippold	lI1po2ld	C	13
 lipps	lI1ps	C	15
@@ -197266,7 +197266,7 @@ livingrooms	lI1vINru2mz	C	0
 livings	lI1vINz	C	22
 Livingston	lI1vINstVn	CW	34	n
 livingston's	lI1vINstVnz	C	15
-livingstone	lI1vINsto2n	C	15
+Livingstone	lI1vINsto2n	C	15	n
 livingstone daisy	lI2vINsto2n de1zi	P	30
 livingstone's	lI1vINsto2nz	C	15
 livingwell	lI1vINwE2l	C	0
@@ -197954,7 +197954,7 @@ loftin	lA1ftIn	C	15
 loftis	lA1ftIs	C	15
 lofton	lA1ftVn	C	15
 lofts	lO1fts	C	26	nv
-loftus	lO1ftVs	C	15
+Loftus	lO1ftVs	C	15	n
 lofty	lO1ftI	E	15
 lofty	lO1fti	CU	33
 lofty ship	lO2fti SI1p	P	33
@@ -199316,7 +199316,7 @@ lorence	lO1rVns	C	13
 lorene	lOri1n	C	15
 lorensen	lO1rInsVn	C	0
 lorenson	lO1rInsVn	C	0
-lorentz	lO1rInts	C	15
+Lorentz	lO1rInts	C	15	n
 lorentzen	lO1rIntzVn	C	15
 Lorenz	lRE1nts	C	28	n
 Lorenz	lVrE1nz	W	15	n
@@ -199959,7 +199959,7 @@ loved-up	lV2vd V1p	P	50
 loveday	lV1vde2	CW	22
 lovegrove	lV1vgro2v	C	15
 Lovejoy	lV1vJQ2	CW	28	n
-lovelace	lV1vle2s	C	15
+Lovelace	lV1vle2s	C	15	n
 lovelan	lV1vlVn	C	0
 loveland	lV1vlVnd	C	15
 loveless	lV1vlVs	C	27
@@ -200832,7 +200832,7 @@ luh	lV	W	21
 Luhansk	luha1nsk	W	26	n
 Luhe	lu2hV1	E	0
 luhman	lV1mVn	C	13
-luhmann	lV1mVn	C	15
+Luhmann	lV1mVn	C	15
 luhn	lV1n	C	15
 luhr	lR1	C	11
 luhr	lU1r	C	11
@@ -201305,7 +201305,7 @@ lures	lU1rz	C	29	n
 lurette	lRE1t	C	0
 lurgi	lR1Ji	C	0
 lurgy	lR1gi	U	13
-luria	lU1riV	C	15
+Luria	lU1riV	C	15
 lurid	lR1Id	U	27
 lurid	lU1rId	U	27
 lurid	lU1rVd	C	27
@@ -201517,7 +201517,7 @@ luyster	lY1stR	C	0
 Luz	lV1z	C	30	n
 luzader	lV1zVdR	C	0
 luzar	lu1zR	C	0
-luzhkov	lu1ZkO2v	C	15
+Luzhkov	lu1ZkO2v	C	15
 Luzhou	lu2Jo1	E	11
 Luzhu	lu2Ju1	E	0
 luzier	lu1ziR	C	0
@@ -201583,7 +201583,7 @@ lydite	lI1dYt	W	0
 Lydon	lI1dVn	C	23
 Lydon	lY1dVn	W	15
 lye	lY1	CW	27	nv
-lyell	lY2E1l	C	15
+Lyell	lY2E1l	C	15	n
 lyerla	lY2R1lV	C	0
 lyerly	lY1Rli	C	11
 lyford	lI1fRd	C	15
@@ -201960,7 +201960,7 @@ macaw palm	mVkO2 pA1m	P	23
 macaws	mVkO1z	C	21
 Macbeth	mVkbE1T	CW	33	n
 macbook	ma1kbU2k	C	15
-macbride	mVkbrY1d	C	15
+MacBride	mVkbrY1d	C	15
 Macca	ma1kV	W	21
 Macca's	ma1kVz	W	14
 MacCabe	mVke1b	U	13
@@ -202046,7 +202046,7 @@ machanka	mA1CVnkV	W	0
 Machaon	mVke1Vn	W	13
 mache	ma1C	C	24
 Machead	ma1khE2d	W	0
-machel	ma1CVl	C	15
+Machel	ma1CVl	C	15
 machen	ma1kVn	C	15
 Macheng	mA2CV1N	E	0
 macheps	ma1SE2ps	B	0
@@ -202060,8 +202060,8 @@ machete beta	mVSE2ti2 be1tV	P	31
 machetes	mVCE1ti2z	C	25	nv
 machetes	mVSE1ti2z	C	25	nv
 machi	mA1ki	C	15	n
-machiavelli	mA2kiVvE1li	C	15
-machiavelli	mA2kjVvE1li	C	15
+Machiavelli	mA2kiVvE1li	C	15	n
+Machiavelli	mA2kjVvE1li	C	15	n
 machiavelli's	mA2kiVvE1liz	C	15
 machiavelli's	mA2kjVvE1liz	C	15
 Machiavellian	mA2kiVvE1liVn	CU	15	n
@@ -202263,7 +202263,7 @@ maclellan	mVklE1lVn	C	15
 maclennan	mVklE1nVn	C	15
 Macleod	mVklW1d	CW	32	n
 maclin	ma1klVn	C	15
-macmahon	mVkma1n	C	15
+MacMahon	mVkma1n	C	15
 macmaster	mVkma1stR	C	15
 MacMillan	mVkmI1lVn	CU	36	n
 macmillan's	mVkmI1lVnz	C	15
@@ -202307,7 +202307,7 @@ macramé	mVkrA1me	W	17
 macramé	mVkrA1mi	W	17
 macramé	ma1krVme2	W	17
 macrencephaly	ma2kroEnsE1fVli	W	0
-macri	ma1kri	C	15
+Macri	ma1kri	C	15
 macro	ma1kro	CU	37	nv
 macro expansion	ma2kro Ikspa1nCVn	P	36
 macro expansion	ma2kro Ikspa1nSVn	P	36
@@ -202550,7 +202550,7 @@ maden	me1dVn	C	15
 mader	me1dR	C	15
 madera	mAdE1rV	C	15
 madere	ma1dR	C	0
-madero	mAdE1ro	C	15
+Madero	mAdE1ro	C	15
 madewell	ma1dIwEl	C	15
 madewell	me1dwEl	C	15
 madey	me1di	C	12
@@ -203201,9 +203201,9 @@ Maharashtra	mA2hRA1StrV2	C	33	n
 Maharashtra	mA2hVrA1StrV	W	33	n
 mahariv	mA2hA1riv	C	0
 maharive	mA2hVri1v	C	0
-mahathir	mVhA1TI2r	C	15
-mahathir	mVha1TI2r	C	15
-mahathir	ma1hVTR	C	15
+Mahathir	mVhA1TI2r	C	15
+Mahathir	mVha1TI2r	C	15
+Mahathir	ma1hVTR	C	15
 mahatma	mVhA1tmV	C	31	n
 mahavira	mA1hAvI2rA	C	15
 Mahayana	mA2hVjA1nV	CW	24
@@ -204316,7 +204316,7 @@ Malaspina	mAlAspi1nV	C	17
 Malaspina	mAlVspi1nV	W	17
 malatang	mA1lVtA2N	U	0
 malatang	mA2lA2tA1N	E	0
-malatesta	mAlAtE1stV	C	15
+Malatesta	mAlAtE1stV	C	15
 malathion	mVla1TiOn	C	18
 malathion	mVla1TiVn	C	18
 malave	mAlA1vi	C	0
@@ -204517,7 +204517,7 @@ malinger	mVlI1NgR	U	12
 malingerer	mVlI1NgRR	B	14
 malino	mVli1no	C	0
 malinoski	mVlInW1ski	C	0
-malinowski	mVlInO1fski	C	15
+Malinowski	mVlInO1fski	C	15
 malinski	mVlI1nski	C	0
 malintent	ma2lIntE1nt	U	0
 Malipo	mA2li2po1	E	0
@@ -206470,7 +206470,7 @@ Marguerite	mA2rgVri1t	W	15	n
 marguerite	mA2rgRi1t	C	31	n
 marguerite	mA2rgVri1t	U	31	n
 margulies	mA1rguliz	C	15
-margulis	mA1rgVlIs	C	15
+Margulis	mA1rgVlIs	C	15
 margus	mA1rgVs	C	14
 margy	mA1rJi	C	15
 marhefka	mRhE1fkV	C	0
@@ -206905,7 +206905,7 @@ markovich	mA1rkVvIC	C	15
 markovitz	mA1rkVvIts	C	14
 markow	mA1rko	C	0
 markowicz	mA1rkVvIC	C	0
-markowitz	mA1rkVwIts	C	15
+Markowitz	mA1rkVwIts	C	15
 markowski	mRkO1fski	C	15
 marks	mA1rks	CU	45	nv
 marks's	mA1rksIz	C	12
@@ -208772,7 +208772,7 @@ Mausoleum	mO2sVli1Vm	CUE	15	n
 mausoleum	mO2sVli1Vm	CUE	29	n
 mausolf	mW1solf	C	0
 Mausolus	mAzo1lVs	B	11
-mauss	mO1s	C	15
+Mauss	mO1s	C	15
 mausser	mW1sR	C	0
 maust	mO1st	C	12
 maute	mO1t	C	13
@@ -209051,7 +209051,7 @@ mayors	me1Rz	C	34	n
 Mayotte	meO1t	C	15
 maypole	me1po2l	U	22
 maypop	me1pAp	U	0
-mayr	mE1r	C	15
+Mayr	mE1r	C	15
 Mayreau	mY1ro	B	0
 Mays	me1z	CW	30	n
 mays'	me1z	C	15
@@ -209099,7 +209099,7 @@ mazon	mAzO1n	C	15
 mazon	mVzo1n	C	15
 mazone	mVzo1n	C	0
 mazor	mAzO1r	C	12
-mazowiecki	mVzo2iE1ki	C	15
+Mazowiecki	mVzo2iE1ki	C	15
 Mazu	mA2dzu1	E	16
 mazuma	mVzu1mV	W	12
 mazur	ma1zR	C	15
@@ -209148,9 +209148,9 @@ Mbabane	VmbAbA1ne	E	16
 Mbabane	VmbAbA1ni	W	16
 Mbabane	mbAbA1ni	W	16
 mbank	E1mba1Nk	C	11
-mbeki	EmbE1ki	C	15
-mbeki	VmbE1ki	C	15
-mbeki	mbE1ki	C	15
+Mbeki	EmbE1ki	C	15	n
+Mbeki	VmbE1ki	C	15	n
+Mbeki	mbE1ki	C	15	n
 mbio	E2mbY1o	U	0
 mbira	mVbI1rV	C	15
 MC	E1msi1	C	15	n
@@ -209433,7 +209433,7 @@ mcconn	mVkA1n	C	0
 mcconnaughey	mVkA1nVge	C	0
 mcconnel	mVkA1nVl	C	15
 mcconnel's	mVkA1nVlz	C	0
-mcconnell	mVkA1nVl	C	15
+McConnell	mVkA1nVl	C	15	n
 mcconnell's	mVkA1nVlz	C	15
 mcconnon	mVkA1nVn	C	0
 mcconville	mVkA1nvI2l	C	15
@@ -209803,7 +209803,7 @@ McGuigan	mVgI1gVn	C	22
 McGuigan	mVgwI1gVn	W	22
 mcguiness	mVgI1nVs	C	15
 mcguinn	mVgI1n	C	15
-mcguinness	mVgI1nVs	C	15
+McGuinness	mVgI1nVs	C	15	n
 McGuinty	mVkgI1nti	U	19
 mcguire	mVgwY1r	C	15
 mcguirk	mVgR1k	C	15
@@ -210005,7 +210005,7 @@ mcloud	mVklW1d	C	12
 mclouth	mVklW1T	C	15
 mclucas	mVklu1kVz	C	13
 mcluckie	mVklV1ki	C	12
-mcluhan	mVklu1Vn	C	15
+McLuhan	mVklu1Vn	C	15
 mclure	mVklU1r	C	15
 mcmackin	mVkma1kVn	C	12
 mcmahan	mVkme1hVn	C	15
@@ -211111,7 +211111,7 @@ medusa worm	mVdu2sV wR1m	P	30
 medusas	mVdu1sVz	C	12
 medusoid	mVdu1sQd	U	0
 medved	mE1dvVd	C	15
-medvedev	mE1dvVdE2v	C	15
+Medvedev	mE1dvVdE2v	C	15	n
 Medvezhye	mIdvE1Zje	WE	0
 Medway	mE1dwe	W	27	n
 medwin	mE1dwIn	C	15
@@ -211449,8 +211449,8 @@ meints	mY1nts	C	0
 meinzer	mY1nzR	C	0
 meiosis	mYo1sIs	U	26	n
 meiosis	mYo1sVs	C	26	n
-meir	mE1r	C	15
-meir	mY1r	C	15
+Meir	mE1r	C	15	n
+Meir	mY1r	C	15	n
 meiring	mY1rIN	C	13
 meis	mi1z	C	15
 meisch	mY1S	C	0
@@ -211723,7 +211723,7 @@ melon muncher	mE2lVn mV1nCR	P	19
 melon-headed	mE2lVn hE1dId	P	33
 melon-headed whale	mE2lVn hE2dId we1l	P	32
 melone	mElo1ni	C	15
-meloni	mElo1ni	C	15
+Meloni	mElo1ni	C	15
 melonious	mElo1niVs	U	0
 melonious	mVlo1niVs	U	0
 melonous	mE1lVnVs	W	0
@@ -212048,7 +212048,7 @@ mendan	mE1ndVn	C	0
 Mende	mE1nd	C	23
 Mende	mE1ndi	W	15
 mended	mE1ndId	CU	27	v
-mendel	mE1ndVl	C	15
+Mendel	mE1ndVl	C	15	n
 mendel's	mE1ndVlz	C	15
 Mendeleev	mE2ndVle1Vf	B	20
 mendelevate	mE2ndVli1vet	U	0
@@ -212092,7 +212092,7 @@ meneely	mIni1li	C	0
 menees	mE1ni1z	C	0
 menefee	mE1nIfi	C	15
 Menelaus	mE2nIle1Vs	W	24
-menem	mE1nVm	C	15
+Menem	mE1nVm	C	15
 menem's	mE1nVmz	C	0
 Menendez	mEnE1ndEz	C	26	n
 Menendez	mVnE1ndEz	W	26	n
@@ -212103,13 +212103,13 @@ Meng	mV1N	E	15	n
 menge	mE1nJ	C	15
 mengel	mE1NgVl	C	15
 mengele	mE1NgVlV	C	15
-menger	mE1nJR	C	15
+Menger	mE1nJR	C	15
 Mengerink	mE1NgRINk	W	0
 mengers	mE1NgRz	C	11
 menges	mE1nJIz	C	15
 Menghai	mV2NhY1	E	0
 menghini	mEngi1ni	C	0
-mengistu	mE2Ngi1stu	C	15
+Mengistu	mE2Ngi1stu	C	15
 Mengjin	mV2NJI1n	E	0
 Mengla	mV2NlA1	E	0
 Mengzhou	mV2NJo1	WE	0
@@ -212345,7 +212345,7 @@ menze	mE1nz	C	0
 Menzel	mE1nzVl	C	15	n
 menzer	mE1nzR	C	0
 menzie	mE1nzi	C	11
-menzies	mE1nziz	C	15
+Menzies	mE1nziz	C	15	n
 menzione	mEnzio1ni	C	0
 menzione	mEnzjo1ni	C	0
 meo	mi1o	C	15
@@ -212784,7 +212784,7 @@ merycism	mE1rIsI2zVm	W	0
 merycism	mE1rVsI2zVm	W	0
 Meryl	mE1rVl	C	32	n
 meryll	mE1rVl	C	0
-merz	mR1z	C	15
+Merz	mR1z	C	15
 mesa	mE1sV	U	35	n
 mesa	me1sV	CUE	35	n
 mesa's	me1sVz	C	15
@@ -213040,7 +213040,7 @@ messing	mE1sIN	C	38	v
 messinger	mE1sINR	C	15
 messler	mE1slR	C	0
 messman	mE1smVn	C	0
-messmer	mE1smR	C	15
+Messmer	mE1smR	C	15
 messmore	mE1smOr	C	0
 messner	mE1snR	C	15
 Messrs	mE1sRz	CU	29	n
@@ -213274,9 +213274,9 @@ metatime	mE2tVtY1m	W	0
 Metatron	mE1tVtrAn	U	23
 metaverse	mE1tVvRs	U	17
 metavsky	mVta1vski	C	0
-metaxas	mVta1ksVs	C	15
+Metaxas	mVta1ksVs	C	15
 metcalf	mE1tka2f	C	15
-metcalfe	mE1tkVlf	C	15
+Metcalfe	mE1tkVlf	C	15	n
 metcom	mE1tkAm	C	0
 mete	mE1tV	C	24
 mete	mi1t	CW	24
@@ -213648,7 +213648,7 @@ mets'	mE1ts	C	15
 metsker	mE1tskR	C	0
 mette	mE1t	C	15
 metter	mE1tR	C	15
-metternich	mE1tRnIC	C	15
+Metternich	mE1tRnIC	C	15
 mettle	mE1tVl	CW	27	n
 mettlen	mE1tlVn	C	0
 mettler	mE1tlR	C	15
@@ -213919,9 +213919,9 @@ michelli	mICE1li	C	0
 michelman	mY1kVlmVn	C	15
 michelob	mI1kVlob	C	15
 michelotti	mIkVlo1ti	C	0
-michels	mISE1lz	C	15
+Michels	mISE1lz	C	15
 michelsen	mY1kVlsVn	C	15
-michelson	mY1kVlsVn	C	15
+Michelson	mY1kVlsVn	C	15
 michener	mI1CnR	C	15
 michener's	mI1CnRz	C	0
 Michie	mI1Ci	C	23
@@ -215021,7 +215021,7 @@ MILF	mI1lf	W	34	n
 Milford	mI1lfRd	CU	33	n
 milfur	mI1lfR2	U	0
 MILFy	mI1lfi	W	12
-milgram	mI1lgra2m	C	15
+Milgram	mI1lgra2m	C	15
 milham	mI1lhVm	C	12
 milhoan	mI1lhon	C	0
 milholland	mI1lhVlVnd	C	12
@@ -215397,7 +215397,7 @@ milligauss	mI1ligW2s	C	0
 milligram	mI1lIgram	U	24
 milligram	mI1lVgra2m	C	24
 milligrams	mI1lVgra2mz	C	31	n
-millikan	mI1lVkVn	C	15
+Millikan	mI1lVkVn	C	15
 milliken	mI1lIkVn	C	15
 millikin	mI1lIkIn	C	15
 milliliter	mI1lVli2tR	C	22
@@ -215521,8 +215521,8 @@ mils	mI1lz	C	25	n
 milsap	mI1lsa2p	C	15
 milson	mI1lsVn	C	15
 milstead	mI1lstE2d	C	15
-milstein	mI1lstY2n	C	15
-milstein	mI1lsti2n	C	15
+Milstein	mI1lstY2n	C	15
+Milstein	mI1lsti2n	C	15
 milsurp	mI1lsR2p	W	0
 milt	mI1lt	CW	27	nv
 milt-sick	mI1lt sI1k	W	27
@@ -216333,7 +216333,7 @@ minshall	mI1nSVl	C	15
 minshew	mI1nSu	C	15
 Minsk	mI1nsk	CW	31	n
 minskoff	mI1nskOf	C	12
-minsky	mI1nski	C	15
+Minsky	mI1nski	C	15
 minson	mI1nsVn	C	14
 minstar	mI1nstA2r	C	0
 minstar's	mI1nstA2rz	C	0
@@ -217704,7 +217704,7 @@ mitro	mI1tro	C	15
 mitrovich	mI1trVvIC	C	0
 mitsch	mI1C	C	11
 mitschke	mI1Ck	C	0
-mitsotakis	mI2tsotA1kIs	C	13
+Mitsotakis	mI2tsotA1kIs	C	13
 mitsuba	mitsu1bV	C	13
 Mitsubishi	mI2tsUbI1Si	W	15	n
 Mitsubishi	mI2tsu2bi1Si	C	33	n
@@ -217731,8 +217731,8 @@ mitterand	mi1tRO2nd	C	15
 mitterand	mi1tRa2nd	C	15
 mitterand's	mi1tRO2ndz	C	0
 mitterand's	mi1tRa2ndz	C	0
-mitterrand	mi1tRO2nd	C	15
-mitterrand	mi1tRa2nd	C	15
+Mitterrand	mi1tRO2nd	C	15
+Mitterrand	mi1tRa2nd	C	15
 mitterrand's	mi1tRandz	C	13
 mittimus	mI1tImVs	W	11
 mittleman	mI1tVlmVn	C	13
@@ -218109,7 +218109,7 @@ mobs	mA1bz	C	32	nv
 mobster	mA1bstR	CU	28	n
 mobster's	mA1bstRz	C	14
 mobsters	mA1bstRz	C	27	n
-mobutu	mobu1tu2	C	15
+Mobutu	mobu1tu2	C	15
 mobutu's	mobu1tu2z	C	12
 Moby	mo1bi	C	30	n
 moca	mo1kV	C	15
@@ -218784,7 +218784,7 @@ moliere's	moljE1rz	C	0
 molimina	mVlI1mVnV	U	0
 moliminous	molI1mInVs	U	0
 molin	mo1lIn	C	15
-molina	mVli1nV	C	15
+Molina	mVli1nV	C	15	n
 molinar	mA1lInR	C	0
 molinari	mO2lVnA1ri	C	15
 molinaro	molinA1ro	C	15
@@ -219031,7 +219031,7 @@ moncure	monkU1ri	C	15
 moncus	mA1nkIs	C	0
 monda	mA1ndV	C	15
 mondadori	mA2ndVdO1ri	C	15
-mondale	mA1nde2l	C	15
+Mondale	mA1nde2l	C	15
 mondale's	mA1nde2lz	C	12
 mondallo	mAnda1lo	C	0
 mondavi	mAndA1vi	C	15
@@ -219201,7 +219201,7 @@ Mong Kok	mA1NkA2k	B	27
 Mong Kok	mA2NkA1k	B	27
 mong out	mO2N W1t	P	30
 mongan	mA1NgVn	C	14
-monge	mA1nJ	C	15
+Monge	mA1nJ	C	15
 mongeau	mVNgo1	C	15
 mongeese	mA1Ngis	U	0
 mongelli	moNgE1li	C	0
@@ -219273,7 +219273,7 @@ monitoring	mA1nItRIN	U	43	nv
 monitoring	mA1nVtRIN	C	43	nv
 monitors	mA1nVtRz	C	38	nv
 monitress	mA1nItrIs	B	0
-moniz	mA1nIz	C	15
+Moniz	mA1nIz	C	15
 monje	mA1nJ	C	15
 monk	mV1Nk	CW	39	nv
 monk bat	mV2Nk ba1t	P	38
@@ -219693,7 +219693,7 @@ Montagnais	mAntVnje1	U	15
 Montagnard	mA2ntVnjA1rd	UE	16
 montagne	mVnte1nj	C	15
 montagne russe	mVnte2nj rV1s	P	20
-montagnier	mAnta1njR	C	12
+Montagnier	mAnta1njR	C	12
 montagnino	montAgni1no	C	0
 Montagovian	mA2ntVgo1viVn	B	0
 montagu	mA1ntVgju2	C	15
@@ -220546,13 +220546,13 @@ morgen	mO1rgVn	C	24
 morgenroth	mO1rgInrOT	C	0
 morgenstern	mO1rgInstRn	C	24
 morgenthaler	mO1rgInTVlR	C	15
-morgenthau	mO1rgVnTW2	C	15
+Morgenthau	mO1rgVnTW2	C	15
 morglay	mO1rgle	W	0
 Morgon	mO1rgVn	B	13
 morgue	mO1rg	CUW	31	n
 morgues	mO1rgz	C	20
 morgun	mO1rgVn	C	0
-mori	mO1ri	C	15
+Mori	mO1ri	C	15	n
 mori kei	mO2ri ke1	W	28
 moria	mO1riV	C	15	n
 Moriac	mA1riak	B	0
@@ -220575,7 +220575,7 @@ morillo	mOrI1lo	C	15
 morillom	mO1rIlOm	C	0
 morillono	mOrI1lVno	C	0
 morimoto	mOrimo1to	C	15
-morin	mO1rIn	C	15	n
+Morin	mO1rIn	C	15	n
 morine	mOri1ni	C	11
 moring	mO1rIN	C	15
 moringa	mOrI1NgV	W	20
@@ -220825,7 +220825,7 @@ mortellaro	mOrtElA1ro	C	0
 mortem	mO1rtVm	C	15
 mortems	mO1rtVmz	C	15
 Morten	mO1rtVn	C	27	n
-mortensen	mO1rtInsVn	C	15
+Mortensen	mO1rtInsVn	C	15	n
 mortenson	mO1rtInsVn	C	15
 morter	mO1rtR	C	15
 mortgage	mO1rgIJ	CU	44	nv
@@ -220910,7 +220910,7 @@ mosbacher	mA1sbAkR	C	14
 mosbrucker	mA1sbrVkR	C	0
 Mosby	mO1sbi	C	27	n
 Mosby	mo1zbi	U	27	n
-mosca	mo1skV	C	15
+Mosca	mo1skV	C	15
 moscato	moskA1to	C	21
 moschatel	mA2skVtE1l	B	0
 moschella	moskE1lV	C	10
@@ -220931,7 +220931,7 @@ moscowitz	mA1skVwIts	C	12
 mose	mo1z	C	15
 Mosedale	mo1zdel	B	0
 mosel	mo1sVl	C	15
-moseley	mo1zli2	C	15
+Moseley	mo1zli2	C	15	n
 moseley-braun	mo1zlibrA1n	C	15
 moselle	mozE1l	C	15
 mosely	mo1zli	C	15
@@ -221466,7 +221466,7 @@ mottled mallard	mA2t Vld ma1lRd	P	25
 mottled owl	mA2t Vld W1l	P	27
 mottled rustic	mA2t Vld rV1stIk	P	27
 mottled umber	mA2t Vld V1mbR	P	22
-mottley	mA1tli	C	15
+Mottley	mA1tli	C	15
 mottling	mA1tVlIN	C	20
 mottling	mA1tlIN	C	20
 motto	mA1to	CUW	37	in
@@ -222489,7 +222489,7 @@ mug off	mV2g O1f	P	37
 mug shot	mV2g SA1t	P	37
 mug up	mV2g V1p	P	37
 mug-hunting	mV2g hV1ntIN	P	36	n
-mugabe	mugA1be	C	15
+Mugabe	mugA1be	C	15	n
 mugabe's	mugA1bez	C	15
 mugar	mju1gR	C	0
 mugavero	mugAvE1ro	C	0
@@ -222566,7 +222566,7 @@ mujahid	mUJA1hId	B	23
 mujahideen	mu2JVhEdi1n	C	27	n
 mujahideen	muJA2hEdi1n	U	27	n
 Muji	mu1Ji	W	21
-mujica	mju1JIkV	C	15
+Mujica	mju1JIkV	C	15
 mujik	mu1JIk	B	0
 mujik	mu1ZIk	B	0
 mujik	muZi1k	B	0
@@ -222714,7 +222714,7 @@ mulligatawny	mV1lIgVtA1ni	C	11
 mulligatawny	mV2lIgVtO1ni	W	11
 mulliken	mV1lIkVn	C	15
 mullikin	mV1lIkIn	C	11
-mullin	mV1lIn	C	15
+Mullin	mV1lIn	C	15	n
 mullinax	mV1lInaks	C	10
 mullineaux	mV1lIno2	C	0
 mulling	mV1lIN	C	26	nv
@@ -222724,12 +222724,12 @@ mullings	mV1lINz	C	16
 mullinix	mV1lInIks	C	0
 Mullins	mV1lI2nz	CW	30	n
 mullion	mV1liVn	W	19
-mullis	mV1lIs	C	15
+Mullis	mV1lIs	C	15
 mulloy	mV1lQ	C	15
 mulls	mV1lz	C	23
 mulnix	mV1lnIks	C	0
 mulqueen	mVlkwi1n	C	12
-mulroney	mVlro1ni	C	15
+Mulroney	mVlro1ni	C	15
 mulroney's	mVlro1niz	C	13
 mulrooney	mV1lruni	C	15
 mulroy	mV1lrQ2	C	15
@@ -223123,7 +223123,7 @@ mumbo sauce	mV2mbo sO1s	P	26
 mumbo-jumbo	mV2mbo JV1mbo	P	25	n
 mumby	mV1mbi	C	15
 mumchance	mV1mCans	U	0
-mumford	mV1mfRd	C	15
+Mumford	mV1mfRd	C	15	n
 mumia	mVmi1jV	C	15
 mumian	mu2mjE1n	E	0
 mumm	mV1m	C	22
@@ -223194,7 +223194,7 @@ mundane	mVnde1n	CW	34	n
 mundanity	mV2nda1nIti	W	16
 Mundare	mV2ndE1r	W	0
 munday	mV1nde2	C	15
-mundell	mV1ndVl	C	15
+Mundell	mV1ndVl	C	15
 munden	mV1ndVn	C	15
 mundi	mV1ndi	C	15
 mundialization	mA2ndiVlVze1SVn	U	0
@@ -223336,7 +223336,7 @@ murata	mUrA1tV	C	15
 muratore	mUrAtO1re	C	12
 muravich	mR1VvI2C	C	0
 murawski	mRA1fski	C	12
-murayama	mR2YA1mV	C	15
+Murayama	mR2YA1mV	C	15
 murayama's	mR2YA1mVz	C	0
 murch	mR1k	C	15
 murchie	mR1Ci	C	15
@@ -224231,7 +224231,7 @@ myeloproliferative neoplasm	mY2VlVprVlI2fRetIv ni1Vpla2zVm	P	16
 Myer	mY1R	C	28	n
 Myers	mY1Rz	CW	37	n
 myers's	mY1RzIz	C	13
-myerson	mY1rsVn	C	15
+Myerson	mY1rsVn	C	15
 myette	mY2E1t	C	0
 Myfanwy	mVvA1nui	W	18
 Myfanwy	mVvA1nwi	W	18
@@ -224622,7 +224622,7 @@ nadeau	nVdo1	C	15
 nadein	nVdY1n	C	0
 nadel	nAdE1l	C	15
 nadell	nAde1l	C	0
-nader	ne1dR	C	15
+Nader	ne1dR	C	15	n
 nader's	ne1dRz	C	15
 Naderite	ne1dRY2t	CW	0
 naderites	ne1dRY2ts	C	0
@@ -224680,7 +224680,7 @@ Nagasaki	nA2gAsA1ki	C	30	n
 Nagasaki	nA2gVsA1ki	U	30	n
 Nagasaki	na2gVsA1ki	U	30	n
 nagata	nAgA1tV	C	15
-nagel	ne1gVl	C	15
+Nagel	ne1gVl	C	15	n
 nagele	na1gVl	C	0
 nagengast	na1gINgVst	C	0
 nager	ne1gR	C	14
@@ -224846,7 +224846,7 @@ najarian	nVJE1riVn	C	15
 najera	nAJE1rV	C	15
 Najib	nVJi1b	C	28	n
 najib's	nVJi1bz	C	15
-najibullah	na2JIbU1lV	C	15
+Najibullah	na2JIbU1lV	C	15
 najibullah's	na2JIbU1lVz	C	0
 najis	nAJI1s	W	10
 najjar	nAjA1r	C	15
@@ -224856,12 +224856,12 @@ nakai	nAkA1i	C	15
 nakajima	nAkAJi1mV	C	15
 nakama	nAkA1mV	C	15
 nakamoto	nAkAmo1to	C	15
-nakamura	nAkAmU1rV	C	15
+Nakamura	nAkAmU1rV	C	15	n
 nakanishi	nAkAni1Si	C	15
 nakano	nAkA1no	C	15
 nakao	nAkA1o	C	15
 nakashima	nAkASi1mV	C	15
-nakasone	nA2kVso1ni	C	15
+Nakasone	nA2kVso1ni	C	15
 nakasone's	nA2kVso1niz	C	0
 nakata	nAkA1tV	C	15
 nakatani	nAkAtA1ni	C	15
@@ -225256,7 +225256,7 @@ Napoli	na1pVli	CU	33	n
 napolitan	nApo2litA1n	C	13
 Napolitana	nA1pVlitA1nV	U	0
 Napolitana	na1pVlita1nV	U	0
-napolitano	nApo2litA1no	C	15
+Napolitano	nApo2litA1no	C	15	n
 napora	nApO1rV	C	0
 napp	na1p	C	15
 nappa	na1pV	C	22
@@ -225609,7 +225609,7 @@ nass	na1s	C	15
 nassar	na1sR	C	15
 Nassau	na1sO	CW	33	n
 Nassau County	na1sO kW1nti	U	33
-nasser	na1sR	C	15
+Nasser	na1sR	C	15	n
 Nasserism	na1sVrI2zVm	W	0
 nassif	na1sIf	C	15
 nast	na1st	C	15
@@ -226234,7 +226234,7 @@ naysayer	ne2se1R	C	17
 naysayers	ne2se1Rz	C	27	n
 nayyar	ne1jA2r	C	15
 nazar	nAzA1r	C	15
-nazarbayev	nA2zRbY1jEv	C	15
+Nazarbayev	nA2zRbY1jEv	C	15
 Nazarene	na1zRin	W	26	n
 Nazareth	na1zRIT	C	31	n
 Nazareth	na1zRVT	W	31	n
@@ -226951,7 +226951,7 @@ negotiators'	nVgo1Sie2tRz	C	15
 Negress	ni1grIs	W	15
 negress	ni1grIs	W	17
 negrete	nE1gri2t	C	15
-negri	nE1gri	C	15
+Negri	nE1gri	C	15
 negrin	nE1grIn	C	14
 negritude	nE1grItju2d	W	14
 Negro	ni1gro	CU	15	n
@@ -227807,7 +227807,7 @@ netiquette	nE1tVkV2t	C	16
 netizen	nE1tIzVn	U	22
 netizenry	nE1tIzVnri	W	0
 netlike	nE1tlY2k	C	0
-neto	nE1to	C	15
+Neto	nE1to	C	15
 netorare	nE1tOrA2re	U	0
 netorase	nE1tOrA2se	U	0
 netori	nE1tOri2	U	0
@@ -228699,7 +228699,7 @@ newsman	nu1zmVn	C	24
 newsman	nu1zma2n	CW	24
 newsmen	nu1zmIn	C	21
 newsnight	nu1znY2t	C	15
-newsom	nu1zVm	C	15
+Newsom	nu1zVm	C	15	n
 newsome	nu1sVm	C	15
 Newson	nu1sVn	CU	21
 newspaper	nju1spe2pR	UE	46	nv
@@ -229966,7 +229966,7 @@ niqabed	nIkA1bd	W	0
 niqabi	nIkA1bi	W	0
 niquette	nIkE1t	C	0
 nir	nI1r	C	15
-nirenberg	nY1rVnbRg	C	15
+Nirenberg	nY1rVnbRg	C	15
 niridazole	nIrI1dVzol	W	0
 niriko	nI1rIko	C	0
 niro	nI1ro	C	15
@@ -230633,7 +230633,7 @@ nod off	nA2d O1f	P	37
 nod out	nA2d W1t	P	37
 nod through	nA2d Tru1	P	37
 nod-back	nA2d ba1k	P	37	n
-noda	no1dV	C	15
+Noda	no1dV	C	15
 nodal	no1dVl	B	26
 nodal analysis	no2dVl Vna1lIsIs	P	26
 nodal fever	no2dVl fi1vR	P	25
@@ -232471,7 +232471,7 @@ norgestrel	nOrJE1strVl	U	12
 norgren	nO1rgrVn	C	14
 noria	nO1riV	U	16
 norick	nO1rIk	C	11
-noriega	nO2rie1gV	C	15
+Noriega	nO2rie1gV	C	15	n
 noriega's	nO2rie1gVz	C	15
 noriegas	nO2rie1gVs	C	0
 Noriko	nO2ri1ko2	C	23
@@ -233968,7 +233968,7 @@ nuisance tax	nu2sVns ta1ks	P	35
 nuisances	nu1sVnsIz	C	22
 Nujiang	nu1Ji1aN	W	0
 Nujiang	nu2JjA1N	E	0
-nujoma	nuJo1mV	C	13
+Nujoma	nuJo1mV	C	13
 nuke	nju1k	U	33	nv
 nuke	nu1k	CU	33	nv
 nuke and pave	nu2k Vnd pe1v	P	30
@@ -234339,8 +234339,8 @@ nurturing	nR1CRIN	C	32	v
 nusach	nusA1k	W	0
 nusen	nu1sVn	C	0
 nuss	nV1s	CU	18
-nussbaum	nV1sbA2m	C	15
-nussbaum	nV1sbW2m	C	15
+Nussbaum	nV1sbA2m	C	15	n
+Nussbaum	nV1sbW2m	C	15	n
 nussbaum's	nV1sbA2mz	C	11
 nussbaum's	nV1sbW2mz	C	11
 nussbaumer	nV1sbW2mR	C	11
@@ -234520,7 +234520,7 @@ nydegger	nY1dIgR	C	0
 nydia	nI1diV	C	15
 nye	nY1	CW	33	n
 nyenhuis	nY1Vnhu2s	C	0
-nyerere	nY1RI2r	C	15
+Nyerere	nY1RI2r	C	15
 nyeri	nY1Ri	C	15
 nyers	nY1rz	C	15
 nyet	njE1t	CW	20
@@ -234632,7 +234632,7 @@ o'clair	oklR1	C	0
 o'clock	VklA1k	CU	40
 o'clock	oklA1k	U	40
 O'cocker	okA1kR	W	0
-o'connell	okA1nVl	C	15
+O'Connell	okA1nVl	C	15	n
 o'conner	okA1nR	C	15
 o'conner's	okA1nRz	C	0
 O'Connor	okA1nR	C	15	n
@@ -236763,7 +236763,7 @@ ohl	o1l	C	15
 ohland	o1lVnd	C	0
 ohlendorf	o1lIndOrf	C	14
 ohler	o1lR	C	12
-ohlin	o1lIn	C	15
+Ohlin	o1lIn	C	15
 ohlinger	o1lINR	C	0
 ohlman	o1lmVn	C	0
 ohlmann	o1lmVn	C	0
@@ -239995,7 +239995,7 @@ oppedisano	opEdisA1no	C	0
 oppel	A1pVl	C	15
 oppelt	A1pIlt	C	0
 Oppenheim	A1pInhY2m	C	15
-oppenheimer	A1pVnhY2mR	C	15
+Oppenheimer	A1pVnhY2mR	C	15	n
 oppenheimer's	A1pVnhY2mRz	C	15
 oppenheimers	A1pVnhY2mRz	C	0
 oppens	A1pVnz	C	0
@@ -241205,7 +241205,7 @@ Orson	O1rsVn	CU	31	n
 ort	O1rt	CUWE	24
 orta	O1rtV	C	15
 ortataxel	O2rtVta1ksVl	W	0
-ortega	Orte1gV	C	15
+Ortega	Orte1gV	C	15	n
 ortega's	Orte1gVz	C	15
 ortegas	Orte1gVs	C	0
 ortego	Orte1go	C	11
@@ -241660,7 +241660,7 @@ ostroff	O1strOf	C	15
 Ostrogoth	A1strVgA2T	CU	11
 Ostrogothic	A2strVgA1TIk	U	13
 ostrogoths	A1strVgA2Ts	C	15
-ostrom	A1strVm	C	15
+Ostrom	A1strVm	C	15
 ostroski	VstrW1ski	C	0
 ostrosky	Vstro1ski	C	0
 ostrow	A1strW	C	15
@@ -241674,7 +241674,7 @@ ostrum	A1strVm	C	12
 Ostrów Mazowiecka	O1struf mazAvjE1tskV	E	0
 osturducken	O2stRdV1kVn	U	0
 osturducken	O2stRdV1kn	U	0
-ostwald	A1stwVld	C	15
+Ostwald	A1stwVld	C	15
 osuch	A1sVk	C	0
 osullivan	osV1lIvVn	C	0
 osuna	osu1nV	C	15
@@ -244672,7 +244672,7 @@ pain-making	pe2n me1kIN	P	49	n
 pain-racked	pe2n ra1kt	P	30
 pain-relieving	pe2n rIli1vIN	P	32
 painal	pe1nVl	W	0
-paine	pe1n	C	15
+Paine	pe1n	C	15	n
 pained	pe1nd	CW	29	v
 painesville	pe1nzvI2l	C	15
 painewebber	pe1nwE1bR	C	12
@@ -245305,8 +245305,8 @@ palmateer	pa1lmVtIr	C	0
 palmatier	pa1lmVtiR	C	0
 palmdale	pA1mde2l	C	15
 palmdale's	pA1mde2lz	C	0
-palme	pA1lm	C	15
-palme	pA1m	C	15
+Palme	pA1lm	C	15	n
+Palme	pA1m	C	15	n
 Palmer	pA1mR	CU	15	n
 palmer	pA1lmR	C	40	nv
 palmer	pA1mR	CU	40	nv
@@ -245759,7 +245759,7 @@ panentheistical	pa2nEnTiI1stIkVl	W	0
 panentheists	panE1nTiIsts	W	0
 panepinto	pAnEpi1nto	C	0
 panes	pe1nz	CW	29	n
-panetta	pVnE1tV	C	15
+Panetta	pVnE1tV	C	15
 panetta's	pVnE1tVz	C	0
 panettone	pa2nVto1ni	U	17
 panfida	pa2nfi1dV	C	0
@@ -246095,8 +246095,8 @@ papa's	pA1pA2z	C	15
 papabile	pVpA1bIle	W	0
 papacy	pe1pVsi	CWE	30	n
 papadakis	pApAdA1kIs	C	15
-papadopoulos	pA2pVdA1pVlVs	C	15
-papadopoulos	pa2pVdA1pVlVs	C	15
+Papadopoulos	pA2pVdA1pVlVs	C	15	n
+Papadopoulos	pa2pVdA1pVlVs	C	15	n
 papageorge	pA2pVJO1rJ	C	0
 papageorge	pa2pVJO1rJ	C	0
 papago	pA1pVgo2	C	15
@@ -246111,7 +246111,7 @@ papale	pApA1li	C	14
 papaleo	pApeli1V	C	0
 papalia	pApA1liV	C	15
 papandrea	pApA1ndriV	C	0
-papandreou	pVpa1ndriu2	C	15
+Papandreou	pVpa1ndriu2	C	15
 papania	pApA1niV	C	0
 Papanui	pApVnu1i	W	0
 papaphilia	papafI1liV	B	0
@@ -247085,7 +247085,7 @@ parishioner	pRI1SVnR	C	24
 parishioner	pVrI1SVnR	W	24
 parishioner	pVrI1SnR	W	15
 parishioners	pRI1SVnRz	C	31	n
-parisi	pAri1si	C	15
+Parisi	pAri1si	C	15
 Parisian	pRI1ZVn	C	33	n
 Parisian	pVri1ZVn	U	33	n
 parisians	pRI1siVnz	C	15
@@ -248243,7 +248243,7 @@ Pasternak	pa1stRnak	C	15
 pasternak's	pa1stRnaks	C	14
 Pasterska Góra	pAstE1rskV gU1rV	W	0
 pastes	pe1sts	CW	25	nv
-pasteur	pVstU1r	C	15
+Pasteur	pVstU1r	C	15	n
 pasteurise	pa1sCRYz	U	0
 pasteurization	pa2sCRVze1SVn	C	22
 pasteurize	pa1sCRY2z	CU	15
@@ -248804,7 +248804,7 @@ Pauline	pO1li2n	UW	35	n
 Pauline	pO2lY1n	E	15	n
 Pauline	pOli1n	CUE	35
 Pauline conversion	pOli2n kVnvR1ZVn	P	34
-pauling	pO1lIN	C	15
+Pauling	pO1lIN	C	15
 paulino	pOli1no	C	15
 paulita	pOli1tV	C	0
 paulk	pO1lk	C	15
@@ -248856,7 +248856,7 @@ pave the road to hell	pe2v DV ro2d tI hE1l	P	32
 pave the way	pe1v DV we1	B	32
 paved	pe1vd	CW	36	v
 pavek	pa1vIk	C	0
-pavel	pa1vVl	C	15
+Pavel	pa1vVl	C	15	n
 pavelic	pVvE1lIk	C	0
 pavelic	pa1vlIk	C	0
 pavelka	pVvE1lkV	C	14
@@ -248921,7 +248921,7 @@ Pavlivka	pavli1vkV	E	0
 pavlock	pa1vlVk	C	0
 Pavlodar	pA1vlVdA2r	W	14
 Pavlohrad	pA1vlogrAd	W	0
-pavlov	pa1vlAv	C	15
+Pavlov	pa1vlAv	C	15	nv
 Pavlova	pA1vlVvV	W	15
 Pavlova	pAvlo1vV	W	15
 Pavlova	pa1vlVvV	W	15
@@ -249570,7 +249570,7 @@ pearman	pE1rmVn	C	15
 pearmonger	pE1rmV2NgR	B	0
 pears	pE1rz	C	32	n
 pearsall	pE1rsOl	C	15
-pearse	pR1s	C	15
+Pearse	pR1s	C	15
 Pearson	pI1r	E	15	n
 Pearson	pI1rsVn	CU	37	n
 pearson's	pI1rsVnz	C	15
@@ -249957,7 +249957,7 @@ pee-wee	pi1wi2	C	15	n
 pee-yew	pi2 ju1	P	30
 pee-you	pi1 ju	P	40
 peebler	pi1blR	C	0
-peebles	pi1bVlz	C	15
+Peebles	pi1bVlz	C	15	n
 peecycling	pisY1kVlIN	U	0
 peecycling	pisY1klIN	U	0
 peed	pi1d	C	31	nv
@@ -250152,7 +250152,7 @@ peine forte et dure	pi2n fO2rte E2t djU1r	P	14
 Peiping	be2pI1N	E	14
 peipu	pe1pu2	C	0
 Peipus	pY1pVs	W	0
-peirce	pI1rs	C	15
+Peirce	pI1rs	C	15	n
 Peirson	pI1r	E	14
 Peirson	pI1rsVn	CU	14
 peisant	pe1sVnt	W	0
@@ -250258,7 +250258,7 @@ pelland	pE1lVnd	C	0
 pelle	pE1l	C	15
 pellecchia	pE2lE1kiV	C	0
 pellegrin	pE1lIgrIn	C	15
-pellegrini	pE2lEgri1ni	C	15
+Pellegrini	pE2lEgri1ni	C	15
 pellegrino	pE2lEgri1no	C	15
 peller	pE1lR	C	15
 pellerin	pE1lRIn	C	15
@@ -250818,7 +250818,7 @@ penoyer	pE1nQR	C	0
 penril	pE1nrIl	C	0
 penrod	pE1nrA2d	C	15
 penrod's	pE1nrA2dz	C	0
-penrose	pE1nro2z	C	15
+Penrose	pE1nro2z	C	15	n
 penry	pE1nri	C	15
 Penryn	pEnrI1n	W	19
 pens	pE1nz	CW	38	nv
@@ -251242,7 +251242,7 @@ perceptual blindness	pRsE2pCVl blY1ndnVs	P	28
 perceptual control theory	pRsE2pCVl kVntro2l TI1ri	P	29
 perceptual control theory	pRsE2pCVl kVntro2l Ti1Ri	P	29
 perceptual set	pRsE2pCVl sE1t	P	29
-perceval	pRseva1l	C	15
+Perceval	pRseva1l	C	15
 perch	pR1C	CU	33	nv
 perch plate	pR2C ple1t	P	33
 perch pole	pR2C po1l	P	32
@@ -251334,7 +251334,7 @@ Perekip	pErEki1p	WE	0
 Perekop	pErEkA1p	E	11
 Perekop	pIrIkA1p	E	11
 perella	pRE1lV	C	15
-perelman	pE1rVlmVn	C	15
+Perelman	pE1rVlmVn	C	15
 perelman's	pE1rVlmVnz	C	12
 peremptorily	pVrE1mptRVli	B	17
 peremptorily	pVrE1mptrVli	B	17
@@ -251350,7 +251350,7 @@ perennially	pVrE1niVli	W	24
 perennials	pRE1niVlz	C	26	n
 pereq	pE1rEk	B	0
 perera	pRE1rV	C	15
-peres	pE1rEz	C	15
+Peres	pE1rEz	C	15	n
 peres'	pE1rEz	C	15
 peres's	pE1rEzIz	C	0
 perestroika	pE2rVstrQ1kV	C	24
@@ -251735,7 +251735,7 @@ perkovich	pR1kVvIC	C	0
 perkowski	pRkO1fski	C	0
 perks	pR1ks	C	36	nv
 perky	pR1ki	CU	30
-perl	pR1l	C	15
+Perl	pR1l	C	15	n
 perla	pR1lV	C	15
 perlberg	pR1lbRg	C	0
 perle	pR1l	C	15
@@ -251745,10 +251745,10 @@ perlin	pR1lIn	C	15
 perlis	pR1lI2s	C	15
 perlite	pR1lYt	C	22
 perlman	pR1lmVn	C	15
-perlmutter	pR1lmV2tR	C	15
+Perlmutter	pR1lmV2tR	C	15
 perlocution	pRlVkju1SVn	U	0
 perlow	pR1lo	C	11
-perls	pR1lz	C	15
+Perls	pR1lz	C	15
 perlstein	pR1lstYn	C	15
 perlstein	pR1lstin	C	15
 perlustrate	pRlV1stret	B	0
@@ -251900,7 +251900,7 @@ Peronism	pE1rVnI2zVm	C	15
 peronist	pE1rVnIst	C	15
 peronists	pE1rVnIsts	C	13
 peroration	pErVre1SVn	W	14
-perot	pRo1	C	15
+Perot	pRo1	C	15	n
 perot's	pRo1z	C	12
 perots	pRo1z	C	0
 perotti	pRo1ti	C	15
@@ -251998,7 +251998,7 @@ perriello	pRiE1lo	C	13
 perrier	pE1riR	C	15
 perrier	pE2rie1	C	15
 perrigo	pRri1go	C	15
-perrin	pE1rIn	C	15
+Perrin	pE1rIn	C	15	n
 perrine	pRri1ni	C	15
 perrino	pRri1no	C	0
 perrins	pE1rInz	C	15
@@ -252303,7 +252303,7 @@ perspiration	pR2spVre1SVn	U	27	n
 perspire	pRspY1R	U	20
 perspire	pRspY1r	CU	20
 perspiring	pRspY1rIN	C	21
-persson	pR1sVn	C	15
+Persson	pR1sVn	C	15
 perstringe	pRstrI1nJ	B	0
 perstringe	pRstrI1nZ	B	0
 persuadable	pRswe1dVbVl	C	15
@@ -252709,7 +252709,7 @@ petrich	pE1trIk	C	14
 petricioli	pE2trIsio1li	C	0
 petrick	pE1trIk	C	14
 petrides	pE1trYdz	C	14
-petrie	pE1tri	C	15
+Petrie	pE1tri	C	15	n
 petrie's	pE1triz	C	15
 petrifaction	pE2trIfa1kSVn	W	12
 petrifactive	pE2trIfa1ktIv	W	0
@@ -252728,7 +252728,7 @@ Petrine	pi1trY2n	U	17
 petrini	pEtri1ni	C	14
 petrino	pEtri1no	C	15
 petrizzo	pEtri1zo	C	0
-petro	pE1tro	C	15	n
+Petro	pE1tro	C	15	n
 petro-dictator	pE2tro dI1ktetR	P	29	n
 petro-dictator	pE2tro dIkte1tR	P	29	n
 petro-dictatorship	pE2tro dI1ktetRSIp	P	29	n
@@ -253472,7 +253472,7 @@ philip's	fI1lIps	C	15
 philip's	fI1lVps	C	15
 philipp	fI1lIp	C	15
 Philippa	fIlI1pV	C	28	n
-philippe	fIli1pe	C	15
+Philippe	fIli1pe	C	15
 Philippi	fI1lVpY2	W	15
 Philippi	fIlI1pY	W	15
 Philippi	fIlI1pi	C	24
@@ -253524,7 +253524,7 @@ Phillipson	fI1lVpsVn	C	18
 Phillis	fI1lIs	C	21
 phillumenist	fIlu1mVnIst	W	0
 Philly	fI1li	C	36	n
-philo	fi1lo	C	15	n
+Philo	fi1lo	C	15	n
 philo-Muslim	fi2lo mU1zlIm	P	29
 philo-Muslim	fi2lo mV1zlVm	P	29
 philo-Semite	fi2lo sE1mYt	P	25	n
@@ -255957,9 +255957,9 @@ pinnywinkles	pI1niwI2Nkls	U	0
 pino	pi1no	C	15
 pino's	pi1noz	C	14
 Pinocchio	pIno1kio	CU	29	n
-pinochet	pI2nVSe1	C	15
-pinochet	pi2nOCE1t	C	15
-pinochet	pi2noSe1	C	15
+Pinochet	pI2nVSe1	C	15	n
+Pinochet	pi2nOCE1t	C	15	n
+Pinochet	pi2noSe1	C	15	n
 pinochet's	pI2nVSe1z	C	15
 pinochet's	pi2nOCE1ts	C	15
 pinochet's	pi2noSe1z	C	15
@@ -260433,10 +260433,10 @@ pompadur	pA1mpVdR	C	0
 pompano	pA1mpVno2	C	24
 Pompeii	pAmpe1	U	30	n
 Pompeii	pAmpe1i	U	30	n
-pompeo	po1mpio	C	15
+Pompeo	po1mpio	C	15	n
 pomper	pA1mpR	CU	0
 Pompey	pA1mpi	C	30	n
-pompidou	pA1mpIdu2	C	15
+Pompidou	pA1mpIdu2	C	15
 pompilio	pompi1lio	C	0
 pomplun	pA1mplVn	C	0
 pompom	pA1mpAm	CU	19
@@ -261009,7 +261009,7 @@ popliteal fossa	pAplI2tIVl fu1sV	P	18
 Popocatépetl	pA2pVkatE1pEtVl	B	0
 popoff	pA1pO2f	C	15
 popolare	pA2polA1ri	C	15
-popov	po1pVv	C	15
+Popov	po1pVv	C	15	n
 popovic	pA1pVvIk	C	15
 popovich	pA1pVvIC	C	15
 popowski	pVpO1fski	C	0
@@ -263407,7 +263407,7 @@ pranksters	pra1NkstRz	C	24
 pranky	pra1Nki	W	0
 pranny	prA1ni	B	0
 prapas	prA1pVs	C	0
-prasad	pra1sVd	C	15	n
+Prasad	pra1sVd	C	15	n
 prasek	prA1sEk	C	0
 praseodymium	pre2ziVdI1miVm	W	16
 praseodymium	pre2ziodI1miVm	WE	16
@@ -265514,7 +265514,7 @@ priestess	pri1stVs	C	30	nv
 priestess of Venus	pri2stIs Vv vi1nVs	P	29
 priesthood	pri1sthUd	CW	33	n
 priesthood of all believers	pri2sthUd Vv O2l bVli1vRz	P	31
-priestley	pri1stli	C	15
+Priestley	pri1stli	C	15	n
 priestly	pri1stli	CW	29
 priests	pri1sts	CW	40	nv
 prieta	pri1tV	C	15
@@ -265546,8 +265546,8 @@ primack	prI1mVk	C	14
 primacy	prY1mVsi	CU	29	n
 primacy effect	prY2mVsi IfE1kt	P	29
 primacy effect	prY2mVsi i1fEkt	P	29
-primakov	pri1mVkAf	C	15
-primakov	pri1mVkAv	C	15
+Primakov	pri1mVkAf	C	15
+Primakov	pri1mVkAv	C	15
 primal	prY1mVl	CW	33	n
 primal horde	prY2mVl hO1rd	P	30
 primal scene	prY2mVl si1n	P	33
@@ -266709,7 +266709,7 @@ prod	prA1d	CU	32	nv
 prodded	prA1dId	C	26	v
 prodding	prA1dIN	C	26	nv
 prodelision	pro2dVlI1ZVn	U	0
-prodi	pro1di	C	15
+Prodi	pro1di	C	15
 prodi's	pro1diz	C	0
 Prodicus	pro1dIkVs	W	12
 prodigal	prA1dIgVl	CU	29
@@ -267650,7 +267650,7 @@ propositus	prVpA1zVtVs	U	0
 propositus	propA1zVtVs	U	0
 propound	prVpW1nd	CW	16
 propounded	prVpW1ndId	C	22
-propp	prA1p	C	15
+Propp	prA1p	C	15
 proppant	prA1pVnt	U	14
 propped	prA1pt	C	30	v
 propper	prA1pR	CU	18
@@ -269490,7 +269490,7 @@ puissant	pwI1sVnt	U	18
 puit	pju1t	W	0
 puja	pu1JV	U	28	n
 pujari	puJA1ri	B	16
-pujol	pju1JVl	C	15
+Pujol	pju1JVl	C	15
 puka	pu1kV	W	19
 pukana	pu1kVnV	B	0
 puke	pju1k	CWE	33	nv
@@ -271226,7 +271226,7 @@ Putin	pu1tIn	CU	41	n
 Putinstan	pu1tVnsta2n	U	0
 Putler	pu1tlR	U	0
 putman	pV1tmVn	C	15
-putnam	pV1tnVm	C	15
+Putnam	pV1tnVm	C	15	n
 putnam's	pV1tnVmz	C	15
 putney	pV1tni	C	15
 puto	pu1to	W	23
@@ -272568,7 +272568,7 @@ quay's	ke1z	C	0
 quay's	ki1z	C	0
 quaye	ke1	C	13
 quaye	kwe1	C	13
-quayle	kwe1l	C	15
+Quayle	kwe1l	C	15	n
 quayle's	kwe1lz	C	13
 quayles	kwe1lz	C	0
 quays	ke1z	CU	25	n
@@ -273634,7 +273634,7 @@ rabeprazole	rVbE1prVzo2l	U	13
 raber	re1bR	C	14
 rabes	re1biz	C	0
 rabey	re1bi	C	0
-rabi	rA1bi	C	15
+Rabi	rA1bi	C	15
 Rabi I	rA1bi Y	P	24
 rabid	ra1bId	CU	31	n
 rabid	re1bId	C	31	n
@@ -273642,7 +273642,7 @@ rabid wolf spider	ra2bId wU2lf spY1dR	P	31
 rabideau	ra1bIdo2	C	0
 rabies	re1biz	CW	32	n
 rabietic	re2biE1tIk	W	0
-rabin	rA2bi1n	C	15
+Rabin	rA2bi1n	C	15	n
 rabin's	rA2bi1nz	C	15
 rabine	rVbi1n	C	0
 rabiner	rVbi1nR	C	0
@@ -274348,7 +274348,7 @@ rafi	ra1fi	C	15
 rafie	rArfi1	W	12
 rafik	ra1fIk	C	15
 rafraîchissoir	rVfrE2SIswA1r	W	0
-rafsanjani	ra2fsVnJA1ni	C	15
+Rafsanjani	ra2fsVnJA1ni	C	15
 raft	ra1ft	CU	35	nv
 raft dog	ra2ft dO1g	P	34
 raft duck	ra2ft dV1k	P	34
@@ -274503,7 +274503,7 @@ Rahim	rVhi1m	C	28	n
 rahl	rA1l	C	15
 rahm	rA1m	C	15
 rahm	ra1m	C	15
-rahman	rA1mVn	C	15
+Rahman	rA1mVn	C	15	n
 rahman's	rA1mVnz	C	15
 rahming	rA1mIN	C	0
 rahn	ra1n	C	15
@@ -275094,10 +275094,10 @@ ramal	re1mVl	W	17
 ramala	rVmA1lV	C	0
 Ramallah	rVmA1lV	C	15	n
 Ramallah	rVma1lV	C	15	n
-raman	rA1mVn	C	15
-raman	re1mVn	C	15
+Raman	rA1mVn	C	15	n
+Raman	re1mVn	C	15	n
 Ramanathapuram	rVmA2nVTA1pUrAm	U	12
-ramaphosa	ra2mVfo1sV	C	15
+Ramaphosa	ra2mVfo1sV	C	15
 ramaswami	rA2mVswA1mi	C	15
 ramat	rA1mVt	C	15
 ramat	ra1mat	C	15
@@ -275181,8 +275181,8 @@ ramon	rVmo1n	C	15
 Ramona	rVmo1nV	CU	30	n
 ramonda	rVmA1ndV	C	0
 Ramone	rVmo1n	C	26	n
-ramos	rA1mos	C	15
-ramos	re1mos	C	15
+Ramos	rA1mos	C	15	n
+Ramos	re1mos	C	15	n
 ramp	ra1mp	CW	38	nv
 ramp along	ra2mp VlO1N	P	38
 ramp ceremony	ra2mp sE1rVmo2ni	P	37
@@ -275439,7 +275439,7 @@ ranked voting	ra2Nkt vo1tIN	P	42
 ranker	ra1NkR	CU	20
 rankers	ra1NkRz	C	15
 Rankin	ra1NkIn	C	32	n
-rankine	ra1NkY2n	C	15
+Rankine	ra1NkY2n	C	15	n
 ranking	ra1NkIN	CU	42	n
 rankings	ra1NkINz	C	40	n
 rankins	ra1NkInz	C	15
@@ -275501,7 +275501,7 @@ ranunculaceous	rVnV2NkjUle1SVs	W	0
 ranz	ra1nz	C	12
 ranz des vaches	rA1ndevA2S	U	8
 ranz des vaches	rA1nsdevA2S	U	8
-rao	rW1	C	15
+Rao	rW1	C	15	n
 rao's	rW1z	C	15
 Raohe	rW2hV1	E	0
 Raoping	rW2pI1N	E	0
@@ -275621,8 +275621,8 @@ rapkin	ra1pkIn	C	0
 rapless	ra1plVs	U	0
 rapley	ra1pli	C	15
 rapoca	rVpo1kR	C	0
-rapoport	rVpA1pOrt	C	15
-rapoport	ra1pVpOrt	C	15
+Rapoport	rVpA1pOrt	C	15
+Rapoport	ra1pVpOrt	C	15
 raposa	rApo1sV	C	12
 raposo	rApo1so	C	15
 rapoza	rApo1zV	C	0
@@ -275750,7 +275750,7 @@ Rashidun	rA2SIdu1n	UE	13
 Rasht	ta1St	W	18
 rashy	ra1Si	W	13
 rasia	rA1siV	C	0
-rask	ra1sk	C	15
+Rask	ra1sk	C	15
 Raska	rA1skV	CW	10
 Raska	ra1skV	E	10
 raske	re1sk	C	0
@@ -275761,7 +275761,7 @@ rasmin	ra1smVn	C	0
 rasmin	ra1zmIn	C	0
 rasmus	ra1zmIs	C	15
 rasmuson	ra1zmVsVn	C	11
-rasmussen	ra1smVsVn	C	15
+Rasmussen	ra1smVsVn	C	15	n
 rasmusson	ra1zmVsVn	C	12
 rasnake	ra1snVk	C	0
 rasner	ra1snR	C	0
@@ -276137,7 +276137,7 @@ ratzinger	ra1tsI2NR	C	15
 ratzlaff	ra1tzlVf	C	11
 raté	ra1te	W	0
 ratée	ra1te	W	0
-rau	rW1	C	15
+Rau	rW1	C	15	n
 raub	rO1b	C	15
 rauber	rW1bR	C	11
 raucci	rO1Ci	C	0
@@ -276295,10 +276295,10 @@ rawles	rO1lz	C	15
 Rawley	rA1li	U	21
 Rawley	rO1li	CU	21
 rawling	rO1lIN	C	15
-rawlings	rO1lINz	C	15
+Rawlings	rO1lINz	C	15	n
 rawlins	rO1lInz	C	15
 Rawlinson	rO1lInsVn	CU	25	n
-rawls	rO1lz	C	15
+Rawls	rO1lz	C	15	n
 rawness	rO1nIs	C	22
 rawski	rO1ski2	C	0
 Rawson	rO1sVn	CU	25	n
@@ -280146,7 +280146,7 @@ reiche	rY1k	C	15
 reichel	rY1kVl	C	15
 reichelderfer	rY1kIldRfR	C	0
 reichelt	rY1kIlt	C	15
-reichenbach	rY1kVnbA2k	C	15
+Reichenbach	rY1kVnbA2k	C	15
 reichenberg	rY1kVnbRg	C	11
 reichenberger	rY1kVnbRgR	C	0
 reicher	rY1kR	C	15
@@ -280282,7 +280282,7 @@ reiners	rY1nRz	C	13
 reinert	rY1nRt	C	15
 reinertsen	rY1nRtsVn	C	0
 reinertson	rY1nRtsVn	C	0
-reines	re1nz	C	15
+Reines	re1nz	C	15
 reiney	re1ni	C	0
 reinforce	ri2InfO1rs	CU	37	v
 reinforced	ri2InfO1rst	C	38	v
@@ -281253,7 +281253,7 @@ renewing	rInu1IN	C	32	nv
 renews	rInu1z	C	28	v
 Renews-Cappahayden	rE1njuz ka2pVhe1dVn	W	0
 renfred	rE1nfRd	C	0
-renfrew	rE1nfru	C	15
+Renfrew	rE1nfru	C	15	n
 Renfrew County	rE1nfru kW1nti	W	25
 Renfrewshire	rE1nfruSR	W	26	n
 renfro	rE1nfro	C	15
@@ -281286,7 +281286,7 @@ renna	rE1nV	C	15
 rennard	rInA1rd	C	15
 renne	rE1n	C	15
 rennels	rE1nVlz	C	0
-renner	rE1nR	C	15
+Renner	rE1nR	C	15	n
 rennert	rE1nRt	C	15
 Rennes	rE1n	W	25	n
 rennet	rE1nIt	W	22
@@ -281402,7 +281402,7 @@ Renwu	rV2nwu1	E	0
 reny	rInY1	W	12
 reny	ri1ni	C	12
 renz	rE1nz	C	15
-renzi	rE1nzi	C	15
+Renzi	rE1nzi	C	15
 renzulli	rEnzu1li	C	15
 Renée	rIne1	W	26	n
 reo	ri1o	C	15	n
@@ -284082,7 +284082,7 @@ reynaldo	re2nA1ldo	C	15
 Reynard	rE1nArd	W	15
 Reynard	rE1nRd	W	15
 reynard	re1nRd	C	24
-reynaud	re1nOd	C	15
+Reynaud	re1nOd	C	15
 Reynold	rE1nVld	CW	22
 Reynolds	rE1nVldz	CW	40	n
 reynolds'	rE1nVldz	C	15
@@ -284985,7 +284985,7 @@ riesh	rY1S	C	0
 riesh	ri1S	C	0
 Riesling	ri1slIN	W	15	n
 Riesling	ri1zlIN	CW	26	n
-riess	ri1s	C	15
+Riess	ri1s	C	15
 riester	rY1IstR	C	0
 riesterer	ri1stRR	C	0
 rieth	rY1IT	C	12
@@ -286171,7 +286171,7 @@ riviere	rI1viEr	C	23
 rivieres	rIvjI1rEz	C	16
 rivkin	rI1vkIn	C	15
 rivkind	rI1vkInd	C	0
-rivlin	rI1vlIn	C	15
+Rivlin	rI1vlIn	C	15
 Rivne	ri1unE	W	15
 rivo	rY1vo	B	13
 rivulet	rI1vjVlVt	U	20
@@ -286612,14 +286612,14 @@ roby	ro1bi	C	15
 Robyn	rA1bIn	C	32	n
 Roc	rA1k	CW	15	n
 roc	rA1k	CE	33	n
-roca	ro1kV	C	15
+Roca	ro1kV	C	15	n
 rocambole	rA1kVmbol	B	0
 rocambole	ro1kVmbol	B	0
 rocap	ro1ka2p	C	0
-rocard	rVkA1rd	C	15
-rocard	ro1kA2rd	C	15
-rocard	ro1kRd	C	15
-rocard	ro2SA1rd	C	15
+Rocard	rVkA1rd	C	15
+Rocard	ro1kA2rd	C	15
+Rocard	ro1kRd	C	15
+Rocard	ro2SA1rd	C	15
 rocca	rA1kV	C	15
 roccaforte	rokVfO1rti	C	0
 roccas	rA1kVs	C	0
@@ -286826,7 +286826,7 @@ rockaway	rA1kVwe2	C	26	n
 rockdumping	rA1kdV2mpIN	B	0
 rocke	rA1k	C	15
 rocked	rA1kt	C	35	v
-rockefeller	rA1kVfE2lR	C	15
+Rockefeller	rA1kVfE2lR	C	15	n
 rockefeller's	rA1kVfE2lRz	C	15
 rockefellers	rA1kVfE2lRz	C	15
 rockel	rA1kVl	C	0
@@ -286910,7 +286910,7 @@ rocking-chair	rA2kIN CE1r	P	37	n
 rocking-chair money	rA2kIN CE2r mV1ni	P	37
 rocking-horse	rA2kIN hO1rs	P	37	n
 rocking-horse shit	rA2kIN hO2rs SI1t	P	37
-rockingham	rA1kINha2m	C	15
+Rockingham	rA1kINha2m	C	15	n
 Rockingham County	rA1kINVm kW1nti	W	28
 rockland	rA1klVnd	C	15	n
 rockley	rA1kli	C	15
@@ -287229,7 +287229,7 @@ rohrbacher	rO1rbAkR	C	13
 rohrback	rO1rbak	C	0
 rohrbaugh	rO1rbW	C	11
 rohrbough	rO1rbW	C	0
-rohrer	rO1rR	C	15
+Rohrer	rO1rR	C	15
 rohrich	rO1rIk	C	11
 rohrig	rO1rIg	C	0
 rohrman	rO1rmVn	C	0
@@ -287685,7 +287685,7 @@ romelle	rVmE1l	C	0
 Romeo	ro1mio2	CW	37	n
 romeo's	ro1mio2z	C	15
 romeos	ro1mio2z	C	19
-romer	ro1mR	C	15
+Romer	ro1mR	C	15	n
 romero	romE1ro	C	15	n
 romes	ro1mz	C	15
 romesburg	ro1mzbRg	C	0
@@ -288125,8 +288125,8 @@ rork	rO1rk	C	11
 rorke	rO1rk	C	15
 rorqual	rO1rkwVl	U	14
 rorrer	rO1R	C	0
-rorschach	rO1rSA2	C	15
-rorschach	rO1rSA2C	C	15
+Rorschach	rO1rSA2	C	15	n
+Rorschach	rO1rSA2C	C	15	n
 Rorschach test	rO1rSVk tEst	U	27
 Rorschach test	rO1rSa2k tEst	U	27
 rort	rO1rt	W	16
@@ -288179,7 +288179,7 @@ rosary	ro1zRi	CU	32	n
 rosary bangle	ro2zRi ba1NgVl	P	24
 rosary pea	ro2zRi pi1	P	30
 rosary shell	ro2zRi SE1l	P	31
-rosas	ro1zVz	C	15
+Rosas	ro1zVz	C	15
 rosasco	rozA1sko	C	0
 Rosati	rAzA1tI	W	19
 Rosati	rOzA1tI	UE	19
@@ -288654,7 +288654,7 @@ rotations	rote1SVnz	C	32	n
 rotatory	rote1tRi	B	14
 rotavirus	ro1tVvY2rVs	B	23
 rotberg	rA1tbRg	C	13
-rotblat	rA1tblat	C	12
+Rotblat	rA1tblat	C	12
 rotchet	rA1CIt	B	0
 rote	ro1t	CU	29	nv
 rotea	roti1V	C	0
@@ -288667,7 +288667,7 @@ rotert	rA1tRt	C	0
 Roth	rO1T	C	15	n
 roth's	rA1Ts	C	15
 rothacker	rO1TVkR	C	0
-rothbard	rO1TbRd	C	15
+Rothbard	rO1TbRd	C	15
 rothbart	rO1TbA2rt	C	15
 rothbauer	rO1TbWR	C	0
 rothberg	rO1TbRg	C	15
@@ -288695,7 +288695,7 @@ rothmans's	rO1TmVnzIz	C	0
 rothmeier	rO1TmY2r	C	0
 rothrock	rO1TrVk	C	15
 roths	rO1Ts	C	14
-rothschild	rO1TsCY2ld	C	15
+Rothschild	rO1TsCY2ld	C	15	n
 rothschild's	rO1TCY2ldz	C	15
 rothschilds	rO1TCY2ldz	C	15
 rothstein	rO1TstYn	C	15
@@ -289502,7 +289502,7 @@ rubbers	rV1bRz	CU	26	n
 rubbery	rV1bRi	CW	26
 rubbery figures	rV2bRi fI1gRz	P	26
 rubbery figures	rV2bRi fI1gjRz	P	26
-rubbia	rV1biV	C	0
+Rubbia	rV1biV	C	0
 rubbing	rV1bIN	CW	37	nv
 rubbing alcohol	rV2bIN a1lkVhA2l	P	37
 rubbing machine	rV2bIN mVSi1n	P	37
@@ -290154,7 +290154,7 @@ rumpy-pumpy	rV1mpi pV1mpi	W	10
 rumrill	rV1mrIl	C	0
 rums	rV1mz	C	21
 rumsey	rV1mzi	C	15
-rumsfeld	rV1mzfE2ld	C	15
+Rumsfeld	rV1mzfE2ld	C	15	n
 rumson	rV1msVn	C	15
 run	rV1n	CU	55	nv
 run a bath	rV2n V ba1T	P	44
@@ -290960,7 +290960,7 @@ rykowski	rIkO1fski	C	0
 Rylan	rY1lVn	C	21
 Ryland	rI1lVnd	C	25	n
 rylander	rI1lVndR	C	14
-ryle	rY1l	C	15
+Ryle	rY1l	C	15
 rylee	rI1li	C	15
 ryles	rY1lz	C	14
 ryley	rY1li	C	15
@@ -290990,7 +290990,7 @@ Ryukyuan	rju1kjuVn	W	13
 ryutaro	rjutA1ro	C	15
 ryuzo	rY2u1zo	C	15
 Ryzhivka	rIZi1vkV	WE	0
-ryzhkov	rY1zkAv	C	14
+Ryzhkov	rY1zkAv	C	14
 rzasa	RzA1sV	C	0
 Rzeczpospolita	ZECpA2spA1lItV	B	13
 Rzeczpospolita	ZECpA2spVlY1tV	B	13
@@ -292056,10 +292056,10 @@ saj	sA1J	B	18
 sajak	sa1Jak	C	15
 sajdak	sY1dVk	C	0
 sak	sa1k	C	15
-sakaguchi	sAkAgu1Ci	C	15
+Sakaguchi	sAkAgu1Ci	C	15
 Sakai	sAkA1i	C	25	n
 sakal	se1kVl	C	12
-sakamoto	sAkAmo1to	C	15
+Sakamoto	sAkAmo1to	C	15	n
 sakarov	sAkA1rO2v	C	0
 Sakartvelo	sA2kArtvE1lo	U	0
 Sakarya	sVkA1rjV	U	15
@@ -292078,7 +292078,7 @@ Sakha	sA1kV	W	18
 Sakhalin	sa1kVlIn	C	24
 Sakhalin	sa2kVli1n	W	15
 sakhalinsk	sa2kVlI1nsk	C	14
-sakharov	sA1kRAv	C	15
+Sakharov	sA1kRAv	C	15
 saki	sA1ki	CU	26	n
 saki	sa1ki	U	26	n
 sakigake	sA2kigA1ki	C	10
@@ -292149,7 +292149,7 @@ salak	sVla1k	W	15
 salak	sa1lVk	C	16
 salak palm	sa2lVk pA1lm	P	16
 salak palm	sa2lVk pA1m	P	16
-salam	sAlA1m	C	15	nv
+Salam	sAlA1m	C	15	n
 salama	sAlA1mV	C	15
 Salamanca	sa2lVma1NkV	CW	26	n
 salamander	sa1lVma2ndR	U	28	n
@@ -292364,7 +292364,7 @@ salix	se1lIks	W	23
 salizzoni	sa2lIzo1ni	C	0
 Saljuqian	salJu1kiVn	W	0
 Saljūqian	salJu1kiVn	W	0
-salk	sO1k	C	15
+Salk	sO1k	C	15	n
 salk's	sO1ks	C	13
 salkeld	sa1lkIld	C	15
 salkin	sa1lkIn	C	10
@@ -292422,7 +292422,7 @@ salmon pink	sa2mVn pI1Nk	P	39
 salmon shark	sa2mVn SA1rk	P	38
 salmon trout	sa2mVn trW1t	P	36
 salmon-coloured	sa2mVn kV1lRd	P	37
-salmond	sa1lmVnd	C	15
+Salmond	sa1lmVnd	C	15	n
 salmonella	sa2lmVnE1lV	CU	31	n
 salmonet	sa1mVnIt	W	0
 salmonet	sa2mVnE1t	W	0
@@ -292951,7 +292951,7 @@ samuela	sa2mjuE1lV	C	0
 samuelle	sa1mjuE2l	C	0
 samuels	sa1mjuVlz	C	15
 samuelsen	sa1mUlsVn	C	12
-samuelson	sa1mjuVlsVn	C	15
+Samuelson	sa1mjuVlsVn	C	15	n
 samurai	sa1mRY2	C	36	n
 samurai	sa1mUrY2	C	36	n
 samurai	sa1mVrY2	UE	36	n
@@ -293247,7 +293247,7 @@ sandefur	sa1ndEfR	C	15
 sandek	sa1ndEk	B	0
 sandek	sa1ndIk	B	0
 sandek	sa1ndVk	B	0
-sandel	sa1ndEl	C	15
+Sandel	sa1ndEl	C	15
 sandell	sa1ndEl	C	15
 sanden	sa1ndVn	C	14
 Sander	sa1ndR	CUE	15	n
@@ -293293,7 +293293,7 @@ sandinista	sa2ndInI1stV	C	15
 sandinista	sa2ndIni1stV	C	15
 sandinistas	sa2ndIni1stVz	C	15
 sandinistas'	sa2ndIni1stVz	C	15
-sandino	sandi1no	C	15
+Sandino	sandi1no	C	15
 sandino's	sandi1noz	C	0
 Sanditonian	sa2ndIto1niVn	U	0
 sandler	sa1ndlR	C	15
@@ -293600,7 +293600,7 @@ santaniello	sAntAniE1lo	C	0
 santarelli	sAntArE1li	C	12
 santarsiero	sAntArsI1ro	C	0
 santas	sa1ntVs	C	15
-santayana	santY2A1nV	C	15
+Santayana	santY2A1nV	C	15
 Sante	sa1ntV	C	24
 santella	sAntE1lV	C	0
 santelli	sAntE1li	C	15
@@ -293909,7 +293909,7 @@ Sarmatian	sArme1SVn	C	17
 Sarmatian	sArme1SiV	W	15
 Sarmatism	sA1rmVtIzVm	U	0
 sarmento	sArmE1nto	C	0
-sarmiento	sArmi1nto	C	15
+Sarmiento	sArmi1nto	C	15
 sarmon	sA1rmVn	W	0
 sarna	sA1rnV	C	15
 sarney	sA1rni	C	15
@@ -293956,7 +293956,7 @@ sartan	sA1rta2n	U	0
 sarti	sA1rti	C	15
 sartin	sA1rtIn	C	12
 sartor	sA1rtR	C	17
-sartori	sArtO1ri	C	15
+Sartori	sArtO1ri	C	15
 sartorial	sArtO1riVl	CU	24
 Sartorius	sArtO1riIs	C	15
 Sartorius	sArtO1riVs	W	15
@@ -294532,7 +294532,7 @@ savikas	sVvi1kVs	C	0
 Savile Row	sa1vIl ro1	B	28
 savill	sAvi1l	C	15
 saville	sA1vIl	C	15
-savimbi	sVvI1mbi	C	15
+Savimbi	sVvI1mbi	C	15
 savin	sa1vIn	CW	26	n
 savin's	sa1vInz	C	0
 savina	sVvi1nV	C	14
@@ -294932,7 +294932,7 @@ scales fall from someone's eyes	ske2lz fO2l frVm sVmwVnz Y1z	P	38
 scales of justice	ske2lz Vv JV1stIs	P	39
 scalese	skAle1zi	C	0
 scalf	ska1lf	C	0
-scalfaro	ska2lfA1ro	C	0
+Scalfaro	ska2lfA1ro	C	0
 scali	skA1li	C	15
 scali	ske1li	C	15
 scalia	skA1liV	C	15
@@ -294942,7 +294942,7 @@ scalia's	skA1ljVz	C	15
 scaling	ske1lIN	CW	36	n
 scaling ladder	ske2lIN la1dR	P	35
 scalings	ske1lINz	W	14
-scalise	skA1lYz	C	15
+Scalise	skA1lYz	C	15
 scalisi	skAli1si	C	0
 scall	skO1l	U	0
 scallan	ska1lVn	C	0
@@ -295381,7 +295381,7 @@ schaberg	SA1bRg	C	0
 schabes	Se1bz	C	0
 schacher	Sa1kR	C	0
 schachner	Sa1knR	C	15
-schacht	Sa1kt	C	15
+Schacht	Sa1kt	C	15
 Schachter	Sa1ktR	CW	21
 schack	Sa1k	C	15
 schad	Sa1d	C	15
@@ -295506,7 +295506,7 @@ schedules	skE1JUlz	C	38	n
 schedules	skE1Julz	C	38	n
 scheduling	skE1JUlIN	C	37	nv
 scheduling	skE1JulIN	C	37	nv
-scheel	Si1l	C	15
+Scheel	Si1l	C	15
 scheele	Si1l	C	15
 scheeler	Si1lR	C	0
 Scheer	SI1r	CU	27	n
@@ -295544,7 +295544,7 @@ scheiner	SY1nR	C	15
 scheirer	SY1R	C	0
 Scheldt	SE1lt	W	20
 Scheldt	skE1lt	W	20
-scheler	Si1lR	C	15
+Scheler	Si1lR	C	15
 schelin	SE1lIn	C	0
 schell	skE1l	C	15
 schellenberg	SE1lVnbRg	C	15
@@ -295554,7 +295554,7 @@ scheller	skE1lR	C	15
 schellhammer	SE1lhVmR	C	0
 schellhase	SE1lhVs	C	0
 schellhorn	SE1lhRn	C	0
-schelling	skE1lIN	C	15
+Schelling	skE1lIN	C	15
 schellinger	SE1lINR	C	0
 schema	ski1mV	CUE	31	n
 schemas	ski1mVz	C	24
@@ -295687,7 +295687,7 @@ schiferon	SI1fRO2n	C	0
 schiferon	SI1frO2n	C	0
 schiferon's	SI1fRO2nz	C	0
 schiferon's	SI1frO2nz	C	0
-schiff	SI1f	C	15
+Schiff	SI1f	C	15	n
 schiffbauer	SI1fbWR	C	0
 schiffer	SI1fR	C	15
 schiffler	SI1fVlR	C	0
@@ -295822,7 +295822,7 @@ schleeter	Sli1tR	C	0
 Schlegel	Sle1gVl	C	15
 schlegelmilch	SlE1gIlmIlk	C	0
 schleich	SlY1k	C	15
-schleicher	SlY1kR	C	15
+Schleicher	SlY1kR	C	15
 schleif	SlY1f	C	0
 schleifer	SlY1fR	C	15
 schleiger	SlY1gR	C	0
@@ -296109,14 +296109,14 @@ scholastically	skVla1stIkli	W	15
 scholasticism	skVla1stIsI2zVm	U	20
 scholberg	So1lbRg	C	0
 scholer	So1lR	C	13
-scholes	sko1lz	C	15	n
+Scholes	sko1lz	C	15	n
 scholey	So1li	C	15
 scholfield	sko1lfi2ld	C	15
 scholia	sko1lIV	E	18
 scholiast	sko1lIast	B	15
 scholion	sko1lIAn	E	11
 scholium	sko1lIVm	E	12
-scholl	SA1l	C	15
+Scholl	SA1l	C	15	n
 scholle	So1l	C	12
 scholler	SA1lR	C	0
 schollmeyer	SA1lmYR	C	0
@@ -296124,7 +296124,7 @@ Scholomance	skA1lVma2ns	U	0
 scholten	So1ltVn	C	15
 scholtes	So1lts	C	0
 scholtz	So1lts	C	15
-scholz	So1lz	C	15
+Scholz	So1lz	C	15
 scholze	So1lz	C	0
 schomaker	So1me2kR	C	0
 schomberg	SA1mbRg	C	15
@@ -296139,7 +296139,7 @@ schoneman	So1nmVn	C	0
 schonfeld	SA1nfE2ld	C	15
 schons	SA1nz	C	0
 schoo	Su1	C	15
-schoof	SU1f	C	12
+Schoof	SU1f	C	12
 schook	SU1k	C	11
 school	sku1l	CUE	57	nv
 school age	sku2l e1J	P	52
@@ -296416,13 +296416,13 @@ schultheiss	SV1lTYs	C	12
 Schultz	SU1lts	CW	35	n
 Schultz	SV1lts	W	15	n
 schultze	SV1ltz	C	15
-schulz	SU1lts	C	15
+Schulz	SU1lts	C	15	n
 schulze	SU1lts	C	15
 schum	SV1m	C	14
-schumacher	Su1mA2kR	C	15
+Schumacher	Su1mA2kR	C	15	n
 schumacker	Su1mA2kR	C	0
 schumaker	Su1me2kR	C	15
-schuman	Su1mVn	C	15
+Schuman	Su1mVn	C	15
 Schumann	Su1mVn	C	15	n
 schumann's	Su1mVnz	C	15
 Schumer	Su1mR	CW	32	n
@@ -296492,7 +296492,7 @@ schwanz	SwO1ns	C	12
 schwar	SwA1r	WE	0
 schwark	SwO1rk	C	0
 schwarm	SwO1rm	C	0
-schwartz	SwO1rts	C	15
+Schwartz	SwO1rts	C	15	n
 schwartzberg	SwO1rtsbRg	C	14
 schwartzberg's	SwO1rtsbRgz	C	0
 schwartzchild	SwO1rtsCY2ld	C	0
@@ -296568,7 +296568,7 @@ schwimmer	SwI1mR	C	15
 schwind	SwI1nd	C	14
 schwindt	SwI1nt	C	13
 schwing	SwI1N	C	15
-schwinger	SwI1NR	C	15
+Schwinger	SwI1NR	C	15
 schwinn	SwI1n	C	15
 schwisow	SwI1so	C	0
 schwoerer	Swo1RR	C	0
@@ -301044,7 +301044,7 @@ selies'	sE1liz	C	0
 selig	sE1lIg	C	15
 seliga	sE1lIgV	C	0
 seliger	sE1lIgR	C	15
-seligman	sE1lIgmVn	C	15
+Seligman	sE1lIgmVn	C	15
 seligmann	sE1lIgmVn	C	15
 seligson	sE1lIgsVn	C	13
 selikoff	sE1lIkO2f	C	0
@@ -304144,7 +304144,7 @@ shamelle	SVmE1l	C	0
 shamen	Se1mEn	B	14
 shames	Se1mz	CW	26	nv
 shaming	Se1mIN	C	34	nv
-shamir	SVmI1r	C	15
+Shamir	SVmI1r	C	15
 shamir's	SVmI1rz	C	0
 shamisen	Sa1mIsEn	W	17
 shammes	SA1mIs	W	0
@@ -304319,7 +304319,7 @@ Shapiro	SVpI1ro	CU	34	n
 Shapiro	SVpY1ro	U	34	n
 shapiro's	SVpI1roz	C	15
 shapiros	SVpI1roz	C	11
-shapley	Sa1pli	C	15
+Shapley	Sa1pli	C	15
 Shapotou	SA2pV2to1	E	0
 shapp	Sa1p	C	14
 shappell	Sa1pVl	C	0
@@ -304330,7 +304330,7 @@ Shar	SA1r	U	25	n
 Shar'i	SA1ri	B	0
 shar-pei	SA2r pe1	P	24
 shara	SA1rV	C	15
-sharaa	SA1rV	C	0
+Sharaa	SA1rV	C	0
 sharansky	SRa1nski	C	15
 sharar	SRA1r	C	0
 sharawadgi	SA2rVwA1Ji	B	0
@@ -304537,7 +304537,7 @@ Sharpie	SA1rpi	CU	15	n
 sharpie	SA1rpi	CU	27	n
 sharpies	SA1rpiz	C	21
 sharples	SA1rpVlz	C	15
-sharpless	SA1rplVs	C	15
+Sharpless	SA1rplVs	C	15
 sharpley	SA1rpli	C	14
 sharply	SA1rpli	CU	39
 sharpnack	SA1rpnVk	C	0
@@ -304545,7 +304545,7 @@ sharpness	SA1rpnVs	C	30	n
 sharps	SA1rps	CU	26	nv
 sharpshooter	SA1rpSu2tR	C	26	n
 sharpshooters	SA1rpSutRz	C	24
-sharpton	SA1rptVn	C	15
+Sharpton	SA1rptVn	C	15	n
 sharptooth	SA1rptuT	W	13
 sharptooth lemon shark	SA2rptuT lE2mVn SA1rk	P	13
 sharpy	SA1rpi	C	14
@@ -305381,7 +305381,7 @@ sheugh	Su1	U	0
 Sheung Shui	SjU1N Swe1	E	19
 Sheung Wan	SR1N wA1n	W	20
 Sheung Wan	SR1N wa1n	W	20
-shevardnadze	SE2vRdnA1dzi	C	15
+Shevardnadze	SE2vRdnA1dzi	C	15
 shevardnadze's	SE2vRdnA1dziz	C	10
 Shevchenko	SevCE1nkO	W	24
 shevlin	SE1vlIn	C	14
@@ -306195,7 +306195,7 @@ shockey	SA1ki	C	15
 shocking	SA1kIN	CU	41	nv
 shocking pink	SA2kIN pI1Nk	P	40
 shockingly	SA1kINli	C	31
-shockley	SA1kli	C	15
+Shockley	SA1kli	C	15
 shocks	SA1ks	C	35	nv
 shockwave	SA1kwe2v	C	27	n
 shockwaves	SA1kwe2vz	C	24
@@ -307538,11 +307538,11 @@ shuler	Su1lR	C	15
 Shulgin	SV1lgIn	U	19
 shulgoer	Su1lgo2R	U	0
 Shulin	Su2lI1n	E	0
-shull	SV1l	C	15
+Shull	SV1l	C	15
 shulman	SU1lmVn	C	15
 shultis	SV1ltIs	C	0
 shults	SV1lts	C	15
-shultz	SU1lts	C	15
+Shultz	SU1lts	C	15	n
 shultz's	SU1ltsI1z	C	0
 shum	SV1m	C	15
 shumake	Su1me2k	C	0
@@ -308180,7 +308180,7 @@ siebenaler	si1bInVlR	C	0
 sieber	si1bR	C	15
 siebers	si1bRz	C	0
 siebert	si1bRt	C	15
-siebold	si1bo2ld	C	15
+Siebold	si1bo2ld	C	15
 siebrecht	si1brIkt	C	0
 sieck	si1k	C	0
 siecle	si1kVl	C	15
@@ -308590,7 +308590,7 @@ Sikkim	sI1kIm	WE	26	n
 Sikkim	sI1kkIm	E	26	n
 siklie	sI1kli	C	0
 sikora	sIkO1rV	C	15
-sikorski	sIkO1rski	C	15
+Sikorski	sIkO1rski	C	15
 sikorsky	sIkO1rski	C	15
 Siksika	sI1ksVkV	W	12
 Sil	sI1l	C	30	n
@@ -314672,7 +314672,7 @@ soar	sO1r	CUE	34	nv
 soard	sO1rd	C	0
 soare	sO1r	UWE	12
 soared	sO1rd	CUW	31	v
-soares	sO1rEs	C	15	n
+Soares	sO1rEs	C	15	n
 soaring	sO1rIN	C	34	nv
 soars	sO1rz	C	29	nv
 soave	so1v	C	17
@@ -315692,7 +315692,7 @@ solah	so1lV	B	11
 solak	so1lVk	C	14
 solaman	sA1lVmVn	C	0
 solan	so1lVn	C	19
-solana	sola1nV	C	15
+Solana	sola1nV	C	15
 solanaceous	sAlVne1SVs	B	11
 soland	sA1lVnd	C	0
 solangi	solA1nJi	C	0
@@ -315791,7 +315791,7 @@ solarz	so1lArz	C	15
 solastalgia	sA2lVsta1lJV	B	0
 solatium	sVle1SiVm	W	0
 solazzo	solA1zo	C	0
-solberg	so1lbRg	C	15
+Solberg	so1lbRg	C	15
 solchaga	solCA1gV	C	0
 sold	so1ld	CUW	50	v
 sold out	so2ld W1t	P	50
@@ -316053,7 +316053,7 @@ solosexual	so2losE1kSuVl	UE	0
 soloviev	sA1lovi2v	C	15
 Soloviove	sOlVvjO1ve	W	0
 Solovka	sVlA1vkV	B	0
-solow	sA1lo	C	15
+Solow	sA1lo	C	15
 soloway	so1lowe2	C	15
 solstice	sA1lstIs	U	31	n
 solstice	sO1lstIs	C	31	n
@@ -316281,7 +316281,7 @@ sommelier	sO2mVlje1	U	25	n
 sommelier	somA1lie2	U	25	n
 sommelière	sO2mVljE1r	U	0
 sommer	sV1mR	C	15
-sommerfeld	sA1mRfEld	C	15
+Sommerfeld	sA1mRfEld	C	15
 sommerfeldt	sA1mRfIlt	C	0
 sommerfield	sVmR1fild	C	12
 sommers	sV1mRz	C	15	n
@@ -316301,7 +316301,7 @@ somnolence	sA1mnVlVns	CU	18
 somnolent	sA1mnVlVnt	CU	17
 somnorific	sA2mnVrI1fIk	U	0
 somogyi	somo1gji	C	15
-somoza	sVmo1zV	C	15
+Somoza	sVmo1zV	C	15
 son	sV1n	CW	53	n
 son et lumière	sO2n e lu2mijE1r	U	22
 son et lumière	sO2n e lu2mjE1r	U	22
@@ -318838,8 +318838,8 @@ spendthrift provision	spE2ndTrI2ft prVvI1ZVn	P	22
 spendthrift trust	spE2ndTrI2ft trV1st	P	22
 spendy	spE1ndi	W	16
 spendy	spI1ndi	W	16
-spengler	spI1NVlR	C	15
-spengler	spI1NlR	C	15
+Spengler	spI1NVlR	C	15
+Spengler	spI1NlR	C	15
 Spenglerian	spENglI1riVn	B	0
 spenner	spE1nR	C	0
 spenny	spE1ni	U	16
@@ -318907,7 +318907,7 @@ spero	spE1ro	C	15
 speros	spE1roz	C	0
 sperrazza	spRA1tsV	C	0
 sperrfrist	spE1rfrIst	C	0
-sperry	spE1ri	C	15
+Sperry	spE1ri	C	15	n
 sperse	spR1s	W	0
 spesh	spE1S	W	14
 spesmilo	spEsmi1lo	B	0
@@ -319429,7 +319429,7 @@ spinosyn	spY1nVsIn	W	0
 spinous	spY1nVs	W	18
 spinous cell	spY2nVs sE1l	P	18
 spinous spider crab	spY2nVs spY2dR kra1b	P	18
-spinoza	spIno1zV	C	15
+Spinoza	spIno1zV	C	15	n
 spins	spI1nz	CW	35	nv
 spinster	spI1nstR	CU	27	n
 spinsterishness	spI1nstRISnVs	W	0
@@ -319699,7 +319699,7 @@ spitznagel	spI1tsne2gVl	C	11
 spiv	spI1v	W	16
 spiva	spi1vV	C	10
 spivack	spI1vVk	C	15
-spivak	spI1vVk	C	15
+Spivak	spI1vVk	C	15
 spivey	spI1vi	C	15
 spivvery	spI1vRi	W	0
 spivvy	spI1vi	W	0
@@ -321835,7 +321835,7 @@ stagnation	stagne1SVn	CU	32	n
 stagnation point	stagne2SVn pQ1nt	P	32
 stagner	sta1gnR	C	11
 stagy	ste1Ji	W	14
-stahl	stA1l	C	15
+Stahl	stA1l	C	15	n
 stahlberg	stA1lbRg	C	0
 stahle	ste1hVl	C	10
 stahlecker	stA1lIkR	C	0
@@ -322741,7 +322741,7 @@ starliper	stA1rlIpR	C	0
 starlit	stA1rlIt	C	19
 starman	stA1rmVn	C	21
 starman	stA1rma2n	U	21
-starmer	stA1rmR	C	15
+Starmer	stA1rmR	C	15
 starn	stA1rn	C	13
 starner	stA1rnR	C	12
 starnes	stA1rnz	C	15
@@ -323266,7 +323266,7 @@ stauch	stO1C	C	0
 staudacher	stW1dVkR	C	0
 staude	stO1d	C	11
 stauder	stW1dR	C	0
-staudinger	stW1dINR	C	15
+Staudinger	stW1dINR	C	15
 staudt	stO1dt	C	14
 stauff	stO1f	C	0
 stauffacher	stW1fVkR	C	11
@@ -323844,7 +323844,7 @@ steinbeck's	stY1nbE2ks	C	15
 steinberg	stY1nbRg	C	15
 steinberg's	stY1nbRgz	C	15
 steinbergen	stY1nbRgVn	C	0
-steinberger	stY1nbRgR	C	15
+Steinberger	stY1nbRgR	C	15
 steinbock	stY1nbA2k	C	15
 steinborn	stY1nbO1rn	C	0
 steinbrecher	stY1nbrE2kR	C	0
@@ -324789,8 +324789,8 @@ stig	stI1g	CW	27	nv
 stigall	stI1gVl	C	10
 stiger	stY1gR	C	0
 stigers	stY1gRz	C	11
-stigler	stI1glR	C	15
-stiglitz	stI1glIts	C	15
+Stigler	stI1glR	C	15
+Stiglitz	stI1glIts	C	15
 stigma	stI1gmV	CW	37	n
 stigmaria	stIgmE1riV	U	0
 stigmarian	stIgmE1riVn	U	0
@@ -325409,7 +325409,7 @@ stolperstein	StA1lpRStY2n	B	0
 stolperstein	stA1lpRstY2n	B	0
 stolt	sto1lt	C	15
 stolte	sto1lt	C	14
-stoltenberg	sto1ltVnbRg	C	15
+Stoltenberg	sto1ltVnbRg	C	15
 stoltman	sto1ltmVn	C	0
 stoltz	sto1lts	C	15
 stoltzfus	sto1ltsfVs	C	15
@@ -326381,7 +326381,7 @@ strasburger	stra1sbRgR	C	14
 strass	strA1s	W	15
 strassburg	stra1sbRg	C	15
 strassburger	stra1sbRgR	C	14
-strasser	stra1sR	C	15
+Strasser	stra1sR	C	15
 strassman	stra1smVn	C	15
 strassner	stra1snR	C	0
 straszheim	stra1shY2m	C	0
@@ -326783,7 +326783,7 @@ strehlow	strE1lo	C	14
 streib	strY1b	C	12
 streiber	strY1bR	C	0
 streich	strY1k	C	12
-streicher	strY1kR	C	15
+Streicher	strY1kR	C	15
 streiff	strY1f	C	14
 streight	stre1t	C	14
 streiker	strY1kR	C	0
@@ -326942,7 +326942,7 @@ stribling	strI1blIN	C	15
 strick	strI1k	CW	19
 stricken	strI1kVn	CW	35	v
 stricker	strI1kR	C	15
-strickland	strI1klVnd	C	15
+Strickland	strI1klVnd	C	15	n
 strickle	strI1kVl	W	0
 stricklen	strI1kVlVn	C	0
 strickler	strI1klR	C	15
@@ -327295,7 +327295,7 @@ strock	strA1k	C	15
 strode	stro1d	CU	29	v
 stroder	stro1dR	C	0
 stroebel	stro1bVl	C	12
-stroessner	stro1snR	C	15
+Stroessner	stro1snR	C	15
 strog	stro1g	U	0
 stroganoff	stro1gVnO2f	CU	21
 stroh	stro1	C	15
@@ -329297,7 +329297,7 @@ sugrue	sV1gru	C	15
 sugya	sU1gjV	W	0
 sugya	su1gjV	W	0
 Suh	sV1	CU	30	n
-suharto	suhA1rto	C	15
+Suharto	suhA1rto	C	15
 suharto's	suhA1rtoz	C	15
 suhler	su1lR	C	0
 suhm	su1m	C	10
@@ -329443,7 +329443,7 @@ Suk	sV1k	C	15	n
 suka	su1kV	W	20
 suka suka	su2kV su1kV	P	16
 suka-suka	su2kV su1kV	P	16
-sukarno	sukA1rno	C	15
+Sukarno	sukA1rno	C	15
 sukarno's	sukA1rnoz	C	0
 sukey	su1ki	C	14
 Sukha Balka	sUkA1 bA1lkV	W	9
@@ -331609,7 +331609,7 @@ Suzhou	su2Zo1	E	25	n
 Suzie	sV1zi	C	28	n
 suzman	su1zmVn	C	15
 suzuana	suzuA1nV	C	0
-suzuki	sVzu1ki	C	15
+Suzuki	sVzu1ki	C	15	n
 Suzy	su1zi	C	32	n
 suzy's	su1ziz	C	15
 Suðuroy	su1DRQ	W	0
@@ -331640,7 +331640,7 @@ Svetlana	svE2tlA1nV	C	28	n
 svetlik	svE1tlIk	C	0
 svitak	svI1tVk	C	0
 svizzera	svIzE1rV	C	14
-svoboda	svobo1dV	C	15
+Svoboda	svobo1dV	C	15
 svoray	svO1re2	C	0
 svp	svi1pi1	C	15
 swab	swA1b	CE	28	n
@@ -334358,7 +334358,7 @@ taka	tA1kV	W	28	n
 takach	ta1kVk	C	0
 takacs	ta1kVks	C	15
 takagi	tAkA1gi	C	15
-takahashi	tAkAhA1Si	C	15
+Takahashi	tAkAhA1Si	C	15	n
 takahē	tA1kVhe2	W	0
 takahē	tA1kVhi2	W	0
 Takaka	tIkA1kA	W	11
@@ -334978,7 +334978,7 @@ takes	te1ks	CW	52	nv
 takes one to know one	te2ks wV2n tI no2 wV1n	P	51
 Takeshi	tVkE1Si	C	26	n
 takeshima	ta2kISi1mA2	C	15
-takeshita	tA2kVSi1tA2	C	15
+Takeshita	tA2kVSi1tA2	C	15
 takeshita's	tA2kVSi1tVz	C	0
 takesies-backsies	te1ksiz ba1ksiz	W	0
 taketa	tAke1tA2	C	11
@@ -335424,7 +335424,7 @@ tamils	tVmI1lz	C	15
 tamils	ta1mIlz	C	15
 taming	te1mIN	C	29	nv
 tamke	ta1mki	C	0
-tamm	ta1m	C	15
+Tamm	ta1m	C	15
 tammany	ta1mVni	C	15
 tammaro	tAmA1ro	C	10
 tammen	ta1mVn	C	12
@@ -335482,7 +335482,7 @@ Tan-tung	tA2ntu1N	E	31	n
 tanabe	tAnA1be	C	15
 tanager	ta1nVJR	U	19
 Tanagra	tA1nVgrV	B	18
-tanaka	tAnA1kV	C	15
+Tanaka	tAnA1kV	C	15	n
 Tanakh	tAnA1k	W	19
 tanartkit	ta2nA1rtkI2t	C	0
 tanbark	ta1nbArk	W	11
@@ -341728,11 +341728,11 @@ thornbury	TO1rnbE2ri	C	15
 thornbury's	TO1rnbE2riz	C	0
 thornburys	TO1rnbE2riz	C	0
 thornbush	TO1rnbU2S	U	14
-thorndike	TO1rndIk	C	15
+Thorndike	TO1rndIk	C	15
 thorndike's	TO1rndIks	C	0
 thorndikes	TO1rndIks	C	0
 Thorndyke	TO1rndY2k	CU	19
-thorne	TO1rn	C	15
+Thorne	TO1rn	C	15	n
 Thorne-Zytkow object	TO1rnzY1tkOf A1bJEkt	W	0
 thornell	TO1rnVl	C	11
 thorner	TO1rnR	C	14
@@ -342838,7 +342838,7 @@ thurlow	TR1lo	C	15
 thurm	TR1m	C	11
 thurman	TR1mVn	C	15
 thurmon	TR1mVn	C	0
-thurmond	TR1mVnd	C	15
+Thurmond	TR1mVnd	C	15	n
 thurmond's	TR1mVndz	C	13
 thurn	TR1n	C	15
 thurnau	TRno1	C	0
@@ -345381,7 +345381,7 @@ Tocharian B	tokE2riVn bi1	P	13
 tock	tA1k	CU	28	nv
 toco	to1ko	UE	17
 toco toucan	to2ko tu1ka2n	P	16
-tocqueville	to1kvIl	C	15
+Tocqueville	to1kvIl	C	15
 tocqueville's	to1kvIlz	C	13
 tocsin	tA1ksIn	U	14
 toczek	tA1CEk	C	0
@@ -345977,7 +345977,7 @@ tomorrow's chip paper	tVmA2ro2z CI2p pe1pR	P	35
 tomorrows	tVmA1ro2z	C	25	n
 tomorrows	tumA1ro2z	C	25	n
 tompane	tA1mpe2n	C	0
-tompkins	tA1mpkInz	C	15
+Tompkins	tA1mpkInz	C	15	n
 tompkinses	tA1mpkInsIz	C	0
 tompson	tA1mpsVn	C	15
 toms	tA1mz	C	31	n
@@ -346046,7 +346046,7 @@ tone-deafly	to2n dE1fli	P	0
 tone-deafness	to2n dE1fnVs	P	29	n
 toned	to1nd	CU	35	v
 toned paper	to2nd pe1pR	P	35
-tonegawa	to2nIgA1wV	C	15
+Tonegawa	to2nIgA1wV	C	15
 tonelli	tonE1li	C	15
 toneme	to1nim	B	0
 tonemic	tonE1mIk	B	0
@@ -347663,7 +347663,7 @@ town-dweller	tW2n dwE1lR	P	28	n
 towne	tW1n	C	15
 towner	tW1nR	C	15
 towners	tW1nRz	C	15
-townes	tW1nz	C	15
+Townes	tW1nz	C	15
 townet	to1nE2t	B	0
 townhome	tW1nho2m	U	20
 townhouse	tW1nhW2s	CU	31	n
@@ -351107,7 +351107,7 @@ trothless	tro1TlVs	B	0
 trotline	trA2tlY1n	U	0
 trotman	trA1tmVn	C	15
 trots	trA1ts	C	24
-trotsky	trA1tski2	C	15
+Trotsky	trA1tski2	C	15	n
 Trotskyism	trA1tskiizVm	U	18
 trott	trA1t	C	15
 trotted	trA1tId	C	27	v
@@ -351835,7 +351835,7 @@ tsetse	tsi1tsi	CU	23
 tsetse fly	tsi2tsi flY1	P	23
 Tsetserleg	tsE1tsErlik	E	0
 Tsetserleg	tsE1tsRlEg	W	0
-tshisekedi	SIsE1kVdi	C	13
+Tshisekedi	SIsE1kVdi	C	13
 tsiang	tsja1N	C	14
 tsikoudia	sIku1DiV	W	0
 tsikoudia	sIku1diV	W	0
@@ -351881,8 +351881,8 @@ tsuba	tsu1bV	W	15
 tsuda	su1dV	C	15
 tsuda	tsu1dV	C	15
 tsuga	su1gV	W	18
-tsui	su1i	C	15
-tsui	tsu1i	C	15
+Tsui	su1i	C	15	n
+Tsui	tsu1i	C	15	n
 tsuji	su1Ji	C	15
 tsuji	tsu1Ji	C	15
 tsukaminage	su2kVmInA1ge	W	0
@@ -352012,7 +352012,7 @@ tubey	tju1bi	W	0
 tubey	tu1bi	W	0
 tubie	tu1bi	U	0
 tubing	tu1bIN	C	33	nv
-tubman	tV1bmVn	C	15
+Tubman	tV1bmVn	C	15	n
 tubo-ovarian	tju2boovE1riVn	U	16
 tubo-ovarian	tu2boovE1riVn	U	16
 tubocurarine	tu2bokjUrA1rIn	U	11
@@ -352918,7 +352918,7 @@ turnbo	tU1rnbo	C	0
 turnbough	tR1nbW2	C	0
 turnbow	tR1nbo	C	12
 turnbridge	tR1nbrI2J	C	0
-turnbull	tR1nbU2l	C	15
+Turnbull	tR1nbU2l	C	15	n
 turncoat	tR1nko2t	CU	22
 turncoat witness	tR2nko2t wI1tnVs	P	22
 turndown	tR1ndW2n	CU	19
@@ -354012,7 +354012,7 @@ tympanometry	tImpVnA1mVtri	B	0
 tympanum	tI1mpVnVm	CW	21
 tympany	tI1mpVni	W	12
 tynan	tY1nVn	C	15
-tyndall	tI1ndVl	C	15
+Tyndall	tI1ndVl	C	15	n
 Tyndall stone	tI1ndVl ston	W	25
 Tyne	tY1n	CU	15	n
 tyne	tY1n	CW	32	n
@@ -354588,7 +354588,7 @@ Ulan Bator	u1lAn bA2tO1r	E	18
 uland	ju1lVnd	C	0
 ulatowski	VlVtO1fski	C	0
 ulbrich	V1lbrIk	C	15
-ulbricht	V1lbrIkt	C	15
+Ulbricht	V1lbrIkt	C	15
 ulcer	V1lsR	CU	30	nv
 ulceration	V2lsRe1SVn	C	22
 ulceration	V2lsVre1SVn	W	22
@@ -358350,7 +358350,7 @@ urethral sponge	jUri2TrVl spV1nJ	P	24
 urethral syndrome	jUri2TrVl sI1ndro2m	P	24
 urethritis	jU2rVTrY1tIs	U	16
 uretic	jUrE1tIk	W	0
-urey	jR1i	C	15
+Urey	jR1i	C	15
 urfa biber	R1fV bi2bR	U	15
 urfa biber	U1rfV bi2bEr	U	15
 urfer	R1fR	C	0
@@ -358727,8 +358727,8 @@ Ussuri	UsU1ri	E	14
 usta	ju1stV	W	23
 ustasha	justA1SV	C	15
 ustilago	V2stIle1go	U	0
-ustinov	ju1stInAv	C	15
-ustinov	u1stInAv	C	15
+Ustinov	ju1stInAv	C	15
+Ustinov	u1stInAv	C	15
 ustrust	ju1E1strV1st	C	0
 ustulation	V2stjUle1SVn	W	0
 Ustyluh	u1stIluh	W	0
@@ -359442,7 +359442,7 @@ vallis	va1lIs	C	15
 vallo	va1lo	C	13
 vallone	vAlo1ni	C	15
 vallot	va1lVt	C	0
-valls	vO1lz	C	15
+Valls	vO1lz	C	15
 vallum	va1lVm	W	14
 vally	va1li	U	18
 valmeyer	va1lmYR	C	0
@@ -360119,7 +360119,7 @@ variably	vE1riVbli	C	23
 variac	vE1ria2k	B	0
 variadic	vEria1dIk	U	12
 variae lectiones	vE1rIilEktIo1niz	B	0
-varian	vE1riVn	C	15
+Varian	vE1riVn	C	15	n
 variance	vE1riVns	CW	34	n
 variance	va1riVns	U	34	n
 variance drain	vE2riVns dre1n	P	34
@@ -360200,7 +360200,7 @@ varletry	vA1rlItri	W	0
 varley	vA1rli	C	15
 varma	vA1rmV	C	15
 varmint	vA1rmInt	CU	22
-varmus	vA1rmVs	C	14
+Varmus	vA1rmVs	C	14
 varn	vA1rn	C	13
 varna	vA1rnV	B	28	n
 varna	vR1nV	B	28	n
@@ -360689,7 +360689,7 @@ velarial	vVlE1riVl	U	0
 velarium	vIlE1riVm	B	0
 velarization	vilRVze1SVn	U	0
 velarize	vi1lRYz	W	0
-velasco	vElA1sko	C	15
+Velasco	vElA1sko	C	15	n
 Velasquez	vEla1skEz	C	27	n
 Velasquez	vVla1skEz	U	27	n
 velayati	vElY2A1ti	C	14
@@ -360749,7 +360749,7 @@ veloz	ve1loz	C	14
 velsicol	vE1lsIkA2l	C	0
 velte	vE1lt	C	0
 velten	vE1ltVn	C	12
-veltman	vE1ltmVn	C	15
+Veltman	vE1ltmVn	C	15
 veltre	vE1ltR	C	0
 veltri	vE1ltri	C	11
 velum	vE1lVm	W	17
@@ -361185,7 +361185,7 @@ verhey	vR1hi	C	0
 verhoef	vR1hof	C	12
 verhoeven	vR1hovVn	C	15
 verhoff	vR1hOf	C	0
-verhofstadt	vRhO1fsta2t	C	15
+Verhofstadt	vRhO1fsta2t	C	15
 verhulst	vR1hVlst	C	15
 veribanc	vE1rIba2Nk	C	0
 veridical	vVrI1dIkVl	W	14
@@ -361496,7 +361496,7 @@ vervet	vR1vIt	U	16
 vervet monkey	vR2vIt mV1Nki	P	16
 verville	vR1vIl	C	12
 verwey	vR1wi	C	12
-verwoerd	vRwO1rd	C	15
+Verwoerd	vRwO1rd	C	15
 very	vE1ri	CU	60
 very good	vE2ri gId	P	58
 very good	vE2ri gU1d	P	58
@@ -361961,7 +361961,7 @@ Vicki	vI1ki	C	32	n
 Vickie	vI1ki	C	27	n
 vickland	vI1klVnd	C	0
 vicknair	vI1knR	C	0
-vickrey	vI1kri	C	14
+Vickrey	vI1kri	C	14
 vickroy	vI1krQ2	C	0
 vicks	vI1ks	C	15
 vicksburg	vI1ksbRg	C	15
@@ -363273,7 +363273,7 @@ vitro	vI1tro	C	15
 vitro	vi1tro	C	15
 vitronics	vY2trA1nIks	C	0
 vitrophyre	vI1trVfYr	B	0
-vitruvius	vItru1viVs	C	15
+Vitruvius	vItru1viVs	C	15
 vitry	vI1tri	C	15
 vitt	vI1t	C	15
 vittetoe	vI1tIto	C	0
@@ -363715,7 +363715,7 @@ volcanologists	vO2lkVnO1lVJIsts	C	15
 volcanology	vA2lkVnA1lVJi	B	19
 volcanos	vAlke1noz	C	21
 volcel	vA1lsEl	U	0
-volcker	vo1lkR	C	15
+Volcker	vo1lkR	C	15
 volcker's	vo1lkRz	C	0
 vold	vo1ld	C	14
 Voldemort	vo1ldVmO2r	U	30	nv
@@ -364597,7 +364597,7 @@ wah-pei	wA1pe1	C	15
 wah-wah	wA2 wA1	P	32	in
 wah-wah pedal	wA2 wA2 pE1dVl	P	30
 wahey	wVhe1	W	16
-wahid	wA2hi1d	C	15
+Wahid	wA2hi1d	C	15
 wahine	wAhi1ne	U	17
 wahine	wAhi1ni	U	17
 wahine	wVhi1ni	C	17
@@ -364869,8 +364869,8 @@ waldenbooks	wO1ldVnbU2ks	C	15
 waldenbooks'	wO1ldVnbU2ks	C	15
 walder	wO1ldR	C	15
 Waldeyer's ring	va1ldYErz rI2N	U	0
-waldheim	vO1ldhY2m	C	15
-waldheim	wO1ldhY2m	C	15
+Waldheim	vO1ldhY2m	C	15
+Waldheim	wO1ldhY2m	C	15
 waldheim's	vO1ldhY2mz	C	0
 waldheim's	wO1ldhY2mz	C	0
 waldholtz	wO1ldho2lts	C	0
@@ -365263,8 +365263,8 @@ wallenberg's	wO1lVnbRgz	C	10
 wallenstein	wO1lVnstY2n	C	15
 wallenstein	wO1lVnsti2n	C	15
 Waller	wO1lR	C	33	n
-wallerstein	wO1lRstY2n	C	15
-wallerstein	wO1lRsti2n	C	15
+Wallerstein	wO1lRstY2n	C	15
+Wallerstein	wO1lRsti2n	C	15
 walles	wO1lz	C	0
 wallet	wA1lVt	U	42	n
 wallet	wO1lVt	CU	42	n
@@ -365408,7 +365408,7 @@ walworth	wO1lwRT	C	15
 Walwyn	wO1lwIn	CW	14
 waly	we1li	W	15
 Walz	wO1lz	CU	22
-walzer	wO1lzR	C	15
+Walzer	wO1lzR	C	15
 wambach	wO1mbAk	C	15
 wambaugh	wO1mbA	C	13
 wamble	wA1mbVl	CW	0
@@ -365790,7 +365790,7 @@ warbling vireo	wO2rbVlIN vI1rio	P	18
 warbow	wO1rbo	B	0
 Warboys	wO1rbQz	B	13
 warbucks	wO1rbU2ks	C	15
-warburg	wO1rbRg	C	15
+Warburg	wO1rbRg	C	15	n
 warburg's	wO1rbRgz	C	11
 Warburton	wO1rbRtVn	CU	29	n
 Warburtonian	wO2rbRto1niVn	U	0
@@ -368039,7 +368039,7 @@ wefie	wi1fi	W	0
 weft	wE1ft	W	24
 wegbreit	wE1gbrY2t	C	0
 wege	wi1J	C	15
-wegener	wE1ginR	C	15
+Wegener	wE1ginR	C	15
 weger	wi1gR	C	13
 weglarz	wE1glArz	C	0
 wegman	wE1gmVn	C	15
@@ -368089,7 +368089,7 @@ weicker	wY1kR	C	15
 weicker's	wY1kRz	C	0
 weida	vY1dV	C	10
 weide	wY1di	C	15
-weidel	wY1dVl	C	0
+Weidel	wY1dVl	C	0
 weideman	wY1dmVn	C	14
 weidemann	wY1dmVn	C	12
 weidenbach	wY1dInbAk	C	0
@@ -368208,8 +368208,8 @@ weikel	wY1kVl	C	10
 weiker	wY1kR	C	0
 weikert	wY1kRt	C	13
 weikle	wi1kVl	C	0
-weil	wY1l	C	15
-weil	wi1l	C	15
+Weil	wY1l	C	15	n
+Weil	wi1l	C	15	n
 weil's	wY1lz	C	15
 weiland	wY1lVnd	C	15
 weilbacher	wY1lbA2kR	C	0
@@ -368332,7 +368332,7 @@ weisfeld	wY1sfE2ld	C	0
 weisfield's	wY1sfildz	C	0
 weisgerber	wY1sgRbR	C	11
 weishaar	wY1SAr	C	10
-weishaupt	wY1SWpt	C	15
+Weishaupt	wY1SWpt	C	15
 weisheit	wY1SYt	C	12
 Weishi	we2SR1	E	0
 weisinger	wY1sInJR	C	11
@@ -368340,7 +368340,7 @@ weiskopf	wY1skOf	C	15
 weisman	wY1smVn	C	15
 weismann	wY1smVn	C	15
 weisner	wY1snR	C	15
-weiss	wY1s	C	15
+Weiss	wY1s	C	15	n
 weiss's	wY1sIz	C	15
 weissberg	wY1sbRg	C	15
 weissbier	vY1sbIr	U	13
@@ -368349,7 +368349,7 @@ weissenborn	wY1sInbRn	C	15
 weisser	wY1sR	C	15
 weissert	wY1sRt	C	0
 weissinger	wY1sInJR	C	0
-weissman	wY1smVn	C	15
+Weissman	wY1smVn	C	15
 weissmann	wY1smVn	C	15
 weist	wY1st	C	13
 weist	wi1Ist	C	13
@@ -368367,7 +368367,7 @@ weitzman	wY1tsmVn	C	15
 weitzman's	wY1tsmVnz	C	0
 weitzner	wY1tsnR	C	0
 Weiyang	we2jA1N	E	0
-weizman	wY1zmVn	C	15
+Weizman	wY1zmVn	C	15
 weizsaecker	wY1sa2kR	C	0
 weksel	wE1ksVl	C	0
 wel	wE1l	W	28	v
@@ -368941,7 +368941,7 @@ wert	wR1t	CU	24
 wertenberger	wR1tVnbRgR	C	0
 werth	wR1T	C	15
 wertheim	wR1thYm	C	15
-wertheimer	wR1thYmR	C	15
+Wertheimer	wR1thYmR	C	15
 werther	wR1DR	C	15
 wertman	wR1tmVn	C	0
 werts	wR1ts	C	12
@@ -369420,7 +369420,7 @@ weyers	we1Rz	C	12
 weyforth	we1fO2rT	C	0
 weygandt	we1gVnt	C	12
 weyhrauch	wE1rW2k	C	0
-weyl	we1l	C	15
+Weyl	we1l	C	15
 weyland	we1lVnd	C	15
 weylin	we1lIn	C	11
 weyman	we1mVn	C	15
@@ -372157,7 +372157,7 @@ wielding	wi1ldIN	C	33	v
 wields	wi1ldz	C	28	v
 wieldy	wi1ldi	U	11
 wielgus	wi1lgVs	C	12
-wieman	wi1mVn	C	15
+Wieman	wi1mVn	C	15
 wiemann	wi1mVn	C	0
 wiemer	wi1mR	C	10
 wiemers	wi1mRz	C	0
@@ -372199,7 +372199,7 @@ wiesemann	wi1smVn	C	0
 wiesen	wi1sVn	C	12
 wiesenthal	wi1sVnTA1l	C	15
 wiesenthal	wi1zVnTA1l	C	15
-wieser	wi1sR	C	15
+Wieser	wi1sR	C	15
 wiesman	wi1zmVn	C	0
 wiesner	wi1znR	C	15
 wiess	wi1s	C	11
@@ -372350,7 +372350,7 @@ wilander	wY1lVndR	C	15
 wilaya	wIlA1jV	W	10
 wilbanks	wI1lbVNks	C	15
 wilber	wI1lbR	C	15
-wilberforce	wI1lbRfO2rs	C	15
+Wilberforce	wI1lbRfO2rs	C	15	n
 wilberg	wI1lbRg	C	10
 Wilbert	wI1lbRt	C	23
 wilbon	wI1lbVn	C	15
@@ -372367,7 +372367,7 @@ wilcoxen	wIlkA1ksVn	C	0
 wilcoxon	wIlkA1ksVn	C	15
 wilcoxson	wI1lkAksVn	C	0
 wilczak	vI1lCak	C	0
-wilczek	vI1lCEk	C	15
+Wilczek	vI1lCEk	C	15
 wilczewski	vIlCE1fski	C	0
 wilczynski	vIlCI1nski	C	12
 wild	wY1ld	CW	48
@@ -373325,8 +373325,8 @@ winegarden	wY1ngA2rdVn	C	0
 winegardner	wI1nIgArdnR	C	0
 wineheim	wY1nhY2m	C	0
 wineinger	wY1nINR	C	0
-wineland	wI1nIlVnd	C	15
-wineland	wY1nlVnd	C	15
+Wineland	wI1nIlVnd	C	15
+Wineland	wY1nlVnd	C	15
 winema	wI1nImV	C	0
 winemaker	wY1nme2kR	U	27	n
 wineman	wY1nmVn	C	12
@@ -373821,7 +373821,7 @@ Wirral	wI1rVl	B	27	n
 wirsing	wR1sIN	C	10
 wirt	wR1t	C	15
 wirtanen	wR1tVnVn	C	10
-wirth	wR1T	C	15
+Wirth	wR1T	C	15	n
 wirthlin	wR1TlIn	C	11
 wirtz	wR1ts	C	15
 wiry	wI1ri	C	25
@@ -374384,11 +374384,11 @@ witnessing	wI1tnVsIN	C	35	nv
 witowski	vItO1fski	C	0
 wits	wI1ts	CW	33	n
 witt	wI1t	C	15
-witte	wI1t	C	15
+Witte	wI1t	C	15
 witted	wI1tId	CW	29	v
 wittekind	wI1tIkInd	C	0
 witteman	wI1tmVn	C	0
-witten	wI1tVn	C	15
+Witten	wI1tVn	C	15	n
 wittenauer	wI1tInWR	C	0
 Wittenberg	wI1tVnbRg	CU	25	n
 Wittenberg	wI1tnbRg	U	25	n
@@ -374699,7 +374699,7 @@ wolfensohn	wU1lfVnsVn	C	14
 wolfenstein	wU1lfVnstY2n	C	15
 wolfer	wU1lfR	C	14
 wolfert	wU1lfRt	C	15
-wolff	wU1lf	C	15
+Wolff	wU1lf	C	15	n
 Wolffian	wU1lfiVn	W	12
 wolffish	wU1lffI2S	W	10
 Wolfgang	wU1lfga2N	CW	33	n
@@ -376293,7 +376293,7 @@ wowzers	wW1zRz	U	18
 woy	wQ1	C	15
 woz	wVz	W	23
 woz ere	wVz E1r	P	22
-wozniak	wA1zniak	C	15
+Wozniak	wA1zniak	C	15	n
 woznick	wA1znIk	C	0
 woznicki	wVznI1tski	C	0
 wozny	wA1zni	C	0
@@ -376787,7 +376787,7 @@ Wujiaqu	wuJiACu1	W	0
 Wujin	wu2JI1n	E	0
 Wulai	wu2lY1	E	0
 wulf	wU1lf	C	15
-wulff	wU1lf	C	15
+Wulff	wU1lf	C	15
 wuli	wu1li	C	11
 Wulian	wu2ljE1n	E	0
 wuliger	wu1lIgR	C	0
@@ -377776,14 +377776,14 @@ yam daisy	ja2m de1zi	P	30
 yam stick	ja2m stI1k	P	30
 yam yam	ja2m ja1m	P	27
 yamada	jVmA1dV	C	15
-yamagata	jAmAgA1tV	C	15
+Yamagata	jAmAgA1tV	C	15
 Yamaguchi	jA2mAgu1Ci	C	26	n
 Yamaguchi	jAmVgu1Ci	U	26	n
 yamaha	jA1mAhA2	C	15
 yamaichi	jA2mAi1Ci	C	0
 yamaichi's	jA2mAi1Ciz	C	0
 yamamoto	jAmAmo1to	C	15
-yamanaka	jA2mAnA1kV	C	15
+Yamanaka	jA2mAnA1kV	C	15
 yamane	jAmA1ne	C	15
 yamane	jVmA1ni	C	15
 yamani	jAmA1ni	C	15
@@ -378133,7 +378133,7 @@ yater	je1tR	C	13
 Yates	je1ts	CWE	35	n
 yatsko	jA1tsko	C	0
 yatta	jAtA1	U	18
-yau	jo1	C	15
+Yau	jo1	C	15	n
 Yau Tong	jW1 tO1N	U	25
 Yau Tsim Mong	jW1 tsIm mO1N	U	19
 Yauch	jO1C	C	16
@@ -379286,7 +379286,7 @@ Yosemite	josE1mIti	CU	33	n
 yosenabe	jo2sEnA1be	W	0
 Yoshi	jo1Si	C	28	n
 yoshiaki	jo2SiA1ki	C	15
-yoshida	joSi1dV	C	15
+Yoshida	joSi1dV	C	15	n
 yoshihara	jo2SIhA1rV	C	14
 yoshihashi	jo2SIhA1Si	C	0
 yoshihiro	jo2SIhI1ro2	C	15
@@ -379297,7 +379297,7 @@ yoshikazu	jo2SIkA1zu	C	15
 Yoshiko	joSi1ko	W	22
 yoshimoto	joSimo1to	C	15
 yoshimura	jo2SImU1rV	C	15
-yoshino	joSi1no	C	15
+Yoshino	joSi1no	C	15
 Yoshio	joSi1o	C	22
 yoshioka	jo2Sio1kV	C	15
 yoshiro	joSI1ro	C	15
@@ -380081,7 +380081,7 @@ Zadar	ze1dA2r	C	15
 zaddick	tsa1dIk	W	0
 zaddick	za1dIk	W	0
 zaddy	za1di	W	14
-zadeh	zA1dE2	C	15
+Zadeh	zA1dE2	C	15
 zadillo	zVdI1lo	C	0
 zadoc	zA1dVk	C	0
 zadok	zA1dVk	C	15
@@ -380327,7 +380327,7 @@ zap	za1p	CW	30	nv
 zap over	za2p o1vR	P	30
 zap up	za2p V1p	P	30
 zapalac	zVpA1lVk	C	0
-zapata	zApA1tV	C	15
+Zapata	zApA1tV	C	15	n
 zapateado	sA2pVte2A1do	U	0
 zapateado	zA2pVtiA1do	U	0
 zapateo	zA2pVte1o	U	0
@@ -380580,8 +380580,8 @@ zed	zE1d	CW	30	in
 zed-bed	zE2d bE1d	P	30	n
 Zeddy	zE1di	W	10
 Zedekiah	zE2dVkY1V	C	20
-zedillo	zE2dI1lo	C	15
-zedillo	ze2di1o	C	15
+Zedillo	zE2dI1lo	C	15
+Zedillo	ze2di1o	C	15
 zedillo's	zE2dI1loz	C	0
 zedillo's	ze2di1oz	C	0
 zedillos	zE2dI1loz	C	0
@@ -380601,7 +380601,7 @@ zeedonk	zi1dA2nk	U	0
 zeedonk	zi2dA1nk	E	0
 Zeek	zi1k	CW	18
 zeeland	zi1lVnd	C	15
-zeeman	zi1mVn	C	15
+Zeeman	zi1mVn	C	15
 zeera	zI1rV	W	0
 zeese	zi1s	C	0
 zeese	zi1z	C	0
@@ -380631,7 +380631,7 @@ zeiger	zY1gR	C	15
 zeigler	zY1gVlR	C	15
 zeigler	zY1glR	C	15
 zeiler	zY1lR	C	13
-zeilinger	zY1lINR	C	13
+Zeilinger	zY1lINR	C	13
 zeimet	zY1mIt	C	0
 zeinab	zY1nab	C	15
 zeiner	zY1nR	C	0
@@ -380708,7 +380708,7 @@ zeltzer	zE1ltsR	C	11
 Zelus	zi1lVs	W	0
 zelvin	zE1lvIn	C	0
 zemaitis	zE2mY1tVs	C	0
-zeman	zi1mVn	C	15
+Zeman	zi1mVn	C	15
 zemanek	zE1mVnIk	C	0
 zemba	zE1mbV	C	0
 zembower	zE1mbW2R	C	0
@@ -381094,12 +381094,12 @@ Zhijin	JR2JI1n	E	0
 Zhili	JR2li1	E	12
 zhiqing	JICI1N	W	0
 zhiqing	JR2CI1N	E	0
-zhirinovsky	ZI2rVnA1vski2	C	15
+Zhirinovsky	ZI2rVnA1vski2	C	15
 zhirinovsky's	ZI2rVnA1vski2z	C	0
 Zhivago	ZIvA1go	CU	24
 Zhivar	ZIvA1r	W	0
 Zhivar	zIwA1r	W	0
-zhivkov	ZI1vkAv	C	15
+Zhivkov	ZI1vkAv	C	15
 Zhmerynka	ZmE1rInkV2	B	0
 Zhmiivka	Zmi1jifkA	W	0
 zho	Zo1	W	11
@@ -382087,7 +382087,7 @@ zwetchkenbaum	zwE1CkVnbAm	C	0
 Zwetschgenkuchen	tsvE1CgVnku1kVn	W	0
 zwick	zwI1k	C	15
 zwicker	zwI1kR	C	15
-zwicky	zwI1ki	C	15
+Zwicky	zwI1ki	C	15
 zwiebel	zwi1bVl	C	0
 zwiefelhofer	zwi1fVlhA2fR	C	0
 zwieg	zwi1g	C	0
@@ -382160,8 +382160,8 @@ zysk	zY1sk	C	0
 zyskowski	zIskO1fski	C	0
 zythology	zYTA1lVJi	U	0
 zythum	zY1TVm	W	0
-zyuganov	zju1gAnAv	C	15
-zyuganov	zu1gAnAv	C	15
+Zyuganov	zju1gAnAv	C	15
+Zyuganov	zu1gAnAv	C	15
 zyuganov's	zju1gAnAvz	C	0
 zyuganov's	zu1gAnAvz	C	0
 zywicki	zIwI1ki	C	0
