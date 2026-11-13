@@ -87,9 +87,9 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <b>Dice</b></nav>
 <main>
-  <p class="intro">See a dice roll's mean and variance and roll it here, or replace it with fewer dice to roll by hand, keeping the same mean and variance.</p>
+  <p class="intro">See a dice roll's mean and standard deviation and roll it here, or replace it with fewer dice to roll by hand, keeping the same mean and standard deviation.</p>
   <div id="inputs">
-    <label>Roll: <input id="n" type="number" min="1" max="100" required></label>
+    <label>Roll: <input id="n" type="number" min="1" max="999" required></label>
     <select id="k" aria-label="Die">
       <option value="4">d4</option>
       <option value="6">d6</option>
@@ -128,7 +128,7 @@
   </p>
 </main>
 <script>
-  const MAX_N = 100;
+  const MAX_N = 999;
   const DICE = [4, 6, 8, 10, 12, 20, 100];
   const nInput = document.getElementById("n");
   const kInput = document.getElementById("k");
@@ -329,7 +329,8 @@
       // the mean is bold, since it's often used instead of rolling
       const meanCell = document.createElement("b");
       meanCell.textContent = formatNumber(mean + modifier);
-      stats.append(`${s} ${s === 1 ? "die" : "dice"} · mean `, meanCell, ` · variance ${formatNumber(variance)}`);
+      // (non-breaking spaces keep each label with its number, so the line only wraps at the dots)
+      stats.append(`${s}\u00a0${s === 1 ? "die" : "dice"} · mean\u00a0`, meanCell, ` · standard\u00a0deviation\u00a0${formatNumber(Math.sqrt(variance))}`);
       // the rules sit beside the roll they apply to
       const line = document.createElement("div");
       line.id = "roll-line";
