@@ -12,7 +12,7 @@ const FILES = {
   "patterns.html": "5c0945791dee",
   "rhymes.html": "b49aefa08995",
   "unicode.html": "81c2875d9994",
-  "wordlists.html": "d6cf2201109d",
+  "wordlists.html": "a9aae05c4f36",
   "manifest.json": "f68ccd90c859",
   "icons/apple-touch-icon.png": "4c8a34053d16",
   "icons/apple-touch-icon.svg": "7069a8262b07",
