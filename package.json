@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test \"test/**/*.test.js\"",
-    "build": "node scripts/build.mjs src/patterns/patterns.template.html patterns.html && node scripts/build.mjs src/wordlists/wordlists.template.html wordlists.html && node scripts/build.mjs src/rhymes/rhymes.template.html rhymes.html && node scripts/build.mjs src/unicode/unicode.template.html unicode.html && node scripts/build-sw.mjs",
+    "build": "node scripts/build.mjs src/patterns/patterns.template.html patterns.html && node scripts/build.mjs src/wordlists/wordlists.template.html wordlists.html && node scripts/build.mjs src/rhymes/rhymes.template.html rhymes.html && node scripts/build.mjs src/unicode/unicode.template.html unicode.html && node scripts/build.mjs src/lsystems/lsystems.template.html lsystems.html && node scripts/build-sw.mjs",
     "icons": "node scripts/icons.mjs"
   },
   "devDependencies": {

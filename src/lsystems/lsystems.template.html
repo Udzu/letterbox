@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+  // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+</script>
+<title>L-Systems</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "controls" "drawing" "attempts";
+    gap: 16px 24px;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    main {
+      grid-template-columns: 400px minmax(0, 1fr);
+      grid-template-areas: "controls drawing" "attempts drawing";
+      grid-template-rows: auto 1fr;
+    }
+    #drawing { position: sticky; top: 16px; }
+  }
+  #controls { grid-area: controls; }
+  #drawing { grid-area: drawing; }
+  #attempts-section { grid-area: attempts; }
+  .intro { margin: 0 0 16px; color: #666; }
+  .intro code, .symbols code { font-family: ui-monospace, monospace; color: #000; }
+  .symbols { margin: 0 0 16px; padding: 0; list-style: none; color: #666; font-size: 0.9rem; columns: 2; }
+  .symbols li { margin: 1px 0; }
+  .symbols code { display: inline-block; min-width: 1.2em; }
+  label, .label { color: #444; }
+  input { font: inherit; font-size: 1rem; padding: 5px 6px; box-sizing: border-box; min-width: 0; }
+  .mono { font-family: ui-monospace, monospace; }
+  .field { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .field > input.wide { flex: 1; }
+  .field-row { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 10px; }
+  .field-row .field { margin-bottom: 0; }
+  #angle { width: 4.5em; }
+  #iterations { width: 4.5em; }
+  #degrees { color: #666; font-size: 0.9rem; }
+  select { font: inherit; font-size: 1rem; }
+  #rules-header { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 0 6px; }
+  #rules-header .hint { color: #888; font-size: 0.85rem; }
+  .rule { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .rule .symbol { width: 2.4em; text-align: center; }
+  .rule .output { flex: 1; }
+  .rule .weight { width: 4em; }
+  .rule .arrow { color: #666; }
+  .rule .remove, #attempts .remove {
+    border: none;
+    background: none;
+    color: #888;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 4px;
+    cursor: pointer;
+  }
+  .rule .remove:hover, #attempts .remove:hover { color: #d00; }
+  button { font-size: 1rem; cursor: pointer; }
+  #add-rule { margin-bottom: 12px; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+  #message { margin: 10px 0 0; min-height: 1.3em; font-size: 0.9rem; color: #666; }
+  #message.error { color: #c00; }
+  #canvas { display: block; width: 100%; border: 1px solid #ccc; box-sizing: border-box; background: #fff; touch-action: manipulation; }
+  #attempts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 8px;
+  }
+  h2 { margin: 0; font-size: 1.1rem; }
+  #attempts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #999;
+    min-height: 6em;
+  }
+  #attempts li {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 6px 8px;
+    border-bottom: 1px solid #ddd;
+  }
+  #attempts li:last-child { border-bottom: none; }
+  #attempts li:hover { background: #f3f3f3; }
+  #attempts li.current { background: #e8f0fb; }
+  #attempts .text { flex: 1; min-width: 0; cursor: pointer; }
+  #attempts .summary { display: block; color: #777; font-size: 0.85rem; font-family: ui-monospace, monospace; overflow-wrap: anywhere; }
+  nav { max-width: 1300px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <b>L-Systems</b></nav>
+<main>
+  <section id="controls">
+    <p class="intro">Draw fractals by rewriting: each iteration replaces every symbol that has a rule with that rule's output (picking at random, by weight, if it has several). Symbols without a rule stay as they are.</p>
+    <ul class="symbols">
+      <li><code>F</code> draw forward</li>
+      <li><code>G</code> move forward</li>
+      <li><code>+</code> turn clockwise</li>
+      <li><code>-</code> turn anticlockwise</li>
+      <li><code>[</code> save position</li>
+      <li><code>]</code> return to it</li>
+    </ul>
+    <div class="field"><label for="name">Name</label><input id="name" class="wide" type="text" autocomplete="off"></div>
+    <div class="field-row">
+      <div class="field"><label for="angle">Angle</label><span class="label">360° ÷</span><input id="angle" type="number" min="0" step="any" value="4"><span id="degrees"></span></div>
+      <div class="field"><label for="heading">Start</label><select id="heading">
+        <option value="right">right</option>
+        <option value="up">up</option>
+        <option value="left">left</option>
+        <option value="down">down</option>
+      </select></div>
+    </div>
+    <div class="field"><label for="axiom">Axiom</label><input id="axiom" class="wide mono" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div id="rules-header"><span class="label">Rules</span><span class="hint">symbol → output, weight</span></div>
+    <div id="rules"></div>
+    <button type="button" id="add-rule">Add rule</button>
+    <div class="field"><label for="iterations">Iterations</label><input id="iterations" type="number" min="0" step="1" value="4"></div>
+    <div class="buttons">
+      <button type="button" id="draw" title="Enter">Draw</button>
+      <button type="button" id="save" title="Ctrl+Enter">Save</button>
+      <button type="button" id="download">Download PNG</button>
+      <button type="button" id="download-svg">Download SVG</button>
+    </div>
+    <p id="message" aria-live="polite"></p>
+  </section>
+  <section id="drawing">
+    <canvas id="canvas" aria-label="Drawing"></canvas>
+  </section>
+  <section id="attempts-section">
+    <div id="attempts-header">
+      <h2>Attempts</h2>
+      <span>
+        <button type="button" id="examples">Add examples</button>
+        <button type="button" id="clear">Clear list</button>
+      </span>
+    </div>
+    <ul id="attempts"></ul>
+  </section>
+</main>
+<!-- @inline page.js -->
+</body>
+</html>

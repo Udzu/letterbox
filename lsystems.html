@@ -1,0 +1,654 @@
+<!doctype html>
+<!-- Generated from src/lsystems/lsystems.template.html by scripts/build.mjs: do not edit -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+  // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+</script>
+<title>L-Systems</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "controls" "drawing" "attempts";
+    gap: 16px 24px;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    main {
+      grid-template-columns: 400px minmax(0, 1fr);
+      grid-template-areas: "controls drawing" "attempts drawing";
+      grid-template-rows: auto 1fr;
+    }
+    #drawing { position: sticky; top: 16px; }
+  }
+  #controls { grid-area: controls; }
+  #drawing { grid-area: drawing; }
+  #attempts-section { grid-area: attempts; }
+  .intro { margin: 0 0 16px; color: #666; }
+  .intro code, .symbols code { font-family: ui-monospace, monospace; color: #000; }
+  .symbols { margin: 0 0 16px; padding: 0; list-style: none; color: #666; font-size: 0.9rem; columns: 2; }
+  .symbols li { margin: 1px 0; }
+  .symbols code { display: inline-block; min-width: 1.2em; }
+  label, .label { color: #444; }
+  input { font: inherit; font-size: 1rem; padding: 5px 6px; box-sizing: border-box; min-width: 0; }
+  .mono { font-family: ui-monospace, monospace; }
+  .field { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .field > input.wide { flex: 1; }
+  .field-row { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 10px; }
+  .field-row .field { margin-bottom: 0; }
+  #angle { width: 4.5em; }
+  #iterations { width: 4.5em; }
+  #degrees { color: #666; font-size: 0.9rem; }
+  select { font: inherit; font-size: 1rem; }
+  #rules-header { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 0 6px; }
+  #rules-header .hint { color: #888; font-size: 0.85rem; }
+  .rule { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .rule .symbol { width: 2.4em; text-align: center; }
+  .rule .output { flex: 1; }
+  .rule .weight { width: 4em; }
+  .rule .arrow { color: #666; }
+  .rule .remove, #attempts .remove {
+    border: none;
+    background: none;
+    color: #888;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 4px;
+    cursor: pointer;
+  }
+  .rule .remove:hover, #attempts .remove:hover { color: #d00; }
+  button { font-size: 1rem; cursor: pointer; }
+  #add-rule { margin-bottom: 12px; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+  #message { margin: 10px 0 0; min-height: 1.3em; font-size: 0.9rem; color: #666; }
+  #message.error { color: #c00; }
+  #canvas { display: block; width: 100%; border: 1px solid #ccc; box-sizing: border-box; background: #fff; touch-action: manipulation; }
+  #attempts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 8px;
+  }
+  h2 { margin: 0; font-size: 1.1rem; }
+  #attempts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #999;
+    min-height: 6em;
+  }
+  #attempts li {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 6px 8px;
+    border-bottom: 1px solid #ddd;
+  }
+  #attempts li:last-child { border-bottom: none; }
+  #attempts li:hover { background: #f3f3f3; }
+  #attempts li.current { background: #e8f0fb; }
+  #attempts .text { flex: 1; min-width: 0; cursor: pointer; }
+  #attempts .summary { display: block; color: #777; font-size: 0.85rem; font-family: ui-monospace, monospace; overflow-wrap: anywhere; }
+  nav { max-width: 1300px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <b>L-Systems</b></nav>
+<main>
+  <section id="controls">
+    <p class="intro">Draw fractals by rewriting: each iteration replaces every symbol that has a rule with that rule's output (picking at random, by weight, if it has several). Symbols without a rule stay as they are.</p>
+    <ul class="symbols">
+      <li><code>F</code> draw forward</li>
+      <li><code>G</code> move forward</li>
+      <li><code>+</code> turn clockwise</li>
+      <li><code>-</code> turn anticlockwise</li>
+      <li><code>[</code> save position</li>
+      <li><code>]</code> return to it</li>
+    </ul>
+    <div class="field"><label for="name">Name</label><input id="name" class="wide" type="text" autocomplete="off"></div>
+    <div class="field-row">
+      <div class="field"><label for="angle">Angle</label><span class="label">360° ÷</span><input id="angle" type="number" min="0" step="any" value="4"><span id="degrees"></span></div>
+      <div class="field"><label for="heading">Start</label><select id="heading">
+        <option value="right">right</option>
+        <option value="up">up</option>
+        <option value="left">left</option>
+        <option value="down">down</option>
+      </select></div>
+    </div>
+    <div class="field"><label for="axiom">Axiom</label><input id="axiom" class="wide mono" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div id="rules-header"><span class="label">Rules</span><span class="hint">symbol → output, weight</span></div>
+    <div id="rules"></div>
+    <button type="button" id="add-rule">Add rule</button>
+    <div class="field"><label for="iterations">Iterations</label><input id="iterations" type="number" min="0" step="1" value="4"></div>
+    <div class="buttons">
+      <button type="button" id="draw" title="Enter">Draw</button>
+      <button type="button" id="save" title="Ctrl+Enter">Save</button>
+      <button type="button" id="download">Download PNG</button>
+      <button type="button" id="download-svg">Download SVG</button>
+    </div>
+    <p id="message" aria-live="polite"></p>
+  </section>
+  <section id="drawing">
+    <canvas id="canvas" aria-label="Drawing"></canvas>
+  </section>
+  <section id="attempts-section">
+    <div id="attempts-header">
+      <h2>Attempts</h2>
+      <span>
+        <button type="button" id="examples">Add examples</button>
+        <button type="button" id="clear">Clear list</button>
+      </span>
+    </div>
+    <ul id="attempts"></ul>
+  </section>
+</main>
+<script>
+(() => {
+  // src/lsystems/lsystem.js
+  var MAX_SYMBOLS = 5e6;
+  var clean = (text) => text.replace(/\s+/g, "");
+  function parseRules(rows) {
+    const rules = /* @__PURE__ */ new Map();
+    const errors = [];
+    rows.forEach((row, i) => {
+      const symbol = row.symbol.trim();
+      const output = clean(row.output);
+      const weightText = (row.weight ?? "").trim();
+      if (!symbol && !output && !weightText) return;
+      const where = `Rule ${i + 1}`;
+      if ([...symbol].length !== 1) {
+        errors.push(symbol ? `${where}: the symbol should be a single character.` : `${where} has no symbol.`);
+        return;
+      }
+      const weight = weightText === "" ? 1 : Number(weightText);
+      if (!(weight > 0 && Number.isFinite(weight))) {
+        errors.push(`${where}: the weight should be a positive number.`);
+        return;
+      }
+      if (!rules.has(symbol)) rules.set(symbol, { outputs: [], weights: [] });
+      rules.get(symbol).outputs.push(output);
+      rules.get(symbol).weights.push(weight);
+    });
+    return { rules, errors };
+  }
+  function parseAngle(text) {
+    const n = Number(text.trim());
+    return text.trim() !== "" && Number.isFinite(n) && n > 0 ? n : null;
+  }
+  function expand(axiom, rules, iterations, { limit = MAX_SYMBOLS, random = Math.random } = {}) {
+    const table = /* @__PURE__ */ new Map();
+    for (const [symbol, { outputs, weights }] of rules) {
+      if (outputs.length === 1) {
+        table.set(symbol, outputs[0]);
+      } else {
+        let total = 0;
+        const cumulative = weights.map((w) => total += w);
+        table.set(symbol, { outputs, cumulative, total });
+      }
+    }
+    const choose = ({ outputs, cumulative, total }) => {
+      const r = random() * total;
+      const i = cumulative.findIndex((c) => r < c);
+      return outputs[i === -1 ? outputs.length - 1 : i];
+    };
+    let state = axiom;
+    let done = 0;
+    for (; done < iterations; done++) {
+      const parts = [];
+      let length = 0;
+      for (const symbol of state) {
+        const rule = table.get(symbol);
+        const out = rule === void 0 ? symbol : typeof rule === "string" ? rule : choose(rule);
+        parts.push(out);
+        length += out.length;
+        if (length > limit) return { result: state, iterations: done };
+      }
+      state = parts.join("");
+    }
+    return { result: state, iterations: done };
+  }
+  function trace(string, divisions, heading, line) {
+    const step = 2 * Math.PI / divisions;
+    const directions = /* @__PURE__ */ new Map();
+    const direction = (turns2) => {
+      let d = directions.get(turns2);
+      if (!d) {
+        const a = heading + turns2 * step;
+        d = [Math.cos(a), Math.sin(a)];
+        directions.set(turns2, d);
+      }
+      return d;
+    };
+    let x = 0;
+    let y = 0;
+    let turns = 0;
+    let lines = 0;
+    const stack = [];
+    for (const symbol of string) {
+      switch (symbol) {
+        case "F": {
+          const [dx, dy] = direction(turns);
+          line(x, y, x + dx, y + dy);
+          x += dx;
+          y += dy;
+          lines++;
+          break;
+        }
+        case "G": {
+          const [dx, dy] = direction(turns);
+          x += dx;
+          y += dy;
+          break;
+        }
+        case "+":
+          turns++;
+          break;
+        case "-":
+          turns--;
+          break;
+        case "[":
+          stack.push([x, y, turns]);
+          break;
+        case "]":
+          if (stack.length) [x, y, turns] = stack.pop();
+          break;
+      }
+    }
+    return lines;
+  }
+  function bounds(string, divisions, heading) {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    const lines = trace(string, divisions, heading, (x1, y1, x2, y2) => {
+      minX = Math.min(minX, x1, x2);
+      maxX = Math.max(maxX, x1, x2);
+      minY = Math.min(minY, y1, y2);
+      maxY = Math.max(maxY, y1, y2);
+    });
+    return lines ? { minX, minY, maxX, maxY, lines } : null;
+  }
+  function pathData(string, divisions, heading, { scale = 1, offsetX = 0, offsetY = 0, decimals = 4 } = {}) {
+    const format = (n) => {
+      const s = n.toFixed(decimals).replace(/\.?0+$/, "");
+      return s === "-0" ? "0" : s;
+    };
+    const parts = [];
+    let dirX = NaN;
+    let dirY = NaN;
+    let endX = NaN;
+    let endY = NaN;
+    const point = (x, y) => `${format(offsetX + x * scale)} ${format(offsetY + y * scale)}`;
+    const flush = () => {
+      if (!Number.isNaN(endX)) parts.push(point(endX, endY));
+    };
+    const close = 1e-9;
+    trace(string, divisions, heading, (x1, y1, x2, y2) => {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const continues = Math.abs(x1 - endX) < close && Math.abs(y1 - endY) < close;
+      if (continues && Math.abs(dx - dirX) < close && Math.abs(dy - dirY) < close) {
+        endX = x2;
+        endY = y2;
+        return;
+      }
+      flush();
+      if (!continues) parts.push(`M${point(x1, y1)}L`);
+      dirX = dx;
+      dirY = dy;
+      endX = x2;
+      endY = y2;
+    });
+    flush();
+    return parts.join(" ").replace(/ ?([ML]) ?/g, "$1");
+  }
+  var HEADINGS = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
+  var EXAMPLES = [
+    { name: "Koch snowflake", angle: "6", heading: "right", axiom: "F--F--F", iterations: 4, rules: [{ symbol: "F", output: "F+F--F+F", weight: "" }] },
+    {
+      name: "Dragon curve",
+      angle: "8",
+      heading: "right",
+      axiom: "FX",
+      iterations: 12,
+      rules: [
+        { symbol: "F", output: "", weight: "" },
+        { symbol: "Y", output: "+FX--FY+", weight: "" },
+        { symbol: "X", output: "-FX++FY-", weight: "" }
+      ]
+    },
+    {
+      name: "Sierpi\u0144ski arrowhead",
+      angle: "6",
+      heading: "left",
+      axiom: "AF",
+      iterations: 7,
+      rules: [
+        { symbol: "A", output: "BF+AF+BF", weight: "" },
+        { symbol: "B", output: "AF-BF-AF", weight: "" },
+        { symbol: "F", output: "", weight: "" }
+      ]
+    },
+    {
+      name: "Fern",
+      angle: "14.4",
+      heading: "up",
+      axiom: "X",
+      iterations: 6,
+      rules: [
+        { symbol: "X", output: "F+[[X]-X]-F[-FX]+X", weight: "" },
+        { symbol: "F", output: "FF", weight: "" }
+      ]
+    },
+    {
+      name: "Stochastic plant",
+      angle: "16",
+      heading: "up",
+      axiom: "F",
+      iterations: 5,
+      rules: [
+        { symbol: "F", output: "F[+F]F[-F]F", weight: "" },
+        { symbol: "F", output: "F[+F]F", weight: "" },
+        { symbol: "F", output: "F[-F]F", weight: "" }
+      ]
+    }
+  ];
+
+  // src/lsystems/page.js
+  var STORAGE_KEY = "lsystem-attempts";
+  var CURRENT_KEY = "lsystem-current";
+  var MARGIN = 12;
+  var $ = (id) => document.getElementById(id);
+  var nameBox = $("name");
+  var angleBox = $("angle");
+  var headingBox = $("heading");
+  var axiomBox = $("axiom");
+  var iterationsBox = $("iterations");
+  var rulesBox = $("rules");
+  var message = $("message");
+  var canvas = $("canvas");
+  var attemptsList = $("attempts");
+  var storage = {
+    get(key) {
+      try {
+        return JSON.parse(localStorage.getItem(key));
+      } catch (e) {
+        return null;
+      }
+    },
+    set(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+      }
+    }
+  };
+  function say(text, error = false) {
+    message.textContent = text;
+    message.classList.toggle("error", error);
+  }
+  function addRuleRow({ symbol = "", output = "", weight = "" } = {}, focus = false) {
+    const row = document.createElement("div");
+    row.className = "rule";
+    row.innerHTML = `<input class="symbol mono" type="text" aria-label="Symbol" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <span class="arrow">\u2192</span>
+    <input class="output mono" type="text" aria-label="Output" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <input class="weight" type="text" inputmode="decimal" aria-label="Weight" placeholder="1" autocomplete="off">
+    <button type="button" class="remove" title="Remove rule" aria-label="Remove rule">\xD7</button>`;
+    row.querySelector(".symbol").value = symbol;
+    row.querySelector(".output").value = output;
+    row.querySelector(".weight").value = weight;
+    row.querySelector(".remove").addEventListener("click", () => {
+      row.remove();
+      if (!rulesBox.children.length) addRuleRow();
+    });
+    rulesBox.appendChild(row);
+    if (focus) row.querySelector(".symbol").focus();
+  }
+  var ruleRows = () => [...rulesBox.children].map((row) => ({
+    symbol: row.querySelector(".symbol").value,
+    output: row.querySelector(".output").value,
+    weight: row.querySelector(".weight").value
+  }));
+  function readForm() {
+    return {
+      name: nameBox.value.trim(),
+      angle: angleBox.value.trim(),
+      heading: headingBox.value,
+      axiom: axiomBox.value,
+      iterations: iterationsBox.value === "" ? "" : Number(iterationsBox.value),
+      rules: ruleRows().filter((r) => r.symbol.trim() || r.output.trim() || r.weight.trim())
+    };
+  }
+  function fillForm(system) {
+    nameBox.value = system.name ?? "";
+    angleBox.value = system.angle ?? "4";
+    headingBox.value = system.heading in HEADINGS ? system.heading : "right";
+    axiomBox.value = system.axiom ?? "";
+    iterationsBox.value = system.iterations ?? 4;
+    rulesBox.innerHTML = "";
+    for (const rule of system.rules ?? []) addRuleRow(rule);
+    if (!rulesBox.children.length) addRuleRow();
+    showDegrees();
+  }
+  function showDegrees() {
+    const n = parseAngle(angleBox.value);
+    $("degrees").textContent = n ? `= ${+(360 / n).toFixed(3)}\xB0` : "";
+  }
+  var drawn = null;
+  var layout = null;
+  function draw() {
+    const form = readForm();
+    const divisions = parseAngle(form.angle);
+    const { rules, errors } = parseRules(form.rules);
+    if (!divisions) errors.unshift("The angle should be a positive number (4 means 90\xB0).");
+    if (!Number.isInteger(form.iterations) || form.iterations < 0) errors.push("The iterations should be a whole number.");
+    if (errors.length) {
+      say(errors.join(" "), true);
+      return;
+    }
+    storage.set(CURRENT_KEY, form);
+    const { result, iterations } = expand(clean(form.axiom), rules, form.iterations);
+    drawn = { string: result, divisions, heading: HEADINGS[form.heading] };
+    const lines = render();
+    const count = (n, word) => `${n.toLocaleString()} ${word}${n === 1 ? "" : "s"}`;
+    const parts = [count([...result].length, "symbol"), count(lines, "line")];
+    if (iterations < form.iterations) {
+      say(`Stopped after ${count(iterations, "iteration")}, as the next would have over ${(MAX_SYMBOLS / 1e6).toLocaleString()} million symbols: ${parts.join(", ")}.`, true);
+    } else if (!lines) {
+      say(`Nothing to draw (${count([...result].length, "symbol")}, but no F).`);
+    } else {
+      say(`${parts.join(", ")}.`);
+    }
+    highlightCurrent();
+  }
+  function render() {
+    const ratio = window.devicePixelRatio || 1;
+    const width = canvas.parentElement.clientWidth;
+    const height = Math.max(200, Math.min(width, window.innerHeight - 32));
+    canvas.style.height = `${height}px`;
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    layout = null;
+    if (!drawn) return 0;
+    const { string, divisions, heading } = drawn;
+    const box = bounds(string, divisions, heading);
+    if (!box) return 0;
+    const w = box.maxX - box.minX;
+    const h = box.maxY - box.minY;
+    const room = (size) => Math.max(1, size - 2 * MARGIN);
+    const scale = Math.min(w ? room(width) / w : Infinity, h ? room(height) / h : Infinity);
+    const offsetX = width / 2 - (box.minX + box.maxX) / 2 * scale;
+    const offsetY = height / 2 - (box.minY + box.maxY) / 2 * scale;
+    const lineWidth = Math.min(2, Math.max(0.75, scale / 8));
+    layout = { width, height, scale, offsetX, offsetY, lineWidth };
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    let pending = 0;
+    let lastX = Infinity;
+    let lastY = Infinity;
+    ctx.beginPath();
+    trace(string, divisions, heading, (x1, y1, x2, y2) => {
+      const sx = offsetX + x1 * scale;
+      const sy = offsetY + y1 * scale;
+      if (Math.abs(sx - lastX) > 0.01 || Math.abs(sy - lastY) > 0.01) ctx.moveTo(sx, sy);
+      lastX = offsetX + x2 * scale;
+      lastY = offsetY + y2 * scale;
+      ctx.lineTo(lastX, lastY);
+      if (++pending === 2e4) {
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        pending = 0;
+      }
+    });
+    ctx.stroke();
+    return box.lines;
+  }
+  var resizeTimer = null;
+  var lastWidth = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (canvas.parentElement.clientWidth === lastWidth) return;
+      lastWidth = canvas.parentElement.clientWidth;
+      render();
+    }, 150);
+  });
+  function save(blob, extension) {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${nameBox.value.trim() || "l-system"}.${extension}`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1e3);
+  }
+  $("download").addEventListener("click", () => {
+    if (drawn) canvas.toBlob((blob) => save(blob, "png"));
+  });
+  $("download-svg").addEventListener("click", () => {
+    if (!drawn || !layout) return;
+    const { width, height, lineWidth } = layout;
+    const d = pathData(drawn.string, drawn.divisions, drawn.heading, layout);
+    const svg = [
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
+      `<rect width="100%" height="100%" fill="#fff"/>`,
+      `<path fill="none" stroke="#000" stroke-width="${+lineWidth.toFixed(4)}" stroke-linecap="round" stroke-linejoin="round" d="${d}"/>`,
+      `</svg>
+`
+    ];
+    save(new Blob([svg.join("\n")], { type: "image/svg+xml" }), "svg");
+  });
+  var attempts = storage.get(STORAGE_KEY);
+  if (!Array.isArray(attempts)) attempts = structuredClone(EXAMPLES);
+  var summary = (a) => [`\xF7${a.angle}`, clean(a.axiom) || "(empty)", ...a.rules.map((r) => `${r.symbol.trim()}\u2192${clean(r.output) || "(empty)"}${r.weight.trim() ? ` (${r.weight.trim()})` : ""}`)].join("  ");
+  function highlightCurrent() {
+    const name = nameBox.value.trim();
+    [...attemptsList.children].forEach((li, i) => li.classList.toggle("current", attempts[i]?.name === name));
+  }
+  function renderAttempts() {
+    attemptsList.innerHTML = "";
+    attempts.forEach((attempt, i) => {
+      const li = document.createElement("li");
+      const text = document.createElement("span");
+      text.className = "text";
+      text.textContent = attempt.name;
+      const detail = document.createElement("span");
+      detail.className = "summary";
+      detail.textContent = summary(attempt);
+      text.appendChild(detail);
+      text.addEventListener("click", () => {
+        fillForm(attempt);
+        draw();
+      });
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "remove";
+      remove.title = "Remove";
+      remove.ariaLabel = `Remove ${attempt.name}`;
+      remove.textContent = "\xD7";
+      remove.addEventListener("click", () => {
+        attempts.splice(i, 1);
+        storage.set(STORAGE_KEY, attempts);
+        renderAttempts();
+      });
+      li.append(text, remove);
+      attemptsList.appendChild(li);
+    });
+    highlightCurrent();
+  }
+  $("save").addEventListener("click", () => {
+    const form = readForm();
+    if (!form.name) {
+      say("Give it a name to save it.", true);
+      nameBox.focus();
+      return;
+    }
+    const i = attempts.findIndex((a) => a.name === form.name);
+    if (i === -1) attempts.push(form);
+    else attempts[i] = form;
+    storage.set(STORAGE_KEY, attempts);
+    renderAttempts();
+    say(i === -1 ? `Saved ${form.name}.` : `Updated ${form.name}.`);
+  });
+  $("examples").addEventListener("click", () => {
+    const names = new Set(attempts.map((a) => a.name));
+    const missing = EXAMPLES.filter((e) => !names.has(e.name));
+    if (!missing.length) return say("The examples are all in the list already.");
+    attempts.push(...structuredClone(missing));
+    storage.set(STORAGE_KEY, attempts);
+    renderAttempts();
+  });
+  $("clear").addEventListener("click", () => {
+    if (attempts.length === 0 || !confirm("Clear all attempts?")) return;
+    attempts = [];
+    storage.set(STORAGE_KEY, attempts);
+    renderAttempts();
+  });
+  $("draw").addEventListener("click", draw);
+  $("add-rule").addEventListener("click", () => addRuleRow({}, true));
+  angleBox.addEventListener("input", showDegrees);
+  angleBox.addEventListener("change", draw);
+  iterationsBox.addEventListener("change", draw);
+  headingBox.addEventListener("change", draw);
+  nameBox.addEventListener("input", highlightCurrent);
+  $("controls").addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" || e.target.tagName !== "INPUT") return;
+    e.preventDefault();
+    if (e.ctrlKey || e.metaKey) $("save").click();
+    else draw();
+  });
+  renderAttempts();
+  fillForm(storage.get(CURRENT_KEY) || attempts[0] || EXAMPLES[0]);
+  lastWidth = canvas.parentElement.clientWidth;
+  draw();
+})();
+</script>
+</body>
+</html>
