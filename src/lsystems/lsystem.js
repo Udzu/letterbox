@@ -151,6 +151,44 @@ export function bounds(string, divisions, heading) {
   return lines ? { minX, minY, maxX, maxY, lines } : null;
 }
 
+// SVG path data for the drawn lines, mapped by x → offsetX + x * scale (likewise y) and written with
+// `decimals` decimal places. Lines continuing in the same direction from the previous one are merged.
+export function pathData(string, divisions, heading, { scale = 1, offsetX = 0, offsetY = 0, decimals = 4 } = {}) {
+  const format = (n) => {
+    const s = n.toFixed(decimals).replace(/\.?0+$/, "");
+    return s === "-0" ? "0" : s;
+  };
+  const parts = [];
+  let dirX = NaN; // direction and end of the current straight run, in turtle units
+  let dirY = NaN;
+  let endX = NaN;
+  let endY = NaN;
+  const point = (x, y) => `${format(offsetX + x * scale)} ${format(offsetY + y * scale)}`;
+  const flush = () => {
+    if (!Number.isNaN(endX)) parts.push(point(endX, endY));
+  };
+  const close = 1e-9;
+  trace(string, divisions, heading, (x1, y1, x2, y2) => {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const continues = Math.abs(x1 - endX) < close && Math.abs(y1 - endY) < close;
+    if (continues && Math.abs(dx - dirX) < close && Math.abs(dy - dirY) < close) {
+      endX = x2; // same direction: extend the run
+      endY = y2;
+      return;
+    }
+    flush();
+    if (!continues) parts.push(`M${point(x1, y1)}L`);
+    dirX = dx;
+    dirY = dy;
+    endX = x2;
+    endY = y2;
+  });
+  flush();
+  // "Mx yLx y x y ..." without spaces either side of M or L
+  return parts.join(" ").replace(/ ?([ML]) ?/g, "$1");
+}
+
 // Start headings offered on the page, in radians (y points down).
 export const HEADINGS = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
 

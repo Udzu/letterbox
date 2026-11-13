@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { EXAMPLES, HEADINGS, bounds, clean, expand, parseAngle, parseRules, trace } from "../src/lsystems/lsystem.js";
+import { EXAMPLES, HEADINGS, bounds, clean, expand, parseAngle, parseRules, pathData, trace } from "../src/lsystems/lsystem.js";
 
 const rules = (...rows) => parseRules(rows.map(([symbol, output, weight = ""]) => ({ symbol, output, weight }))).rules;
 
@@ -98,4 +98,16 @@ test("examples are valid and draw something", () => {
     assert.equal(iterations, example.iterations, example.name);
     assert.ok(bounds(result, parseAngle(example.angle), HEADINGS[example.heading]), example.name);
   }
+});
+
+test("pathData merges straight runs and starts a new subpath after a jump", () => {
+  assert.equal(pathData("FF+F", 4, HEADINGS.right), "M0 0L2 0 2 1");
+  assert.equal(pathData("F[+F]G-F", 4, HEADINGS.right), "M0 0L1 0 1 1M2 0L2 -1");
+  assert.equal(pathData("F+-F", 4, HEADINGS.right), "M0 0L2 0"); // a turn and back is still straight
+  assert.equal(pathData("G", 4, 0), "");
+});
+
+test("pathData scales, offsets and rounds", () => {
+  assert.equal(pathData("F+F", 6, 0, { scale: 10, offsetX: 5, offsetY: 1 }), "M5 1L15 1 20 9.6603");
+  assert.equal(pathData("F+F", 6, 0, { decimals: 2 }), "M0 0L1 0 1.5 0.87");
 });

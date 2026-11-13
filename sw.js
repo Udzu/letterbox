@@ -6,7 +6,7 @@ const FILES = {
   "dice.html": "c4bfdd23525e",
   "index.html": "8b397ced93ba",
   "lipograms.html": "efed8e01eca8",
-  "lsystems.html": "f70e24fc56e7",
+  "lsystems.html": "9300366c0e22",
   "palindromes.html": "0e55fffcaa24",
   "pangrams.html": "9cbeba95c601",
   "patterns.html": "5c0945791dee",

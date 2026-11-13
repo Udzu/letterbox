@@ -144,6 +144,7 @@
       <button type="button" id="draw" title="Enter">Draw</button>
       <button type="button" id="save" title="Ctrl+Enter">Save</button>
       <button type="button" id="download">Download PNG</button>
+      <button type="button" id="download-svg">Download SVG</button>
     </div>
     <p id="message" aria-live="polite"></p>
   </section>
@@ -288,6 +289,40 @@
     });
     return lines ? { minX, minY, maxX, maxY, lines } : null;
   }
+  function pathData(string, divisions, heading, { scale = 1, offsetX = 0, offsetY = 0, decimals = 4 } = {}) {
+    const format = (n) => {
+      const s = n.toFixed(decimals).replace(/\.?0+$/, "");
+      return s === "-0" ? "0" : s;
+    };
+    const parts = [];
+    let dirX = NaN;
+    let dirY = NaN;
+    let endX = NaN;
+    let endY = NaN;
+    const point = (x, y) => `${format(offsetX + x * scale)} ${format(offsetY + y * scale)}`;
+    const flush = () => {
+      if (!Number.isNaN(endX)) parts.push(point(endX, endY));
+    };
+    const close = 1e-9;
+    trace(string, divisions, heading, (x1, y1, x2, y2) => {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const continues = Math.abs(x1 - endX) < close && Math.abs(y1 - endY) < close;
+      if (continues && Math.abs(dx - dirX) < close && Math.abs(dy - dirY) < close) {
+        endX = x2;
+        endY = y2;
+        return;
+      }
+      flush();
+      if (!continues) parts.push(`M${point(x1, y1)}L`);
+      dirX = dx;
+      dirY = dy;
+      endX = x2;
+      endY = y2;
+    });
+    flush();
+    return parts.join(" ").replace(/ ?([ML]) ?/g, "$1");
+  }
   var HEADINGS = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
   var EXAMPLES = [
     { name: "Koch snowflake", angle: "6", heading: "right", axiom: "F--F--F", iterations: 4, rules: [{ symbol: "F", output: "F+F--F+F", weight: "" }] },
@@ -422,6 +457,7 @@
     $("degrees").textContent = n ? `= ${+(360 / n).toFixed(3)}\xB0` : "";
   }
   var drawn = null;
+  var layout = null;
   function draw() {
     const form = readForm();
     const divisions = parseAngle(form.angle);
@@ -457,6 +493,7 @@
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    layout = null;
     if (!drawn) return 0;
     const { string, divisions, heading } = drawn;
     const box = bounds(string, divisions, heading);
@@ -467,9 +504,11 @@
     const scale = Math.min(w ? room(width) / w : Infinity, h ? room(height) / h : Infinity);
     const offsetX = width / 2 - (box.minX + box.maxX) / 2 * scale;
     const offsetY = height / 2 - (box.minY + box.maxY) / 2 * scale;
+    const lineWidth = Math.min(2, Math.max(0.75, scale / 8));
+    layout = { width, height, scale, offsetX, offsetY, lineWidth };
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.strokeStyle = "#000";
-    ctx.lineWidth = Math.min(2, Math.max(0.75, scale / 8));
+    ctx.lineWidth = lineWidth;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     let pending = 0;
@@ -503,15 +542,28 @@
       render();
     }, 150);
   });
+  function save(blob, extension) {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${nameBox.value.trim() || "l-system"}.${extension}`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1e3);
+  }
   $("download").addEventListener("click", () => {
-    if (!drawn) return;
-    canvas.toBlob((blob) => {
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `${nameBox.value.trim() || "l-system"}.png`;
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(link.href), 1e3);
-    });
+    if (drawn) canvas.toBlob((blob) => save(blob, "png"));
+  });
+  $("download-svg").addEventListener("click", () => {
+    if (!drawn || !layout) return;
+    const { width, height, lineWidth } = layout;
+    const d = pathData(drawn.string, drawn.divisions, drawn.heading, layout);
+    const svg = [
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
+      `<rect width="100%" height="100%" fill="#fff"/>`,
+      `<path fill="none" stroke="#000" stroke-width="${+lineWidth.toFixed(4)}" stroke-linecap="round" stroke-linejoin="round" d="${d}"/>`,
+      `</svg>
+`
+    ];
+    save(new Blob([svg.join("\n")], { type: "image/svg+xml" }), "svg");
   });
   var attempts = storage.get(STORAGE_KEY);
   if (!Array.isArray(attempts)) attempts = structuredClone(EXAMPLES);

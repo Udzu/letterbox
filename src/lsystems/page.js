@@ -1,4 +1,4 @@
-import { EXAMPLES, HEADINGS, MAX_SYMBOLS, bounds, clean, expand, parseAngle, parseRules, trace } from "./lsystem.js";
+import { EXAMPLES, HEADINGS, MAX_SYMBOLS, bounds, clean, expand, parseAngle, parseRules, pathData, trace } from "./lsystem.js";
 
 const STORAGE_KEY = "lsystem-attempts";
 const CURRENT_KEY = "lsystem-current"; // what was last drawn, to show again next time
@@ -96,6 +96,7 @@ function showDegrees() {
 // ---- drawing
 
 let drawn = null; // { string, divisions, heading } of the current drawing, kept for redrawing on resize
+let layout = null; // { width, height, scale, offsetX, offsetY, lineWidth } as last drawn, for the SVG
 
 function draw() {
   const form = readForm();
@@ -134,6 +135,7 @@ function render() {
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  layout = null;
   if (!drawn) return 0;
   const { string, divisions, heading } = drawn;
   const box = bounds(string, divisions, heading);
@@ -146,10 +148,12 @@ function render() {
   const scale = Math.min(w ? room(width) / w : Infinity, h ? room(height) / h : Infinity);
   const offsetX = width / 2 - ((box.minX + box.maxX) / 2) * scale;
   const offsetY = height / 2 - ((box.minY + box.maxY) / 2) * scale;
+  const lineWidth = Math.min(2, Math.max(0.75, scale / 8));
+  layout = { width, height, scale, offsetX, offsetY, lineWidth };
 
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   ctx.strokeStyle = "#000";
-  ctx.lineWidth = Math.min(2, Math.max(0.75, scale / 8));
+  ctx.lineWidth = lineWidth;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   // stroke in batches, as very long paths are slow; lines that follow on from the last one join up
@@ -187,15 +191,30 @@ window.addEventListener("resize", () => {
   }, 150);
 });
 
+function save(blob, extension) {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${nameBox.value.trim() || "l-system"}.${extension}`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
 $("download").addEventListener("click", () => {
-  if (!drawn) return;
-  canvas.toBlob((blob) => {
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${nameBox.value.trim() || "l-system"}.png`;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-  });
+  if (drawn) canvas.toBlob((blob) => save(blob, "png"));
+});
+
+// the same picture as the canvas, at its size in CSS pixels
+$("download-svg").addEventListener("click", () => {
+  if (!drawn || !layout) return;
+  const { width, height, lineWidth } = layout;
+  const d = pathData(drawn.string, drawn.divisions, drawn.heading, layout);
+  const svg = [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
+    `<rect width="100%" height="100%" fill="#fff"/>`,
+    `<path fill="none" stroke="#000" stroke-width="${+lineWidth.toFixed(4)}" stroke-linecap="round" stroke-linejoin="round" d="${d}"/>`,
+    `</svg>\n`,
+  ];
+  save(new Blob([svg.join("\n")], { type: "image/svg+xml" }), "svg");
 });
 
 // ---- attempts, saved in the browser's local storage where available; starts with the examples
