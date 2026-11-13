@@ -16487,7 +16487,7 @@ aqueous humour	e2kwiVs hju1mR	P	31
 aqueous phase	e2kwiVs fe1z	P	31
 aqueous solubility	e2kwiVs sO2ljubI1lIti	P	27
 aqueous vapor	e2kwiVs ve1pR	P	30
-Aquidneck Island	VkwI1dnIk	W	14
+Aquidneck Island	VkwI2dnIk Y1lVnd	W	14
 aquifer	A1kwIfR	U	29	n
 aquifer	a1kwIfR	U	29	n
 aquifer	a1kwVfR	C	29	n
@@ -27509,7 +27509,7 @@ bashford	ba1SfRd	C	15
 bashful	ba1SfVl	C	25
 bashful bladder	ba2SfVl bla1dR	P	25
 bashfulness	ba1SfVlnE2s	C	14
-Bashi Channel	bA1Si	WE	19
+Bashi Channel	bA2Si Ca1nVl	WE	19
 bashi-bazouk	ba2SibVzu1k	U	0
 bashi-bazoukery	bASIbVzu1kRi	B	0
 bashing	ba1SIN	CW	34	nv
@@ -31173,7 +31173,7 @@ bellinger	bE1lINR	C	15
 bellingham	bE1lINha2m	C	15
 bellinghausen	bE1lINhW2zVn	C	0
 bellings	bE1lINz	W	0
-Bellingshausen Sea	bE2lINzhW1zVn	E	14
+Bellingshausen Sea	bE2lINzhW2zVn si1	E	14
 Bellini	bEli1ni	C	15	n
 bellini's	bEli1niz	C	15
 bellino	bEli1no	C	15
@@ -33232,8 +33232,6 @@ bianchini	biAnCi1ni	C	15
 bianco	biA1Nko	C	15
 bianconi	biANko1ni	C	13
 bianculli	biANku1li	C	11
-biangbiang noodles	bi1AN bi1AN	W	0
-biangbiang noodles	bi1aN bi1aN	W	0
 biangle	bY1a2NgVl	W	0
 Bianjing	bjE2nJI1N	E	0
 Bianliang	bjE2nljA1N	E	0
@@ -39342,7 +39340,7 @@ bogusz	bA1gVS	C	0
 bogy	bo1gi	UE	14
 bohac	bo1hVk	C	0
 Bohai	bo1hY	UE	18
-Bohai Bay	bV2hY1	E	18
+Bohai Bay	bV2hY2 be1	E	18
 Bohai Sea	bo1hYsi	UE	18
 bohall	bA1hVl	C	0
 bohan	bo1hVn	C	15
@@ -41945,7 +41943,7 @@ boutta	bW1tV	U	19
 boutte	bu1t	C	14
 boutwell	bW1twE2l	C	15
 boutye	bW1tjV	W	0
-Bouvet Island	buve1	E	19
+Bouvet Island	buve2 Y1lVnd	E	19
 bouvier	bu2vie1	C	24
 bouwens	bW1Vnz	C	0
 bouwkamp	bW1ka2mp	C	0
@@ -57738,7 +57736,6 @@ Cetin	sE1tIn	W	16
 cetirizine	sEtI1rIzi2n	U	15
 Ceto	si1to	W	12
 cetraxate	sItra1kset	W	0
-Cetti's warbler	CE1tiz	B	10
 Cetus	si1tVs	CW	20
 cetus's	si1tVsIz	C	0
 Ceuta	Te1utA	E	24
@@ -57869,7 +57866,6 @@ Chagall	CVgA1l	C	25	n
 Chagall	CVga1l	C	25	n
 Chagall	SVgA1l	E	25	n
 Chagall	SVga1l	E	25	n
-Chagas' disease	SA1gVs	W	23
 Chagatai	CA1gVtY	U	11
 Chagatai	CA2gVtY1	U	11
 Chagatai	Ca1gVtY	W	11
@@ -58373,7 +58369,6 @@ chandon	Ca1ndIn	C	15
 chandon	Sa2ndA1n	C	15
 chandon beni	Ca2ndIn bE1ni	P	19
 Chandra	Ca1ndrV	C	32	n
-Chandrasekhar limit	Ca2ndrVse1kAr	W	21
 Chandrayaan	CV1ndrVjAn	U	17
 chandrika	CAndri1kV	C	15
 chandrika	SAndri1kV	C	15
@@ -60061,7 +60056,7 @@ cheng-hua	CE1NhwA1	C	15
 Chengbei	CV2Nbe1	E	0
 Chengcheng	CV2NCV1N	E	0
 Chengchow	JV2NJo1	E	0
-Chengcing Lake	CV2NCI1N	E	0
+Chengcing Lake	CV2NCI2N le1k	E	0
 Chengde	CE1NdV	W	13
 Chengde	CV2NdV1	E	13
 Chengdong	CV2NdU1N	E	0
@@ -65306,7 +65301,7 @@ clipper	klI1pR	CU	31	n
 clipper system	klI2pR sI1stVm	P	31
 clippers	klI1pRz	CU	36	n
 Clipperton	klI1pRtVn	E	17
-Clipperton Island	klI2pRtVn Y1lVnd	P	17
+Clipperton Island	klI2pRtVn Y1lVnd	E	17
 clipping	klI1pIN	CW	32	n
 clippinger	klI1pINR	C	11
 clippings	klI1pINz	CW	30	n
@@ -82758,7 +82753,6 @@ da capo	dVka1po	B	27
 da capo al fine	dVka1po alfi1ne	B	27
 da da	dA2 dA1	P	42
 da hurr	dA2 hR1	P	22
-Da Jiu Festival	dA Jiu1	W	29
 da kind	dA2 kY1nd	P	45
 da kine	dAkY1n	W	21
 da man	dA2 ma1n	P	45
@@ -93769,7 +93763,6 @@ dioch	dY1Ak	U	0
 diock	dY1Ak	U	0
 Diocles	dY1Vkliz	W	13
 Diocletian	dY2Vkli1SVn	W	24
-diocotron instability	dYA1kVtrAn	W	0
 diodati	di2odA1ti2	C	14
 diodato	di2odA1to2	C	0
 diode	dY1o2d	CU	31	n
@@ -93782,7 +93775,7 @@ Diogenes	dYA1JVniz	B	25	n
 dioguardi	diogA1rdi2	C	15
 diol	dY1Al	B	20
 Diomede	dY1Vmid	B	17
-Diomede Islands	dY2Vmid Y1lVndz	P	17
+Diomede Islands	dY2Vmi2d Y1lVndz	E	17
 Diomedes	dYVmi1diz	B	19
 Dion	dY1Vn	C	33	n
 Dion	di1An	U	33	n
@@ -144799,7 +144792,6 @@ greater galangal	gre2tR gVla1NgVl	P	17
 greater glider	gre2tR glY1dR	P	31
 greater good	gre2tR gId	P	49
 greater good	gre2tR gU1d	P	49
-Greater Khingan	kINgA1n	E	0
 greater kudu	gre2tR ku1du	P	21
 greater mouse-eared bat	gre2tR mW2s I2rd ba1t	P	28
 greater occipital nerve	gre2tR AksI2pVtVl nR1v	P	27
@@ -166474,9 +166466,7 @@ ignorance is bliss	I2gnRVns Iz blI1s	P	36
 ignorant	I1gnRVnt	CW	40	n
 ignoranter	I1gnRVntR	W	0
 ignorantly	I1gnRVntli	W	22
-ignoratio elenchi	I2gnVrA1tio2	W	0
 ignoratio elenchi	I2gnVre1Sio2 IlE1NkY	W	0
-ignoratio elenchi	IlE1Nki	W	0
 ignore	I2gnO1r	CUE	45	v
 ignore all previous instructions	I2gnO2r O2l pri2viVs I2nstrV1kSVnz	P	41
 ignore all rules	I2gnO2r O2l ru1lz	P	44
@@ -187004,9 +186994,9 @@ lacasse	lAkA1si	C	15
 lacava	lAkA1vV	C	12
 lacayo	lAke1o	C	12
 lacaze	lAkA1zi	C	15
-Laccadive Islands	la1kVdIv	W	12
-Laccadive Islands	la1kVdY2v	W	12
-Laccadive Islands	la1kVdi2v	W	12
+Laccadive Islands	la2kVdIv Y1lVndz	W	12
+Laccadive Islands	la2kVdY2v Y1lVndz	W	12
+Laccadive Islands	la2kVdi2v Y1lVndz	W	12
 laccic	la1ksIk	W	0
 laccic acid	la2ksIk a1sId	P	0
 laccolith	la1kVlIT	U	10
@@ -187935,7 +187925,7 @@ lamkin	la1mkIn	C	14
 lamle	la1mli	C	0
 lamm	la1m	C	15
 lamm's	la1mz	C	11
-Lamma Island	lA2mA1	E	17
+Lamma Island	lA2mA2 Y1lVnd	E	17
 Lammas	la1mVs	W	18
 lamme	la1m	C	13
 lammer	la1mR	U	14
@@ -225109,7 +225099,7 @@ Nanking	na1NkIN	C	27	n
 Nanking	nankI1N	WE	15	n
 Nanle	nA2nlO1	E	0
 Nanling	nA2nlI1N	E	0
-Nanling Mountains	nA2nlI2N mW1ntVnz	P	0
+Nanling Mountains	nA2nlI2N mW1ntVnz	E	0
 Nanming	nA2nmI1N	E	0
 nanna	na1nV	C	15	n
 nanna nap	na2nV na1p	P	25
@@ -226160,7 +226150,7 @@ Navarro	nVvA1ro	CU	30	n
 Navarro-Aragonese	nVvA2ro a2rVgVni1z	P	18
 navas	nA1vVs	C	15
 Navassa	nVva1sV	W	11
-Navassa Island	nVva2sV Y1lVnd	P	11
+Navassa Island	nAvAsA2 Y1lVnd	E	11
 navbox	na1vbAks	WE	0
 navcom	na1vkA2m	C	0
 nave	ne1v	CWE	31	n
@@ -246439,7 +246429,7 @@ parabolic mirror	pE2rVbA2lIk mI1r	P	28
 parabolic mirror	pE2rVbA2lIk mI1rR	P	28
 parabolic mirror	pE2rVbA2lIk mi1R	P	28
 parabolic reflector	pE2rVbA2lIk rIflE1ktR	P	26
-Paracel Islands	pArAsE1l	E	19
+Paracel Islands	pArAsE2l Y1lVndz	E	19
 Paracelsus	pa2rVsE1lsVs	W	22
 paracetamol	pE2rVsi1tVmO2l	U	27	n
 parachronism	pRa1krVnIzVm	U	0
@@ -257434,7 +257424,7 @@ plap	pla1p	W	0
 plapper	pla1pR	W	0
 plaque	pla1k	CU	37	n
 plaqueless	pla1klVs	U	0
-Plaquemines Parish	pla1kImInz	W	18
+Plaquemines Parish	pla2kImInz pE1rIS	W	18
 plaques	pla1ks	C	32	n
 plas	pla1s	C	15
 plascencia	plAsCE1nCV	C	13
@@ -271748,7 +271738,7 @@ Qingyunpu	CI2Nju2npu1	E	0
 Qingzhen	CI2NJV1n	E	0
 qingzhen	CI2NJV1n	E	0
 Qinhuangdao	CI2nwA2NdW1	E	13
-Qinling Mountains	CI2nlI1N	E	11
+Qinling Mountains	CI2nlI2N mW1ntVnz	E	11
 Qinnan	CI2nnA1n	E	0
 qinpu	CInpu1	WE	0
 Qinshui	CI2nSwe1	E	0
@@ -301883,7 +301873,6 @@ seniorpreneur	si2njRprVnU1r	U	0
 seniors	si1njRz	C	39	n
 senk	sE1Nk	C	0
 Senkaku Islands	sE1NkAku Y1lVndz	W	20
-Senkaku Islands	se1nkAkUgunto	E	20
 senkbeil	sE1NkbY2l	C	0
 senko	sE1Nko	C	15
 senn	sE1n	C	15
@@ -307724,7 +307713,7 @@ Si	sV	W	15	n
 Si	sY1	W	15	n
 si	si1	CW	42	n
 si liao	si2 ljW1	P	28
-Siachen Glacier	sjA1CEn	E	19
+Siachen Glacier	sjA2CEn gle1SR	E	19
 siad	sY1ad	C	15
 sialadenoncus	sY2Vla2dInA1NkVs	B	0
 sialectasis	si2VlE1ktVsIs	W	0
@@ -320504,7 +320493,7 @@ sprat	spra1t	W	20
 spratley	spra1tli	C	10
 spratlin	spra1tlIn	C	0
 spratling	spra1tlIN	C	12
-Spratly Islands	spra1tli	E	21
+Spratly Islands	spra2tli Y1lVndz	E	21
 spratt	spra1t	C	15
 sprawl	sprO1l	CU	30	nv
 sprawled	sprO1ld	C	27	v
@@ -334314,7 +334303,7 @@ Taipei	tY2be1	E	15	n
 Taipei	tYpe1	WE	15	n
 taipei's	tY1pe2z	C	15
 Taiping	tYpI1N	UE	22
-Taiping Island	tYpI2N Y1lVnd	P	22
+Taiping Island	tY2pI2N Y1lVnd	E	22
 Taipingdian	tY2pI2NdjE1n	E	0
 Taipingxi	tY2pINSi1	WE	0
 Taiqian	tY2CjE1n	WE	0
@@ -334340,7 +334329,7 @@ Taiwanglish	tYwA1NglIS	B	0
 Taiwu	tY2wu1	E	0
 Taixing	tY2SI1N	E	0
 Taixuanjing	tY2Sua2nJI1N	E	0
-Taiye Lake	tY2jE1	E	12
+Taiye Lake	tY2jE2 le1k	E	12
 taiyo	tY1jo	C	15
 Taiyuan	tY2jua1n	E	20
 Taiz	taI1z	U	21
@@ -335574,7 +335563,7 @@ tangibly	ta1nJVbli	C	20
 Tangier	tanJI1r	E	15	n
 tangier	ta1NiR	W	26
 Tangiers	ta2nJI1rz	CE	21
-Tangipahoa Parish	ta2nJIpVho1V	W	16
+Tangipahoa Parish	ta2nJIpVho2V pE1rIS	W	16
 tangle	tE1NgVl	U	31	nv
 tangle	ta1NgVl	CW	31	nv
 tangle	te1NgVl	U	31	nv
@@ -344396,7 +344385,7 @@ Timonian	tYmo1niVn	U	0
 Timonism	tY1mVnIzVm	UE	0
 Timonist	tY1mVnIst	W	0
 timor	timO1r	C	15
-Timor Sea	timO2r si1	P	33
+Timor Sea	ti2mOr si1	W	33
 timor's	timO1rz	C	15
 Timor-Leste	timO1r lE1Ste	W	24
 Timorese	ti2mOri1z	C	24
@@ -357614,7 +357603,7 @@ unzicker	O1nzIkR	C	0
 unzip	VnzI1p	C	26	v
 unzipped	VnzI1pt	C	26	v
 Uotsuri	u2otsU1ri	W	0
-Uotsuri Island	u2otsU2ri Y1lVnd	P	0
+Uotsuri Island	u2otsU2ri Y1lVnd	W	0
 up	V1p	CUE	64
 up a creek	Vp V kri1k	P	44
 up a creek without a paddle	Vp V kri2k wITW2t V pa1dVl	P	34
@@ -374017,7 +374006,6 @@ witch hunt	wI2C hV1nt	P	40
 witch hunter	wI2C hV1ntR	P	39
 witch knot	wI2C nA1t	P	36
 witch ladder	wI2C la1dR	P	38
-witch of Agnesi	agne1si	W	12
 witch stone	wI2C sto1n	P	40
 witch window	wI2C wI1ndo	P	40
 witch's	wI1CIz	C	15
@@ -377467,7 +377455,6 @@ xiphoid	zI1fQd	W	14
 xiphoid process	zI1fQ2d prA1sE2s	U	14
 Xiping	Si2pI1N	E	0
 Xiqing	Si2CI1N	E	0
-xique-xique	Si1kSik	B	0
 xir	SR1	UE	10
 xir	ZR1	UE	10
 xir	ksR1	UE	10
@@ -381127,7 +381114,7 @@ zhong hu	JO2N hu1	P	26
 zhong-hu	JO2N hu1	P	26	n
 Zhongdu	JU2Ndu1	E	0
 Zhonghe	JU2NhV1	E	0
-Zhongjian Island	JU2NJjE1n	E	0
+Zhongjian Island	JU2NJjE2n Y1lVnd	E	0
 Zhongli	JU2Nli1	E	13
 Zhonglou	JU2Nlo1	E	0
 Zhonglu	JU2Nlu1	E	0

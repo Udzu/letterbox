@@ -400,7 +400,7 @@ for w in list(entries):
 # pronunciation (Uotsuri Island as /ˌuːoʊˈtsʊəɹi/, Mount Tai as /taɪ/) or one per word (absolute
 # altitude as /ˈæbsəˌlut/ and /ˈæltɪˌtud/). Drop transcriptions that sound the same as some of the
 # phrase's words, or that have at least two syllables fewer than its words do (one fewer may be an
-# elision). If that leaves a phrase without any, it can be built from its words below.
+# elision), counting a word without a pronunciation by its spelling (Cetti's warbler as /ˈtʃɛtiz/). If that leaves a phrase without any, it can be built from its words below.
 
 
 def forms(word):
@@ -414,6 +414,45 @@ def syllables(p):
     return sum(is_vowel(x) for x in p)
 
 
+def spelled_syllables(word):
+    """A low estimate of a word's syllables from its spelling: its groups of vowels, not counting a final
+    e or es (Spratly 2, pointes 1), as it's only used to spot transcriptions with far too few."""
+    groups = re.findall("[aeiouyàâäéèêëîïôöùûü]+", word.lower())
+    return max(1, len(groups) - (len(groups) > 1 and re.search("[^aeiouy]es?$", word.lower()) is not None))
+
+
+# Place names often have the transcription of everything but their last word, such as island or sea
+# (Bouvet Island as /buˈveɪ/, Bering Sea as /ˈbɛɹɪŋ/). If none of a place name's transcriptions ends
+# like its last word (by consonants, as the vowels change with stress), complete them with its
+# pronunciation, stressed as in Rhode Island: the rest gets secondary stress. If some do, drop the
+# others, as Wiktionary may stress the place differently (Falkland Islands) or give another name
+# (Senkaku Islands as Senkaku-guntō).
+PLACE_WORDS = {"island", "islands", "isle", "isles", "sea", "seas", "channel", "lake", "lakes", "bay", "river",
+               "strait", "straits", "mountain", "mountains", "glacier", "parish", "peninsula", "gulf", "archipelago"}
+
+
+def consonants(p):
+    """A pronunciation's consonants, without vowels, stress or word breaks (ɝ and ɚ as r)."""
+    return re.sub("[AaVOWYEeIioQUu12 ]", "", encode(p).replace("R", "r"))
+
+
+for w in list(entries):
+    parts = w.split(" ")
+    if len(parts) < 2 or parts[-1].lower() not in PLACE_WORDS or not forms(parts[-1]):
+        continue
+    endings = sorted(forms(parts[-1]).items(), key=lambda x: (-len(x[1]), encode(x[0])))
+    other = [p for p in entries[w] if not any(consonants(p).endswith(consonants(q)) for q, _ in endings)]
+    if len(other) < len(entries[w]):
+        for p in other:
+            del entries[w][p]
+            stats["place-name transcriptions without their last word dropped"] += 1
+        continue
+    for p in other:
+        q = endings[0][0]
+        whole = tuple(x[:-1] + "2" if x.endswith("1") else x for x in p) + (" ",) + q
+        entries[w][whole] = entries[w].get(whole, set()) | entries[w].pop(p)
+        stats["place names completed with their last word"] += 1
+
 partial = []
 for w in list(entries):
     parts = [x for x in re.split("[ -]+", w) if x]
@@ -421,8 +460,7 @@ for w in list(entries):
         continue
     runs = {sounds(q) for i in range(len(parts)) for j in range(i + 1, len(parts) + 1) if j - i < len(parts)
             for q in forms(" ".join(parts[i:j]))}
-    words = [forms(x) for x in parts]
-    least = sum(min(map(syllables, x)) for x in words) if all(words) else 0
+    least = sum(min(map(syllables, forms(x))) if forms(x) else spelled_syllables(x) for x in parts)
     for p in [p for p in entries[w] if sounds(p) in runs or syllables(p) <= least - 2]:
         partial.append((w, encode(p), "".join(sorted(entries[w][p]))))
 for w, code, _ in partial:
