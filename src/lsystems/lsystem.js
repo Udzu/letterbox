@@ -221,6 +221,14 @@ export const EXAMPLES = [
     ],
   },
   {
+    name: "Pentaflake",
+    angle: "10",
+    heading: "right",
+    axiom: "F++F++F++F++F",
+    iterations: 3,
+    rules: [{ symbol: "F", output: "F++F++F-----F-F++F", weight: "" }],
+  },
+  {
     name: "Fern",
     angle: "14.4",
     heading: "up",
