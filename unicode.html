@@ -354,7 +354,7 @@
     }
     // A direct lookup: a codepoint like U+1F600, or text with non-ASCII characters, or null. Text is
     // split into graphemes: one that is an emoji or named sequence (or a skin-tone variant of one) is
-    // a single result, and any other is split into its codepoints. Repeats are left out.
+    // a single result, and any other is split into its codepoints. Each is listed in order, repeats included.
     lookup(query) {
       const text = query.trim();
       const code = /^u\+([0-9a-f]{1,6})$/i.exec(text);
@@ -363,15 +363,15 @@
         return cp <= 1114111 ? [this.find([cp]) ?? this.entry(cp)] : [];
       }
       if (!/[^\x00-\x7f]/.test(text)) return null;
-      const found2 = /* @__PURE__ */ new Map();
-      const add = (entry) => found2.has(key(entry.cps)) || found2.set(key(entry.cps), entry);
+      const found2 = [];
+      const add = (entry) => found2.push(entry);
       for (const { segment } of new Intl.Segmenter("en", { granularity: "grapheme" }).segment(text)) {
         const cps = [...segment].map((c) => c.codePointAt(0));
         const whole = cps.length > 1 && (this.find(cps) ?? this.findToned(cps));
         if (whole) add(whole);
         else for (const cp of cps) add(this.find([cp]) ?? this.entry(cp));
       }
-      return [...found2.values()];
+      return found2;
     }
     // the searchable entry with these codepoints (ignoring emoji presentation selectors), if any
     find(cps) {

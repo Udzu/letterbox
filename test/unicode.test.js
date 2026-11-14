@@ -102,8 +102,13 @@ test("skin tones", () => {
 
 test("pasted text is split into graphemes", () => {
   assert.deepEqual(top("é👍🏽x́", 5), ["é", "👍🏽", "x", "́"]);
-  assert.deepEqual(top("👨‍👩‍👦a👨‍👩‍👦", 5), ["👨‍👩‍👦", "a"]);
+  // in order, repeats included
+  assert.deepEqual(top("👨‍👩‍👦a👨‍👩‍👦", 5), ["👨‍👩‍👦", "a", "👨‍👩‍👦"]);
+  assert.deepEqual(top("même", 5), ["m", "ê", "m", "e"]);
   assert.deepEqual(top("🫱🏻‍🫲🏿"), ["🫱🏻‍🫲🏿"]);
+  // a flag that isn't an emoji is split into its codepoints
+  const texas = [0x1f3f4, 0xe0075, 0xe0073, 0xe0074, 0xe0078, 0xe007f];
+  assert.deepEqual(unicode.search(text(texas)).map(({ entry }) => entry.cps[0]), texas);
 });
 
 test("types: sequences, invisible characters, latest version", () => {
