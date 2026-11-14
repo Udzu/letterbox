@@ -6,7 +6,8 @@ import { attributionParts } from "../wordlists/lists.js";
 import { ALIAS_TYPES, CATEGORIES, EMOJI, INVISIBLE, KEYWORDS, SHORT, TONES, Unicode, codepoints, displayName, isInvisible, isSequence, withTone, withTones } from "./unicode.js";
 
 const STATE_KEY = "unicode-state";
-const PAGE = 200; // results shown at first, and added by each "Show more"
+const PAGE = { list: 200, grid: 800 }; // results shown at first, and added by each "Show more", in each view
+const VIEWS = { list: "List", grid: "Grid" };
 
 // general categories (UnicodeData.txt), for the details
 const GC = {
@@ -65,7 +66,7 @@ function load() {
 
 function save() {
   try {
-    localStorage.setItem(STATE_KEY, JSON.stringify({ query: input.value, tray: tray.value, tone, filters: chosen }));
+    localStorage.setItem(STATE_KEY, JSON.stringify({ query: input.value, tray: tray.value, tone, filters: chosen, view }));
   } catch (e) {}
 }
 
@@ -216,11 +217,20 @@ function addToTray(text) {
   save();
 }
 
-// a glyph that copies its text when clicked, showing "Copied" for a moment
+// a glyph that copies its text when clicked, showing "Copied" for a moment, or adds it to the tray
+// when shift-clicked
 function glyphButton(entry, cps, title = "") {
-  const button = el("button", { type: "button", className: "glyph-button", title: title ? `${title} (click to copy)` : "Click to copy" }, [glyph(entry, cps)]);
-  button.addEventListener("click", async () => {
-    await copyText(String.fromCodePoint(...cps));
+  const how = "click to copy, shift-click to add to the tray";
+  const button = el("button", { type: "button", className: "glyph-button", title: title ? `${title} (${how})` : how[0].toUpperCase() + how.slice(1) }, [glyph(entry, cps)]);
+  // (so shift-click doesn't select text)
+  button.addEventListener("mousedown", (event) => event.shiftKey && event.preventDefault());
+  button.addEventListener("click", async (event) => {
+    const text = String.fromCodePoint(...cps);
+    if (event.shiftKey) {
+      addToTray(text);
+      return;
+    }
+    await copyText(text);
     button.classList.add("copied");
     clearTimeout(button.timer);
     button.timer = setTimeout(() => button.classList.remove("copied"), 1000);
@@ -296,20 +306,54 @@ function row(entry, label) {
   return item;
 }
 
+// a grid cell: just the glyph, named in its tooltip
+function cell(entry) {
+  const cps = withTone(entry, tone);
+  return el("li", {}, [glyphButton(entry, cps, displayName(entry) || codepoints(cps))]);
+}
+
 let found = [];
 let shown = 0;
+let view = "list";
 
 function more() {
-  const list = results.querySelector("ul") ?? results.appendChild(el("ul"));
+  const list = results.querySelector("ul") ?? results.appendChild(el("ul", { className: view }));
   results.querySelector(".more")?.remove();
-  const next = found.slice(shown, shown + PAGE);
-  list.append(...next.map(({ entry, label }) => row(entry, label)));
+  const next = found.slice(shown, shown + PAGE[view]);
+  list.append(...next.map(({ entry, label }) => (view === "grid" ? cell(entry) : row(entry, label))));
   shown += next.length;
+  // in the grid, fill the last row if there are more (cells vary in width, so add them until one wraps)
+  if (view === "grid" && shown < found.length) {
+    const top = list.lastElementChild.offsetTop;
+    while (shown < found.length) {
+      const extra = list.appendChild(cell(found[shown].entry));
+      if (extra.offsetTop !== top) {
+        extra.remove();
+        break;
+      }
+      shown++;
+    }
+  }
   if (shown < found.length) {
     const button = el("button", { type: "button", className: "more", textContent: `Show more (${(found.length - shown).toLocaleString("en")} left)` });
     button.addEventListener("click", more);
     results.append(button);
   }
+}
+
+// a button for each view, with the current one pressed
+function viewButtons() {
+  const buttons = Object.entries(VIEWS).map(([name, label]) => {
+    const button = el("button", { type: "button", textContent: label });
+    button.setAttribute("aria-pressed", String(name === view));
+    button.addEventListener("click", () => {
+      view = name;
+      show();
+      save();
+    });
+    return button;
+  });
+  return el("span", { className: "view" }, ["View: ", el("span", { className: "buttons" }, buttons)]);
 }
 
 function show() {
@@ -329,6 +373,7 @@ function show() {
   if (!query.trim() && (chosen.type === "emoji" || chosen.type.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
   const n = found.length;
   summary.textContent = `${n === 0 ? "No" : n.toLocaleString("en")} result${n === 1 ? "" : "s"}`;
+  if (n) summary.append(" ", viewButtons());
   more();
 }
 
@@ -354,6 +399,7 @@ input.value = state.query ?? "";
 tray.value = state.tray ?? "";
 trayRow.hidden = !tray.value;
 tone = TONES.includes(state.tone) ? state.tone : 0;
+view = state.view in VIEWS ? state.view : "list";
 for (const [name, select] of Object.entries(FILTERS)) {
   const value = state.filters?.[name] ?? "";
   if (FILTER_OPTIONS[name].options.some(([v]) => v === value)) chosen[name] = value;
