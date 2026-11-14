@@ -109,7 +109,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <b>Unicode</b> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a></nav>
 <main>
-  <p class="intro">Find Unicode characters and emoji by name, alias or keyword, or paste text (or a codepoint like U+1F600) to see what it's made of. Click a character to copy it, + or shift-click to collect several, or a name for details (including emoji styles and skin tone combinations).</p>
+  <p class="intro">Find Unicode characters and emoji by name, alias, keyword or codepoint (e.g. U+1F600), or paste non-ASCII text to see what it's made of. Click a character to copy it, or a name for details (including emoji styles and skin tone combinations). To collect several characters, use + or shift-click them.</p>
   <input id="query" type="text" placeholder="Name, text or U+codepoint..." autocomplete="off" spellcheck="false" autofocus>
   <div id="filters">
     <select id="category" aria-label="Category"></select>
@@ -354,7 +354,7 @@
     }
     // A direct lookup: a codepoint like U+1F600, or text with non-ASCII characters, or null. Text is
     // split into graphemes: one that is an emoji or named sequence (or a skin-tone variant of one) is
-    // a single result, and any other is split into its codepoints. Repeats are left out.
+    // a single result, and any other is split into its codepoints. Each is listed in order, repeats included.
     lookup(query) {
       const text = query.trim();
       const code = /^u\+([0-9a-f]{1,6})$/i.exec(text);
@@ -363,15 +363,15 @@
         return cp <= 1114111 ? [this.find([cp]) ?? this.entry(cp)] : [];
       }
       if (!/[^\x00-\x7f]/.test(text)) return null;
-      const found2 = /* @__PURE__ */ new Map();
-      const add = (entry) => found2.has(key(entry.cps)) || found2.set(key(entry.cps), entry);
+      const found2 = [];
+      const add = (entry) => found2.push(entry);
       for (const { segment } of new Intl.Segmenter("en", { granularity: "grapheme" }).segment(text)) {
         const cps = [...segment].map((c) => c.codePointAt(0));
         const whole = cps.length > 1 && (this.find(cps) ?? this.findToned(cps));
         if (whole) add(whole);
         else for (const cp of cps) add(this.find([cp]) ?? this.entry(cp));
       }
-      return [...found2.values()];
+      return found2;
     }
     // the searchable entry with these codepoints (ignoring emoji presentation selectors), if any
     find(cps) {
