@@ -14,13 +14,13 @@ const FILES = {
   "unicode.html": "81c2875d9994",
   "wordlists.html": "9010ef1022c2",
   "manifest.json": "f68ccd90c859",
-  "icons/apple-touch-icon.png": "4c8a34053d16",
-  "icons/apple-touch-icon.svg": "7069a8262b07",
-  "icons/icon-192.png": "4c9a12616dd8",
-  "icons/icon-512.png": "23804f0f6644",
-  "icons/icon.svg": "a49373da6bc3",
-  "icons/maskable-512.png": "f250ab1f790c",
-  "icons/maskable.svg": "ec358ab00215"
+  "icons/apple-touch-icon.png": "75dec30f7dca",
+  "icons/apple-touch-icon.svg": "f0c27bb63093",
+  "icons/icon-192.png": "fa1593797ac5",
+  "icons/icon-512.png": "a4e7dcf1fff5",
+  "icons/icon.svg": "1e93685446d3",
+  "icons/maskable-512.png": "56fa75b23884",
+  "icons/maskable.svg": "aacdd1863783"
 };
 const CACHE = "letterbox-shell";
 const key = (file) => new URL(`${file}?v=${FILES[file]}`, self.registration.scope).href;
