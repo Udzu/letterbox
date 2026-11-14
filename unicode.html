@@ -44,9 +44,21 @@
   #tray-row button { font: inherit; font-size: 0.9rem; padding: 0 10px; cursor: pointer; }
   #summary { margin: 16px 0 8px; color: #444; }
   #summary:empty { display: none; }
+  #summary .view { margin-left: 12px; font-size: 0.9rem; color: #666; white-space: nowrap; }
+  /* the view buttons, joined, with the current one pressed */
+  .buttons { display: inline-flex; vertical-align: middle; }
+  .buttons button { font: inherit; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
+  .buttons button + button { border-left: none; }
+  .buttons button:first-child { border-radius: 3px 0 0 3px; }
+  .buttons button:last-child { border-radius: 0 3px 3px 0; }
+  .buttons button[aria-pressed=true] { background: #e8e8e8; border-color: #999; color: #222; }
   #results ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid #ddd; }
   #results li { display: grid; grid-template-columns: 3.2rem 1fr auto; align-items: start; border-bottom: 1px solid #ddd; }
   #results li > .details { grid-column: 2 / -1; }
+  /* the grid view: just the glyphs, wrapping, each at least a square (wider for long sequences) */
+  #results ul.grid { display: flex; flex-wrap: wrap; border-top: none; }
+  #results ul.grid li { display: block; border: none; }
+  #results ul.grid button.glyph-button { min-width: 3rem; height: 3rem; padding: 0 4px; }
   button.glyph-button { position: relative; font: inherit; border: none; background: none; padding: 4px 0; cursor: pointer; text-align: center; min-height: 2.6rem; }
   button.glyph-button:hover, button.glyph-button:focus-visible { background: #f0f0f0; }
   /* "Copied" over a glyph for a moment after it's clicked */
@@ -97,7 +109,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <b>Unicode</b> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a></nav>
 <main>
-  <p class="intro">Find Unicode characters and emoji by name, alias or keyword, or paste text (or a codepoint like U+1F600) to see what it's made of. Click a character to copy it, + to collect several, or a name for details (including emoji styles and skin tone combinations).</p>
+  <p class="intro">Find Unicode characters and emoji by name, alias or keyword, or paste text (or a codepoint like U+1F600) to see what it's made of. Click a character to copy it, + or shift-click to collect several, or a name for details (including emoji styles and skin tone combinations).</p>
   <input id="query" type="text" placeholder="Name, text or U+codepoint..." autocomplete="off" spellcheck="false" autofocus>
   <div id="filters">
     <select id="category" aria-label="Category"></select>
@@ -396,7 +408,8 @@
 
   // src/unicode/page.js
   var STATE_KEY = "unicode-state";
-  var PAGE = 200;
+  var PAGE = { list: 200, grid: 800 };
+  var VIEWS = { list: "List", grid: "Grid" };
   var GC = {
     Lu: "uppercase letter",
     Ll: "lowercase letter",
@@ -487,7 +500,7 @@
   }
   function save() {
     try {
-      localStorage.setItem(STATE_KEY, JSON.stringify({ query: input.value, tray: tray.value, tone, filters: chosen }));
+      localStorage.setItem(STATE_KEY, JSON.stringify({ query: input.value, tray: tray.value, tone, filters: chosen, view }));
     } catch (e) {
     }
   }
@@ -613,9 +626,16 @@
     save();
   }
   function glyphButton(entry, cps, title = "") {
-    const button = el("button", { type: "button", className: "glyph-button", title: title ? `${title} (click to copy)` : "Click to copy" }, [glyph(entry, cps)]);
-    button.addEventListener("click", async () => {
-      await copyText(String.fromCodePoint(...cps));
+    const how = "click to copy, shift-click to add to the tray";
+    const button = el("button", { type: "button", className: "glyph-button", title: title ? `${title} (${how})` : how[0].toUpperCase() + how.slice(1) }, [glyph(entry, cps)]);
+    button.addEventListener("mousedown", (event) => event.shiftKey && event.preventDefault());
+    button.addEventListener("click", async (event) => {
+      const text = String.fromCodePoint(...cps);
+      if (event.shiftKey) {
+        addToTray(text);
+        return;
+      }
+      await copyText(text);
       button.classList.add("copied");
       clearTimeout(button.timer);
       button.timer = setTimeout(() => button.classList.remove("copied"), 1e3);
@@ -690,19 +710,48 @@
     });
     return item;
   }
+  function cell(entry) {
+    const cps = withTone(entry, tone);
+    return el("li", {}, [glyphButton(entry, cps, displayName(entry) || codepoints(cps))]);
+  }
   var found = [];
   var shown = 0;
+  var view = "list";
   function more() {
-    const list = results.querySelector("ul") ?? results.appendChild(el("ul"));
+    const list = results.querySelector("ul") ?? results.appendChild(el("ul", { className: view }));
     results.querySelector(".more")?.remove();
-    const next = found.slice(shown, shown + PAGE);
-    list.append(...next.map(({ entry, label }) => row(entry, label)));
+    const next = found.slice(shown, shown + PAGE[view]);
+    list.append(...next.map(({ entry, label }) => view === "grid" ? cell(entry) : row(entry, label)));
     shown += next.length;
+    if (view === "grid" && shown < found.length) {
+      const top = list.lastElementChild.offsetTop;
+      while (shown < found.length) {
+        const extra = list.appendChild(cell(found[shown].entry));
+        if (extra.offsetTop !== top) {
+          extra.remove();
+          break;
+        }
+        shown++;
+      }
+    }
     if (shown < found.length) {
       const button = el("button", { type: "button", className: "more", textContent: `Show more (${(found.length - shown).toLocaleString("en")} left)` });
       button.addEventListener("click", more);
       results.append(button);
     }
+  }
+  function viewButtons() {
+    const buttons = Object.entries(VIEWS).map(([name, label]) => {
+      const button = el("button", { type: "button", textContent: label });
+      button.setAttribute("aria-pressed", String(name === view));
+      button.addEventListener("click", () => {
+        view = name;
+        show();
+        save();
+      });
+      return button;
+    });
+    return el("span", { className: "view" }, ["View: ", el("span", { className: "buttons" }, buttons)]);
   }
   function show() {
     const query = input.value;
@@ -721,6 +770,7 @@
     if (!query.trim() && (chosen.type === "emoji" || chosen.type.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
     const n = found.length;
     summary.textContent = `${n === 0 ? "No" : n.toLocaleString("en")} result${n === 1 ? "" : "s"}`;
+    if (n) summary.append(" ", viewButtons());
     more();
   }
   document.getElementById("copy").addEventListener("click", async (event) => {
@@ -740,6 +790,7 @@
   tray.value = state.tray ?? "";
   trayRow.hidden = !tray.value;
   tone = TONES.includes(state.tone) ? state.tone : 0;
+  view = state.view in VIEWS ? state.view : "list";
   for (const [name, select] of Object.entries(FILTERS)) {
     const value = state.filters?.[name] ?? "";
     if (FILTER_OPTIONS[name].options.some(([v]) => v === value)) chosen[name] = value;
