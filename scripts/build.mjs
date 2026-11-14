@@ -6,6 +6,9 @@
 // template) is replaced by a <script> containing that module bundled with its imports,
 // so the output works offline and when saved as a single file. Imported .txt files are bundled as strings.
 //
+// A <!-- @worker path/to/entry.js id --> marker is replaced by a <script type="text/plain" id="id">
+// holding that module bundled the same way, for the page to start as a Web Worker from a Blob.
+//
 // A <!-- @wordlists path/to/dir --> marker is replaced by a JSON <script id="lists-data">
 // holding the metadata and size of each .txt list in that directory, general lists first
 // and then by name. The build fails if any list's header is missing or malformed (see src/wordlists/lists.js).
@@ -24,8 +27,9 @@ if (!template || !output) {
 const MARKER = /<!-- @inline (\S+) -->/g;
 const html = await readFile(template, "utf8");
 
-const bundles = new Map();
-for (const [, entry] of html.matchAll(MARKER)) {
+const WORKER_MARKER = /<!-- @worker (\S+) (\S+) -->/g;
+
+async function bundle(entry) {
   const result = await build({
     entryPoints: [path.join(path.dirname(template), entry)],
     bundle: true,
@@ -37,8 +41,13 @@ for (const [, entry] of html.matchAll(MARKER)) {
     logLevel: "warning",
   });
   // a literal </script inside the code would end the inline script early
-  bundles.set(entry, result.outputFiles[0].text.replace(/<\/script/gi, "<\\/script"));
+  return result.outputFiles[0].text.replace(/<\/script/gi, "<\\/script");
 }
+
+const bundles = new Map();
+for (const [, entry] of html.matchAll(MARKER)) bundles.set(entry, await bundle(entry));
+const workers = new Map();
+for (const [, entry] of html.matchAll(WORKER_MARKER)) workers.set(entry, await bundle(entry));
 
 const LISTS_MARKER = /<!-- @wordlists (\S+) -->/g;
 const lists = new Map();
@@ -71,6 +80,7 @@ for (const [, dir] of html.matchAll(LISTS_MARKER)) {
 const header = `<!-- Generated from ${path.relative(process.cwd(), template)} by scripts/build.mjs: do not edit -->\n`;
 const out = html
   .replace(MARKER, (_, entry) => `<script>\n${bundles.get(entry)}</script>`)
+  .replace(WORKER_MARKER, (_, entry, id) => `<script type="text/plain" id="${id}">\n${workers.get(entry)}</script>`)
   .replace(LISTS_MARKER, (_, dir) => lists.get(dir));
 await writeFile(output, out.replace(/^(<!doctype html>\n)?/i, (doctype) => doctype + header));
 console.log(`Wrote ${output} (${Math.round(out.length / 1024)} KB)`);

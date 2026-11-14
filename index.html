@@ -37,7 +37,7 @@
   #install .text { flex: 1; min-width: 12em; }
   #install button { font: inherit; cursor: pointer; }
   #install .dismiss { border: none; background: none; color: #888; font-size: 1.2rem; line-height: 1; padding: 0 2px; }
-  /* each section is a grid of boxes, each box a link: 3 columns on desktop, 1 on narrow phones */
+  /* one grid of boxes, each box a link (the non-word pages last, in another colour): 3 columns on desktop, 1 on narrow phones */
   .grid {
     list-style: none;
     margin: 0;
@@ -46,7 +46,6 @@
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 12px;
   }
-  .grid + .grid { margin-top: 32px; }
   .grid a {
     display: block;
     height: 100%;
@@ -58,7 +57,7 @@
     color: #444;
     text-decoration: none;
   }
-  .grid.other a { background: #fbf3e6; border-color: #ecdcbf; }
+  .grid .other a { background: #fbf3e6; border-color: #ecdcbf; }
   .grid a:hover, .grid a:focus-visible { border-color: #06c; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
   .grid a:focus-visible { outline: 2px solid #06c; outline-offset: 1px; }
   .grid .name { display: block; font-size: 1.2rem; font-weight: 600; color: #06c; }
@@ -67,7 +66,7 @@
   .grid li { position: relative; }
   .app .grid .name { padding-right: 28px; }
   .grid .home { position: absolute; top: 6px; right: 6px; width: 36px; height: 36px; padding: 0; border: none; border-radius: 6px; background: none; color: #9db4cf; cursor: pointer; }
-  .grid.other .home { color: #cfb88f; }
+  .grid .other .home { color: #cfb88f; }
   .grid .home:hover, .grid .home:focus-visible { color: #06c; }
   .grid .home[aria-pressed="true"] { color: #06c; }
   .grid .home svg { display: block; margin: auto; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
@@ -118,19 +117,21 @@
       <span class="name">Wordlists</span>
       <span class="description">Word lists to download, or load into the other pages (needs a connection).</span>
     </a></li>
-  </ul>
-  <ul class="grid other">
-    <li><a href="dates.html">
+    <li class="other"><a href="dates.html">
       <span class="name">Dates</span>
       <span class="description">Find notable anniversaries of a date, from a billion seconds to a first Saturn year.</span>
     </a></li>
-    <li><a href="dice.html">
+    <li class="other"><a href="dice.html">
       <span class="name">Dice</span>
       <span class="description">Roll dice, or replace many dice with fewer, keeping the same mean and variance.</span>
     </a></li>
-    <li><a href="lsystems.html">
+    <li class="other"><a href="lsystems.html">
       <span class="name">L-Systems</span>
       <span class="description">Draw fractals from string rewriting rules, including random ones.</span>
+    </a></li>
+    <li class="other"><a href="numbers.html">
+      <span class="name">Numbers</span>
+      <span class="description">Make a target from given numbers, as in Countdown or the four fours puzzle.</span>
     </a></li>
   </ul>
 </main>

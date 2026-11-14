@@ -1,0 +1,2130 @@
+<!doctype html>
+<!-- Generated from src/numbers/numbers.template.html by scripts/build.mjs: do not edit -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+  // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+</script>
+<title>Numbers</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "setup" "game" "history" "solutions";
+    gap: 16px 32px;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    main {
+      grid-template-columns: 400px minmax(0, 1fr);
+      grid-template-areas: "setup game" "setup history" "solutions solutions";
+      grid-template-rows: auto 1fr auto;
+    }
+  }
+  #setup { grid-area: setup; }
+  #game-section { grid-area: game; }
+  #history-section { grid-area: history; }
+  #solutions-section { grid-area: solutions; }
+  .intro { margin: 0 0 16px; color: #666; }
+  h2 { margin: 0 0 8px; font-size: 1.1rem; }
+  fieldset { border: none; margin: 0 0 14px; padding: 0; min-width: 0; }
+  legend { padding: 0; margin-bottom: 6px; color: #444; font-weight: 600; }
+  fieldset:disabled { opacity: 0.6; }
+  label { color: #444; }
+  input, select { font: inherit; font-size: 1rem; }
+  input[type="number"], input[type="text"] { padding: 5px 6px; box-sizing: border-box; min-width: 0; }
+  button { font-size: 1rem; cursor: pointer; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-bottom: 8px; }
+  .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 4px 12px; }
+  .checks label { white-space: nowrap; }
+  .checks label.off { color: #aaa; }
+  #numbers-row { flex-wrap: nowrap; }
+  #numbers-row > span { white-space: nowrap; }
+  #boxes { display: flex; gap: 6px; flex: 0 1 auto; min-width: 0; }
+  #boxes input { flex: 0 1 3.6em; width: 3.6em; min-width: 0; text-align: center; appearance: textfield; -moz-appearance: textfield; }
+  #boxes input::-webkit-inner-spin-button, #boxes input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  #boxes input:invalid, #seconds:invalid { outline: 2px solid #d00; }
+  .small-button { padding: 2px 9px; }
+  .nowrap { white-space: nowrap; }
+  #seconds { width: 4em; }
+  .note { color: #888; font-size: 0.85rem; }
+  .mono, code { font-family: ui-monospace, monospace; }
+
+  /* maths */
+  .math { white-space: nowrap; }
+  .math sup { font-size: 0.7em; vertical-align: 0.6em; line-height: 0; }
+  .math .rec, .math .radicand { display: inline-block; border-top: 1px solid currentColor; line-height: 0.9; padding-top: 0.08em; }
+  .math .radical { white-space: nowrap; }
+  .math .radical .index { vertical-align: 0.7em; margin-right: -0.3em; }
+  .math .radicand { padding-left: 0.1em; padding-right: 0.05em; }
+
+  /* game */
+  #target-line { display: flex; align-items: center; gap: 20px; margin-bottom: 10px; min-height: 3.6rem; }
+  #new-target { font-size: 1.15rem; font-weight: 600; padding: 8px 18px; }
+  #target { font-size: 3rem; font-weight: 600; letter-spacing: 0.08em; font-variant-numeric: tabular-nums; }
+  #target.idle { color: #ccc; }
+  #clock { font-size: 1.4rem; color: #444; font-variant-numeric: tabular-nums; }
+  #clock.low { color: #d00; }
+  #answer-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  #answer { flex: 1; font-size: 1.1rem; }
+  #preview { min-height: 1.6em; font-size: 1.3rem; line-height: 1.6; padding-top: 4px; margin-bottom: 4px; overflow-x: auto; }
+  #preview .error { font-family: system-ui, sans-serif; font-size: 0.95rem; color: #c00; }
+  #best, #outcome { min-height: 1.4em; margin: 4px 0; }
+  #outcome.win { color: #070; font-weight: 600; }
+  .syntax { margin: 12px 0 0; padding: 0; list-style: none; color: #666; font-size: 0.9rem; columns: 3 10em; column-gap: 16px; }
+  .syntax li { margin: 1px 0; break-inside: avoid; }
+  .syntax code { color: #000; display: inline-block; min-width: 3em; }
+  .syntax li.off, .syntax li.off code { color: #bbb; }
+
+  /* tables */
+  .header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+  .header h2 { margin: 0; }
+  #history-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  th { color: #444; font-weight: 600; border-bottom: 1px solid #999; }
+  td.target, td.num { font-variant-numeric: tabular-nums; }
+  td.win { color: #070; }
+  td.lose { color: #a50; }
+  td .rules { display: block; color: #888; font-size: 0.8rem; }
+  td .solution { display: block; color: #888; font-size: 0.85rem; }
+  #history-empty { color: #888; }
+  #solutions { columns: 280px; column-gap: 24px; font-size: 0.95rem; }
+  #solutions div { break-inside: avoid; padding: 1px 0; }
+  #solutions .t { display: inline-block; width: 2.6em; color: #666; font-variant-numeric: tabular-nums; }
+  #solutions .none { color: #bbb; }
+  #solve-status { color: #666; }
+  progress { vertical-align: middle; }
+
+  nav { max-width: 1300px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <b>Numbers</b></nav>
+<main>
+  <section id="setup">
+    <p class="intro">Make a target number from the numbers given, as in Countdown's numbers game or the four fours puzzle.</p>
+    <fieldset id="numbers-set">
+      <legend>Numbers</legend>
+      <div class="row" id="numbers-row">
+        <div id="boxes"></div>
+        <span>
+          <button type="button" id="remove-box" class="small-button" title="Remove a number" aria-label="Remove a number">−</button>
+          <button type="button" id="add-box" class="small-button" title="Add a number" aria-label="Add a number">+</button>
+        </span>
+      </div>
+      <div class="row">
+        <button type="button" id="random">Randomize</button>
+        <label title="Each number is a random digit from 0 to 9; digits can repeat."><input type="radio" name="pool" value="digits"> 0–9</label>
+        <label title="As in Countdown: the big numbers are picked from 25, 50, 75 and 100, each at most once; the rest from two cards each of 1 to 10, so a small number appears at most twice."><input type="radio" name="pool" value="small"> 1–10 with</label>
+        <span class="nowrap"><select id="big" aria-label="Big numbers"></select>
+        <label for="big" title="How many big numbers (25, 50, 75, 100), as in Countdown">big</label></span>
+      </div>
+    </fieldset>
+    <fieldset id="rules-set">
+      <legend>Rules</legend>
+      <div class="checks">
+        <label title="Every number must be used exactly once (otherwise, each at most once)"><input type="checkbox" id="rule-all"> Use all numbers</label>
+        <label title="The numbers must appear in the answer in the same order as the boxes"><input type="checkbox" id="rule-order"> Use them in order</label>
+        <label title="Every step must give a whole number, as in Countdown"><input type="checkbox" id="rule-integers"> No fractions</label>
+      </div>
+    </fieldset>
+    <fieldset id="ops-set">
+      <legend>Operations besides + − × ÷</legend>
+      <div class="checks">
+        <label title="Only + − × ÷, as in Countdown"><input type="checkbox" id="ops-none"> None</label>
+        <label title="Write numbers together, as in 44"><input type="checkbox" data-op="concat"> <span class="math">ab</span> concatenation</label>
+        <label title="Type ^"><input type="checkbox" data-op="pow"> <span class="math">a<sup>b</sup></span> power</label>
+        <label title="Type !"><input type="checkbox" data-op="fact"> <span class="math">a!</span> factorial</label>
+        <label title="Type V"><input type="checkbox" data-op="sqrt"> <span class="math"><span class="radical">√<span class="radicand">a</span></span></span> square root</label>
+        <label title="Type bVa"><input type="checkbox" data-op="root"> <span class="math"><span class="radical"><sup class="index">b</sup>√<span class="radicand">a</span></span></span> root</label>
+        <label title="Type .4 for 0.4"><input type="checkbox" data-op="dot"> <span class="math">.a</span> decimal</label>
+        <label title="Type .2(4) for 0.2444…, or .4~ for 0.444… (~ repeats every digit after the point)"><input type="checkbox" data-op="rec"> <span class="math">.<span class="rec">a</span></span> recurring</label>
+      </div>
+    </fieldset>
+    <fieldset id="target-set">
+      <legend>Target</legend>
+      <div class="row">
+        <label><input type="checkbox" id="solvable"> Solvable only</label>
+        <label><input type="checkbox" id="timed"> Timer</label>
+        <span class="nowrap"><input type="number" id="seconds" min="5" max="3600" step="5" aria-label="Seconds"> <label for="seconds">s</label></span>
+      </div>
+    </fieldset>
+  </section>
+
+  <section id="game-section">
+    <div id="target-line">
+      <span id="target" class="idle" aria-live="polite">000</span>
+      <button type="button" id="new-target" title="Enter">New target</button>
+      <span id="clock"></span>
+    </div>
+    <div id="answer-row">
+      <input type="text" id="answer" class="mono" placeholder="Your answer, e.g. (4+4)*4/4" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer">
+      <button type="button" id="try" title="Enter" disabled>Try</button>
+      <button type="button" id="give-up" disabled>Give up</button>
+    </div>
+    <div id="preview" class="math" aria-live="polite"></div>
+    <div id="best"></div>
+    <div id="outcome" aria-live="polite"></div>
+    <ul class="syntax">
+      <li><code>+ - * /</code> arithmetic</li>
+      <li><code>( )</code> brackets</li>
+      <li data-op="concat"><code>12</code> concatenation</li>
+      <li data-op="pow"><code>2^3</code> power</li>
+      <li data-op="fact"><code>3!</code> factorial</li>
+      <li data-op="sqrt"><code>V9</code> square root</li>
+      <li data-op="root"><code>3V8</code> root</li>
+      <li data-op="dot"><code>.5</code> decimal</li>
+      <li data-op="rec"><code>.3~ .1(6)</code> recurring</li>
+    </ul>
+  </section>
+
+  <section id="history-section">
+    <div class="header">
+      <h2>History</h2>
+      <button type="button" id="clear-history">Clear</button>
+    </div>
+    <div id="history-wrap">
+      <table>
+        <thead><tr><th>Target</th><th>Result</th><th>Answer</th><th>Time</th><th>Numbers</th></tr></thead>
+        <tbody id="history"></tbody>
+      </table>
+    </div>
+    <p id="history-empty">No games yet.</p>
+  </section>
+
+  <section id="solutions-section">
+    <div class="header">
+      <h2>All solutions</h2>
+      <span>
+        <span id="solve-status" aria-live="polite"></span>
+        <button type="button" id="solve-all">Solve 000–999</button>
+      </span>
+    </div>
+    <div id="solutions"></div>
+  </section>
+</main>
+<script type="text/plain" id="solver-worker">
+(() => {
+  // src/numbers/solver.js
+  var LEAF = 0;
+  var ADD = 1;
+  var SUB = 2;
+  var MUL = 3;
+  var DIV = 4;
+  var NEG = 5;
+  var POW = 6;
+  var FACT = 7;
+  var SQRT = 8;
+  var ROOT = 9;
+  var OP_NAMES = ["leaf", "+", "-", "*", "/", "neg", "pow", "fact", "sqrt", "root"];
+  var COST = {
+    "+": 10,
+    "-": 10,
+    "*": 11,
+    "/": 11,
+    neg: 11,
+    concat: 12,
+    pow: 13,
+    fact: 14,
+    sqrt: 15,
+    root: 16,
+    dot: 17,
+    rec: 18
+  };
+  var MAX = 2 ** 53;
+  var FACTORIALS = [
+    1,
+    1,
+    2,
+    6,
+    24,
+    120,
+    720,
+    5040,
+    40320,
+    362880,
+    3628800,
+    39916800,
+    479001600,
+    6227020800,
+    87178291200,
+    1307674368e3,
+    20922789888e3,
+    355687428096e3,
+    6402373705728e3
+  ];
+  function gcd(a, b) {
+    while (b) {
+      const t = a % b;
+      a = b;
+      b = t;
+    }
+    return a;
+  }
+  var RN = 0;
+  var RD = 1;
+  var INTS = false;
+  function make(n, d) {
+    if (d === 1) {
+      if (n >= MAX || -n >= MAX || n !== n) return false;
+      RN = n;
+      RD = 1;
+      return true;
+    }
+    if (d === 0 || n !== n || d !== d) return false;
+    if (d < 0) {
+      n = -n;
+      d = -d;
+    }
+    if (n >= MAX || -n >= MAX || d >= MAX) return false;
+    if (INTS) {
+      if (n % d !== 0) return false;
+      RN = n / d;
+      RD = 1;
+      return true;
+    }
+    const g = gcd(n < 0 ? -n : n, d);
+    RN = n / g;
+    RD = d / g;
+    return true;
+  }
+  function mul(a, b) {
+    const p = a * b;
+    return p >= MAX || -p >= MAX ? NaN : p;
+  }
+  function iroot(n, k) {
+    if (n < 2 || k === 1) return n;
+    const r = Math.round(n ** (1 / k));
+    for (let c = r > 0 ? r - 1 : 0; c <= r + 1; c++) {
+      let p = 1;
+      for (let i = 0; i < k && p <= n; i++) p *= c;
+      if (p === n) return c;
+    }
+    return -1;
+  }
+  function power(n, d, lg, p, q, allowNeg) {
+    if (n === 0) {
+      RN = 0;
+      RD = 1;
+      return p > 0;
+    }
+    if (INTS && (p > 0 ? d !== 1 : n !== 1 && n !== -1)) return false;
+    const e = p < 0 ? -p : p;
+    if (q > 64 || e > 64) return false;
+    if (Math.abs(lg) * e / q > 53.5) return false;
+    let sign = 1;
+    if (n < 0) {
+      if (q % 2 === 0) return false;
+      n = -n;
+      if (e % 2 === 1) {
+        if (!allowNeg) return false;
+        sign = -1;
+      }
+    }
+    const rn = iroot(n, q);
+    if (rn < 0) return false;
+    const rd = iroot(d, q);
+    if (rd < 0) return false;
+    let a = 1, b = 1;
+    for (let i = 0; i < e; i++) {
+      a *= rn;
+      b *= rd;
+    }
+    if (a >= MAX || b >= MAX) return false;
+    return p > 0 ? make(sign * a, b) : make(sign * b, a);
+  }
+  function leaves(nums, ops, fractions) {
+    const out = [];
+    const s = nums.map(String).join("");
+    const L = s.length;
+    const k = nums.length;
+    if (k > 1 && !ops.concat || L > 15) return out;
+    const base = (k - 1) * COST.concat;
+    out.push({ n: Number(s), d: 1, c: base, text: s });
+    if (fractions && (ops.dot || ops.rec)) {
+      let p = 0;
+      for (let i = 0; i < k; i++) {
+        const ip = s.slice(0, p), fp = s.slice(p);
+        const f = L - p;
+        if (ops.dot && make(Number(s), 10 ** f)) {
+          out.push({ n: RN, d: RD, c: base + COST.dot, text: `${ip}.${fp}` });
+        }
+        if (ops.rec) {
+          let q = p;
+          for (let j = i; j < k; j++) {
+            const A = s.slice(p, q), R = s.slice(q);
+            const nines = 10 ** R.length - 1;
+            if (make(Number(ip + A || 0) * nines + Number(R), 10 ** A.length * nines)) {
+              out.push({ n: RN, d: RD, c: base + COST.rec, text: A ? `${ip}.${A}(${R})` : `${ip}.${R}~` });
+            }
+            q += String(nums[j]).length;
+          }
+        }
+        p += String(nums[i]).length;
+      }
+    }
+    return out;
+  }
+  function permutations(xs) {
+    if (xs.length <= 1) return [xs];
+    const out = [];
+    xs.forEach((x, i) => {
+      for (const p of permutations([...xs.slice(0, i), ...xs.slice(i + 1)])) out.push([x, ...p]);
+    });
+    return out;
+  }
+  function popcount(m) {
+    let c = 0;
+    for (; m; m &= m - 1) c++;
+    return c;
+  }
+  var Store = class {
+    constructor() {
+      this.size = 0;
+      this.cap = 1 << 16;
+      this.alloc();
+      this.text = /* @__PURE__ */ new Map();
+    }
+    alloc() {
+      const grow = (T, a) => {
+        const b = new T(this.cap);
+        if (a) b.set(a);
+        return b;
+      };
+      this.N = grow(Float64Array, this.N);
+      this.D = grow(Float64Array, this.D);
+      this.LG = grow(Float64Array, this.LG);
+      this.C = grow(Uint16Array, this.C);
+      this.OP = grow(Uint8Array, this.OP);
+      this.A = grow(Int32Array, this.A);
+      this.B = grow(Int32Array, this.B);
+    }
+    push(n, d, c, op, a, b) {
+      if (this.size === this.cap) {
+        this.cap *= 2;
+        this.alloc();
+      }
+      const i = this.size++;
+      this.N[i] = n;
+      this.D[i] = d;
+      this.C[i] = c;
+      this.OP[i] = op;
+      this.A[i] = a;
+      this.B[i] = b;
+      this.LG[i] = n === 0 ? 0 : Math.log2(Math.abs(n)) - Math.log2(d);
+      return i;
+    }
+  };
+  var Table = class {
+    constructor(bits = 10) {
+      this.bits = bits;
+      this.mask = (1 << bits) - 1;
+      this.N = new Float64Array(1 << bits);
+      this.D = new Float64Array(1 << bits);
+      this.V = new Int32Array(1 << bits).fill(-1);
+      this.size = 0;
+    }
+    slot(n, d) {
+      let h = (Math.imul(n | 0, 2654435761) ^ Math.imul(n / 4294967296 | 0, 2146121005) ^ Math.imul(d | 0, 2246822519)) >>> 32 - this.bits;
+      const { N, D, V, mask } = this;
+      while (V[h] !== -1 && (N[h] !== n || D[h] !== d)) h = h + 1 & mask;
+      return h;
+    }
+    get(n, d) {
+      return this.V[this.slot(n, d)];
+    }
+    set(n, d, id) {
+      const h = this.slot(n, d);
+      if (this.V[h] === -1) {
+        if (++this.size * 2 > this.V.length) {
+          this.grow();
+          this.set(n, d, id);
+          return;
+        }
+        this.N[h] = n;
+        this.D[h] = d;
+      }
+      this.V[h] = id;
+    }
+    grow() {
+      const { N, D, V } = this;
+      this.bits++;
+      this.mask = (1 << this.bits) - 1;
+      this.N = new Float64Array(1 << this.bits);
+      this.D = new Float64Array(1 << this.bits);
+      this.V = new Int32Array(1 << this.bits).fill(-1);
+      for (let i = 0; i < V.length; i++) {
+        if (V[i] !== -1) {
+          const h = this.slot(N[i], D[i]);
+          this.N[h] = N[i];
+          this.D[h] = D[i];
+          this.V[h] = V[i];
+        }
+      }
+    }
+  };
+  var Budget = class extends Error {
+  };
+  function solve(numbers, rules, ops, {
+    lo = 0,
+    hi = 999,
+    maxNum = Infinity,
+    maxDen = Infinity,
+    budget = Infinity,
+    nodeBudget = Infinity,
+    stats,
+    progress
+  } = {}) {
+    const n = numbers.length;
+    const full = (1 << n) - 1;
+    const neg = !!rules.order;
+    const fractions = !rules.integers;
+    const S = new Store();
+    const sets = new Array(full + 1);
+    let index = null;
+    let ids = [];
+    let top = false;
+    const find = (vn, vd) => index.get(vn, vd);
+    const add = (c, op, a, b) => {
+      const vn = RN, vd = RD;
+      if (vd !== 1 && !fractions) return -1;
+      if (vn < 0 && !neg) return -1;
+      const av = vn < 0 ? -vn : vn;
+      if (top) {
+        if (vd !== 1) return -1;
+        if (av > hi && !(ops.sqrt && iroot(av, 2) >= 0)) return -1;
+      } else if ((av > maxNum || vd > maxDen) && !(ops.sqrt && iroot(av, 2) >= 0 && iroot(vd, 2) >= 0)) {
+        return -1;
+      }
+      const f = find(vn, vd);
+      if (f >= 0 && S.C[f] <= c) return -1;
+      if (S.size >= nodeBudget) throw new Budget();
+      const id = S.push(vn, vd, c, op, a, b);
+      index.set(vn, vd, id);
+      ids.push(id);
+      return id;
+    };
+    const negNode = (y) => S.push(-S.N[y], S.D[y], S.C[y] + COST.neg, NEG, y, -1);
+    const negPow = (x, y, base) => {
+      if (!ops.pow || neg || S.N[y] <= 0) return;
+      if (power(S.N[x], S.D[x], S.LG[x], -S.N[y], S.D[y], false)) add(base + COST.neg + COST.pow, POW, x, negNode(y));
+    };
+    const negRoot = (y, x, base) => {
+      if (!ops.root || neg || S.N[y] <= 0) return;
+      if (power(S.N[x], S.D[x], S.LG[x], -S.D[y], S.N[y], false)) add(base + COST.neg + COST.root, ROOT, negNode(y), x);
+    };
+    const tryPow = (n2, d, lg, p, q, c, op, a, b) => {
+      if (power(n2, d, lg, p, q, neg)) {
+        add(c, op, a, b);
+        return;
+      }
+      if (!ops.sqrt || Math.max(Math.log2(Math.abs(n2)), Math.log2(d)) * Math.abs(p) / q <= 53) return;
+      for (let k = 1, pk = p; k <= 12 && pk % 2 === 0; k++) {
+        pk /= 2;
+        if (!power(n2, d, lg, pk, q, neg)) continue;
+        const rn = RN, rd = RD, cost = c + k * COST.sqrt;
+        const f = find(rn, rd);
+        if (f >= 0 && S.C[f] <= cost) continue;
+        let id = S.push(NaN, NaN, c, op, a, b);
+        for (let i = 1; i < k; i++) id = S.push(NaN, NaN, c + i * COST.sqrt, SQRT, id, -1);
+        RN = rn;
+        RD = rd;
+        add(cost, SQRT, id, -1);
+      }
+    };
+    const binary = (x, y, ordered) => {
+      const N = S.N, D = S.D;
+      const xn = N[x], xd = D[x], yn = N[y], yd = D[y];
+      const base = S.C[x] + S.C[y];
+      const xy = mul(xn, yd), yx = mul(yn, xd), dd = mul(xd, yd);
+      if (make(xy + yx, dd)) add(base + COST["+"], ADD, x, y);
+      if (make(mul(xn, yn), dd)) add(base + COST["*"], MUL, x, y);
+      if (make(xy - yx, dd)) add(base + COST["-"], SUB, x, y);
+      if (yn !== 0 && make(xy, yx)) add(base + COST["/"], DIV, x, y);
+      if (ops.pow) tryPow(xn, xd, S.LG[x], yn, yd, base + COST.pow, POW, x, y);
+      negPow(x, y, base);
+      if (ops.root && xn !== 0) tryPow(yn, yd, S.LG[y], xn < 0 ? -xd : xd, xn < 0 ? -xn : xn, base + COST.root, ROOT, x, y);
+      negRoot(x, y, base);
+      if (ordered) return;
+      if (make(yx - xy, dd)) add(base + COST["-"], SUB, y, x);
+      if (xn !== 0 && make(yx, xy)) add(base + COST["/"], DIV, y, x);
+      if (ops.pow) tryPow(yn, yd, S.LG[y], xn, xd, base + COST.pow, POW, y, x);
+      negPow(y, x, base);
+      if (ops.root && yn !== 0) tryPow(xn, xd, S.LG[x], yn < 0 ? -yd : yd, yn < 0 ? -yn : yn, base + COST.root, ROOT, y, x);
+      negRoot(y, x, base);
+    };
+    const binaryTop = (x, y, ordered) => {
+      const N = S.N, D = S.D;
+      const xn = N[x], xd = D[x], yn = N[y], yd = D[y];
+      const base = S.C[x] + S.C[y];
+      if (xd === yd) {
+        if (make(xn + yn, xd)) add(base + COST["+"], ADD, x, y);
+        if (make(xn - yn, xd)) add(base + COST["-"], SUB, x, y);
+        if (!ordered && make(yn - xn, xd)) add(base + COST["-"], SUB, y, x);
+      }
+      if (xn % yd === 0 && yn % xd === 0 && make(mul(xn / yd, yn / xd), 1)) add(base + COST["*"], MUL, x, y);
+      if (yn !== 0 && xn % yn === 0 && yd % xd === 0 && make(mul(xn / yn, yd / xd), 1)) add(base + COST["/"], DIV, x, y);
+      if (!ordered && xn !== 0 && yn % xn === 0 && xd % yd === 0 && make(mul(yn / xn, xd / yd), 1)) {
+        add(base + COST["/"], DIV, y, x);
+      }
+      if (ops.pow) tryPow(xn, xd, S.LG[x], yn, yd, base + COST.pow, POW, x, y);
+      negPow(x, y, base);
+      if (ops.root && xn !== 0) tryPow(yn, yd, S.LG[y], xn < 0 ? -xd : xd, xn < 0 ? -xn : xn, base + COST.root, ROOT, x, y);
+      negRoot(x, y, base);
+      if (ordered) return;
+      if (ops.pow) tryPow(yn, yd, S.LG[y], xn, xd, base + COST.pow, POW, y, x);
+      negPow(y, x, base);
+      if (ops.root && yn !== 0) tryPow(xn, xd, S.LG[x], yn < 0 ? -yd : yd, yn < 0 ? -yn : yn, base + COST.root, ROOT, y, x);
+      negRoot(y, x, base);
+    };
+    const unary = () => {
+      const work2 = ids.slice();
+      while (work2.length) {
+        const x = work2.pop();
+        const a = S.N[x], b = S.D[x], c = S.C[x];
+        if (find(a, b) !== x) continue;
+        const push = (id) => {
+          if (id >= 0) work2.push(id);
+        };
+        if (ops.sqrt && a > 0 && (a !== 1 || b !== 1) && power(a, b, S.LG[x], 1, 2, neg)) {
+          push(add(c + COST.sqrt, SQRT, x, -1));
+        }
+        if (ops.fact && b === 1 && a >= 0 && a < FACTORIALS.length && a !== 1 && a !== 2) {
+          RN = FACTORIALS[a];
+          RD = 1;
+          push(add(c + COST.fact, FACT, x, -1));
+        }
+        if (neg && a !== 0) {
+          RN = -a;
+          RD = b;
+          push(add(c + COST.neg, NEG, x, -1));
+        }
+      }
+    };
+    const finish = () => {
+      const out = [];
+      for (const id of ids) if (find(S.N[id], S.D[id]) === id) out.push(id);
+      return Int32Array.from(out);
+    };
+    const masks = [];
+    for (let m = 1; m <= full; m++) masks.push(m);
+    masks.sort((x, y) => popcount(x) - popcount(y) || x - y);
+    const best = /* @__PURE__ */ new Map();
+    const used = /* @__PURE__ */ new Map();
+    const record = (m) => {
+      const k = popcount(m);
+      for (const id of sets[m]) {
+        const v = S.N[id];
+        if (S.D[id] !== 1 || v < lo || v > hi) continue;
+        if (!best.has(v) || used.get(v) === k && S.C[id] < S.C[best.get(v)]) {
+          best.set(v, id);
+          used.set(v, k);
+        }
+      }
+    };
+    let done = 0, work = 0;
+    for (const m of masks) {
+      if (!rules.all && best.size === hi - lo + 1 && popcount(m) > Math.max(...used.values())) break;
+      const idx = [];
+      for (let i = 0; i < n; i++) if (m & 1 << i) idx.push(i);
+      index = new Table();
+      ids = [];
+      top = INTS = m === full;
+      for (const o of rules.order ? [idx] : permutations(idx)) {
+        for (const l of leaves(o.map((i) => numbers[i]), ops, fractions)) {
+          RN = l.n;
+          RD = l.d;
+          const id = add(l.c, LEAF, -1, -1);
+          if (id >= 0) S.text.set(id, l.text);
+        }
+      }
+      let need = 0;
+      const splits = [];
+      if (rules.order) {
+        for (let s = 1; s < idx.length; s++) {
+          let left = 0;
+          for (let i = 0; i < s; i++) left |= 1 << idx[i];
+          splits.push(left);
+        }
+      } else {
+        const low = m & -m;
+        for (let left = m - 1 & m; left; left = left - 1 & m) if (left & low) splits.push(left);
+      }
+      for (const left of splits) need += sets[left].length * sets[m ^ left].length;
+      work += need;
+      if (work > budget) throw new Budget();
+      if (stats) stats.work = work;
+      const pairs = (left) => {
+        const X = sets[left], Y = sets[m ^ left];
+        const f = top ? binaryTop : binary, ordered = !!rules.order;
+        for (let i = 0; i < X.length; i++) for (let j = 0; j < Y.length; j++) f(X[i], Y[j], ordered);
+      };
+      for (const left of splits) pairs(left);
+      unary();
+      sets[m] = finish();
+      index = null;
+      ids = [];
+      INTS = false;
+      if (stats) stats[m] = sets[m].length;
+      if (!rules.all || m === full) record(m);
+      if (progress) progress(++done / masks.length);
+    }
+    const result = /* @__PURE__ */ new Map();
+    for (const t of [...best.keys()].sort((a, b) => a - b)) result.set(t, toText(S, best.get(t)));
+    return result;
+  }
+  var LIMITS = [
+    { maxNum: 1e3, maxDen: 10 },
+    { maxNum: 1e4, maxDen: 100 },
+    { maxNum: 1e6, maxDen: 1e3 },
+    { maxNum: Infinity, maxDen: Infinity }
+  ];
+  function* solveSteps(numbers, rules, ops, { budget = 2e7, nodeBudget = 2e6, progress } = {}) {
+    for (let step = 0; step < LIMITS.length; step++) {
+      let solutions;
+      try {
+        solutions = solve(numbers, rules, ops, {
+          ...LIMITS[step],
+          budget: step ? budget : Infinity,
+          nodeBudget: step ? nodeBudget : Infinity,
+          progress: progress && ((f) => progress(f, step))
+        });
+      } catch (e) {
+        if (e instanceof Budget) return;
+        throw e;
+      }
+      const exact = step === LIMITS.length - 1;
+      yield { solutions, exact, step };
+    }
+  }
+  var PREC = [7, 1, 1, 2, 2, 3, 4, 6, 5, 5];
+  var P_NEG = 3;
+  var P_FACT = 6;
+  function toText(S, x) {
+    const op = S.OP[x], a = S.A[x], b = S.B[x];
+    const p = PREC[op];
+    const wrap = (y, cond) => cond ? `(${toText(S, y)})` : toText(S, y);
+    switch (op) {
+      case LEAF:
+        return S.text.get(x);
+      case FACT:
+        return `${wrap(a, PREC[S.OP[a]] < p)}!`;
+      case SQRT:
+        return `V${wrap(a, PREC[S.OP[a]] < p)}`;
+      case NEG:
+        return `-${wrap(a, PREC[S.OP[a]] < p)}`;
+      case ROOT:
+        return `${wrap(a, PREC[S.OP[a]] < P_FACT)}V${wrap(b, PREC[S.OP[b]] < p)}`;
+      case POW:
+        return `${wrap(a, PREC[S.OP[a]] <= p)}^${wrap(b, PREC[S.OP[b]] < P_NEG)}`;
+      default: {
+        const tight = op === SUB || op === DIV;
+        return `${wrap(a, PREC[S.OP[a]] < p)}${OP_NAMES[op]}${wrap(b, PREC[S.OP[b]] < p || tight && PREC[S.OP[b]] === p)}`;
+      }
+    }
+  }
+
+  // src/numbers/worker.js
+  self.onmessage = ({ data: { id, numbers, rules, ops } }) => {
+    let last = 0;
+    const progress = (fraction, step) => {
+      const now = Date.now();
+      if (now - last < 100) return;
+      last = now;
+      self.postMessage({ id, type: "progress", fraction, step });
+    };
+    for (const { solutions, exact, step } of solveSteps(numbers, rules, ops, { progress })) {
+      self.postMessage({ id, type: "result", solutions: [...solutions], exact, step });
+    }
+    self.postMessage({ id, type: "done" });
+  };
+})();
+</script>
+<script>
+(() => {
+  // src/numbers/expr.js
+  var ExprError = class extends Error {
+  };
+  var SYMBOLS = { "\xD7": "*", x: "*", "\xF7": "/", "\u2212": "-", "\u221A": "V", v: "V" };
+  function tokenize(text) {
+    const tokens = [];
+    let i = 0;
+    while (i < text.length) {
+      const c = text[i];
+      if (/\s/.test(c)) {
+        i++;
+        continue;
+      }
+      const m = /^(\d*)(?:\.(\d*)(?:\((\d*)\))?)?(~?)/.exec(text.slice(i));
+      const [whole, int, frac, bracket, tilde] = m;
+      if (int || frac || bracket !== void 0) {
+        if (tilde && frac === void 0) throw new ExprError("~ goes after a decimal, like .4~");
+        if (tilde && bracket !== void 0) throw new ExprError("Use either brackets or ~ for recurring digits");
+        if (bracket === "") throw new ExprError("Missing recurring digits in ( )");
+        if (frac === "" && bracket === void 0) throw new ExprError("Missing digits after the decimal point");
+        const rep = bracket !== void 0 ? bracket.length : tilde ? frac.length : 0;
+        tokens.push({ type: "num", int, frac: frac === void 0 ? null : frac + (bracket ?? ""), rep, pos: i });
+        i += whole.length;
+        continue;
+      }
+      const s = SYMBOLS[c] ?? c;
+      if (!"+-*/^!V()".includes(s)) throw new ExprError(`Unexpected ${c}`);
+      tokens.push({ type: s, pos: i });
+      i++;
+    }
+    return tokens;
+  }
+  function parse(text) {
+    const tokens = tokenize(text);
+    let i = 0;
+    const peek = () => tokens[i]?.type;
+    const take = (type) => peek() === type ? tokens[i++] : null;
+    const fail = (what) => {
+      throw new ExprError(i < tokens.length ? `Unexpected ${tokens[i].type === "num" ? "number" : tokens[i].type}` : `Missing ${what}`);
+    };
+    const sum = () => {
+      let a = prod();
+      for (let op; op = take("+") ?? take("-"); ) a = { type: op.type, a, b: prod() };
+      return a;
+    };
+    const prod = () => {
+      let a = neg();
+      for (let op; op = take("*") ?? take("/"); ) a = { type: op.type, a, b: neg() };
+      return a;
+    };
+    const neg = () => take("-") ? { type: "neg", a: neg() } : pow();
+    const pow = () => {
+      const a = root();
+      return take("^") ? { type: "^", a, b: neg() } : a;
+    };
+    const root = () => {
+      if (take("V")) return { type: "sqrt", a: root() };
+      const b = post();
+      return take("V") ? { type: "root", b, a: root() } : b;
+    };
+    const post = () => {
+      let a = primary();
+      while (take("!")) a = { type: "!", a };
+      return a;
+    };
+    const primary = () => {
+      const t = take("num");
+      if (t) return { type: "num", int: t.int, frac: t.frac, rep: t.rep };
+      if (take("(")) {
+        const a = sum();
+        if (!take(")")) fail(")");
+        return a;
+      }
+      return fail("number");
+    };
+    if (!tokens.length) throw new ExprError("Empty");
+    const tree = sum();
+    if (i < tokens.length) fail("");
+    return tree;
+  }
+  var MAX_BITS = 4096;
+  var TOO_BIG = "Too large to calculate exactly";
+  var bits = (n) => (n < 0n ? -n : n).toString(2).length;
+  function gcd(a, b) {
+    if (a < 0n) a = -a;
+    while (b) [a, b] = [b, a % b];
+    return a;
+  }
+  function rat(n, d) {
+    if (d === 0n) throw new ExprError("Division by zero");
+    if (d < 0n) {
+      n = -n;
+      d = -d;
+    }
+    if (bits(n) > MAX_BITS || bits(d) > MAX_BITS) throw new ExprError(TOO_BIG);
+    const g = gcd(n, d) || 1n;
+    return [n / g, d / g];
+  }
+  function bigRoot(n, k) {
+    if (n < 2n || k === 1n) return n;
+    let x = 1n << BigInt(bits(n)) / k + 1n;
+    for (; ; ) {
+      const y = ((k - 1n) * x + n / x ** (k - 1n)) / k;
+      if (y >= x) break;
+      x = y;
+    }
+    return x ** k === n ? x : -1n;
+  }
+  function power([n, d], [p, q], what) {
+    if (n === 0n) {
+      if (p <= 0n) throw new ExprError(p === 0n ? "0 to the power 0" : "Division by zero");
+      return [0n, 1n];
+    }
+    let sign = 1n;
+    if (n < 0n) {
+      if (q % 2n === 0n) throw new ExprError(`${what} of a negative number`);
+      n = -n;
+      if (p % 2n !== 0n) sign = -1n;
+    }
+    if (q > 4096n) throw new ExprError(`${what} is irrational`);
+    const rn = bigRoot(n, q), rd = bigRoot(d, q);
+    if (rn < 0n || rd < 0n) throw new ExprError(`${what} is irrational`);
+    const e = p < 0n ? -p : p;
+    if (e * BigInt(Math.max(bits(rn), bits(rd)) - 1) > BigInt(MAX_BITS)) throw new ExprError(TOO_BIG);
+    const a = rn ** e, b = rd ** e;
+    return p >= 0n ? rat(sign * a, b) : rat(sign * b, a);
+  }
+  function toNumbers([n, d]) {
+    const safe = (x) => x <= BigInt(Number.MAX_SAFE_INTEGER) && x >= -BigInt(Number.MAX_SAFE_INTEGER);
+    return safe(n) && safe(d) ? [Number(n), Number(d)] : [n, d];
+  }
+  var leafText = (t) => {
+    if (t.frac === null) return t.int;
+    const a = t.frac.length - t.rep;
+    return `${t.int}.${t.frac.slice(0, a)}${t.rep ? `(${t.frac.slice(a)})` : ""}`;
+  };
+  var OP_NAMES = {
+    concat: "Concatenation",
+    pow: "^",
+    fact: "!",
+    sqrt: "\u221A",
+    root: "b\u221Aa",
+    dot: "Decimals",
+    rec: "Recurring decimals"
+  };
+  function leaves(t, out = []) {
+    if (t.type === "num") out.push(t);
+    else if (t.type === "root") {
+      leaves(t.b, out);
+      leaves(t.a, out);
+    } else {
+      leaves(t.a, out);
+      if (t.b) leaves(t.b, out);
+    }
+    return out;
+  }
+  function splits(leaf, numbers) {
+    const digits = leaf.int + (leaf.frac ?? "");
+    const cuts = leaf.frac === null ? [] : [leaf.int.length, digits.length - leaf.rep];
+    const strings = [...new Set(numbers.map(String))];
+    const out = [];
+    const go = (at, parts) => {
+      if (at === digits.length) {
+        out.push(parts);
+        return;
+      }
+      for (const s of strings) {
+        if (!digits.startsWith(s, at)) continue;
+        if (cuts.some((c) => c > at && c < at + s.length)) continue;
+        go(at + s.length, [...parts, Number(s)]);
+      }
+    };
+    go(0, []);
+    return out;
+  }
+  function assign(parts, numbers, ordered, all) {
+    const used = new Array(numbers.length).fill(false);
+    const go = (k, last) => {
+      if (k === parts.length) return !all || used.every(Boolean);
+      for (let i = ordered ? last + 1 : 0; i < numbers.length; i++) {
+        if (used[i] || numbers[i] !== parts[k]) continue;
+        used[i] = true;
+        if (go(k + 1, i)) return true;
+        used[i] = false;
+      }
+      return false;
+    };
+    return go(0, -1);
+  }
+  function checkNumbers(tree, numbers, rules, ops) {
+    const ls = leaves(tree);
+    const options = ls.map((leaf) => {
+      const ways = splits(leaf, numbers);
+      if (!ways.length) {
+        throw new ExprError(`${leafText(leaf)} isn't made from the numbers`);
+      }
+      return ways;
+    });
+    for (const [k, leaf] of ls.entries()) {
+      if (!ops.concat && options[k].every((w) => w.length > 1)) throw new ExprError("Concatenation isn't allowed");
+      if (leaf.rep && !ops.rec) throw new ExprError("Recurring decimals aren't allowed");
+      if (leaf.frac !== null && !leaf.rep && !ops.dot) throw new ExprError("Decimals aren't allowed");
+    }
+    const fits = (ordered, all) => {
+      const go = (k, parts) => {
+        if (k === ls.length) return assign(parts, numbers, ordered, all);
+        return options[k].some((w) => (ops.concat || w.length === 1) && go(k + 1, [...parts, ...w]));
+      };
+      return go(0, []);
+    };
+    if (fits(!!rules.order, !!rules.all)) return;
+    if (!fits(false, false)) throw new ExprError("Uses numbers that aren't available");
+    if (rules.order && !fits(true, false)) throw new ExprError("The numbers must be used in order");
+    throw new ExprError("All the numbers must be used");
+  }
+  function evaluate(tree, { numbers, rules = {}, ops = {} }) {
+    checkNumbers(tree, numbers, rules, ops);
+    const need = (op) => {
+      if (!ops[op]) throw new ExprError(`${OP_NAMES[op]} isn't allowed`);
+    };
+    const ev = (t) => {
+      const v = value(t);
+      if (rules.integers && v[1] !== 1n) throw new ExprError("Fractions aren't allowed");
+      return v;
+    };
+    const value = (t) => {
+      switch (t.type) {
+        case "num": {
+          const digits = BigInt(t.int + (t.frac ?? ""));
+          if (t.frac === null) return [digits, 1n];
+          if (!t.rep) return rat(digits, 10n ** BigInt(t.frac.length));
+          const a = t.frac.length - t.rep;
+          const nines = 10n ** BigInt(t.rep) - 1n;
+          const head = BigInt(t.int + t.frac.slice(0, a) || 0);
+          return rat(head * nines + BigInt(t.frac.slice(a)), 10n ** BigInt(a) * nines);
+        }
+        case "neg": {
+          const [n, d] = ev(t.a);
+          return [-n, d];
+        }
+        case "!": {
+          need("fact");
+          const [n, d] = ev(t.a);
+          if (d !== 1n || n < 0n) throw new ExprError("Factorials need a whole number that isn't negative");
+          if (n > 500n) throw new ExprError(TOO_BIG);
+          let f = 1n;
+          for (let i = 2n; i <= n; i++) f *= i;
+          return rat(f, 1n);
+        }
+        case "sqrt":
+          need("sqrt");
+          return power(ev(t.a), [1n, 2n], "Square root");
+        case "root": {
+          need("root");
+          const [bn, bd] = ev(t.b);
+          if (bn === 0n) throw new ExprError("0th root");
+          return power(ev(t.a), bn < 0n ? [-bd, -bn] : [bd, bn], "Root");
+        }
+        case "^": {
+          need("pow");
+          return power(ev(t.a), ev(t.b), "Power");
+        }
+        default: {
+          const [a, b] = ev(t.a), [c, d] = ev(t.b);
+          switch (t.type) {
+            case "+":
+              return rat(a * d + c * b, b * d);
+            case "-":
+              return rat(a * d - c * b, b * d);
+            case "*":
+              return rat(a * c, b * d);
+            case "/":
+              if (c === 0n) throw new ExprError("Division by zero");
+              return rat(a * d, b * c);
+          }
+        }
+      }
+      throw new Error(`Unknown node ${t.type}`);
+    };
+    return toNumbers(ev(tree));
+  }
+  function formatValue([n, d]) {
+    return String(d) === "1" ? String(n).replace("-", "\u2212") : `${String(n).replace("-", "\u2212")}/${d}`;
+  }
+  var esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  var PREC = { "+": 1, "-": 1, "*": 2, "/": 2, neg: 3, "^": 4, root: 5, sqrt: 5, "!": 6, num: 7 };
+  var SHOW = { "+": "+", "-": "\u2212", "*": "\xD7", "/": "\xF7" };
+  function toHTML(t) {
+    const sub = (x, paren) => paren ? `(${toHTML(x)})` : toHTML(x);
+    const p = PREC[t.type];
+    switch (t.type) {
+      case "num": {
+        if (t.frac === null) return t.int;
+        const a = t.frac.length - t.rep;
+        return `${t.int}.${t.frac.slice(0, a)}${t.rep ? `<span class="rec">${t.frac.slice(a)}</span>` : ""}`;
+      }
+      case "neg":
+        return `\u2212${sub(t.a, PREC[t.a.type] < p)}`;
+      case "!":
+        return `${sub(t.a, PREC[t.a.type] < p)}!`;
+      case "sqrt":
+        return `<span class="radical">\u221A<span class="radicand">${toHTML(t.a)}</span></span>`;
+      case "root":
+        return `<span class="radical"><sup class="index">${toHTML(t.b)}</sup>\u221A<span class="radicand">${toHTML(t.a)}</span></span>`;
+      case "^":
+        return `${sub(t.a, PREC[t.a.type] <= p)}<sup>${toHTML(t.b)}</sup>`;
+      default: {
+        const tight = t.type === "-" || t.type === "/";
+        return `${sub(t.a, PREC[t.a.type] < p)} ${SHOW[t.type]} ${sub(t.b, PREC[t.b.type] < p || tight && PREC[t.b.type] === p)}`;
+      }
+    }
+  }
+  function textToHTML(text) {
+    try {
+      return toHTML(parse(text));
+    } catch (e) {
+      if (e instanceof ExprError) return esc(text);
+      throw e;
+    }
+  }
+
+  // src/numbers/solver.js
+  var OPS = ["concat", "pow", "fact", "sqrt", "root", "dot", "rec"];
+  var LEAF = 0;
+  var ADD = 1;
+  var SUB = 2;
+  var MUL = 3;
+  var DIV = 4;
+  var NEG = 5;
+  var POW = 6;
+  var FACT = 7;
+  var SQRT = 8;
+  var ROOT = 9;
+  var OP_NAMES2 = ["leaf", "+", "-", "*", "/", "neg", "pow", "fact", "sqrt", "root"];
+  var COST = {
+    "+": 10,
+    "-": 10,
+    "*": 11,
+    "/": 11,
+    neg: 11,
+    concat: 12,
+    pow: 13,
+    fact: 14,
+    sqrt: 15,
+    root: 16,
+    dot: 17,
+    rec: 18
+  };
+  var MAX = 2 ** 53;
+  var FACTORIALS = [
+    1,
+    1,
+    2,
+    6,
+    24,
+    120,
+    720,
+    5040,
+    40320,
+    362880,
+    3628800,
+    39916800,
+    479001600,
+    6227020800,
+    87178291200,
+    1307674368e3,
+    20922789888e3,
+    355687428096e3,
+    6402373705728e3
+  ];
+  function gcd2(a, b) {
+    while (b) {
+      const t = a % b;
+      a = b;
+      b = t;
+    }
+    return a;
+  }
+  var RN = 0;
+  var RD = 1;
+  var INTS = false;
+  function make(n, d) {
+    if (d === 1) {
+      if (n >= MAX || -n >= MAX || n !== n) return false;
+      RN = n;
+      RD = 1;
+      return true;
+    }
+    if (d === 0 || n !== n || d !== d) return false;
+    if (d < 0) {
+      n = -n;
+      d = -d;
+    }
+    if (n >= MAX || -n >= MAX || d >= MAX) return false;
+    if (INTS) {
+      if (n % d !== 0) return false;
+      RN = n / d;
+      RD = 1;
+      return true;
+    }
+    const g = gcd2(n < 0 ? -n : n, d);
+    RN = n / g;
+    RD = d / g;
+    return true;
+  }
+  function mul(a, b) {
+    const p = a * b;
+    return p >= MAX || -p >= MAX ? NaN : p;
+  }
+  function iroot(n, k) {
+    if (n < 2 || k === 1) return n;
+    const r = Math.round(n ** (1 / k));
+    for (let c = r > 0 ? r - 1 : 0; c <= r + 1; c++) {
+      let p = 1;
+      for (let i = 0; i < k && p <= n; i++) p *= c;
+      if (p === n) return c;
+    }
+    return -1;
+  }
+  function power2(n, d, lg, p, q, allowNeg) {
+    if (n === 0) {
+      RN = 0;
+      RD = 1;
+      return p > 0;
+    }
+    if (INTS && (p > 0 ? d !== 1 : n !== 1 && n !== -1)) return false;
+    const e = p < 0 ? -p : p;
+    if (q > 64 || e > 64) return false;
+    if (Math.abs(lg) * e / q > 53.5) return false;
+    let sign = 1;
+    if (n < 0) {
+      if (q % 2 === 0) return false;
+      n = -n;
+      if (e % 2 === 1) {
+        if (!allowNeg) return false;
+        sign = -1;
+      }
+    }
+    const rn = iroot(n, q);
+    if (rn < 0) return false;
+    const rd = iroot(d, q);
+    if (rd < 0) return false;
+    let a = 1, b = 1;
+    for (let i = 0; i < e; i++) {
+      a *= rn;
+      b *= rd;
+    }
+    if (a >= MAX || b >= MAX) return false;
+    return p > 0 ? make(sign * a, b) : make(sign * b, a);
+  }
+  function leaves2(nums, ops, fractions) {
+    const out = [];
+    const s = nums.map(String).join("");
+    const L = s.length;
+    const k = nums.length;
+    if (k > 1 && !ops.concat || L > 15) return out;
+    const base = (k - 1) * COST.concat;
+    out.push({ n: Number(s), d: 1, c: base, text: s });
+    if (fractions && (ops.dot || ops.rec)) {
+      let p = 0;
+      for (let i = 0; i < k; i++) {
+        const ip = s.slice(0, p), fp = s.slice(p);
+        const f = L - p;
+        if (ops.dot && make(Number(s), 10 ** f)) {
+          out.push({ n: RN, d: RD, c: base + COST.dot, text: `${ip}.${fp}` });
+        }
+        if (ops.rec) {
+          let q = p;
+          for (let j = i; j < k; j++) {
+            const A = s.slice(p, q), R = s.slice(q);
+            const nines = 10 ** R.length - 1;
+            if (make(Number(ip + A || 0) * nines + Number(R), 10 ** A.length * nines)) {
+              out.push({ n: RN, d: RD, c: base + COST.rec, text: A ? `${ip}.${A}(${R})` : `${ip}.${R}~` });
+            }
+            q += String(nums[j]).length;
+          }
+        }
+        p += String(nums[i]).length;
+      }
+    }
+    return out;
+  }
+  function permutations(xs) {
+    if (xs.length <= 1) return [xs];
+    const out = [];
+    xs.forEach((x, i) => {
+      for (const p of permutations([...xs.slice(0, i), ...xs.slice(i + 1)])) out.push([x, ...p]);
+    });
+    return out;
+  }
+  function popcount(m) {
+    let c = 0;
+    for (; m; m &= m - 1) c++;
+    return c;
+  }
+  var Store = class {
+    constructor() {
+      this.size = 0;
+      this.cap = 1 << 16;
+      this.alloc();
+      this.text = /* @__PURE__ */ new Map();
+    }
+    alloc() {
+      const grow = (T, a) => {
+        const b = new T(this.cap);
+        if (a) b.set(a);
+        return b;
+      };
+      this.N = grow(Float64Array, this.N);
+      this.D = grow(Float64Array, this.D);
+      this.LG = grow(Float64Array, this.LG);
+      this.C = grow(Uint16Array, this.C);
+      this.OP = grow(Uint8Array, this.OP);
+      this.A = grow(Int32Array, this.A);
+      this.B = grow(Int32Array, this.B);
+    }
+    push(n, d, c, op, a, b) {
+      if (this.size === this.cap) {
+        this.cap *= 2;
+        this.alloc();
+      }
+      const i = this.size++;
+      this.N[i] = n;
+      this.D[i] = d;
+      this.C[i] = c;
+      this.OP[i] = op;
+      this.A[i] = a;
+      this.B[i] = b;
+      this.LG[i] = n === 0 ? 0 : Math.log2(Math.abs(n)) - Math.log2(d);
+      return i;
+    }
+  };
+  var Table = class {
+    constructor(bits2 = 10) {
+      this.bits = bits2;
+      this.mask = (1 << bits2) - 1;
+      this.N = new Float64Array(1 << bits2);
+      this.D = new Float64Array(1 << bits2);
+      this.V = new Int32Array(1 << bits2).fill(-1);
+      this.size = 0;
+    }
+    slot(n, d) {
+      let h = (Math.imul(n | 0, 2654435761) ^ Math.imul(n / 4294967296 | 0, 2146121005) ^ Math.imul(d | 0, 2246822519)) >>> 32 - this.bits;
+      const { N, D, V, mask } = this;
+      while (V[h] !== -1 && (N[h] !== n || D[h] !== d)) h = h + 1 & mask;
+      return h;
+    }
+    get(n, d) {
+      return this.V[this.slot(n, d)];
+    }
+    set(n, d, id) {
+      const h = this.slot(n, d);
+      if (this.V[h] === -1) {
+        if (++this.size * 2 > this.V.length) {
+          this.grow();
+          this.set(n, d, id);
+          return;
+        }
+        this.N[h] = n;
+        this.D[h] = d;
+      }
+      this.V[h] = id;
+    }
+    grow() {
+      const { N, D, V } = this;
+      this.bits++;
+      this.mask = (1 << this.bits) - 1;
+      this.N = new Float64Array(1 << this.bits);
+      this.D = new Float64Array(1 << this.bits);
+      this.V = new Int32Array(1 << this.bits).fill(-1);
+      for (let i = 0; i < V.length; i++) {
+        if (V[i] !== -1) {
+          const h = this.slot(N[i], D[i]);
+          this.N[h] = N[i];
+          this.D[h] = D[i];
+          this.V[h] = V[i];
+        }
+      }
+    }
+  };
+  var Budget = class extends Error {
+  };
+  function solve(numbers, rules, ops, {
+    lo = 0,
+    hi = 999,
+    maxNum = Infinity,
+    maxDen = Infinity,
+    budget = Infinity,
+    nodeBudget = Infinity,
+    stats,
+    progress
+  } = {}) {
+    const n = numbers.length;
+    const full = (1 << n) - 1;
+    const neg = !!rules.order;
+    const fractions = !rules.integers;
+    const S = new Store();
+    const sets = new Array(full + 1);
+    let index = null;
+    let ids = [];
+    let top = false;
+    const find = (vn, vd) => index.get(vn, vd);
+    const add = (c, op, a, b) => {
+      const vn = RN, vd = RD;
+      if (vd !== 1 && !fractions) return -1;
+      if (vn < 0 && !neg) return -1;
+      const av = vn < 0 ? -vn : vn;
+      if (top) {
+        if (vd !== 1) return -1;
+        if (av > hi && !(ops.sqrt && iroot(av, 2) >= 0)) return -1;
+      } else if ((av > maxNum || vd > maxDen) && !(ops.sqrt && iroot(av, 2) >= 0 && iroot(vd, 2) >= 0)) {
+        return -1;
+      }
+      const f = find(vn, vd);
+      if (f >= 0 && S.C[f] <= c) return -1;
+      if (S.size >= nodeBudget) throw new Budget();
+      const id = S.push(vn, vd, c, op, a, b);
+      index.set(vn, vd, id);
+      ids.push(id);
+      return id;
+    };
+    const negNode = (y) => S.push(-S.N[y], S.D[y], S.C[y] + COST.neg, NEG, y, -1);
+    const negPow = (x, y, base) => {
+      if (!ops.pow || neg || S.N[y] <= 0) return;
+      if (power2(S.N[x], S.D[x], S.LG[x], -S.N[y], S.D[y], false)) add(base + COST.neg + COST.pow, POW, x, negNode(y));
+    };
+    const negRoot = (y, x, base) => {
+      if (!ops.root || neg || S.N[y] <= 0) return;
+      if (power2(S.N[x], S.D[x], S.LG[x], -S.D[y], S.N[y], false)) add(base + COST.neg + COST.root, ROOT, negNode(y), x);
+    };
+    const tryPow = (n2, d, lg, p, q, c, op, a, b) => {
+      if (power2(n2, d, lg, p, q, neg)) {
+        add(c, op, a, b);
+        return;
+      }
+      if (!ops.sqrt || Math.max(Math.log2(Math.abs(n2)), Math.log2(d)) * Math.abs(p) / q <= 53) return;
+      for (let k = 1, pk = p; k <= 12 && pk % 2 === 0; k++) {
+        pk /= 2;
+        if (!power2(n2, d, lg, pk, q, neg)) continue;
+        const rn = RN, rd = RD, cost = c + k * COST.sqrt;
+        const f = find(rn, rd);
+        if (f >= 0 && S.C[f] <= cost) continue;
+        let id = S.push(NaN, NaN, c, op, a, b);
+        for (let i = 1; i < k; i++) id = S.push(NaN, NaN, c + i * COST.sqrt, SQRT, id, -1);
+        RN = rn;
+        RD = rd;
+        add(cost, SQRT, id, -1);
+      }
+    };
+    const binary = (x, y, ordered) => {
+      const N = S.N, D = S.D;
+      const xn = N[x], xd = D[x], yn = N[y], yd = D[y];
+      const base = S.C[x] + S.C[y];
+      const xy = mul(xn, yd), yx = mul(yn, xd), dd = mul(xd, yd);
+      if (make(xy + yx, dd)) add(base + COST["+"], ADD, x, y);
+      if (make(mul(xn, yn), dd)) add(base + COST["*"], MUL, x, y);
+      if (make(xy - yx, dd)) add(base + COST["-"], SUB, x, y);
+      if (yn !== 0 && make(xy, yx)) add(base + COST["/"], DIV, x, y);
+      if (ops.pow) tryPow(xn, xd, S.LG[x], yn, yd, base + COST.pow, POW, x, y);
+      negPow(x, y, base);
+      if (ops.root && xn !== 0) tryPow(yn, yd, S.LG[y], xn < 0 ? -xd : xd, xn < 0 ? -xn : xn, base + COST.root, ROOT, x, y);
+      negRoot(x, y, base);
+      if (ordered) return;
+      if (make(yx - xy, dd)) add(base + COST["-"], SUB, y, x);
+      if (xn !== 0 && make(yx, xy)) add(base + COST["/"], DIV, y, x);
+      if (ops.pow) tryPow(yn, yd, S.LG[y], xn, xd, base + COST.pow, POW, y, x);
+      negPow(y, x, base);
+      if (ops.root && yn !== 0) tryPow(xn, xd, S.LG[x], yn < 0 ? -yd : yd, yn < 0 ? -yn : yn, base + COST.root, ROOT, y, x);
+      negRoot(y, x, base);
+    };
+    const binaryTop = (x, y, ordered) => {
+      const N = S.N, D = S.D;
+      const xn = N[x], xd = D[x], yn = N[y], yd = D[y];
+      const base = S.C[x] + S.C[y];
+      if (xd === yd) {
+        if (make(xn + yn, xd)) add(base + COST["+"], ADD, x, y);
+        if (make(xn - yn, xd)) add(base + COST["-"], SUB, x, y);
+        if (!ordered && make(yn - xn, xd)) add(base + COST["-"], SUB, y, x);
+      }
+      if (xn % yd === 0 && yn % xd === 0 && make(mul(xn / yd, yn / xd), 1)) add(base + COST["*"], MUL, x, y);
+      if (yn !== 0 && xn % yn === 0 && yd % xd === 0 && make(mul(xn / yn, yd / xd), 1)) add(base + COST["/"], DIV, x, y);
+      if (!ordered && xn !== 0 && yn % xn === 0 && xd % yd === 0 && make(mul(yn / xn, xd / yd), 1)) {
+        add(base + COST["/"], DIV, y, x);
+      }
+      if (ops.pow) tryPow(xn, xd, S.LG[x], yn, yd, base + COST.pow, POW, x, y);
+      negPow(x, y, base);
+      if (ops.root && xn !== 0) tryPow(yn, yd, S.LG[y], xn < 0 ? -xd : xd, xn < 0 ? -xn : xn, base + COST.root, ROOT, x, y);
+      negRoot(x, y, base);
+      if (ordered) return;
+      if (ops.pow) tryPow(yn, yd, S.LG[y], xn, xd, base + COST.pow, POW, y, x);
+      negPow(y, x, base);
+      if (ops.root && yn !== 0) tryPow(xn, xd, S.LG[x], yn < 0 ? -yd : yd, yn < 0 ? -yn : yn, base + COST.root, ROOT, y, x);
+      negRoot(y, x, base);
+    };
+    const unary = () => {
+      const work2 = ids.slice();
+      while (work2.length) {
+        const x = work2.pop();
+        const a = S.N[x], b = S.D[x], c = S.C[x];
+        if (find(a, b) !== x) continue;
+        const push = (id) => {
+          if (id >= 0) work2.push(id);
+        };
+        if (ops.sqrt && a > 0 && (a !== 1 || b !== 1) && power2(a, b, S.LG[x], 1, 2, neg)) {
+          push(add(c + COST.sqrt, SQRT, x, -1));
+        }
+        if (ops.fact && b === 1 && a >= 0 && a < FACTORIALS.length && a !== 1 && a !== 2) {
+          RN = FACTORIALS[a];
+          RD = 1;
+          push(add(c + COST.fact, FACT, x, -1));
+        }
+        if (neg && a !== 0) {
+          RN = -a;
+          RD = b;
+          push(add(c + COST.neg, NEG, x, -1));
+        }
+      }
+    };
+    const finish = () => {
+      const out = [];
+      for (const id of ids) if (find(S.N[id], S.D[id]) === id) out.push(id);
+      return Int32Array.from(out);
+    };
+    const masks = [];
+    for (let m = 1; m <= full; m++) masks.push(m);
+    masks.sort((x, y) => popcount(x) - popcount(y) || x - y);
+    const best = /* @__PURE__ */ new Map();
+    const used = /* @__PURE__ */ new Map();
+    const record = (m) => {
+      const k = popcount(m);
+      for (const id of sets[m]) {
+        const v = S.N[id];
+        if (S.D[id] !== 1 || v < lo || v > hi) continue;
+        if (!best.has(v) || used.get(v) === k && S.C[id] < S.C[best.get(v)]) {
+          best.set(v, id);
+          used.set(v, k);
+        }
+      }
+    };
+    let done = 0, work = 0;
+    for (const m of masks) {
+      if (!rules.all && best.size === hi - lo + 1 && popcount(m) > Math.max(...used.values())) break;
+      const idx = [];
+      for (let i = 0; i < n; i++) if (m & 1 << i) idx.push(i);
+      index = new Table();
+      ids = [];
+      top = INTS = m === full;
+      for (const o of rules.order ? [idx] : permutations(idx)) {
+        for (const l of leaves2(o.map((i) => numbers[i]), ops, fractions)) {
+          RN = l.n;
+          RD = l.d;
+          const id = add(l.c, LEAF, -1, -1);
+          if (id >= 0) S.text.set(id, l.text);
+        }
+      }
+      let need = 0;
+      const splits2 = [];
+      if (rules.order) {
+        for (let s = 1; s < idx.length; s++) {
+          let left = 0;
+          for (let i = 0; i < s; i++) left |= 1 << idx[i];
+          splits2.push(left);
+        }
+      } else {
+        const low = m & -m;
+        for (let left = m - 1 & m; left; left = left - 1 & m) if (left & low) splits2.push(left);
+      }
+      for (const left of splits2) need += sets[left].length * sets[m ^ left].length;
+      work += need;
+      if (work > budget) throw new Budget();
+      if (stats) stats.work = work;
+      const pairs = (left) => {
+        const X = sets[left], Y = sets[m ^ left];
+        const f = top ? binaryTop : binary, ordered = !!rules.order;
+        for (let i = 0; i < X.length; i++) for (let j = 0; j < Y.length; j++) f(X[i], Y[j], ordered);
+      };
+      for (const left of splits2) pairs(left);
+      unary();
+      sets[m] = finish();
+      index = null;
+      ids = [];
+      INTS = false;
+      if (stats) stats[m] = sets[m].length;
+      if (!rules.all || m === full) record(m);
+      if (progress) progress(++done / masks.length);
+    }
+    const result = /* @__PURE__ */ new Map();
+    for (const t of [...best.keys()].sort((a, b) => a - b)) result.set(t, toText(S, best.get(t)));
+    return result;
+  }
+  var LIMITS = [
+    { maxNum: 1e3, maxDen: 10 },
+    { maxNum: 1e4, maxDen: 100 },
+    { maxNum: 1e6, maxDen: 1e3 },
+    { maxNum: Infinity, maxDen: Infinity }
+  ];
+  function* solveSteps(numbers, rules, ops, { budget = 2e7, nodeBudget = 2e6, progress } = {}) {
+    for (let step = 0; step < LIMITS.length; step++) {
+      let solutions;
+      try {
+        solutions = solve(numbers, rules, ops, {
+          ...LIMITS[step],
+          budget: step ? budget : Infinity,
+          nodeBudget: step ? nodeBudget : Infinity,
+          progress: progress && ((f) => progress(f, step))
+        });
+      } catch (e) {
+        if (e instanceof Budget) return;
+        throw e;
+      }
+      const exact = step === LIMITS.length - 1;
+      yield { solutions, exact, step };
+    }
+  }
+  var PREC2 = [7, 1, 1, 2, 2, 3, 4, 6, 5, 5];
+  var P_NEG = 3;
+  var P_FACT = 6;
+  function toText(S, x) {
+    const op = S.OP[x], a = S.A[x], b = S.B[x];
+    const p = PREC2[op];
+    const wrap = (y, cond) => cond ? `(${toText(S, y)})` : toText(S, y);
+    switch (op) {
+      case LEAF:
+        return S.text.get(x);
+      case FACT:
+        return `${wrap(a, PREC2[S.OP[a]] < p)}!`;
+      case SQRT:
+        return `V${wrap(a, PREC2[S.OP[a]] < p)}`;
+      case NEG:
+        return `-${wrap(a, PREC2[S.OP[a]] < p)}`;
+      case ROOT:
+        return `${wrap(a, PREC2[S.OP[a]] < P_FACT)}V${wrap(b, PREC2[S.OP[b]] < p)}`;
+      case POW:
+        return `${wrap(a, PREC2[S.OP[a]] <= p)}^${wrap(b, PREC2[S.OP[b]] < P_NEG)}`;
+      default: {
+        const tight = op === SUB || op === DIV;
+        return `${wrap(a, PREC2[S.OP[a]] < p)}${OP_NAMES2[op]}${wrap(b, PREC2[S.OP[b]] < p || tight && PREC2[S.OP[b]] === p)}`;
+      }
+    }
+  }
+
+  // src/numbers/page.js
+  var SETTINGS_KEY = "numbers-settings";
+  var HISTORY_KEY = "numbers-history";
+  var MIN_BOXES = 3;
+  var MAX_BOXES = 6;
+  var BIG = [25, 50, 75, 100];
+  var DEFAULTS = {
+    numbers: [4, 4, 4, 4],
+    pool: "digits",
+    big: 1,
+    rules: { all: false, order: false, integers: false },
+    ops: Object.fromEntries(OPS.map((op) => [op, true])),
+    noOps: false,
+    solvable: true,
+    timed: false,
+    seconds: 30
+  };
+  var $ = (id) => document.getElementById(id);
+  var boxes = $("boxes");
+  var bigBox = $("big");
+  var answerBox = $("answer");
+  var targetBox = $("target");
+  var clock = $("clock");
+  var preview = $("preview");
+  var bestLine = $("best");
+  var outcome = $("outcome");
+  var opBoxes = [...document.querySelectorAll("input[data-op]")];
+  var settingSets = ["numbers-set", "rules-set", "ops-set"].map($);
+  var storage = {
+    get(key) {
+      try {
+        return JSON.parse(localStorage.getItem(key));
+      } catch (e) {
+        return null;
+      }
+    },
+    set(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+      }
+    }
+  };
+  var pad = (t) => String(t).padStart(3, "0");
+  var randInt = (n) => Math.floor(Math.random() * n);
+  var shuffle = (xs) => {
+    for (let i = xs.length - 1; i > 0; i--) {
+      const j = randInt(i + 1);
+      [xs[i], xs[j]] = [xs[j], xs[i]];
+    }
+    return xs;
+  };
+  for (let i = 0; i <= 4; i++) bigBox.add(new Option(String(i), String(i)));
+  function addBox(value = "") {
+    const box = document.createElement("input");
+    Object.assign(box, { type: "number", min: 0, max: 100, step: 1, required: true, value });
+    box.setAttribute("aria-label", `Number ${boxes.children.length + 1}`);
+    box.addEventListener("input", settingsChanged);
+    boxes.appendChild(box);
+  }
+  function setBoxes(numbers) {
+    boxes.replaceChildren();
+    numbers.forEach((n) => addBox(n));
+  }
+  function readNumbers() {
+    const values = [...boxes.children].map((b) => b.value.trim());
+    if (values.some((v) => !/^\d+$/.test(v) || Number(v) > 100)) return null;
+    return values.map(Number);
+  }
+  function readSettings() {
+    const seconds = Number($("seconds").value);
+    return {
+      numbers: readNumbers(),
+      pool: document.querySelector('input[name="pool"]:checked')?.value ?? "digits",
+      big: Number(bigBox.value),
+      rules: { all: $("rule-all").checked, order: $("rule-order").checked, integers: $("rule-integers").checked },
+      // decimals make fractions, so they're off when fractions are
+      ops: Object.fromEntries(opBoxes.map((b) => [b.dataset.op, b.checked && !b.disabled])),
+      noOps: $("ops-none").checked,
+      solvable: $("solvable").checked,
+      timed: $("timed").checked,
+      seconds: Number.isInteger(seconds) && seconds >= 5 ? seconds : DEFAULTS.seconds
+    };
+  }
+  function applySettings(s) {
+    setBoxes(s.numbers);
+    for (const r of document.querySelectorAll('input[name="pool"]')) r.checked = r.value === s.pool;
+    bigBox.value = String(s.big);
+    $("rule-all").checked = s.rules.all;
+    $("rule-order").checked = s.rules.order;
+    $("rule-integers").checked = s.rules.integers;
+    for (const b of opBoxes) b.checked = s.ops[b.dataset.op] ?? true;
+    $("ops-none").checked = s.noOps;
+    $("solvable").checked = s.solvable;
+    $("timed").checked = s.timed;
+    $("seconds").value = s.seconds;
+  }
+  function loadSettings() {
+    const saved = storage.get(SETTINGS_KEY) ?? {};
+    const s = {
+      ...DEFAULTS,
+      ...saved,
+      rules: { ...DEFAULTS.rules, ...saved.rules },
+      ops: { ...DEFAULTS.ops, ...saved.ops }
+    };
+    if (!Array.isArray(s.numbers) || s.numbers.length < MIN_BOXES || s.numbers.length > MAX_BOXES) s.numbers = DEFAULTS.numbers;
+    return s;
+  }
+  function updateControls() {
+    const count = boxes.children.length;
+    $("remove-box").disabled = count <= MIN_BOXES;
+    $("add-box").disabled = count >= MAX_BOXES;
+    const small = document.querySelector('input[name="pool"]:checked')?.value === "small";
+    bigBox.disabled = !small;
+    for (let i = 0; i < bigBox.options.length; i++) bigBox.options[i].disabled = i > count;
+    if (Number(bigBox.value) > count) bigBox.value = String(Math.min(4, count));
+    const none = $("ops-none").checked;
+    const integers = $("rule-integers").checked;
+    for (const b of opBoxes) {
+      const fractions = integers && (b.dataset.op === "dot" || b.dataset.op === "rec");
+      b.disabled = none || fractions;
+      b.parentElement.classList.toggle("off", b.disabled);
+      b.parentElement.title = fractions && !none ? "Not with No fractions" : b.parentElement.dataset.title ?? b.parentElement.title;
+    }
+    $("seconds").disabled = !$("timed").checked;
+    const ops = readSettings().ops;
+    for (const li of document.querySelectorAll(".syntax [data-op]")) li.classList.toggle("off", !ops[li.dataset.op]);
+    const valid = readNumbers() !== null;
+    $("new-target").disabled = !valid;
+    $("solve-all").disabled = !valid;
+  }
+  function saveSettings() {
+    const s = readSettings();
+    if (!s.numbers) s.numbers = storage.get(SETTINGS_KEY)?.numbers ?? DEFAULTS.numbers;
+    s.ops = Object.fromEntries(opBoxes.map((b) => [b.dataset.op, b.checked]));
+    storage.set(SETTINGS_KEY, s);
+  }
+  function settingsChanged() {
+    updateControls();
+    saveSettings();
+    solutionsView.refresh();
+    showPreview();
+  }
+  function randomNumbers() {
+    const count = boxes.children.length;
+    const s = readSettings();
+    let numbers;
+    if (s.pool === "digits") {
+      numbers = Array.from({ length: count }, () => randInt(10));
+    } else {
+      const big = shuffle([...BIG]).slice(0, Math.min(s.big, count));
+      const small = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, count - big.length);
+      numbers = [...big, ...small];
+    }
+    setBoxes(numbers);
+    settingsChanged();
+  }
+  var Job = class {
+    constructor(puzzle) {
+      this.key = JSON.stringify(puzzle);
+      this.puzzle = puzzle;
+      this.solutions = null;
+      this.exact = false;
+      this.done = false;
+      this.fraction = 0;
+      this.listeners = /* @__PURE__ */ new Set();
+    }
+    notify() {
+      for (const f of [...this.listeners]) f(this);
+    }
+    // Call f now and on every update until it returns true.
+    watch(f) {
+      if (f(this)) return;
+      const g = (job) => {
+        if (f(job)) this.listeners.delete(g);
+      };
+      this.listeners.add(g);
+    }
+  };
+  var solver = {
+    job: null,
+    worker: null,
+    noWorker: false,
+    nextId: 0,
+    // The job for the given puzzle, starting it if needed.
+    get(puzzle) {
+      const key = JSON.stringify(puzzle);
+      if (this.job?.key === key) return this.job;
+      this.stop();
+      const job = this.job = new Job(puzzle);
+      const id = ++this.nextId;
+      const update = (msg) => {
+        if (msg.id !== id || this.job !== job) return;
+        if (msg.type === "progress") job.fraction = msg.fraction;
+        else if (msg.type === "result") {
+          job.solutions = new Map(msg.solutions);
+          job.exact = msg.exact;
+        } else job.done = true;
+        job.notify();
+      };
+      const solveHere = () => {
+        this.worker = null;
+        this.noWorker = true;
+        const steps = solveSteps(puzzle.numbers, puzzle.rules, puzzle.ops);
+        const next = () => {
+          if (this.job !== job) return;
+          const r = steps.next();
+          if (r.done) {
+            update({ id, type: "done" });
+            return;
+          }
+          update({ id, type: "result", solutions: [...r.value.solutions], exact: r.value.exact });
+          setTimeout(next, 0);
+        };
+        setTimeout(next, 50);
+      };
+      if (this.noWorker) {
+        solveHere();
+        return job;
+      }
+      try {
+        if (!this.worker) {
+          const source = $("solver-worker").textContent;
+          this.worker = new Worker(URL.createObjectURL(new Blob([source], { type: "text/javascript" })));
+        }
+        this.worker.onmessage = ({ data }) => update(data);
+        this.worker.onerror = (e) => {
+          e.preventDefault();
+          this.worker?.terminate();
+          if (this.job === job) solveHere();
+        };
+        this.worker.postMessage({ id, ...puzzle });
+      } catch (e) {
+        solveHere();
+      }
+      return job;
+    },
+    stop() {
+      if (this.job && !this.job.done && this.worker) {
+        this.worker.terminate();
+        this.worker = null;
+      }
+      this.job = null;
+    }
+  };
+  function currentPuzzle() {
+    const s = readSettings();
+    return s.numbers && { numbers: s.numbers, rules: s.rules, ops: s.ops };
+  }
+  var game = null;
+  function lockSettings(locked) {
+    for (const set of settingSets) set.disabled = locked;
+    $("new-target").disabled = readNumbers() === null;
+    $("try").disabled = $("give-up").disabled = !locked;
+  }
+  function newTarget() {
+    if (game) {
+      clearInterval(game.timer);
+      game = null;
+    }
+    const puzzle = currentPuzzle();
+    if (!puzzle) return;
+    const s = readSettings();
+    const job = solver.get(puzzle);
+    const begin = (target) => {
+      game = { target, puzzle, job, start: Date.now(), best: null, timer: null };
+      targetBox.textContent = pad(target);
+      targetBox.classList.remove("idle");
+      outcome.textContent = "";
+      outcome.className = "";
+      bestLine.textContent = "";
+      answerBox.value = "";
+      preview.textContent = "";
+      lockSettings(true);
+      if (matchMedia("(max-width: 899px)").matches) $("game-section").scrollIntoView({ behavior: "smooth" });
+      answerBox.focus({ preventScroll: true });
+      if (s.timed) {
+        game.deadline = Date.now() + s.seconds * 1e3;
+        tick();
+        game.timer = setInterval(tick, 200);
+      } else clock.textContent = "";
+    };
+    if (!s.solvable) {
+      begin(randInt(1e3));
+      return;
+    }
+    $("new-target").disabled = true;
+    outcome.className = "";
+    job.watch((j) => {
+      if (!j.solutions) {
+        outcome.textContent = `Finding solvable targets\u2026 ${Math.round(j.fraction * 100)}%`;
+        return false;
+      }
+      const targets = [...j.solutions.keys()];
+      if (!targets.length) {
+        outcome.textContent = "No target can be made with these numbers and rules.";
+        updateControls();
+      } else begin(targets[randInt(targets.length)]);
+      return true;
+    });
+  }
+  function tick() {
+    const left = Math.max(0, game.deadline - Date.now());
+    const secs = Math.ceil(left / 1e3);
+    clock.textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
+    clock.classList.toggle("low", secs <= 10);
+    if (left <= 0) endGame("time");
+  }
+  function readAnswer() {
+    const text = answerBox.value;
+    if (!text.trim()) return {};
+    let tree;
+    try {
+      tree = parse(text);
+    } catch (e) {
+      if (e instanceof ExprError) return { error: e.message };
+      throw e;
+    }
+    try {
+      const puzzle = game?.puzzle ?? currentPuzzle();
+      if (!puzzle) return { tree, error: "Each number must be a whole number from 0 to 100" };
+      return { tree, value: evaluate(tree, puzzle) };
+    } catch (e) {
+      if (e instanceof ExprError) return { tree, error: e.message };
+      throw e;
+    }
+  }
+  function showPreview() {
+    const { tree, value, error } = readAnswer();
+    preview.innerHTML = tree ? toHTML(tree) + (value ? ` = ${formatValue(value)}` : "") : "";
+    if (error) preview.insertAdjacentHTML("beforeend", `${tree ? " " : ""}<span class="error"></span>`);
+    if (error) preview.querySelector(".error").textContent = error;
+  }
+  function tryAnswer() {
+    if (!game) return;
+    const { tree, value, error } = readAnswer();
+    if (!tree || error) {
+      showPreview();
+      return;
+    }
+    const n = Number(value[0]), d = Number(value[1]);
+    if (d === 1 && n === game.target) {
+      game.best = { text: answerBox.value.trim(), value: n };
+      endGame("win");
+      return;
+    }
+    if (d !== 1) {
+      bestLine.textContent = "Not a whole number.";
+      return;
+    }
+    const off = Math.abs(n - game.target);
+    if (!game.best || off < Math.abs(game.best.value - game.target)) {
+      game.best = { text: answerBox.value.trim(), value: n };
+    }
+    bestLine.innerHTML = `Off by ${off}. Best so far: <span class="math">${textToHTML(game.best.text)}</span> = ${game.best.value}`;
+  }
+  function endGame(how) {
+    const g = game;
+    clearInterval(g.timer);
+    game = null;
+    lockSettings(false);
+    updateControls();
+    const seconds = Math.round((Date.now() - g.start) / 1e3);
+    const entry = addHistory({
+      id: `${Date.now()}-${randInt(1e9)}`,
+      target: g.target,
+      won: how === "win",
+      answer: g.best?.text ?? null,
+      value: g.best?.value ?? null,
+      seconds,
+      numbers: g.puzzle.numbers,
+      rules: g.puzzle.rules,
+      ops: g.puzzle.ops
+    });
+    outcome.className = how === "win" ? "win" : "";
+    const lead = how === "win" ? "Solved!" : how === "time" ? "Time\u2019s up." : "Given up.";
+    g.job.watch((job) => {
+      let rest;
+      if (!job.solutions) rest = "Solving\u2026";
+      else if (job.solutions.has(g.target)) {
+        rest = `${how === "win" ? "Simplest" : "Solution"}: <span class="math">${textToHTML(job.solutions.get(g.target))}</span>`;
+      } else if (job.exact) rest = "It\u2019s impossible.";
+      else if (!job.done) rest = "Solving\u2026";
+      else rest = "No solution found (the search was limited).";
+      outcome.innerHTML = `${lead} ${rest}`;
+      const final = job.done || job.solutions?.has(g.target);
+      if (final && how !== "win") updateHistory(entry.id, { solution: job.solutions.get(g.target) ?? null });
+      return final;
+    });
+    $("new-target").focus();
+  }
+  function rulesSummary({ rules, ops }) {
+    const parts = [];
+    if (rules.all) parts.push("all");
+    if (rules.order) parts.push("in order");
+    if (rules.integers) parts.push("no fractions");
+    const symbols = { concat: "ab", pow: "^", fact: "!", sqrt: "\u221A", root: "b\u221A", dot: ".", rec: ".~" };
+    const on = OPS.filter((op) => ops[op]).map((op) => symbols[op]);
+    parts.push(on.length ? on.join(" ") : "+ \u2212 \xD7 \xF7 only");
+    return parts.join(" \xB7 ");
+  }
+  function addHistory(entry) {
+    const history = storage.get(HISTORY_KEY) ?? [];
+    history.unshift(entry);
+    storage.set(HISTORY_KEY, history.slice(0, 500));
+    renderHistory(history);
+    return entry;
+  }
+  function updateHistory(id, changes) {
+    const history = storage.get(HISTORY_KEY) ?? [];
+    const entry = history.find((h) => h.id === id);
+    if (!entry) return;
+    Object.assign(entry, changes);
+    storage.set(HISTORY_KEY, history);
+    renderHistory(history);
+  }
+  function renderHistory(history = storage.get(HISTORY_KEY) ?? []) {
+    const body = $("history");
+    body.replaceChildren();
+    for (const h of history) {
+      const tr = document.createElement("tr");
+      const result = h.won ? "\u2713" : h.value === null ? "\u2014" : `off by ${Math.abs(h.value - h.target)}`;
+      const time = h.seconds >= 60 ? `${Math.floor(h.seconds / 60)}m ${h.seconds % 60}s` : `${h.seconds}s`;
+      tr.innerHTML = `<td class="target"></td><td class="${h.won ? "win" : "lose"}"></td>
+      <td class="answer"></td><td class="num"></td><td><span class="numbers"></span><span class="rules"></span></td>`;
+      const cells = tr.children;
+      cells[0].textContent = pad(h.target);
+      cells[1].textContent = result;
+      if (h.answer) cells[2].innerHTML = `<span class="math">${textToHTML(h.answer)}${h.won ? "" : ` = ${h.value}`}</span>`;
+      if (!h.won && h.solution !== void 0) {
+        cells[2].insertAdjacentHTML("beforeend", h.solution ? `<span class="solution">Solution: <span class="math">${textToHTML(h.solution)}</span></span>` : `<span class="solution">No solution found</span>`);
+      }
+      cells[3].textContent = time;
+      cells[4].querySelector(".numbers").textContent = h.numbers.join(" ");
+      cells[4].querySelector(".rules").textContent = rulesSummary(h);
+      body.appendChild(tr);
+    }
+    $("history-empty").hidden = history.length > 0;
+    $("clear-history").disabled = !history.length;
+  }
+  var solutionsView = {
+    shown: false,
+    job: null,
+    show() {
+      const puzzle = currentPuzzle();
+      if (!puzzle) return;
+      this.shown = true;
+      const job = this.job = solver.get(puzzle);
+      job.watch((j) => {
+        if (this.job !== j) return true;
+        this.render(j);
+        return j.done;
+      });
+    },
+    // Settings changed: hide stale solutions.
+    refresh() {
+      if (!this.shown) return;
+      const puzzle = currentPuzzle();
+      if (puzzle && this.job?.key === JSON.stringify(puzzle)) return;
+      this.shown = false;
+      this.job = null;
+      $("solutions").replaceChildren();
+      $("solve-status").textContent = "";
+    },
+    render(job) {
+      const status = $("solve-status");
+      if (!job.solutions) {
+        status.innerHTML = `Solving\u2026 <progress max="1" value="${job.fraction}"></progress>`;
+        return;
+      }
+      const found = job.solutions.size;
+      const missing = "not found";
+      status.textContent = job.done ? `${found} of 1000 solved${found < 1e3 ? `; ${missing}: ${1e3 - found}` : ""}${!job.exact && found < 1e3 ? " (search limited)" : ""}` : `${found} solved so far; refining\u2026`;
+      const html = [];
+      for (let t = 0; t < 1e3; t++) {
+        const text = job.solutions.get(t);
+        html.push(`<div><span class="t">${pad(t)}</span>${text ? `<span class="math">${textToHTML(text)}</span>` : `<span class="none">${job.done ? missing : "\u2026"}</span>`}</div>`);
+      }
+      $("solutions").innerHTML = html.join("");
+    }
+  };
+  applySettings(loadSettings());
+  for (const label of document.querySelectorAll(".checks label[title]")) label.dataset.title = label.title;
+  updateControls();
+  renderHistory();
+  $("add-box").addEventListener("click", () => {
+    if (boxes.children.length >= MAX_BOXES) return;
+    const last = boxes.lastElementChild?.value ?? "";
+    addBox(last);
+    settingsChanged();
+  });
+  $("remove-box").addEventListener("click", () => {
+    if (boxes.children.length <= MIN_BOXES) return;
+    boxes.lastElementChild.remove();
+    settingsChanged();
+  });
+  $("random").addEventListener("click", randomNumbers);
+  for (const el of document.querySelectorAll("#setup input:not(#boxes input), #setup select")) {
+    el.addEventListener("change", settingsChanged);
+  }
+  $("new-target").addEventListener("click", newTarget);
+  $("try").addEventListener("click", tryAnswer);
+  $("give-up").addEventListener("click", () => game && endGame("give-up"));
+  answerBox.addEventListener("input", showPreview);
+  answerBox.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      tryAnswer();
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !game && !e.defaultPrevented && e.target.tagName !== "BUTTON" && !e.target.closest("#boxes, #seconds")) {
+      e.preventDefault();
+      newTarget();
+    }
+  });
+  $("clear-history").addEventListener("click", () => {
+    if (!confirm("Clear the history?")) return;
+    storage.set(HISTORY_KEY, []);
+    renderHistory([]);
+  });
+  $("solve-all").addEventListener("click", () => solutionsView.show());
+})();
+</script>
+</body>
+</html>

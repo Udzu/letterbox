@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+  // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+</script>
+<title>Numbers</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "setup" "game" "history" "solutions";
+    gap: 16px 32px;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    main {
+      grid-template-columns: 400px minmax(0, 1fr);
+      grid-template-areas: "setup game" "setup history" "solutions solutions";
+      grid-template-rows: auto 1fr auto;
+    }
+  }
+  #setup { grid-area: setup; }
+  #game-section { grid-area: game; }
+  #history-section { grid-area: history; }
+  #solutions-section { grid-area: solutions; }
+  .intro { margin: 0 0 16px; color: #666; }
+  h2 { margin: 0 0 8px; font-size: 1.1rem; }
+  fieldset { border: none; margin: 0 0 14px; padding: 0; min-width: 0; }
+  legend { padding: 0; margin-bottom: 6px; color: #444; font-weight: 600; }
+  fieldset:disabled { opacity: 0.6; }
+  label { color: #444; }
+  input, select { font: inherit; font-size: 1rem; }
+  input[type="number"], input[type="text"] { padding: 5px 6px; box-sizing: border-box; min-width: 0; }
+  button { font-size: 1rem; cursor: pointer; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-bottom: 8px; }
+  .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 4px 12px; }
+  .checks label { white-space: nowrap; }
+  .checks label.off { color: #aaa; }
+  #numbers-row { flex-wrap: nowrap; }
+  #numbers-row > span { white-space: nowrap; }
+  #boxes { display: flex; gap: 6px; flex: 0 1 auto; min-width: 0; }
+  #boxes input { flex: 0 1 3.6em; width: 3.6em; min-width: 0; text-align: center; appearance: textfield; -moz-appearance: textfield; }
+  #boxes input::-webkit-inner-spin-button, #boxes input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  #boxes input:invalid, #seconds:invalid { outline: 2px solid #d00; }
+  .small-button { padding: 2px 9px; }
+  .nowrap { white-space: nowrap; }
+  #seconds { width: 4em; }
+  .note { color: #888; font-size: 0.85rem; }
+  .mono, code { font-family: ui-monospace, monospace; }
+
+  /* maths */
+  .math { white-space: nowrap; }
+  .math sup { font-size: 0.7em; vertical-align: 0.6em; line-height: 0; }
+  .math .rec, .math .radicand { display: inline-block; border-top: 1px solid currentColor; line-height: 0.9; padding-top: 0.08em; }
+  .math .radical { white-space: nowrap; }
+  .math .radical .index { vertical-align: 0.7em; margin-right: -0.3em; }
+  .math .radicand { padding-left: 0.1em; padding-right: 0.05em; }
+
+  /* game */
+  #target-line { display: flex; align-items: center; gap: 20px; margin-bottom: 10px; min-height: 3.6rem; }
+  #new-target { font-size: 1.15rem; font-weight: 600; padding: 8px 18px; }
+  #target { font-size: 3rem; font-weight: 600; letter-spacing: 0.08em; font-variant-numeric: tabular-nums; }
+  #target.idle { color: #ccc; }
+  #clock { font-size: 1.4rem; color: #444; font-variant-numeric: tabular-nums; }
+  #clock.low { color: #d00; }
+  #answer-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  #answer { flex: 1; font-size: 1.1rem; }
+  #preview { min-height: 1.6em; font-size: 1.3rem; line-height: 1.6; padding-top: 4px; margin-bottom: 4px; overflow-x: auto; }
+  #preview .error { font-family: system-ui, sans-serif; font-size: 0.95rem; color: #c00; }
+  #best, #outcome { min-height: 1.4em; margin: 4px 0; }
+  #outcome.win { color: #070; font-weight: 600; }
+  .syntax { margin: 12px 0 0; padding: 0; list-style: none; color: #666; font-size: 0.9rem; columns: 3 10em; column-gap: 16px; }
+  .syntax li { margin: 1px 0; break-inside: avoid; }
+  .syntax code { color: #000; display: inline-block; min-width: 3em; }
+  .syntax li.off, .syntax li.off code { color: #bbb; }
+
+  /* tables */
+  .header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+  .header h2 { margin: 0; }
+  #history-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  th { color: #444; font-weight: 600; border-bottom: 1px solid #999; }
+  td.target, td.num { font-variant-numeric: tabular-nums; }
+  td.win { color: #070; }
+  td.lose { color: #a50; }
+  td .rules { display: block; color: #888; font-size: 0.8rem; }
+  td .solution { display: block; color: #888; font-size: 0.85rem; }
+  #history-empty { color: #888; }
+  #solutions { columns: 280px; column-gap: 24px; font-size: 0.95rem; }
+  #solutions div { break-inside: avoid; padding: 1px 0; }
+  #solutions .t { display: inline-block; width: 2.6em; color: #666; font-variant-numeric: tabular-nums; }
+  #solutions .none { color: #bbb; }
+  #solve-status { color: #666; }
+  progress { vertical-align: middle; }
+
+  nav { max-width: 1300px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <b>Numbers</b></nav>
+<main>
+  <section id="setup">
+    <p class="intro">Make a target number from the numbers given, as in Countdown's numbers game or the four fours puzzle.</p>
+    <fieldset id="numbers-set">
+      <legend>Numbers</legend>
+      <div class="row" id="numbers-row">
+        <div id="boxes"></div>
+        <span>
+          <button type="button" id="remove-box" class="small-button" title="Remove a number" aria-label="Remove a number">−</button>
+          <button type="button" id="add-box" class="small-button" title="Add a number" aria-label="Add a number">+</button>
+        </span>
+      </div>
+      <div class="row">
+        <button type="button" id="random">Randomize</button>
+        <label title="Each number is a random digit from 0 to 9; digits can repeat."><input type="radio" name="pool" value="digits"> 0–9</label>
+        <label title="As in Countdown: the big numbers are picked from 25, 50, 75 and 100, each at most once; the rest from two cards each of 1 to 10, so a small number appears at most twice."><input type="radio" name="pool" value="small"> 1–10 with</label>
+        <span class="nowrap"><select id="big" aria-label="Big numbers"></select>
+        <label for="big" title="How many big numbers (25, 50, 75, 100), as in Countdown">big</label></span>
+      </div>
+    </fieldset>
+    <fieldset id="rules-set">
+      <legend>Rules</legend>
+      <div class="checks">
+        <label title="Every number must be used exactly once (otherwise, each at most once)"><input type="checkbox" id="rule-all"> Use all numbers</label>
+        <label title="The numbers must appear in the answer in the same order as the boxes"><input type="checkbox" id="rule-order"> Use them in order</label>
+        <label title="Every step must give a whole number, as in Countdown"><input type="checkbox" id="rule-integers"> No fractions</label>
+      </div>
+    </fieldset>
+    <fieldset id="ops-set">
+      <legend>Operations besides + − × ÷</legend>
+      <div class="checks">
+        <label title="Only + − × ÷, as in Countdown"><input type="checkbox" id="ops-none"> None</label>
+        <label title="Write numbers together, as in 44"><input type="checkbox" data-op="concat"> <span class="math">ab</span> concatenation</label>
+        <label title="Type ^"><input type="checkbox" data-op="pow"> <span class="math">a<sup>b</sup></span> power</label>
+        <label title="Type !"><input type="checkbox" data-op="fact"> <span class="math">a!</span> factorial</label>
+        <label title="Type V"><input type="checkbox" data-op="sqrt"> <span class="math"><span class="radical">√<span class="radicand">a</span></span></span> square root</label>
+        <label title="Type bVa"><input type="checkbox" data-op="root"> <span class="math"><span class="radical"><sup class="index">b</sup>√<span class="radicand">a</span></span></span> root</label>
+        <label title="Type .4 for 0.4"><input type="checkbox" data-op="dot"> <span class="math">.a</span> decimal</label>
+        <label title="Type .2(4) for 0.2444…, or .4~ for 0.444… (~ repeats every digit after the point)"><input type="checkbox" data-op="rec"> <span class="math">.<span class="rec">a</span></span> recurring</label>
+      </div>
+    </fieldset>
+    <fieldset id="target-set">
+      <legend>Target</legend>
+      <div class="row">
+        <label><input type="checkbox" id="solvable"> Solvable only</label>
+        <label><input type="checkbox" id="timed"> Timer</label>
+        <span class="nowrap"><input type="number" id="seconds" min="5" max="3600" step="5" aria-label="Seconds"> <label for="seconds">s</label></span>
+      </div>
+    </fieldset>
+  </section>
+
+  <section id="game-section">
+    <div id="target-line">
+      <span id="target" class="idle" aria-live="polite">000</span>
+      <button type="button" id="new-target" title="Enter">New target</button>
+      <span id="clock"></span>
+    </div>
+    <div id="answer-row">
+      <input type="text" id="answer" class="mono" placeholder="Your answer, e.g. (4+4)*4/4" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer">
+      <button type="button" id="try" title="Enter" disabled>Try</button>
+      <button type="button" id="give-up" disabled>Give up</button>
+    </div>
+    <div id="preview" class="math" aria-live="polite"></div>
+    <div id="best"></div>
+    <div id="outcome" aria-live="polite"></div>
+    <ul class="syntax">
+      <li><code>+ - * /</code> arithmetic</li>
+      <li><code>( )</code> brackets</li>
+      <li data-op="concat"><code>12</code> concatenation</li>
+      <li data-op="pow"><code>2^3</code> power</li>
+      <li data-op="fact"><code>3!</code> factorial</li>
+      <li data-op="sqrt"><code>V9</code> square root</li>
+      <li data-op="root"><code>3V8</code> root</li>
+      <li data-op="dot"><code>.5</code> decimal</li>
+      <li data-op="rec"><code>.3~ .1(6)</code> recurring</li>
+    </ul>
+  </section>
+
+  <section id="history-section">
+    <div class="header">
+      <h2>History</h2>
+      <button type="button" id="clear-history">Clear</button>
+    </div>
+    <div id="history-wrap">
+      <table>
+        <thead><tr><th>Target</th><th>Result</th><th>Answer</th><th>Time</th><th>Numbers</th></tr></thead>
+        <tbody id="history"></tbody>
+      </table>
+    </div>
+    <p id="history-empty">No games yet.</p>
+  </section>
+
+  <section id="solutions-section">
+    <div class="header">
+      <h2>All solutions</h2>
+      <span>
+        <span id="solve-status" aria-live="polite"></span>
+        <button type="button" id="solve-all">Solve 000–999</button>
+      </span>
+    </div>
+    <div id="solutions"></div>
+  </section>
+</main>
+<!-- @worker worker.js solver-worker -->
+<!-- @inline page.js -->
+</body>
+</html>
