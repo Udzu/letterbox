@@ -1,18 +1,19 @@
 // Expressions typed by the player (and produced by the solver): parsing, exact
 // evaluation against the puzzle's numbers and rules, and rendering as maths.
 //
-// Syntax: + - * / (also × ÷ −), ^ power, ! factorial, V or √ square root,
+// Syntax: + - * / (also × ÷ −), ^ power, @ (or ‖) joining whole numbers' digits,
+// ! factorial, V or √ square root,
 // bVa b-th root of a, .4 decimal, .2(4) recurring decimal (the bracketed digits
 // repeat), .24~ shorthand for .(24), ( ). Several numbers written together are
 // concatenated.
 //
-// Precedence, tightest first: !, roots, ^ (right to left), unary minus, * /, + -.
+// Precedence, tightest first: !, roots, ^ (right to left), @, unary minus, * /, + -.
 
 export class ExprError extends Error {}
 
 // ---- parsing
 
-const SYMBOLS = { "×": "*", x: "*", "÷": "/", "−": "-", "√": "V", v: "V" };
+const SYMBOLS = { "×": "*", x: "*", "÷": "/", "−": "-", "√": "V", v: "V", "‖": "@" };
 
 function tokenize(text) {
   const tokens = [];
@@ -35,7 +36,7 @@ function tokenize(text) {
       continue;
     }
     const s = SYMBOLS[c] ?? c;
-    if (!"+-*/^!V()".includes(s)) throw new ExprError(`Unexpected ${c}`);
+    if (!"+-*/^@!V()".includes(s)) throw new ExprError(`Unexpected ${c}`);
     tokens.push({ type: s, pos: i });
     i++;
   }
@@ -61,11 +62,18 @@ export function parse(text) {
     for (let op; (op = take("*") ?? take("/"));) a = { type: op.type, a, b: neg() };
     return a;
   };
-  const neg = () => (take("-") ? { type: "neg", a: neg() } : pow());
+  const neg = () => (take("-") ? { type: "neg", a: neg() } : cat());
+  const cat = () => {
+    let a = pow();
+    for (let op; (op = take("@"));) a = { type: "@", a, b: pow() };
+    return a;
+  };
   const pow = () => {
     const a = root();
-    return take("^") ? { type: "^", a, b: neg() } : a;
+    return take("^") ? { type: "^", a, b: exponent() } : a;
   };
+  // an exponent can be negative, but 2^3@4 is (2^3)@4
+  const exponent = () => (take("-") ? { type: "neg", a: exponent() } : pow());
   const root = () => {
     if (take("V")) return { type: "sqrt", a: root() };
     const b = post();
@@ -163,7 +171,7 @@ const leafText = (t) => {
 };
 
 export const OP_NAMES = {
-  concat: "Concatenation", pow: "^", fact: "!", sqrt: "√", root: "b√a", dot: "Decimals", rec: "Recurring decimals",
+  concat: "Concatenation", cat: "‖", pow: "^", fact: "!", sqrt: "√", root: "b√a", dot: "Decimals", rec: "Recurring decimals",
 };
 
 // The numbers in an expression, left to right (a root's index comes before its radicand).
@@ -217,7 +225,9 @@ function checkNumbers(tree, numbers, rules, ops) {
   const options = ls.map((leaf) => {
     const ways = splits(leaf, numbers);
     if (!ways.length) {
-      throw new ExprError(`${leafText(leaf)} isn't made from the numbers`);
+      throw new ExprError(leaf.frac === null && !(ops.concat && leaf.int.length > 1)
+        ? `There's no ${leaf.int}`
+        : `${leafText(leaf)} can't be made from the numbers`);
     }
     return ways;
   });
@@ -226,33 +236,45 @@ function checkNumbers(tree, numbers, rules, ops) {
     if (leaf.rep && !ops.rec) throw new ExprError("Recurring decimals aren't allowed");
     if (leaf.frac !== null && !leaf.rep && !ops.dot) throw new ExprError("Decimals aren't allowed");
   }
-  // try every combination of splits (there are very few)
-  const fits = (ordered, all) => {
-    const go = (k, parts) => {
-      if (k === ls.length) return assign(parts, numbers, ordered, all);
-      return options[k].some((w) => (ops.concat || w.length === 1) && go(k + 1, [...parts, ...w]));
-    };
-    return go(0, []);
+  // every combination of splits (there are very few)
+  const combos = [];
+  const go = (k, parts) => {
+    if (k === ls.length) combos.push(parts);
+    else for (const w of options[k]) if (ops.concat || w.length === 1) go(k + 1, [...parts, ...w]);
   };
+  go(0, []);
+  const fits = (ordered, all) => combos.some((parts) => assign(parts, numbers, ordered, all));
   if (fits(!!rules.order, !!rules.all)) return;
-  if (!fits(false, false)) throw new ExprError("Uses numbers that aren't available");
+  if (!fits(false, false)) {
+    // name the numbers used too often, in the combination that overuses fewest
+    let best = null;
+    for (const parts of combos) {
+      const left = new Map();
+      for (const n of numbers) left.set(n, (left.get(n) ?? 0) + 1);
+      const over = new Set();
+      let excess = 0;
+      for (const n of parts) {
+        const k = (left.get(n) ?? 0) - 1;
+        left.set(n, k);
+        if (k < 0) { over.add(n); excess++; }
+      }
+      if (!best || excess < best.excess) best = { excess, over };
+    }
+    const names = [...best.over].sort((a, b) => a - b).map((n) => `${n}s`);
+    throw new ExprError(`Uses too many ${names.join(" and ")}`);
+  }
   if (rules.order && !fits(true, false)) throw new ExprError("The numbers must be used in order");
   throw new ExprError("All the numbers must be used");
 }
 
-/**
- * Evaluate a parsed expression exactly, checking it against the puzzle.
- * Returns [numerator, denominator], as Numbers if they fit exactly, else as
- * BigInts; throws ExprError.
- */
-export function evaluate(tree, { numbers, rules = {}, ops = {} }) {
-  checkNumbers(tree, numbers, rules, ops);
-  const need = (op) => {
-    if (!ops[op]) throw new ExprError(`${OP_NAMES[op]} isn't allowed`);
-  };
+// The exact value of an expression, the operations it uses, and whether any
+// step is a fraction; throws ExprError for maths errors (like division by zero).
+function calculate(tree) {
+  const used = new Set();
+  let fraction = false;
   const ev = (t) => {
     const v = value(t);
-    if (rules.integers && v[1] !== 1n) throw new ExprError("Fractions aren't allowed");
+    if (v[1] !== 1n) fraction = true;
     return v;
   };
   const value = (t) => {
@@ -269,7 +291,7 @@ export function evaluate(tree, { numbers, rules = {}, ops = {} }) {
       }
       case "neg": { const [n, d] = ev(t.a); return [-n, d]; }
       case "!": {
-        need("fact");
+        used.add("fact");
         const [n, d] = ev(t.a);
         if (d !== 1n || n < 0n) throw new ExprError("Factorials need a whole number that isn't negative");
         if (n > 500n) throw new ExprError(TOO_BIG);
@@ -277,16 +299,20 @@ export function evaluate(tree, { numbers, rules = {}, ops = {} }) {
         for (let i = 2n; i <= n; i++) f *= i;
         return rat(f, 1n);
       }
-      case "sqrt": need("sqrt"); return power(ev(t.a), [1n, 2n], "Square root");
+      case "sqrt": used.add("sqrt"); return power(ev(t.a), [1n, 2n], "Square root");
       case "root": {
-        need("root");
+        used.add("root");
         const [bn, bd] = ev(t.b);
         if (bn === 0n) throw new ExprError("0th root");
         return power(ev(t.a), bn < 0n ? [-bd, -bn] : [bd, bn], "Root");
       }
-      case "^": {
-        need("pow");
-        return power(ev(t.a), ev(t.b), "Power");
+      case "^": used.add("pow"); return power(ev(t.a), ev(t.b), "Power");
+      case "@": {
+        used.add("cat");
+        const [a, b] = ev(t.a), [c, d] = ev(t.b);
+        if (b !== 1n || d !== 1n || a < 0n || c < 0n) throw new ExprError("‖ joins whole numbers that aren't negative");
+        if (a === 0n) throw new ExprError("‖ can't start with 0");
+        return rat(BigInt(`${a}${c}`), 1n);
       }
       default: {
         const [a, b] = ev(t.a), [c, d] = ev(t.b);
@@ -300,7 +326,44 @@ export function evaluate(tree, { numbers, rules = {}, ops = {} }) {
     }
     throw new Error(`Unknown node ${t.type}`);
   };
-  return toNumbers(ev(tree));
+  return { value: toNumbers(ev(tree)), used, fraction };
+}
+
+/**
+ * Evaluate a parsed expression exactly and check it against the puzzle (if
+ * given). Returns { value, error }: value is [numerator, denominator], as
+ * Numbers if they fit exactly, else as BigInts, and is missing after a maths
+ * error; error is the first problem found, if any.
+ */
+export function check(tree, puzzle) {
+  let result;
+  try {
+    result = calculate(tree);
+  } catch (e) {
+    if (e instanceof ExprError) return { error: e.message };
+    throw e;
+  }
+  const { value, used, fraction } = result;
+  if (!puzzle) return { value };
+  const { numbers, rules = {}, ops = {} } = puzzle;
+  try {
+    checkNumbers(tree, numbers, rules, ops);
+  } catch (e) {
+    if (e instanceof ExprError) return { value, error: e.message };
+    throw e;
+  }
+  for (const op of ["cat", "pow", "fact", "sqrt", "root"]) {
+    if (used.has(op) && !ops[op]) return { value, error: `${OP_NAMES[op]} isn't allowed` };
+  }
+  if (rules.integers && fraction) return { value, error: "Fractions aren't allowed" };
+  return { value };
+}
+
+/** check(), but returning just the value and throwing ExprError on any problem. */
+export function evaluate(tree, puzzle) {
+  const { value, error } = check(tree, puzzle);
+  if (error) throw new ExprError(error);
+  return value;
 }
 
 export function formatValue([n, d]) {
@@ -310,7 +373,7 @@ export function formatValue([n, d]) {
 // ---- rendering as HTML
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-const PREC = { "+": 1, "-": 1, "*": 2, "/": 2, neg: 3, "^": 4, root: 5, sqrt: 5, "!": 6, num: 7 };
+const PREC = { "+": 1, "-": 1, "*": 2, "/": 2, neg: 3, "@": 3.5, "^": 4, root: 5, sqrt: 5, "!": 6, num: 7 };
 const SHOW = { "+": "+", "-": "−", "*": "×", "/": "÷" };
 
 export function toHTML(t) {
@@ -327,6 +390,7 @@ export function toHTML(t) {
     case "sqrt": return `<span class="radical">√<span class="radicand">${toHTML(t.a)}</span></span>`;
     case "root": return `<span class="radical"><sup class="index">${toHTML(t.b)}</sup>√<span class="radicand">${toHTML(t.a)}</span></span>`;
     case "^": return `${sub(t.a, PREC[t.a.type] <= p)}<sup>${toHTML(t.b)}</sup>`;
+    case "@": return `${sub(t.a, PREC[t.a.type] < p)} ‖ ${sub(t.b, PREC[t.b.type] <= p)}`;
     default: {
       const tight = t.type === "-" || t.type === "/";
       return `${sub(t.a, PREC[t.a.type] < p)} ${SHOW[t.type]} ${sub(t.b, PREC[t.b.type] < p || (tight && PREC[t.b.type] === p))}`;

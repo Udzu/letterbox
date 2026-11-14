@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ExprError, evaluate, parse, toHTML } from "../src/numbers/expr.js";
+import { ExprError, check, evaluate, parse, toHTML } from "../src/numbers/expr.js";
 import { solve, solveSteps } from "../src/numbers/solver.js";
 
 const ALL_OPS = { concat: true, pow: true, fact: true, sqrt: true, root: true, dot: true, rec: true };
@@ -38,8 +38,9 @@ test("parses precedence: ! then roots then ^ (right to left) then unary minus", 
 
 test("checks the numbers used", () => {
   assert.equal(error("4+4"), "All the numbers must be used");
-  assert.equal(error("4+4+4+4+4"), "Uses numbers that aren't available");
-  assert.equal(error("45*4/4"), "45 isn't made from the numbers");
+  assert.equal(error("4+4+4+4+4"), "Uses too many 4s");
+  assert.equal(error("45*4/4"), "45 can't be made from the numbers");
+  assert.equal(error("5*4/4", { ...FOURS, ops: {} }), "There's no 5");
   const ordered = { numbers: [1, 2, 3], rules: { order: true, all: true }, ops: ALL_OPS };
   assert.deepEqual(value("12+3", ordered), [15, 1]);
   assert.equal(error("21+3", ordered), "The numbers must be used in order");
@@ -48,7 +49,7 @@ test("checks the numbers used", () => {
   assert.deepEqual(value("44+4", { numbers: [44, 4], rules: {}, ops: {} }), [48, 1]);
   assert.equal(error("44+4", { numbers: [4, 4, 4], rules: {}, ops: {} }), "Concatenation isn't allowed");
   // decimal points only between numbers
-  assert.equal(error("2.5", { numbers: [25], rules: {}, ops: ALL_OPS }), "2.5 isn't made from the numbers");
+  assert.equal(error("2.5", { numbers: [25], rules: {}, ops: ALL_OPS }), "2.5 can't be made from the numbers");
   assert.deepEqual(value("2.5", { numbers: [2, 5], rules: {}, ops: ALL_OPS }), [5, 2]);
 });
 
@@ -114,7 +115,7 @@ test("recurring decimals: brackets for the recurring digits, or ~ for all of the
   assert.deepEqual(value(".(24)", p), value(".24~", p));
   assert.deepEqual(value(".2(34)", p), [116, 495]);
   assert.deepEqual(value("4.2(3)", p), [127, 30]);
-  assert.equal(error(".2(34)", { numbers: [23, 4], rules: {}, ops: ALL_OPS }), ".2(34) isn't made from the numbers");
+  assert.equal(error(".2(34)", { numbers: [23, 4], rules: {}, ops: ALL_OPS }), ".2(34) can't be made from the numbers");
   assert.equal(error(".2(4)~", p), "Use either brackets or ~ for recurring digits");
   assert.equal(error("2(4)", p), "Unexpected (");
   assert.equal(toHTML(parse(".2(34)")), '.2<span class="rec">34</span>');
@@ -123,4 +124,41 @@ test("recurring decimals: brackets for the recurring digits, or ~ for all of the
   const solutions = solve(puzzle.numbers, puzzle.rules, puzzle.ops);
   assert.equal(solutions.get(176), ".2(4)*(V9)!!"); // 11/45 × 720
   for (const [target, text] of solutions) assert.deepEqual(value(text, puzzle), [target, 1], text);
+});
+
+test("@ joins whole numbers' digits, shown as ‖", () => {
+  const ops = { ...ALL_OPS, cat: true };
+  const p = { numbers: [0, 2, 3, 4, 4], rules: {}, ops };
+  assert.deepEqual(value("4!@V4", { ...FOURS, rules: {}, ops }), [242, 1]);
+  assert.deepEqual(value("2^3@4", p), [84, 1]); // (2³)‖4
+  assert.deepEqual(value("2*3@4", p), [68, 1]); // 2 × (3‖4)
+  assert.deepEqual(value("-2@3", p), [-23, 1]);
+  assert.deepEqual(value("4@0", p), [40, 1]);
+  assert.equal(error("0@4", p), "‖ can't start with 0");
+  assert.equal(error("2@.4", p), "‖ joins whole numbers that aren't negative");
+  assert.equal(error("2@4", { ...p, ops: ALL_OPS }), "‖ isn't allowed");
+  assert.equal(toHTML(parse("2^3@(4@4)")), "2<sup>3</sup> ‖ (4 ‖ 4)");
+  // the solver uses it, and its solutions check out
+  const puzzle = { numbers: [4, 4, 4, 4], rules: { all: true }, ops };
+  const solutions = solve(puzzle.numbers, puzzle.rules, ops);
+  assert.ok(solutions.size > 700);
+  for (const [target, text] of solutions) assert.deepEqual(value(text, puzzle), [target, 1], text);
+  const ordered = { numbers: [1, 2, 3], rules: { all: true, order: true }, ops: { cat: true } };
+  for (const [target, text] of solve(ordered.numbers, ordered.rules, ordered.ops)) {
+    assert.deepEqual(value(text, ordered), [target, 1], text);
+  }
+});
+
+test("check gives the value even when the answer breaks the rules", () => {
+  const c = (text, puzzle = FOURS) => check(parse(text), puzzle);
+  assert.deepEqual(c("5+4"), { value: [9, 1], error: "There's no 5" });
+  assert.deepEqual(c("4+4+4+4+4+4"), { value: [24, 1], error: "Uses too many 4s" });
+  assert.deepEqual(c("4+4"), { value: [8, 1], error: "All the numbers must be used" });
+  assert.deepEqual(c("4/(4+4)*4", { ...FOURS, rules: { integers: true } }), { value: [2, 1], error: "Fractions aren't allowed" });
+  assert.deepEqual(c("4!+4-4-4", { ...FOURS, ops: {} }), { value: [20, 1], error: "! isn't allowed" });
+  assert.deepEqual(c("4/(4-4)+4"), { error: "Division by zero" });
+  assert.deepEqual(c("3+5", { numbers: [3, 3, 5, 5, 5], rules: {}, ops: {} }), { value: [8, 1] });
+  assert.equal(c("33+5+55+5", { numbers: [3, 3, 5, 5], rules: {}, ops: ALL_OPS }).error, "Uses too many 5s");
+  assert.equal(c("333+555", { numbers: [3, 3, 5, 5], rules: {}, ops: ALL_OPS }).error, "Uses too many 3s and 5s");
+  assert.deepEqual(c("V2*V2", null), { error: "Square root is irrational" });
 });
