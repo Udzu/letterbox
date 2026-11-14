@@ -1,0 +1,708 @@
+# name: Global brands
+# description: Internationally recognised consumer brands, most prominent first.
+# tag: culture
+# attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
+
+YouTube
+Google
+Facebook
+Twitter
+Instagram
+BBC
+Microsoft
+Windows
+Chrome
+Amazon
+Apple
+Android
+Netflix
+Google Maps
+macOS
+IBM
+TikTok
+CNN
+Yahoo
+iOS
+Google Earth
+ChatGPT
+LinkedIn
+Disney
+Firefox
+Spotify
+Sony
+iPhone
+Google Play
+Gmail
+Intel
+Yandex
+Ford
+Toyota
+Nintendo
+MTV
+Reddit
+Telegram
+Nvidia
+WhatsApp
+McDonald's
+Microsoft Office
+Paramount
+Coca-Cola
+Universal
+BMW
+Google Translate
+Prime Video
+Excel
+MGM
+Mac
+Nokia
+Samsung
+ESPN
+Boeing
+Steam
+iTunes
+Siemens
+Mercedes-Benz
+Twitch
+HBO
+Honda
+iPad
+Philips
+eBay
+Adobe
+Volkswagen
+Snapchat
+Ubuntu
+Adidas
+Kindle
+Walmart
+Pinterest
+Tesla
+AMD
+Nike
+Renault
+Bing
+Siri
+Shell
+PayPal
+Toshiba
+Nissan
+App Store
+Google Drive
+Motorola
+Pokémon
+Panasonic
+Nintendo Switch
+Pixar
+Disney+
+Porsche
+Sega
+Hitachi
+Playboy
+Hulu
+Kodak
+Ferrari
+Lufthansa
+Electronic Arts
+Photoshop
+Garmin
+Baidu
+National Geographic
+Starbucks
+BP
+Fiat
+Audi
+Huawei
+United Airlines
+Nestlé
+Apple Music
+Airbus
+Suzuki
+Pixel
+American Airlines
+Chevrolet
+Alexa
+Tumblr
+Dell
+Mazda
+Lenovo
+Canon
+IMAX
+Delta
+Peugeot
+Yamaha
+Uber
+Vogue
+Air France
+IKEA
+Hyundai
+Alibaba
+Discord
+Ryanair
+Opel
+Outlook
+Visa
+Sharp
+Chrysler
+Michelin
+British Airways
+Amazon Prime
+Konami
+Hotmail
+Panadol
+Xerox
+Xbox
+Japan Airlines
+Lamborghini
+KFC
+Asus
+PlayStation
+Bosch
+Weibo
+PowerPoint
+Pepsi
+American Express
+KLM
+Citroën
+Ubisoft
+Alfa Romeo
+Waze
+Target
+Atari
+Airbnb
+Chromebook
+Costco
+Xiaomi
+Kia
+LG
+Lego
+Mastercard
+Vimeo
+Nikon
+Puma
+Messenger
+Škoda
+Emirates
+Turkish Airlines
+Guinness
+Apple Watch
+DreamWorks
+Casio
+L'Oréal
+WeChat
+Disneyland
+Mitsubishi
+Rubik's Cube
+Cadillac
+Teams
+Volvo
+Johnson & Johnson
+Johnson's Baby
+iCloud
+Jeep
+Red Bull
+H&M
+FedEx
+Maserati
+OneDrive
+HP
+Burger King
+Subaru
+Jaguar
+Gucci
+Aston Martin
+Qantas
+Tripadvisor
+Monopoly
+Dodge
+Bridgestone
+BlackBerry
+Louis Vuitton
+Marriott
+Hasbro
+Acer
+Mattel
+Tesco
+Chanel
+Carrefour
+Lexus
+Tinder
+Land Rover
+Bentley
+UPS
+Qatar Airways
+SEAT
+Harley-Davidson
+Fujifilm
+7-Eleven
+easyJet
+DHL
+Carex
+Olympus
+Singapore Airlines
+Danone
+Walkman
+Warner Bros.
+Hermès
+Lidl
+Pirelli
+Rolls-Royce
+BYD
+Epson
+Etihad
+Heineken
+Dropbox
+Canada Goose
+Lotus
+Zeiss
+Goodyear
+Buick
+Barbie
+Leica
+Harrods
+Tata
+Oppo
+Scrabble
+Ducati
+Aldi
+Prada
+Samsung Galaxy
+Carlsberg
+Dior
+Pizza Hut
+Bugatti
+Electrolux
+Duolingo
+Fender
+AirPods
+Viagra
+Logitech
+Surface
+Victoria's Secret
+Continental
+Vauxhall
+Burberry
+Marks & Spencer
+Versace
+Fitbit
+Dolby
+Jägermeister
+Hello Kitty
+Seiko
+Gibson
+Levi's
+Rolex
+Dolce & Gabbana
+OnePlus
+Shazam
+Zoom
+Zara
+TomTom
+Dacia
+Uniqlo
+Hugo Boss
+Subway
+Polaroid
+Umbro
+Reebok
+Macy's
+Domino's
+De Beers
+Asics
+Vivo
+Lululemon
+Armani
+Western Union
+Beats
+Lincoln
+Smart
+Tiffany & Co.
+Aprilia
+Infiniti
+Marvel
+Hasselblad
+Mini
+GMC
+Hyatt
+Marlboro
+Citizen
+Acura
+Toys "R" Us
+Hilton
+Campari
+Cadbury
+Cartier
+Lada
+Gap
+Calvin Klein
+Vespa
+Whirlpool
+Thermos
+Kikkoman
+Swarovski
+Estée Lauder
+Velcro
+Dunkin'
+Tamagotchi
+Sephora
+Taco Bell
+Fendi
+Fanta
+Hard Rock Cafe
+Gaviscon
+Air Jordan
+Budweiser
+Wendy's
+McLaren
+Hershey's
+Bulgari
+Heinz
+Uno
+Texaco
+Balenciaga
+Ferrero
+Alipay
+Steinway
+Range Rover
+Kappa
+Lacoste
+Under Armour
+Yves Saint Laurent
+Esso
+New Balance
+Rivian
+Givenchy
+Ralph Lauren
+Decathlon
+Vaseline
+Benetton
+Moncler
+Nissin
+Nivea
+Lucid
+Tim Hortons
+Omega
+Lomography
+Gatorade
+Kellogg's
+Dr Pepper
+Corn Flakes
+Expedia
+Four Seasons
+Post-it
+Valentino
+Billabong
+Triumph
+Chick-fil-A
+The North Face
+Sprite
+Meissen
+Tabasco
+Nutella
+Mizuno
+Converse
+Dunlop
+Spam
+Avon
+Sony Bravia
+Oreo
+Kraft
+7 Up
+Monster
+Sheraton
+Lindt
+Chipotle
+Moto Guzzi
+Abercrombie & Fitch
+Baskin-Robbins
+Patek Philippe
+Ben & Jerry's
+Vegemite
+Patagonia
+Bacardi
+Ritz-Carlton
+Taobao
+Lyft
+Kawasaki
+TAG Heuer
+Gillette
+Swatch
+Häagen-Dazs
+Holiday Inn
+Genesis
+Jack Daniel's
+Wrigley
+KitKat
+AliExpress
+M&M's
+Bose
+Fila
+Dr. Martens
+Braun
+Cluedo
+Marmite
+JBL
+Lipton
+Mountain Dew
+El Corte Inglés
+Stella Artois
+Bic
+Booking.com
+Nescafé
+Corona
+Paco Rabanne
+Lotto
+Jollibee
+Haribo
+THX
+Royal Enfield
+Maggi
+Baileys
+Schweppes
+Johnnie Walker
+Nordstrom
+GoPro
+Krispy Kreme
+Dairy Queen
+Diadora
+Campbell's
+Selfridges
+Revlon
+Fortnum & Mason
+Vans
+Moët & Chandon
+Polestar
+Tommy Hilfiger
+Nando's
+De'Longhi
+Yakult
+Popeyes
+Dyson
+Next
+Miele
+Primark
+Etsy
+Toblerone
+Christian Louboutin
+Faber-Castell
+Crocs
+Hennessy
+Papa John's
+Hot Wheels
+The Body Shop
+Tissot
+Saks Fifth Avenue
+Fiskars
+Quaker
+Milka
+In-N-Out Burger
+Costa
+Hooters
+Salomon
+Diesel
+Pringles
+Milo
+Temu
+Wilson
+Lancôme
+Snickers
+Lay's
+Ovaltine
+Nespresso
+Doritos
+Hertz
+Pandora
+Maybelline
+Wedgwood
+Yonex
+Bang & Olufsen
+Trivial Pursuit
+Absolut
+Smirnoff
+Neiman Marcus
+Five Guys
+Jameson
+Montblanc
+Duracell
+Hamleys
+Columbia
+Dom Pérignon
+Jimmy Choo
+Bloomingdale's
+Kenzo
+Guess
+Chupa Chups
+Ray-Ban
+Longines
+Victorinox
+Lotus Biscoff
+Sennheiser
+Jenga
+Galeries Lafayette
+Uber Eats
+Bepanthen
+Shein
+Vittel
+Playmobil
+Shake Shack
+Zippo
+Carl's Jr.
+Wimpy
+Chanel No. 5
+JD Sports
+Lush
+Little Caesars
+Villeroy & Boch
+Knorr
+Panda Express
+Arby's
+Varta
+MAC
+Mikado
+Pocky
+Wella
+Skechers
+Jack in the Box
+Hoover
+Spalding
+Head
+Inca Kola
+Intersport
+Energizer
+Wetherspoons
+Perrier
+TGI Fridays
+Hardee's
+Matchbox
+Audemars Piguet
+Cup Noodles
+Kinder Surprise
+Mars
+Mango
+Quiksilver
+Irn-Bru
+Liberty
+Orangina
+Vacheron Constantin
+Meccano
+Vidal Sassoon
+Lavazza
+Deliveroo
+Van Cleef & Arpels
+Jaeger-LeCoultre
+Breitling
+Arc'teryx
+Evian
+Oakley
+Sara Lee
+Cheetos
+Denny's
+Play-Doh
+Scotch Tape
+Ibis
+Timberland
+Mirinda
+Parker
+Dove
+American Eagle
+John Lewis
+Breguet
+Furby
+Garnier
+Godiva
+Royal Copenhagen
+Magnum
+Fabergé
+Chivas Regal
+Bovril
+Fisher-Price
+Powerade
+Hublot
+Illy
+Speedo
+Ferrero Rocher
+Jacuzzi
+Clinique
+Forever 21
+Nesquik
+IWC
+Durex
+Persil
+Crayola
+Wilkinson Sword
+Diet Coke
+L'Occitane
+Timex
+Greggs
+Neutrogena
+WD-40
+Slinky
+Fenty Beauty
+Massimo Dutti
+Twix
+Boucheron
+Slazenger
+Chopard
+Twinings
+Martini
+Staedtler
+KitchenAid
+Indomie
+Instax
+Pampers
+Head & Shoulders
+Tefal
+Smarties
+Pantene
+Kleenex
+Fossil
+Canada Dry
+Samsonite
+Colgate
+Tic Tac
+Nerf
+Laughing Cow
+Rexona
+Sure
+Mentos
+San Pellegrino
+Skittles
+Birkenstock
+Lux
+Tide
+Kinder
+Shin Ramyun
+Wrangler
+Bounty
+Listerine
+Old Spice
+Hellmann's
+Pez
+After Eight
+Cornetto
+Ariel
+Vicks
+Oral-B
+Maltesers
+Band-Aid
+Philadelphia
+UGG
+Halls
+Kinder Bueno
+Michael Kors
+Olay
+Havaianas
+Sensodyne
+Febreze
+Ritter Sport
+Always
+Dettol
+Palmolive
+Babybel
+Tampax
+Huggies
+Activia
+Nurofen
+Special K
+Toffifee
+Barilla
+Tupperware
