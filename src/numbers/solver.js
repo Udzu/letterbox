@@ -4,17 +4,17 @@
 // Expressions are stored as nodes in flat typed arrays (value, cost, operation,
 // children) so that millions of them can be built without allocating objects.
 
-export const OPS = ['concat', 'pow', 'fact', 'sqrt', 'root', 'dot', 'rec'];
+export const OPS = ['concat', 'cat', 'pow', 'fact', 'sqrt', 'root', 'dot', 'rec'];
 
 // Node operations.
-const LEAF = 0, ADD = 1, SUB = 2, MUL = 3, DIV = 4, NEG = 5, POW = 6, FACT = 7, SQRT = 8, ROOT = 9;
-const OP_NAMES = ['leaf', '+', '-', '*', '/', 'neg', 'pow', 'fact', 'sqrt', 'root'];
+const LEAF = 0, ADD = 1, SUB = 2, MUL = 3, DIV = 4, NEG = 5, POW = 6, FACT = 7, SQRT = 8, ROOT = 9, CAT = 10;
+const OP_NAMES = ['leaf', '+', '-', '*', '/', 'neg', 'pow', 'fact', 'sqrt', 'root', '@'];
 
 // Cost of each operation; lower is simpler. Basic arithmetic first, then the
 // extra operations in the order they're listed on the page.
 export const COST = {
   '+': 10, '-': 10, '*': 11, '/': 11, neg: 11,
-  concat: 12, pow: 13, fact: 14, sqrt: 15, root: 16, dot: 17, rec: 18,
+  concat: 12, cat: 13, pow: 14, fact: 15, sqrt: 16, root: 17, dot: 18, rec: 19,
 };
 
 const MAX = 2 ** 53;
@@ -304,6 +304,16 @@ export function solve(numbers, rules, ops, {
     }
   };
 
+  // x@y, joining the digits of whole numbers (x can't be 0, which would be a leading zero)
+  const cat = (x, y, base) => {
+    if (!ops.cat || S.D[x] !== 1 || S.D[y] !== 1) return;
+    const a = S.N[x], b = S.N[y];
+    if (a <= 0 || b < 0) return;
+    let p = 10;
+    while (p <= b) p *= 10;
+    if (make(mul(a, p) + b, 1)) add(base + COST.cat, CAT, x, y);
+  };
+
   const binary = (x, y, ordered) => {
     const N = S.N, D = S.D;
     const xn = N[x], xd = D[x], yn = N[y], yd = D[y];
@@ -318,7 +328,9 @@ export function solve(numbers, rules, ops, {
     negPow(x, y, base);
     if (ops.root && xn !== 0) tryPow(yn, yd, S.LG[y], xn < 0 ? -xd : xd, xn < 0 ? -xn : xn, base + COST.root, ROOT, x, y);
     negRoot(x, y, base);
+    cat(x, y, base);
     if (ordered) return;
+    cat(y, x, base);
     if (make(yx - xy, dd)) add(base + COST['-'], SUB, y, x);
     if (xn !== 0 && make(yx, xy)) add(base + COST['/'], DIV, y, x);
     if (ops.pow) tryPow(yn, yd, S.LG[y], xn, xd, base + COST.pow, POW, y, x);
@@ -347,7 +359,9 @@ export function solve(numbers, rules, ops, {
     negPow(x, y, base);
     if (ops.root && xn !== 0) tryPow(yn, yd, S.LG[y], xn < 0 ? -xd : xd, xn < 0 ? -xn : xn, base + COST.root, ROOT, x, y);
     negRoot(x, y, base);
+    cat(x, y, base);
     if (ordered) return;
+    cat(y, x, base);
     if (ops.pow) tryPow(yn, yd, S.LG[y], xn, xd, base + COST.pow, POW, y, x);
     negPow(y, x, base);
     if (ops.root && yn !== 0) tryPow(xn, xd, S.LG[x], yn < 0 ? -yd : yd, yn < 0 ? -yn : yn, base + COST.root, ROOT, y, x);
@@ -483,7 +497,8 @@ export function* solveSteps(numbers, rules, ops, { budget = 2e7, nodeBudget = 2e
 }
 
 // ASCII rendering with minimal parentheses.
-const PREC = [7, 1, 1, 2, 2, 3, 4, 6, 5, 5];
+// @ binds tighter than unary minus but looser than ^
+const PREC = [7, 1, 1, 2, 2, 3, 4, 6, 5, 5, 3.5];
 const P_NEG = 3, P_FACT = 6;
 
 function toText(S, x) {
@@ -496,7 +511,8 @@ function toText(S, x) {
     case SQRT: return `V${wrap(a, PREC[S.OP[a]] < p)}`;
     case NEG: return `-${wrap(a, PREC[S.OP[a]] < p)}`;
     case ROOT: return `${wrap(a, PREC[S.OP[a]] < P_FACT)}V${wrap(b, PREC[S.OP[b]] < p)}`;
-    case POW: return `${wrap(a, PREC[S.OP[a]] <= p)}^${wrap(b, PREC[S.OP[b]] < P_NEG)}`;
+    case POW: return `${wrap(a, PREC[S.OP[a]] <= p)}^${wrap(b, PREC[S.OP[b]] < P_NEG || S.OP[b] === CAT)}`;
+    case CAT: return `${wrap(a, PREC[S.OP[a]] < p)}@${wrap(b, PREC[S.OP[b]] <= p)}`;
     default: {
       const tight = op === SUB || op === DIV;
       return `${wrap(a, PREC[S.OP[a]] < p)}${OP_NAMES[op]}${wrap(b, PREC[S.OP[b]] < p || (tight && PREC[S.OP[b]] === p))}`;

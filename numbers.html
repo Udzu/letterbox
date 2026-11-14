@@ -45,6 +45,7 @@
   h2 { margin: 0 0 8px; font-size: 1.1rem; }
   fieldset { border: none; margin: 0 0 14px; padding: 0; min-width: 0; }
   legend { padding: 0; margin-bottom: 6px; color: #444; font-weight: 600; }
+  legend .legend-check { font-weight: normal; margin-left: 12px; }
   fieldset:disabled { opacity: 0.6; }
   label { color: #444; }
   input, select { font: inherit; font-size: 1rem; }
@@ -148,10 +149,10 @@
       </div>
     </fieldset>
     <fieldset id="ops-set">
-      <legend>Operations besides + − × ÷</legend>
+      <legend>Operations besides + − × ÷ <label class="legend-check" title="Only + − × ÷, as in Countdown"><input type="checkbox" id="ops-none"> None</label></legend>
       <div class="checks">
-        <label title="Only + − × ÷, as in Countdown"><input type="checkbox" id="ops-none"> None</label>
         <label title="Write numbers together, as in 44"><input type="checkbox" data-op="concat"> <span class="math">ab</span> concatenation</label>
+        <label title="Type @ to join two whole numbers' digits, as in 4!@V4 = 242"><input type="checkbox" data-op="cat"> <span class="math">a ‖ b</span> joining</label>
         <label title="Type ^"><input type="checkbox" data-op="pow"> <span class="math">a<sup>b</sup></span> power</label>
         <label title="Type !"><input type="checkbox" data-op="fact"> <span class="math">a!</span> factorial</label>
         <label title="Type V"><input type="checkbox" data-op="sqrt"> <span class="math"><span class="radical">√<span class="radicand">a</span></span></span> square root</label>
@@ -188,6 +189,7 @@
       <li><code>+ - * /</code> arithmetic</li>
       <li><code>( )</code> brackets</li>
       <li data-op="concat"><code>12</code> concatenation</li>
+      <li data-op="cat"><code>3!@2</code> joining</li>
       <li data-op="pow"><code>2^3</code> power</li>
       <li data-op="fact"><code>3!</code> factorial</li>
       <li data-op="sqrt"><code>V9</code> square root</li>
@@ -235,7 +237,8 @@
   var FACT = 7;
   var SQRT = 8;
   var ROOT = 9;
-  var OP_NAMES = ["leaf", "+", "-", "*", "/", "neg", "pow", "fact", "sqrt", "root"];
+  var CAT = 10;
+  var OP_NAMES = ["leaf", "+", "-", "*", "/", "neg", "pow", "fact", "sqrt", "root", "@"];
   var COST = {
     "+": 10,
     "-": 10,
@@ -243,12 +246,13 @@
     "/": 11,
     neg: 11,
     concat: 12,
-    pow: 13,
-    fact: 14,
-    sqrt: 15,
-    root: 16,
-    dot: 17,
-    rec: 18
+    cat: 13,
+    pow: 14,
+    fact: 15,
+    sqrt: 16,
+    root: 17,
+    dot: 18,
+    rec: 19
   };
   var MAX = 2 ** 53;
   var FACTORIALS = [
@@ -551,6 +555,14 @@
         add(cost, SQRT, id, -1);
       }
     };
+    const cat = (x, y, base) => {
+      if (!ops.cat || S.D[x] !== 1 || S.D[y] !== 1) return;
+      const a = S.N[x], b = S.N[y];
+      if (a <= 0 || b < 0) return;
+      let p = 10;
+      while (p <= b) p *= 10;
+      if (make(mul(a, p) + b, 1)) add(base + COST.cat, CAT, x, y);
+    };
     const binary = (x, y, ordered) => {
       const N = S.N, D = S.D;
       const xn = N[x], xd = D[x], yn = N[y], yd = D[y];
@@ -564,7 +576,9 @@
       negPow(x, y, base);
       if (ops.root && xn !== 0) tryPow(yn, yd, S.LG[y], xn < 0 ? -xd : xd, xn < 0 ? -xn : xn, base + COST.root, ROOT, x, y);
       negRoot(x, y, base);
+      cat(x, y, base);
       if (ordered) return;
+      cat(y, x, base);
       if (make(yx - xy, dd)) add(base + COST["-"], SUB, y, x);
       if (xn !== 0 && make(yx, xy)) add(base + COST["/"], DIV, y, x);
       if (ops.pow) tryPow(yn, yd, S.LG[y], xn, xd, base + COST.pow, POW, y, x);
@@ -590,7 +604,9 @@
       negPow(x, y, base);
       if (ops.root && xn !== 0) tryPow(yn, yd, S.LG[y], xn < 0 ? -xd : xd, xn < 0 ? -xn : xn, base + COST.root, ROOT, x, y);
       negRoot(x, y, base);
+      cat(x, y, base);
       if (ordered) return;
+      cat(y, x, base);
       if (ops.pow) tryPow(yn, yd, S.LG[y], xn, xd, base + COST.pow, POW, y, x);
       negPow(y, x, base);
       if (ops.root && yn !== 0) tryPow(xn, xd, S.LG[x], yn < 0 ? -yd : yd, yn < 0 ? -yn : yn, base + COST.root, ROOT, y, x);
@@ -716,7 +732,7 @@
       yield { solutions, exact, step };
     }
   }
-  var PREC = [7, 1, 1, 2, 2, 3, 4, 6, 5, 5];
+  var PREC = [7, 1, 1, 2, 2, 3, 4, 6, 5, 5, 3.5];
   var P_NEG = 3;
   var P_FACT = 6;
   function toText(S, x) {
@@ -735,7 +751,9 @@
       case ROOT:
         return `${wrap(a, PREC[S.OP[a]] < P_FACT)}V${wrap(b, PREC[S.OP[b]] < p)}`;
       case POW:
-        return `${wrap(a, PREC[S.OP[a]] <= p)}^${wrap(b, PREC[S.OP[b]] < P_NEG)}`;
+        return `${wrap(a, PREC[S.OP[a]] <= p)}^${wrap(b, PREC[S.OP[b]] < P_NEG || S.OP[b] === CAT)}`;
+      case CAT:
+        return `${wrap(a, PREC[S.OP[a]] < p)}@${wrap(b, PREC[S.OP[b]] <= p)}`;
       default: {
         const tight = op === SUB || op === DIV;
         return `${wrap(a, PREC[S.OP[a]] < p)}${OP_NAMES[op]}${wrap(b, PREC[S.OP[b]] < p || tight && PREC[S.OP[b]] === p)}`;
@@ -764,7 +782,7 @@
   // src/numbers/expr.js
   var ExprError = class extends Error {
   };
-  var SYMBOLS = { "\xD7": "*", x: "*", "\xF7": "/", "\u2212": "-", "\u221A": "V", v: "V" };
+  var SYMBOLS = { "\xD7": "*", x: "*", "\xF7": "/", "\u2212": "-", "\u221A": "V", v: "V", "\u2016": "@" };
   function tokenize(text) {
     const tokens = [];
     let i = 0;
@@ -787,7 +805,7 @@
         continue;
       }
       const s = SYMBOLS[c] ?? c;
-      if (!"+-*/^!V()".includes(s)) throw new ExprError(`Unexpected ${c}`);
+      if (!"+-*/^@!V()".includes(s)) throw new ExprError(`Unexpected ${c}`);
       tokens.push({ type: s, pos: i });
       i++;
     }
@@ -811,11 +829,17 @@
       for (let op; op = take("*") ?? take("/"); ) a = { type: op.type, a, b: neg() };
       return a;
     };
-    const neg = () => take("-") ? { type: "neg", a: neg() } : pow();
+    const neg = () => take("-") ? { type: "neg", a: neg() } : cat();
+    const cat = () => {
+      let a = pow();
+      for (let op; op = take("@"); ) a = { type: "@", a, b: pow() };
+      return a;
+    };
     const pow = () => {
       const a = root();
-      return take("^") ? { type: "^", a, b: neg() } : a;
+      return take("^") ? { type: "^", a, b: exponent() } : a;
     };
+    const exponent = () => take("-") ? { type: "neg", a: exponent() } : pow();
     const root = () => {
       if (take("V")) return { type: "sqrt", a: root() };
       const b = post();
@@ -899,6 +923,7 @@
   };
   var OP_NAMES = {
     concat: "Concatenation",
+    cat: "\u2016",
     pow: "^",
     fact: "!",
     sqrt: "\u221A",
@@ -1023,6 +1048,13 @@
           need("pow");
           return power(ev(t.a), ev(t.b), "Power");
         }
+        case "@": {
+          need("cat");
+          const [a, b] = ev(t.a), [c, d] = ev(t.b);
+          if (b !== 1n || d !== 1n || a < 0n || c < 0n) throw new ExprError("\u2016 joins whole numbers that aren't negative");
+          if (a === 0n) throw new ExprError("\u2016 can't start with 0");
+          return rat(BigInt(`${a}${c}`), 1n);
+        }
         default: {
           const [a, b] = ev(t.a), [c, d] = ev(t.b);
           switch (t.type) {
@@ -1046,7 +1078,7 @@
     return String(d) === "1" ? String(n).replace("-", "\u2212") : `${String(n).replace("-", "\u2212")}/${d}`;
   }
   var esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-  var PREC = { "+": 1, "-": 1, "*": 2, "/": 2, neg: 3, "^": 4, root: 5, sqrt: 5, "!": 6, num: 7 };
+  var PREC = { "+": 1, "-": 1, "*": 2, "/": 2, neg: 3, "@": 3.5, "^": 4, root: 5, sqrt: 5, "!": 6, num: 7 };
   var SHOW = { "+": "+", "-": "\u2212", "*": "\xD7", "/": "\xF7" };
   function toHTML(t) {
     const sub = (x, paren) => paren ? `(${toHTML(x)})` : toHTML(x);
@@ -1067,6 +1099,8 @@
         return `<span class="radical"><sup class="index">${toHTML(t.b)}</sup>\u221A<span class="radicand">${toHTML(t.a)}</span></span>`;
       case "^":
         return `${sub(t.a, PREC[t.a.type] <= p)}<sup>${toHTML(t.b)}</sup>`;
+      case "@":
+        return `${sub(t.a, PREC[t.a.type] < p)} \u2016 ${sub(t.b, PREC[t.b.type] <= p)}`;
       default: {
         const tight = t.type === "-" || t.type === "/";
         return `${sub(t.a, PREC[t.a.type] < p)} ${SHOW[t.type]} ${sub(t.b, PREC[t.b.type] < p || tight && PREC[t.b.type] === p)}`;
@@ -1083,7 +1117,7 @@
   }
 
   // src/numbers/solver.js
-  var OPS = ["concat", "pow", "fact", "sqrt", "root", "dot", "rec"];
+  var OPS = ["concat", "cat", "pow", "fact", "sqrt", "root", "dot", "rec"];
   var LEAF = 0;
   var ADD = 1;
   var SUB = 2;
@@ -1094,7 +1128,8 @@
   var FACT = 7;
   var SQRT = 8;
   var ROOT = 9;
-  var OP_NAMES2 = ["leaf", "+", "-", "*", "/", "neg", "pow", "fact", "sqrt", "root"];
+  var CAT = 10;
+  var OP_NAMES2 = ["leaf", "+", "-", "*", "/", "neg", "pow", "fact", "sqrt", "root", "@"];
   var COST = {
     "+": 10,
     "-": 10,
@@ -1102,12 +1137,13 @@
     "/": 11,
     neg: 11,
     concat: 12,
-    pow: 13,
-    fact: 14,
-    sqrt: 15,
-    root: 16,
-    dot: 17,
-    rec: 18
+    cat: 13,
+    pow: 14,
+    fact: 15,
+    sqrt: 16,
+    root: 17,
+    dot: 18,
+    rec: 19
   };
   var MAX = 2 ** 53;
   var FACTORIALS = [
@@ -1410,6 +1446,14 @@
         add(cost, SQRT, id, -1);
       }
     };
+    const cat = (x, y, base) => {
+      if (!ops.cat || S.D[x] !== 1 || S.D[y] !== 1) return;
+      const a = S.N[x], b = S.N[y];
+      if (a <= 0 || b < 0) return;
+      let p = 10;
+      while (p <= b) p *= 10;
+      if (make(mul(a, p) + b, 1)) add(base + COST.cat, CAT, x, y);
+    };
     const binary = (x, y, ordered) => {
       const N = S.N, D = S.D;
       const xn = N[x], xd = D[x], yn = N[y], yd = D[y];
@@ -1423,7 +1467,9 @@
       negPow(x, y, base);
       if (ops.root && xn !== 0) tryPow(yn, yd, S.LG[y], xn < 0 ? -xd : xd, xn < 0 ? -xn : xn, base + COST.root, ROOT, x, y);
       negRoot(x, y, base);
+      cat(x, y, base);
       if (ordered) return;
+      cat(y, x, base);
       if (make(yx - xy, dd)) add(base + COST["-"], SUB, y, x);
       if (xn !== 0 && make(yx, xy)) add(base + COST["/"], DIV, y, x);
       if (ops.pow) tryPow(yn, yd, S.LG[y], xn, xd, base + COST.pow, POW, y, x);
@@ -1449,7 +1495,9 @@
       negPow(x, y, base);
       if (ops.root && xn !== 0) tryPow(yn, yd, S.LG[y], xn < 0 ? -xd : xd, xn < 0 ? -xn : xn, base + COST.root, ROOT, x, y);
       negRoot(x, y, base);
+      cat(x, y, base);
       if (ordered) return;
+      cat(y, x, base);
       if (ops.pow) tryPow(yn, yd, S.LG[y], xn, xd, base + COST.pow, POW, y, x);
       negPow(y, x, base);
       if (ops.root && yn !== 0) tryPow(xn, xd, S.LG[x], yn < 0 ? -yd : yd, yn < 0 ? -yn : yn, base + COST.root, ROOT, y, x);
@@ -1575,7 +1623,7 @@
       yield { solutions, exact, step };
     }
   }
-  var PREC2 = [7, 1, 1, 2, 2, 3, 4, 6, 5, 5];
+  var PREC2 = [7, 1, 1, 2, 2, 3, 4, 6, 5, 5, 3.5];
   var P_NEG = 3;
   var P_FACT = 6;
   function toText(S, x) {
@@ -1594,7 +1642,9 @@
       case ROOT:
         return `${wrap(a, PREC2[S.OP[a]] < P_FACT)}V${wrap(b, PREC2[S.OP[b]] < p)}`;
       case POW:
-        return `${wrap(a, PREC2[S.OP[a]] <= p)}^${wrap(b, PREC2[S.OP[b]] < P_NEG)}`;
+        return `${wrap(a, PREC2[S.OP[a]] <= p)}^${wrap(b, PREC2[S.OP[b]] < P_NEG || S.OP[b] === CAT)}`;
+      case CAT:
+        return `${wrap(a, PREC2[S.OP[a]] < p)}@${wrap(b, PREC2[S.OP[b]] <= p)}`;
       default: {
         const tight = op === SUB || op === DIV;
         return `${wrap(a, PREC2[S.OP[a]] < p)}${OP_NAMES2[op]}${wrap(b, PREC2[S.OP[b]] < p || tight && PREC2[S.OP[b]] === p)}`;
@@ -1613,7 +1663,7 @@
     pool: "digits",
     big: 1,
     rules: { all: false, order: false, integers: false },
-    ops: Object.fromEntries(OPS.map((op) => [op, true])),
+    ops: { ...Object.fromEntries(OPS.map((op) => [op, true])), cat: false },
     noOps: false,
     solvable: true,
     timed: false,
@@ -1854,6 +1904,7 @@
   var game = null;
   function lockSettings(locked) {
     for (const set of settingSets) set.disabled = locked;
+    $("ops-none").disabled = locked;
     $("new-target").disabled = readNumbers() === null;
     $("try").disabled = $("give-up").disabled = !locked;
   }
@@ -1998,7 +2049,7 @@
     if (rules.all) parts.push("all");
     if (rules.order) parts.push("in order");
     if (rules.integers) parts.push("no fractions");
-    const symbols = { concat: "ab", pow: "^", fact: "!", sqrt: "\u221A", root: "b\u221A", dot: ".", rec: ".~" };
+    const symbols = { concat: "ab", cat: "\u2016", pow: "^", fact: "!", sqrt: "\u221A", root: "b\u221A", dot: ".", rec: ".~" };
     const on = OPS.filter((op) => ops[op]).map((op) => symbols[op]);
     parts.push(on.length ? on.join(" ") : "+ \u2212 \xD7 \xF7 only");
     return parts.join(" \xB7 ");

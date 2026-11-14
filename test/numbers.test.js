@@ -124,3 +124,26 @@ test("recurring decimals: brackets for the recurring digits, or ~ for all of the
   assert.equal(solutions.get(176), ".2(4)*(V9)!!"); // 11/45 × 720
   for (const [target, text] of solutions) assert.deepEqual(value(text, puzzle), [target, 1], text);
 });
+
+test("@ joins whole numbers' digits, shown as ‖", () => {
+  const ops = { ...ALL_OPS, cat: true };
+  const p = { numbers: [0, 2, 3, 4, 4], rules: {}, ops };
+  assert.deepEqual(value("4!@V4", { ...FOURS, rules: {}, ops }), [242, 1]);
+  assert.deepEqual(value("2^3@4", p), [84, 1]); // (2³)‖4
+  assert.deepEqual(value("2*3@4", p), [68, 1]); // 2 × (3‖4)
+  assert.deepEqual(value("-2@3", p), [-23, 1]);
+  assert.deepEqual(value("4@0", p), [40, 1]);
+  assert.equal(error("0@4", p), "‖ can't start with 0");
+  assert.equal(error("2@.4", p), "‖ joins whole numbers that aren't negative");
+  assert.equal(error("2@4", { ...p, ops: ALL_OPS }), "‖ isn't allowed");
+  assert.equal(toHTML(parse("2^3@(4@4)")), "2<sup>3</sup> ‖ (4 ‖ 4)");
+  // the solver uses it, and its solutions check out
+  const puzzle = { numbers: [4, 4, 4, 4], rules: { all: true }, ops };
+  const solutions = solve(puzzle.numbers, puzzle.rules, ops);
+  assert.ok(solutions.size > 700);
+  for (const [target, text] of solutions) assert.deepEqual(value(text, puzzle), [target, 1], text);
+  const ordered = { numbers: [1, 2, 3], rules: { all: true, order: true }, ops: { cat: true } };
+  for (const [target, text] of solve(ordered.numbers, ordered.rules, ordered.ops)) {
+    assert.deepEqual(value(text, ordered), [target, 1], text);
+  }
+});

@@ -10,7 +10,7 @@ const DEFAULTS = {
   pool: "digits",
   big: 1,
   rules: { all: false, order: false, integers: false },
-  ops: Object.fromEntries(OPS.map((op) => [op, true])),
+  ops: { ...Object.fromEntries(OPS.map((op) => [op, true])), cat: false },
   noOps: false,
   solvable: true,
   timed: false,
@@ -282,6 +282,7 @@ let game = null; // { target, puzzle, start, best, timer, deadline, attempts }
 
 function lockSettings(locked) {
   for (const set of settingSets) set.disabled = locked;
+  $("ops-none").disabled = locked; // controls in a fieldset's legend aren't disabled with it
   $("new-target").disabled = readNumbers() === null;
   // answers can be tried out any time, but only submitted during a game
   $("try").disabled = $("give-up").disabled = !locked;
@@ -441,7 +442,7 @@ function rulesSummary({ rules, ops }) {
   if (rules.all) parts.push("all");
   if (rules.order) parts.push("in order");
   if (rules.integers) parts.push("no fractions");
-  const symbols = { concat: "ab", pow: "^", fact: "!", sqrt: "√", root: "b√", dot: ".", rec: ".~" };
+  const symbols = { concat: "ab", cat: "‖", pow: "^", fact: "!", sqrt: "√", root: "b√", dot: ".", rec: ".~" };
   const on = OPS.filter((op) => ops[op]).map((op) => symbols[op]);
   parts.push(on.length ? on.join(" ") : "+ − × ÷ only");
   return parts.join(" · ");

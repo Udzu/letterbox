@@ -1,18 +1,19 @@
 // Expressions typed by the player (and produced by the solver): parsing, exact
 // evaluation against the puzzle's numbers and rules, and rendering as maths.
 //
-// Syntax: + - * / (also × ÷ −), ^ power, ! factorial, V or √ square root,
+// Syntax: + - * / (also × ÷ −), ^ power, @ (or ‖) joining whole numbers' digits,
+// ! factorial, V or √ square root,
 // bVa b-th root of a, .4 decimal, .2(4) recurring decimal (the bracketed digits
 // repeat), .24~ shorthand for .(24), ( ). Several numbers written together are
 // concatenated.
 //
-// Precedence, tightest first: !, roots, ^ (right to left), unary minus, * /, + -.
+// Precedence, tightest first: !, roots, ^ (right to left), @, unary minus, * /, + -.
 
 export class ExprError extends Error {}
 
 // ---- parsing
 
-const SYMBOLS = { "×": "*", x: "*", "÷": "/", "−": "-", "√": "V", v: "V" };
+const SYMBOLS = { "×": "*", x: "*", "÷": "/", "−": "-", "√": "V", v: "V", "‖": "@" };
 
 function tokenize(text) {
   const tokens = [];
@@ -35,7 +36,7 @@ function tokenize(text) {
       continue;
     }
     const s = SYMBOLS[c] ?? c;
-    if (!"+-*/^!V()".includes(s)) throw new ExprError(`Unexpected ${c}`);
+    if (!"+-*/^@!V()".includes(s)) throw new ExprError(`Unexpected ${c}`);
     tokens.push({ type: s, pos: i });
     i++;
   }
@@ -61,11 +62,18 @@ export function parse(text) {
     for (let op; (op = take("*") ?? take("/"));) a = { type: op.type, a, b: neg() };
     return a;
   };
-  const neg = () => (take("-") ? { type: "neg", a: neg() } : pow());
+  const neg = () => (take("-") ? { type: "neg", a: neg() } : cat());
+  const cat = () => {
+    let a = pow();
+    for (let op; (op = take("@"));) a = { type: "@", a, b: pow() };
+    return a;
+  };
   const pow = () => {
     const a = root();
-    return take("^") ? { type: "^", a, b: neg() } : a;
+    return take("^") ? { type: "^", a, b: exponent() } : a;
   };
+  // an exponent can be negative, but 2^3@4 is (2^3)@4
+  const exponent = () => (take("-") ? { type: "neg", a: exponent() } : pow());
   const root = () => {
     if (take("V")) return { type: "sqrt", a: root() };
     const b = post();
@@ -163,7 +171,7 @@ const leafText = (t) => {
 };
 
 export const OP_NAMES = {
-  concat: "Concatenation", pow: "^", fact: "!", sqrt: "√", root: "b√a", dot: "Decimals", rec: "Recurring decimals",
+  concat: "Concatenation", cat: "‖", pow: "^", fact: "!", sqrt: "√", root: "b√a", dot: "Decimals", rec: "Recurring decimals",
 };
 
 // The numbers in an expression, left to right (a root's index comes before its radicand).
@@ -288,6 +296,13 @@ export function evaluate(tree, { numbers, rules = {}, ops = {} }) {
         need("pow");
         return power(ev(t.a), ev(t.b), "Power");
       }
+      case "@": {
+        need("cat");
+        const [a, b] = ev(t.a), [c, d] = ev(t.b);
+        if (b !== 1n || d !== 1n || a < 0n || c < 0n) throw new ExprError("‖ joins whole numbers that aren't negative");
+        if (a === 0n) throw new ExprError("‖ can't start with 0");
+        return rat(BigInt(`${a}${c}`), 1n);
+      }
       default: {
         const [a, b] = ev(t.a), [c, d] = ev(t.b);
         switch (t.type) {
@@ -310,7 +325,7 @@ export function formatValue([n, d]) {
 // ---- rendering as HTML
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-const PREC = { "+": 1, "-": 1, "*": 2, "/": 2, neg: 3, "^": 4, root: 5, sqrt: 5, "!": 6, num: 7 };
+const PREC = { "+": 1, "-": 1, "*": 2, "/": 2, neg: 3, "@": 3.5, "^": 4, root: 5, sqrt: 5, "!": 6, num: 7 };
 const SHOW = { "+": "+", "-": "−", "*": "×", "/": "÷" };
 
 export function toHTML(t) {
@@ -327,6 +342,7 @@ export function toHTML(t) {
     case "sqrt": return `<span class="radical">√<span class="radicand">${toHTML(t.a)}</span></span>`;
     case "root": return `<span class="radical"><sup class="index">${toHTML(t.b)}</sup>√<span class="radicand">${toHTML(t.a)}</span></span>`;
     case "^": return `${sub(t.a, PREC[t.a.type] <= p)}<sup>${toHTML(t.b)}</sup>`;
+    case "@": return `${sub(t.a, PREC[t.a.type] < p)} ‖ ${sub(t.b, PREC[t.b.type] <= p)}`;
     default: {
       const tight = t.type === "-" || t.type === "/";
       return `${sub(t.a, PREC[t.a.type] < p)} ${SHOW[t.type]} ${sub(t.b, PREC[t.b.type] < p || (tight && PREC[t.b.type] === p))}`;

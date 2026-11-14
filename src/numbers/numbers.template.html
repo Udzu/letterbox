@@ -44,6 +44,7 @@
   h2 { margin: 0 0 8px; font-size: 1.1rem; }
   fieldset { border: none; margin: 0 0 14px; padding: 0; min-width: 0; }
   legend { padding: 0; margin-bottom: 6px; color: #444; font-weight: 600; }
+  legend .legend-check { font-weight: normal; margin-left: 12px; }
   fieldset:disabled { opacity: 0.6; }
   label { color: #444; }
   input, select { font: inherit; font-size: 1rem; }
@@ -147,10 +148,10 @@
       </div>
     </fieldset>
     <fieldset id="ops-set">
-      <legend>Operations besides + − × ÷</legend>
+      <legend>Operations besides + − × ÷ <label class="legend-check" title="Only + − × ÷, as in Countdown"><input type="checkbox" id="ops-none"> None</label></legend>
       <div class="checks">
-        <label title="Only + − × ÷, as in Countdown"><input type="checkbox" id="ops-none"> None</label>
         <label title="Write numbers together, as in 44"><input type="checkbox" data-op="concat"> <span class="math">ab</span> concatenation</label>
+        <label title="Type @ to join two whole numbers' digits, as in 4!@V4 = 242"><input type="checkbox" data-op="cat"> <span class="math">a ‖ b</span> joining</label>
         <label title="Type ^"><input type="checkbox" data-op="pow"> <span class="math">a<sup>b</sup></span> power</label>
         <label title="Type !"><input type="checkbox" data-op="fact"> <span class="math">a!</span> factorial</label>
         <label title="Type V"><input type="checkbox" data-op="sqrt"> <span class="math"><span class="radical">√<span class="radicand">a</span></span></span> square root</label>
@@ -187,6 +188,7 @@
       <li><code>+ - * /</code> arithmetic</li>
       <li><code>( )</code> brackets</li>
       <li data-op="concat"><code>12</code> concatenation</li>
+      <li data-op="cat"><code>3!@2</code> joining</li>
       <li data-op="pow"><code>2^3</code> power</li>
       <li data-op="fact"><code>3!</code> factorial</li>
       <li data-op="sqrt"><code>V9</code> square root</li>
