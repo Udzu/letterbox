@@ -1,0 +1,711 @@
+# name: Global brands
+# description: Internationally recognised consumer brands, most prominent first.
+# tag: culture
+# attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
+
+# Hand-picked brands of things people buy or use (products, shops, restaurants, cars, airlines,
+# hotels, online services, entertainment), checked against Wikidata's brands and companies; no
+# business-facing firms, banks or conglomerates, and no brands that are no longer used. Each brand
+# is written as it usually is in English (Apple, not Apple Inc.). Cut at the 650th word, plus
+# worldwide household brands below it added back by hand (leaving out regional ones).
+
+Q270059: 7 Up                           # 7 Up
+Q259340: 7-Eleven                       # 7-Eleven
+Q319344: Abercrombie & Fitch            # Abercrombie & Fitch
+Q332378: Absolut                        # Absolut Vodka
+Q481778: Acer                           # Acer Inc.
+Q176740: Activia                        # Activia
+Q53097: Acura                           # Acura
+Q3895: Adidas                           # Adidas
+Q11463: Adobe                           # Adobe Inc.
+Q129793: Photoshop                      # Adobe Photoshop
+Q388973: After Eight                    # After Eight
+Q131005: Air France                     # Air France
+Q420953: Air Jordan                     # Air Jordan
+Q63327: Airbnb                          # Airbnb
+Q2311: Airbus                           # Airbus
+Q26936286: AirPods                      # AirPods
+Q125054: Aldi                           # Aldi
+Q26921: Alfa Romeo                      # Alfa Romeo
+Q1359568: Alibaba                       # Alibaba Group
+Q29904317: AliExpress                   # AliExpress
+Q493556: Alipay                         # Alipay
+Q3500302: Always                        # Always (Whisper) (brand)
+Q3884: Amazon                           # Amazon (company)
+Q28022144: Alexa                        # Amazon Alexa
+Q136469: Kindle                         # Amazon Kindle
+Q21086634: Amazon Prime                 # Amazon Prime
+Q4740856: Prime Video                   # Amazon Prime Video
+Q128896: AMD                            # AMD
+Q32396: American Airlines               # American Airlines
+Q2842931: American Eagle                # American Eagle Outfitters
+Q194360: American Express               # American Express
+Q94: Android                            # Android (operating system)
+Q274083: Gaviscon                       # Antacid
+Q368215: App Store                      # App Store (Apple)
+Q312: Apple                             # Apple Inc.
+Q20056642: Apple Music                  # Apple Music
+Q18010946: Apple Watch                  # Apple Watch
+Q622062: Aprilia                        # Aprilia
+Q630866: Arby's                         # Arby's
+Q3271455: Arc'teryx                     # Arc'teryx
+Q658915: Ariel                          # Ariel (detergent)
+Q635484: Armani                         # Armani
+Q327247: Asics                          # Asics
+Q27074: Aston Martin                    # Aston Martin
+Q152864: Asus                           # Asus
+Q207922: Atari                          # Atari
+Q667425: Audemars Piguet                # Audemars Piguet
+Q23317: Audi                            # Audi
+Q27460: Dacia                           # Automobile Dacia
+Q791285: Avon                           # Avon Products
+Q797880: Babybel                        # Babybel
+Q685395: Bacardi                        # Bacardi
+Q14772: Baidu                           # Baidu
+Q285480: Baileys                        # Baileys Irish Cream
+Q1530892: Balenciaga                    # Balenciaga
+Q2737652: Band-Aid                      # Band-Aid
+Q790020: Bang & Olufsen                 # Bang & Olufsen
+Q167447: Barbie                         # Barbie
+Q64506735: Barilla                      # Barilla
+Q584601: Baskin-Robbins                 # Baskin-Robbins
+Q9531: BBC                              # BBC
+Q1961036: Beats                         # Beats (brand)
+Q816412: Ben & Jerry's                  # Ben & Jerry's
+Q817139: Benetton                       # Benetton Group
+Q27224: Bentley                         # Bentley
+Q795981: Bic                            # Bic
+Q803749: Billabong                      # Billabong
+Q648458: Birkenstock                    # Birkenstock
+Q502121: BlackBerry                     # BlackBerry Limited
+Q283383: Bloomingdale's                 # Bloomingdale's
+Q26678: BMW                             # BMW
+Q66: Boeing                             # Boeing
+Q4035313: Booking.com                   # Booking.com
+Q234021: Bosch                          # Bosch (company)
+Q328568: Bose                           # Bose (brand)
+Q848553: Boucheron                      # Boucheron
+Q895167: Bounty                         # Bounty (chocolate bar)
+Q2441410: Bovril                        # Bovril
+Q152057: BP                             # BP
+Q631220: Braun                          # Braun (company)
+Q796924: Sony Bravia                    # Bravia
+Q661205: Breguet                        # Breguet (brand)
+Q665740: Breitling                      # Breitling SA
+Q179433: Bridgestone                    # Bridgestone
+Q8766: British Airways                  # British Airways
+Q610672: Budweiser                      # Budweiser
+Q2308012: Bugatti                       # Bugatti Automobiles
+Q27415: Buick                           # Buick
+Q752515: Bulgari                        # Bulgari
+Q390107: Burberry                       # Burberry
+Q177054: Burger King                    # Burger King
+Q27423: BYD                             # BYD Auto
+Q6677525: Cadbury                       # Cadbury
+Q27436: Cadillac                        # Cadillac
+Q1068628: Calvin Klein                  # Calvin Klein (fashion house)
+Q899150: Campari                        # Campari
+Q1030544: Campbell's                    # Campbell's
+Q584215: Canada Dry                     # Canada Dry
+Q26733: Canada Goose                    # Canada goose
+Q62621: Canon                           # Canon Inc.
+Q19572998: Michael Kors                 # Capri Holdings
+Q158501: Carex                          # Carex
+Q1043486: Carl's Jr.                    # Carl's Jr.
+Q113215: Carlsberg                      # Carlsberg Group
+Q217599: Carrefour                      # Carrefour
+Q538587: Cartier                        # Cartier (brand)
+Q217338: Casio                          # Casio
+Q218115: Chanel                         # Chanel
+Q820507: Chanel No. 5                   # Chanel No. 5
+Q115564437: ChatGPT                     # ChatGPT
+Q484544: Cheetos                        # Cheetos
+Q29570: Chevrolet                       # Chevrolet
+Q491516: Chick-fil-A                    # Chick-fil-A
+Q465751: Chipotle                       # Chipotle Mexican Grill
+Q1069502: Chivas Regal                  # Chivas Regal
+Q670112: Chopard                        # Chopard
+Q452136: Christian Louboutin            # Christian Louboutin
+Q861508: Chromebook                     # Chromebook
+Q181114: Chrysler                       # Chrysler
+Q938535: Chupa Chups                    # Chupa Chups
+Q1368019: Citizen                       # Citizen Watch
+Q6746: Citroën                          # Citroën
+Q2655764: Clinique                      # Clinique
+Q17245: Cluedo                          # Cluedo
+Q48340: CNN                             # CNN
+Q2813: Coca-Cola                        # Coca-Cola
+Q2523492: Colgate                       # Colgate (toothpaste)
+Q1112588: Columbia                      # Columbia Sportswear
+Q163241: Continental                    # Continental AG
+Q319515: Converse                       # Converse (brand)
+Q327115: Corn Flakes                    # Corn flakes
+Q1899311: Cornetto                      # Cornetto (frozen dessert)
+Q864987: Corona                         # Corona (beer)
+Q608845: Costa                          # Costa Coffee
+Q715583: Costco                         # Costco
+Q1139197: Crayola                       # Crayola
+Q926699: Crocs                          # Crocs
+Q1143401: Cup Noodles                   # Cup Noodles
+Q1141226: Dairy Queen                   # Dairy Queen
+Q329426: Danone                         # Danone
+Q471891: De Beers                       # De Beers
+Q1207494: De'Longhi                     # De' Longhi
+Q509349: Decathlon                      # Decathlon (retailer)
+Q22000919: Deliveroo                    # Deliveroo
+Q30873: Dell                            # Dell
+Q188920: Delta                          # Delta Air Lines
+Q1189695: Denny's                       # Denny's
+Q15061688: Dettol                       # Dettol
+Q489815: DHL                            # DHL
+Q1208130: Diadora                       # Diadora
+Q158285: Diesel                         # Diesel (company)
+Q1815345: Diet Coke                     # Diet Coke
+Q542767: Dior                           # Dior
+Q22907849: Discord                      # Discord
+Q54958752: Disney+                      # Disney+
+Q181185: Disneyland                     # Disneyland
+Q27564: Dodge                           # Dodge
+Q261288: Dolby                          # Dolby
+Q214480: Dolce & Gabbana                # Dolce & Gabbana
+Q347187: Dom Pérignon                   # Dom Pérignon
+Q839466: Domino's                       # Domino's
+Q776795: Doritos                        # Doritos
+Q962709: Dove                           # Dove (Unilever brand)
+Q623561: Dr Pepper                      # Dr Pepper
+Q1126126: Dr. Martens                   # Dr. Martens
+Q192557: DreamWorks                     # DreamWorks Pictures
+Q142539: Dropbox                        # Dropbox
+Q271812: Ducati                         # Ducati
+Q847743: Dunkin'                        # Dunkin' Donuts
+Q168241: Dunlop                         # Dunlop Tyres
+Q2918660: Duolingo                      # Duolingo
+Q858702: Duracell                       # Duracell
+Q1267311: Durex                         # Durex
+Q621429: Dyson                          # Dyson (company)
+Q191551: easyJet                        # EasyJet
+Q58024: eBay                            # EBay
+Q623133: El Corte Inglés                # El Corte Inglés
+Q505922: Electrolux                     # Electrolux
+Q173941: Electronic Arts                # Electronic Arts
+Q180432: Emirates                       # Emirates (airline)
+Q1200840: Energizer                     # Energizer
+Q159614: Epson                          # Epson
+Q217776: ESPN                           # ESPN
+Q867662: Esso                           # Esso
+Q1260606: Estée Lauder                  # Estée Lauder Companies
+Q212304: Etihad                         # Etihad Airways
+Q1353939: Etsy                          # Etsy
+Q1050918: Evian                         # Evian
+Q8085893: Expedia                       # Expedia Group
+Q455476: Faber-Castell                  # Faber-Castell
+Q355: Facebook                          # Facebook
+Q9935: Fanta                            # Fanta
+Q910264: Febreze                        # Febreze
+Q459477: FedEx                          # FedEx
+Q175391: Fender                         # Fender (company)
+Q926575: Fendi                          # Fendi
+Q51135597: Fenty Beauty                 # Fenty Beauty
+Q27586: Ferrari                         # Ferrari
+Q526516: Ferrero Rocher                 # Ferrero Rocher
+Q269792: Ferrero                        # Ferrero SpA
+Q27597: Fiat                            # Fiat
+Q482539: Fila                           # Fila
+Q698: Firefox                           # Firefox
+Q1420671: Fisher-Price                  # Fisher-Price
+Q1241369: Fiskars                       # Fiskars
+Q5455414: Fitbit                        # Fitbit
+Q1131810: Five Guys                     # Five Guys
+Q44294: Ford                            # Ford Motor Company
+Q1060537: Forever 21                    # Forever 21
+Q498563: Fortnum & Mason                # Fortnum & Mason
+Q356212: Fossil                         # Fossil Group
+Q1424786: Four Seasons                  # Four Seasons Hotels and Resorts
+Q164740: Fujifilm                       # Fujifilm
+Q932209: Furby                          # Furby
+Q3094686: Galeries Lafayette            # Galeries Lafayette
+Q420822: Gap                            # Gap Inc.
+Q658789: Garmin                         # Garmin
+Q599755: Garnier                        # Garnier
+Q304992: Gatorade                       # Gatorade
+Q21451523: Genesis                      # Genesis Motor
+Q210278: Gibson                         # Gibson (guitar company)
+Q503592: Gillette                       # Gillette
+Q759210: Givenchy                       # Givenchy
+Q9334: Gmail                            # Gmail
+Q28993: GMC                             # GMC (automobile)
+Q931084: Godiva                         # Godiva Chocolatier
+Q620875: Goodyear                       # Goodyear Tire and Rubber Company
+Q95: Google                             # Google
+Q777: Chrome                            # Google Chrome
+Q9340: Google Drive                     # Google Drive
+Q42274: Google Earth                    # Google Earth
+Q12013: Google Maps                     # Google Maps
+Q25021298: Pixel                        # Google Pixel
+Q79576: Google Play                     # Google Play
+Q135622: Google Translate               # Google Translate
+Q733482: GoPro                          # GoPro
+Q3403981: Greggs                        # Greggs
+Q178516: Gucci                          # Gucci
+Q2470307: Guess                         # Guess (company)
+Q194297: Guinness                       # Guinness
+Q188326: H&M                            # H&M
+Q691584: Halls                          # Halls (cough drop)
+Q60299: Hamleys                         # Hamleys
+Q918151: Hard Rock Cafe                 # Hard Rock Cafe
+Q1585088: Hardee's                      # Hardee's
+Q169552: Haribo                         # Haribo
+Q192814: Harley-Davidson                # Harley-Davidson
+Q332474: Harrods                        # Harrods
+Q501476: Hasbro                         # Hasbro
+Q64545: Hasselblad                      # Hasselblad
+Q3128675: Havaianas                     # Havaianas
+Q23633: HBO                             # HBO
+Q555900: Head & Shoulders               # Head & Shoulders
+Q631894: Head                           # Head (company)
+Q180855: Heineken                       # Heineken N.V.
+Q850324: Heinz                          # Heinz
+Q809061: Hellmann's                     # Hellmann's and Best Foods
+Q191794: Hello Kitty                    # Hello Kitty
+Q1229287: Hennessy                      # Hennessy
+Q843887: Hermès                         # Hermès
+Q1543874: Hertz                         # Hertz Global Holdings
+Q598884: Hilton                         # Hilton Hotels & Resorts
+Q53238: Hitachi                         # Hitachi
+Q2717882: Holiday Inn                   # Holiday Inn
+Q9584: Honda                            # Honda
+Q1025921: Hooters                       # Hooters
+Q585537: Hot Wheels                     # Hot Wheels
+Q2567352: Fabergé                       # House of Fabergé
+Q21404084: HP                           # HP Inc.
+Q160120: Huawei                         # Huawei
+Q691958: Hublot                         # Hublot
+Q3142214: Huggies                       # Huggies
+Q491627: Hugo Boss                      # Hugo Boss
+Q1630304: Hulu                          # Hulu
+Q1425063: Hyatt                         # Hyatt
+Q55931: Hyundai                         # Hyundai Motor Company
+Q1143333: Häagen-Dazs                   # Häagen-Dazs
+Q920166: Ibis                           # Ibis (hotel)
+Q37156: IBM                             # IBM
+Q283469: iCloud                         # ICloud
+Q54078: IKEA                            # IKEA
+Q969999: Illy                           # Illy
+Q188575: IMAX                           # IMAX
+Q1205312: In-N-Out Burger               # In-N-Out Burger
+Q593369: Inca Kola                      # Inca Kola
+Q27859: Indomie                         # Indomie
+Q29714: Infiniti                        # Infiniti
+Q209330: Instagram                      # Instagram
+Q11287394: Instax                       # Instax
+Q248: Intel                             # Intel
+Q666888: Intersport                     # Intersport
+Q48493: iOS                             # IOS
+Q2796: iPad                             # IPad
+Q2766: iPhone                           # IPhone
+Q938806: Irn-Bru                        # Irn-Bru
+Q9589: iTunes                           # ITunes
+Q662902: IWC                            # IWC Schaffhausen
+Q371068: Jack Daniel's                  # Jack Daniel's
+Q1538507: Jack in the Box               # Jack in the Box
+Q1122179: Jacuzzi                       # Jacuzzi
+Q378698: Jaeger-LeCoultre               # Jaeger-LeCoultre
+Q30055: Jaguar                          # Jaguar Cars
+Q2482: Jameson                          # Jameson Irish Whiskey
+Q213140: Japan Airlines                 # Japan Airlines
+Q1153754: JBL                           # JBL
+Q6108019: JD Sports                     # JD Sports
+Q30113: Jeep                            # Jeep
+Q869870: Jenga                          # Jenga
+Q362249: Jimmy Choo                     # Jimmy Choo
+Q1918981: John Lewis                    # John Lewis & Partners
+Q502268: Johnnie Walker                 # Johnnie Walker
+Q333718: Johnson & Johnson, Johnson's Baby# Johnson & Johnson
+Q37614: Jollibee                        # Jollibee
+Q661871: Jägermeister                   # Jägermeister
+Q735873: Kappa                          # Kappa (brand)
+Q249033: Kawasaki                       # Kawasaki Motors
+Q856897: Kellogg's                      # Kellogg's
+Q895795: Kenzo                          # Kenzo (brand)
+Q524757: KFC                            # KFC
+Q35349: Kia                             # Kia
+Q1321815: Kikkoman                      # Kikkoman
+Q15410057: Kinder                       # Kinder (brand)
+Q2297653: Kinder Bueno                  # Kinder Bueno
+Q181042: Kinder Surprise                # Kinder Surprise
+Q1743850: KitchenAid                    # KitchenAid
+Q367251: KitKat                         # KitKat
+Q1371867: Kleenex                       # Kleenex
+Q181912: KLM                            # KLM
+Q313882: Knorr                          # Knorr (brand)
+Q486269: Kodak                          # Kodak
+Q45700: Konami                          # Konami
+Q22121875: Kraft                        # Kraft Foods Inc.
+Q1192805: Krispy Kreme                  # Krispy Kreme
+Q1880676: L'Occitane                    # L'Occitane en Provence
+Q156077: L'Oréal                        # L'Oréal
+Q309031: Lacoste                        # Lacoste
+Q35676: Lada                            # Lada
+Q35886: Lamborghini                     # Lamborghini
+Q1541268: Lancôme                       # Lancôme
+Q35907: Land Rover                      # Land Rover
+Q543750: Lavazza                        # Lavazza
+Q723513: Lay's                          # Lay's
+Q170484: Lego                           # Lego
+Q161833: Leica                          # Leica Camera
+Q14799: Lenovo                          # Lenovo
+Q127962: Levi's                         # Levi Strauss & Co.
+Q35919: Lexus                           # Lexus
+Q162345: LG                             # LG Electronics
+Q3237793: Liberty                       # Liberty (department store)
+Q151954: Lidl                           # Lidl
+Q216796: Lincoln                        # Lincoln Motor Company
+Q152822: Lindt                          # Lindt
+Q213660: LinkedIn                       # LinkedIn
+Q874407: Lipton                         # Lipton
+Q944073: Listerine                      # Listerine
+Q1393809: Little Caesars                # Little Caesars
+Q223127: Logitech                       # Logitech
+Q661470: Lomography                     # Lomography
+Q603698: Longines                       # Longines
+Q850307: Lotto                          # Lotto Sport Italia
+Q590113: Lotus Biscoff                  # Lotus Bakeries
+Q35935: Lotus                           # Lotus Cars
+Q191485: Louis Vuitton                  # Louis Vuitton
+Q28027517: Lucid                        # Lucid Motors
+Q9325: Lufthansa                        # Lufthansa
+Q6702957: Lululemon                     # Lululemon
+Q1585448: Lush                          # Lush (company)
+Q665425: Lux                            # Lux (soap)
+Q17077936: Lyft                         # Lyft
+Q739550: M&M's                          # M&M's
+Q75687: Mac                             # Mac (computer)
+Q2624442: MAC                           # MAC Cosmetics
+Q14116: macOS                           # MacOS
+Q629269: Macy's                         # Macy's
+Q688424: Maggi                          # Maggi
+Q660801: Magnum                         # Magnum (ice cream)
+Q2716518: Maltesers                     # Maltesers
+Q136503: Mango                          # Mango (retailer)
+Q714491: Marks & Spencer                # Marks & Spencer
+Q15075: Marlboro                        # Marlboro
+Q1331998: Marmite                       # Marmite
+Q1141173: Marriott                      # Marriott International
+Q31305: Mars                            # Mars bar
+Q1068671: Martini                       # Martini (vermouth)
+Q1200552: Marvel                        # Marvel Entertainment
+Q35962: Maserati                        # Maserati
+Q788231: Massimo Dutti                  # Massimo Dutti
+Q489921: Mastercard                     # Mastercard
+Q1050690: Matchbox                      # Matchbox (brand)
+Q596139: Mattel                         # Mattel
+Q1351054: Maybelline                    # Maybelline New York
+Q35996: Mazda                           # Mazda
+Q38076: McDonald's                      # McDonald's
+Q1351854: McLaren                       # McLaren Automotive
+Q1183277: Meccano                       # Meccano
+Q822407: Meissen                        # Meissen porcelain
+Q1046535: Mentos                        # Mentos
+Q36008: Mercedes-Benz                   # Mercedes-Benz
+Q116947: Messenger                      # Messenger (software)
+Q179200: MGM                            # Metro-Goldwyn-Mayer
+Q151107: Michelin                       # Michelin
+Q2283: Microsoft                        # Microsoft
+Q182496: Bing                           # Microsoft Bing
+Q11272: Excel                           # Microsoft Excel
+Q11255: Microsoft Office                # Microsoft Office
+Q80911: Outlook                         # Microsoft Outlook
+Q11266: PowerPoint                      # Microsoft PowerPoint
+Q471806: Surface                        # Microsoft Surface
+Q28406404: Teams                        # Microsoft Teams
+Q1406: Windows                          # Microsoft Windows
+Q695230: Miele                          # Miele
+Q757388: Milka                          # Milka
+Q1204628: Milo                          # Milo (drink)
+Q116232: Mini                           # Mini (marque)
+Q568384: Mirinda                        # Mirinda
+Q36033: Mitsubishi                      # Mitsubishi Motors
+Q1156731: Mizuno                        # Mizuno
+Q1548951: Moncler                       # Moncler
+Q17243: Monopoly                        # Monopoly (game)
+Q544293: Monster                        # Monster Energy
+Q142691: Montblanc                      # Montblanc (company)
+Q1149018: Moto Guzzi                    # Moto Guzzi
+Q259011: Motorola                       # Motorola
+Q896: Mountain Dew                      # Mountain Dew
+Q699529: Moët & Chandon                 # Moët & Chandon
+Q43359: MTV                             # MTV
+Q3472954: Nando's                       # Nando's
+Q5973845: National Geographic           # National Geographic
+Q743497: Neiman Marcus                  # Neiman Marcus
+Q1891883: Nerf                          # Nerf
+Q503191: Nescafé                        # Nescafé
+Q301301: Nespresso                      # Nespresso
+Q1150326: Nesquik                       # Nesquik
+Q160746: Nestlé                         # Nestlé
+Q907311: Netflix                        # Netflix
+Q2451589: Neutrogena                    # Neutrogena
+Q742988: New Balance                    # New Balance
+Q246655: Next                           # Next plc
+Q483915: Nike                           # Nike, Inc.
+Q1218180: Nikon                         # Nikon
+Q8093: Nintendo                         # Nintendo
+Q19610114: Nintendo Switch              # Nintendo Switch
+Q20165: Nissan                          # Nissan
+Q53293: Nissin                          # Nissin Foods
+Q337408: Nivea                          # Nivea
+Q1418: Nokia                            # Nokia
+Q174310: Nordstrom                      # Nordstrom
+Q2915868: Nurofen                       # Nurofen
+Q212193: Nutella                        # Nutella
+Q182477: Nvidia                         # Nvidia
+Q161906: Oakley                         # Oakley, Inc.
+Q1246901: Olay                          # OLAY
+Q2325626: Old Spice                     # Old Spice
+Q688619: Olympus                        # Olympus Corporation
+Q659224: Omega                          # Omega SA
+Q864889: OneDrive                       # OneDrive
+Q16499972: OnePlus                      # OnePlus
+Q40966: Opel                            # Opel
+Q2084900: Oppo                          # Oppo
+Q1987067: Oral-B                        # Oral-B
+Q605830: Orangina                       # Orangina
+Q138585: Oreo                           # Oreo
+Q219136: Hotmail                        # Outlook.com
+Q685005: Ovaltine                       # Ovaltine
+Q467754: Paco Rabanne                   # Paco Rabanne
+Q6059081: Palmolive                     # Palmolive (brand)
+Q2340498: Pampers                       # Pampers
+Q53247: Panasonic                       # Panasonic
+Q1358690: Panda Express                 # Panda Express
+Q2241604: Pandora                       # Pandora (jewelry)
+Q1353013: Pantene                       # Pantene
+Q196473: Bepanthen                      # Panthenol
+Q2759586: Papa John's                   # Papa John's
+Q57055: Panadol                         # Paracetamol
+Q159846: Paramount                      # Paramount Pictures
+Q546004: Parker                         # Parker Pen Company
+Q1660552: Patagonia                     # Patagonia, Inc.
+Q659096: Patek Philippe                 # Patek Philippe
+Q483959: PayPal                         # PayPal
+Q47719: Pepsi                           # Pepsi
+Q1471021: Perrier                       # Perrier
+Q2071993: Persil                        # Persil
+Q6742: Peugeot                          # Peugeot
+Q1500277: Pez                           # Pez
+Q2085762: Philadelphia                  # Philadelphia Cream Cheese
+Q170416: Philips                        # Philips
+Q255381: Pinterest                      # Pinterest
+Q207770: Pirelli                        # Pirelli
+Q127552: Pixar                          # Pixar
+Q191615: Pizza Hut                      # Pizza Hut
+Q1346099: Play-Doh                      # Play-Doh
+Q150820: Playboy                        # Playboy
+Q160719: Playmobil                      # Playmobil
+Q1323662: PlayStation                   # PlayStation
+Q1068307: Mikado, Pocky                 # Pocky
+Q864: Pokémon                           # Pokémon
+Q494389: Polaroid                       # Polaroid Corporation
+Q4047174: Polestar                      # Polestar
+Q1330910: Popeyes                       # Popeyes
+Q40993: Porsche                         # Porsche
+Q181331: Post-it                        # Post-it note
+Q934273: Powerade                       # Powerade
+Q193136: Prada                          # Prada
+Q137023: Primark                        # Primark
+Q528187: Pringles                       # Pringles
+Q157064: Puma                           # Puma (brand)
+Q32491: Qantas                          # Qantas
+Q208033: Qatar Airways                  # Qatar Airways
+Q2699694: Quaker                        # Quaker Oats Company
+Q1329463: Quiksilver                    # Quiksilver
+Q1641437: Ralph Lauren                  # Ralph Lauren Corporation
+Q1134042: Range Rover                   # Range Rover
+Q653941: Ray-Ban                        # Ray-Ban
+Q51482: Red Bull                        # Red Bull
+Q1136: Reddit                           # Reddit
+Q466183: Reebok                         # Reebok
+Q6686: Renault                          # Renault
+Q1459595: Revlon                        # Revlon
+Q1183694: Rexona, Sure                  # Rexona
+Q678388: Ritter Sport                   # Ritter Sport
+Q7338847: Rivian                        # Rivian
+Q62288: Rolex                           # Rolex
+Q234803: Rolls-Royce                    # Rolls-Royce Motor Cars
+Q1440151: Royal Copenhagen              # Royal Copenhagen
+Q2668720: Royal Enfield                 # Royal Enfield
+Q47043: Rubik's Cube                    # Rubik's Cube
+Q170614: Ryanair                        # Ryanair
+Q629009: San Pellegrino                 # S.Pellegrino
+Q2723882: Saks Fifth Avenue             # Saks Fifth Avenue
+Q2120822: Salomon                       # Salomon Group
+Q1203426: Samsonite                     # Samsonite
+Q20716: Samsung                         # Samsung
+Q493064: Samsung Galaxy                 # Samsung Galaxy
+Q660309: Sara Lee                       # Sara Lee Corporation
+Q838651: Schweppes                      # Schweppes
+Q259589: Scotch Tape                    # Scotch tape
+Q170436: Scrabble                       # Scrabble
+Q188217: SEAT                           # SEAT
+Q122741: Sega                           # Sega
+Q322601: Seiko                          # Seiko
+Q1475656: Selfridges                    # Selfridges
+Q167221: Sennheiser                     # Sennheiser
+Q2046939: Sensodyne                     # Sensodyne
+Q2408041: Sephora                       # Sephora
+Q1058722: Shake Shack                   # Shake Shack
+Q53227: Sharp                           # Sharp Corporation
+Q1195495: Shazam                        # Shazam (service)
+Q107377209: Shein                       # Shein
+Q154950: Shell                          # Shell plc
+Q634831: Sheraton                       # Sheraton Hotels and Resorts
+Q712773: Shin Ramyun                    # Shin Ramyun
+Q81230: Siemens                         # Siemens
+Q191521: Viagra                         # Sildenafil
+Q32245: Singapore Airlines              # Singapore Airlines
+Q582159: Siri                           # Siri
+Q2945643: Skechers                      # Skechers
+Q868612: Skittles                       # Skittles (confectionery)
+Q2855977: Slazenger                     # Slazenger
+Q1118802: Slinky                        # Slinky
+Q156490: Smart                          # Smart (marque)
+Q1400476: Smarties                      # Smarties
+Q777721: Smirnoff                       # Smirnoff
+Q333618: Snapchat                       # Snapchat
+Q714179: Snickers                       # Snickers
+Q41187: Sony                            # Sony
+Q2555271: Spalding                      # Spalding (company)
+Q606132: Spam                           # Spam (food)
+Q3492829: Special K                     # Special K
+Q1425519: Speedo                        # Speedo
+Q689141: Spotify                        # Spotify
+Q206978: Sprite                         # Sprite (drink)
+Q691150: Staedtler                      # Staedtler
+Q37158: Starbucks                       # Starbucks
+Q337535: Steam                          # Steam (service)
+Q156391: Steinway                       # Steinway & Sons
+Q929276: Stella Artois                  # Stella Artois
+Q172741: Subaru                         # Subaru
+Q244457: Subway                         # Subway (restaurant)
+Q181642: Suzuki                         # Suzuki
+Q611115: Swarovski                      # Swarovski
+Q573422: Swatch                         # Swatch
+Q335016: Tabasco                        # Tabasco sauce
+Q752941: Taco Bell                      # Taco Bell
+Q645984: TAG Heuer                      # TAG Heuer
+Q207786: Tamagotchi                     # Tamagotchi
+Q3514864: Tampax                        # Tampax
+Q2117484: Taobao                        # Taobao
+Q1046951: Target                        # Target Corporation
+Q188514: Tata                           # Tata Motors
+Q764155: Tefal                          # Tefal
+Q15616276: Telegram                     # Telegram (software)
+Q114258161: Temu                        # Temu
+Q487494: Tesco                          # Tesco
+Q478214: Tesla                          # Tesla, Inc.
+Q775060: Texaco                         # Texaco
+Q1524184: TGI Fridays                   # TGI Fridays
+Q837851: The Body Shop                  # The Body Shop
+Q1056637: Hershey's                     # The Hershey Company
+Q1535858: Hoover                        # The Hoover Company
+Q1501260: Laughing Cow                  # The Laughing Cow
+Q152784: The North Face                 # The North Face
+Q782200: Ritz-Carlton                   # The Ritz-Carlton Hotel Company
+Q7414: Disney                           # The Walt Disney Company
+Q1044630: THX                           # THX
+Q1050530: Tic Tac                       # Tic Tac
+Q2024644: Tide                          # Tide (brand)
+Q1066858: Tiffany & Co.                 # Tiffany & Co.
+Q48938223: TikTok                       # TikTok
+Q175106: Tim Hortons                    # Tim Hortons
+Q1539185: Timberland                    # Timberland (company)
+Q1644618: Timex                         # Timex Group USA
+Q15078152: Tinder                       # Tinder (app)
+Q659530: Tissot                         # Tissot
+Q215707: Toblerone                      # Toblerone
+Q1466328: Toffifee                      # Toffifee
+Q634881: Tommy Hilfiger                 # Tommy Hilfiger (company)
+Q682144: TomTom                         # TomTom
+Q49125: Toshiba                         # Toshiba
+Q53268: Toyota                          # Toyota
+Q696334: Toys "R" Us                    # Toys "R" Us
+Q1770710: Tripadvisor                   # Tripadvisor
+Q1140383: Triumph                       # Triumph Motorcycles Ltd
+Q17250: Trivial Pursuit                 # Trivial Pursuit
+Q384060: Tumblr                         # Tumblr
+Q16985829: Tupperware                   # Tupperware Brands
+Q4548: Turkish Airlines                 # Turkish Airlines
+Q1054692: Twinings                      # Twinings
+Q4555537: Twitch                        # Twitch (service)
+Q869733: Twix                           # Twix
+Q780442: Uber                           # Uber
+Q21462723: Uber Eats                    # Uber Eats
+Q188273: Ubisoft                        # Ubisoft
+Q381: Ubuntu                            # Ubuntu
+Q1138480: UGG                           # UGG (brand)
+Q652047: Umbro                          # Umbro
+Q2031485: Under Armour                  # Under Armour
+Q26070: Uniqlo                          # Uniqlo
+Q174769: United Airlines                # United Airlines
+Q155026: UPS                            # United Parcel Service
+Q168383: Universal                      # Universal Pictures
+Q17267: Uno                             # Uno (card game)
+Q62341: Vacheron Constantin             # Vacheron Constantin
+Q23664: Thermos                         # Vacuum flask
+Q649646: Valentino                      # Valentino (fashion house)
+Q2708181: Van Cleef & Arpels            # Van Cleef & Arpels
+Q1135366: Vans                          # Vans
+Q695251: Varta                          # VARTA
+Q185120: Vaseline                       # Vaseline
+Q59187: Vauxhall                        # Vauxhall Motors
+Q841470: Vegemite                       # Vegemite
+Q15411420: Velcro                       # Velcro
+Q696376: Versace                        # Versace
+Q217673: Vespa                          # Vespa
+Q910740: Vicks                          # Vicks
+Q332477: Victoria's Secret              # Victoria's Secret
+Q503405: Victorinox                     # Victorinox
+Q313550: Vidal Sassoon                  # Vidal Sassoon
+Q705042: Villeroy & Boch                # Villeroy & Boch
+Q156376: Vimeo                          # Vimeo
+Q328840: Visa                           # Visa Inc.
+Q453309: Vittel                         # Vittel
+Q18301787: Vivo                         # Vivo (technology company)
+Q154008: Vogue                          # Vogue (magazine)
+Q246: Volkswagen                        # Volkswagen
+Q215293: Volvo                          # Volvo Cars
+Q622493: Walkman                        # Walkman
+Q483551: Walmart                        # Walmart
+Q137691184: Warner Bros.                # Warner Bros.
+Q942327: Waze                           # Waze
+Q898762: WD-40                          # WD-40
+Q283233: WeChat                         # WeChat
+Q595544: Wedgwood                       # Wedgwood
+Q92526: Weibo                           # Weibo
+Q702674: Wella                          # Wella
+Q550258: Wendy's                        # Wendy's
+Q861042: Western Union                  # Western Union
+Q6109362: Wetherspoons                  # Wetherspoons
+Q1049511: WhatsApp                      # WhatsApp
+Q1471346: Whirlpool                     # Whirlpool Corporation
+Q653630: Wilkinson Sword                # Wilkinson Sword
+Q1329777: Wilson                        # Wilson Sporting Goods
+Q2811992: Wimpy                         # Wimpy (restaurant)
+Q1445358: Wrangler                      # Wrangler (brand)
+Q819241: Wrigley                        # Wrigley Company
+Q918: Twitter                           # X (social network)
+Q15281614: Xbox                         # Xbox
+Q152433: Xerox                          # Xerox
+Q1636958: Xiaomi                        # Xiaomi
+Q37093: Yahoo                           # Yahoo
+Q936040: Yakult                         # Yakult
+Q188454: Yamaha                         # Yamaha Corporation
+Q5281: Yandex                           # Yandex
+Q773924: Yonex                          # Yonex
+Q866: YouTube                           # YouTube
+Q2282172: Yves Saint Laurent            # Yves Saint Laurent (fashion house)
+Q147662: Zara                           # Zara (retailer)
+Q282186: Zeiss                          # Zeiss (company)
+Q205533: Zippo                          # Zippo
+Q94979732: Zoom                         # Zoom (software)
+Q29637: Škoda                           # Škoda Auto
