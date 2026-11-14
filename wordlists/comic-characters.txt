@@ -1,0 +1,600 @@
+# name: Comic characters
+# description: Characters from comic books, comic strips and manga, most prominent first.
+# tag: culture
+# attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
+
+Batman
+Bruce Wayne
+Superman
+Clark Kent
+Kal-El
+Spider-Man
+Peter Parker
+Asterix
+Tintin
+Doraemon
+Captain America
+Steve Rogers
+Wonder Woman
+Diana Prince
+Sailor Moon
+Iron Man
+Tony Stark
+Hulk
+Bruce Banner
+Smurf
+Popeye
+Wolverine
+Logan
+Joker
+Lucky Luke
+Doctor Doom
+Thor
+Deadpool
+Wade Wilson
+Green Lantern
+Astro Boy
+Scrooge McDuck
+Daredevil
+Matt Murdock
+Punisher
+Frank Castle
+Shin-chan
+Lupin III
+Garfield
+Doctor Strange
+Stephen Strange
+Robin
+Catwoman
+Selina Kyle
+Chibi Maruko-chan
+Lex Luthor
+Jean Grey
+Harley Quinn
+Flash
+Snoopy
+Flash Gordon
+Aquaman
+Arthur Curry
+Sazae-san
+Magneto
+Green Arrow
+Oliver Queen
+Monkey D. Luffy
+Captain Marvel
+Shazam
+Billy Batson
+Judge Dredd
+Thanos
+Scarlet Witch
+Wanda Maximoff
+Black Panther
+T'Challa
+Calvin
+Hobbes
+Venom
+Namor
+Professor X
+Charles Xavier
+Phantom
+Kitarō
+Dick Grayson
+Nightwing
+Nick Fury
+Silver Surfer
+Dilbert
+Dogbert
+Darkseid
+Galactus
+Cyclops
+Scott Summers
+Black Widow
+Natasha Romanoff
+Goku
+Lois Lane
+Ra's al Ghul
+Ghost Rider
+Hawkeye
+Clint Barton
+Martian Manhunter
+Two-Face
+Harvey Dent
+Hal Jordan
+Storm
+Golgo 13
+Green Goblin
+Poison Ivy
+Penguin
+Oswald Cobblepot
+Gambit
+Spirou
+Fantasio
+Rogue
+Luke Cage
+Riddler
+Edward Nygma
+Mister Fantastic
+Reed Richards
+Thing
+Ben Grimm
+Kingpin
+Deathstroke
+Quicksilver
+Barbara Gordon
+Oracle
+Alfred Pennyworth
+Pepe the Frog
+Mary Jane Watson
+Barry Allen
+Batgirl
+Roronoa Zoro
+Doctor Octopus
+Loki
+Juggernaut
+Blade
+Bane
+Miles Morales
+She-Hulk
+Carol Danvers
+Supergirl
+Human Torch
+Johnny Storm
+Black Jack
+Beast
+Charlie Brown
+Jim Gordon
+Nami
+Vision
+Iceman
+Brainiac
+Black Cat
+Kitty Pryde
+Spawn
+Nightcrawler
+Nico Robin
+Scarecrow
+Gwen Stacy
+Swamp Thing
+Black Canary
+Mystique
+Kang the Conqueror
+Hellboy
+Moon Knight
+Clayface
+Invisible Woman
+Sue Storm
+Iron Fist
+Corto Maltese
+Sandman
+Lobo
+Max
+Moritz
+Hank Pym
+Tony Tony Chopper
+Bucky Barnes
+Kara Zor-El
+Ultron
+Sabretooth
+Sanji
+Kraven the Hunter
+Blake
+Mortimer
+Buck Rogers
+Cyborg
+Elektra
+Angel
+Warren Worthington
+Hawkman
+Gaston
+Cable
+Red Skull
+John Constantine
+Constantine
+Mysterio
+Mephisto
+Emma Frost
+Norman Osborn
+Apocalypse
+Colossus
+Marsupilami
+Falcon
+Sam Wilson
+Doctor Fate
+Wasp
+Electro
+Naruto Uzumaki
+Flash Thompson
+Solomon Grundy
+Tim Drake
+Wonder Man
+Jessica Jones
+Mafalda
+Doomsday
+Captain Haddock
+Haddock
+Jimmy Olsen
+Carnage
+Gyro Gearloose
+Yellow Kid
+Lizard
+Ant-Man
+Deadshot
+John Stewart
+Usopp
+Damian Wayne
+Mr. Freeze
+War Machine
+Mister Sinister
+Spectre
+Dick Tracy
+Zatanna
+Beagle Boys
+Jason Todd
+Rhino
+J. Jonah Jameson
+Star-Lord
+Peter Quill
+Blueberry
+Sinestro
+Superboy
+Mortadelo
+Filemón
+Krazy Kat
+Ignatz
+Harry Osborn
+Brook
+Taskmaster
+X-23
+Prince Valiant
+Vulture
+Franky
+Bullseye
+Little Nemo
+Aunt May
+Vegeta
+Wally West
+Groot
+Dylan Dog
+Jessica Drew
+Hawkgirl
+Sasuke Uchiha
+Jubilee
+MODOK
+Killer Croc
+Obelix
+Hobgoblin
+Morbius
+Sentinel
+Alan Scott
+Power Girl
+Mandrake the Magician
+Kakashi Hatake
+Plastic Man
+Chameleon
+Katzenjammer Kids
+Hercules
+Talia al Ghul
+Betsy Braddock
+Vandal Savage
+Hägar the Horrible
+Hägar
+Blue Beetle
+High Evolutionary
+Cell
+Beetle Bailey
+Guy Gardner
+Kamala Khan
+Tombstone
+Monica
+Thunderbolt Ross
+Adam Warlock
+Diabolik
+Mandarin
+Kyle Rayner
+Shinichi Kudo
+Amanda Waller
+Magica De Spell
+Shang-Chi
+Onslaught
+Roy Harper
+Havok
+Dennis the Menace
+Jay Garrick
+Professor Calculus
+Calculus
+Cassandra Cain
+Frieza
+Gohan
+Starfire
+Ronan the Accuser
+Drax the Destroyer
+Spider-Man Noir
+Tex Willer
+Rocket Raccoon
+Franklin Richards
+Scott Lang
+Gorilla Grodd
+Shocker
+Magik
+Raven
+Uncle Ben
+Valérian
+Laureline
+Krypto
+Polaris
+Piccolo
+Sentry
+Bulma
+Black Adam
+Ben Reilly
+Knull
+Sharon Carter
+Superboy-Prime
+Bizarro
+Gladstone Gander
+Captain Britain
+Blondie
+Dagwood
+Spider-Man 2099
+Maria Hill
+Ego the Living Planet
+General Zod
+Peacemaker
+Sakura Haruno
+Lucius Fox
+Captain Atom
+Atom
+Steel
+Question
+Black Bolt
+Lady Deathstrike
+Li'l Abner
+Beast Boy
+Thomson
+Thompson
+Eddie Brock
+Silk
+Iznogoud
+Firestorm
+Mad Hatter
+Dormammu
+Mongul
+Conner Kent
+Leader
+Banshee
+Howard the Duck
+Snowy
+Cheetah
+Gamora
+Bishop
+Blob
+Pepper Potts
+Man-Bat
+Black Mask
+Jane Foster
+Red Sonja
+Abomination
+Trunks
+Booster Gold
+Ned Leeds
+Stephanie Brown
+Nova
+Klaw
+Donna Troy
+Spider-Girl
+Annihilus
+Majin Buu
+Flintheart Glomgold
+Bart Allen
+Enchantress
+Usagi Tsukino
+Beyonder
+Dazzler
+Hela
+Lana Lang
+Steppenwolf
+Victor Zsasz
+Valkyrie
+Master Roshi
+Jonah Hex
+Legion
+Itachi Uchiha
+Peggy Carter
+U.S. Agent
+Krillin
+Collector
+Huntress
+Omega Red
+Viper
+Mac Gargan
+Mockingbird
+Hugo Strange
+Rachel Summers
+Gaara
+Rick Grimes
+Zagor
+Anti-Monitor
+Betty Brant
+Captain Cold
+Uatu
+Edwin Jarvis
+Odin
+Eobard Thawne
+Katana
+Gargamel
+Kate Kane
+Mister Miracle
+Mister Negative
+Toad
+Jackal
+Nebula
+Ichigo Kurosaki
+Firestar
+Batwoman
+Sunspot
+Absorbing Man
+Ka-Zar
+Etrigan the Demon
+Spider-Woman
+Hammerhead
+Mantis
+Grandmaster
+Johnny Blaze
+Scott Pilgrim
+Little Orphan Annie
+Orphan Annie
+Silvermane
+Phantom Stranger
+Perry White
+Mar-Vell
+Handala
+Monica Rambeau
+Jon Kent
+Black Lightning
+Agatha Harkness
+Black Manta
+Orochimaru
+Hush
+Black Knight
+William Stryker
+Happy Hogan
+Shredder
+Metamorpho
+Cannonball
+Phoenix Force
+Ken Parker
+Molecule Man
+Carmine Falcone
+Paperinik
+Duck Avenger
+Mister Hyde
+Domino
+Sebastian Shaw
+Hydro-Man
+Robbie Robertson
+Pyro
+Kaito Kuroba
+Negan
+Azrael
+Sunfire
+Jor-El
+Arnim Zola
+John D. Rockerduck
+Hood
+Red Hood
+Vampirella
+Silver Samurai
+Prowler
+Firefly
+Madame Web
+Julia Carpenter
+Spirit
+Crystal
+Silver Sable
+Beta Ray Bill
+Bianca Castafiore
+Maxwell Lord
+Betty Ross
+Heimdall
+John Jameson
+Tinkerer
+Daltons
+L
+Linus van Pelt
+Light Yagami
+Bat-Mite
+Ventriloquist
+Mutt
+Jeff
+Little Lulu
+Fethry Duck
+Ms. Marvel
+Raphael
+Pogo
+Michelangelo
+Leonardo
+Doctor Manhattan
+Donatello
+Cerebus
+Martin Mystère
+Squirrel Girl
+Archie Andrews
+Splinter
+Sailor Venus
+Homelander
+Titeuf
+Rastapopoulos
+Usagi Yojimbo
+Alan Ford
+Fritz the Cat
+Rupert Bear
+Modesty Blaise
+Sailor Mercury
+Sailor Mars
+April O'Neil
+Lucy van Pelt
+Andy Capp
+Rantanplan
+Gnasher
+Tank Girl
+Shinnosuke Nohara
+Shuri
+Wong
+Dan Dare
+Sailor Jupiter
+Nancy
+Sluggo
+Jotaro Kujo
+Dogmatix
+Smurfette
+Rorschach
+Bash Street Kids
+Olive Oyl
+Eren Yeager
+Getafix
+Kenshiro
+Bluto
+Peppermint Patty
+Jughead Jones
+Captain Harlock
+Bécassine
+Arale Norimaki
+Michonne
+Woodstock
+Rogue Trooper
+Papa Smurf
+Largo Winch
+Wonder Girl
+Veronica Lodge
+Sally Brown
+Kid Flash
+Schroeder
+Nestor
+Richie Rich
+Shanks
+Edward Elric
+Ranma Saotome
+Omni-Man
+Lum Invader
+Vitalstatistix
+Portgas D. Ace
+Cacofonix
+Betty Cooper
+Jon Arbuckle
+V
+Inuyasha
+Sabrina Spellman
+Invincible
+Desperate Dan
+Jolly Jumper
+Wimpy
+Tanjirō Kamado
+Minnie the Minx
+Levi Ackerman
+Gon Freecss
+Mikasa Ackerman
+Guts
+Ryuk
+Miyamoto Usagi
+Hit-Girl
+Odie

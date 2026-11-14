@@ -1,0 +1,593 @@
+# name: Comic characters
+# description: Characters from comic books, comic strips and manga, most prominent first.
+# tag: culture
+# attribution: Ordered by page views from [QRank](https://qrank.wmcloud.org/) and PageRank from [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia's content.
+
+# Chosen from Wikidata's fictional characters with articles in at least six Wikipedias that come
+# from comic books, comic strips or manga (leaving out ones that began elsewhere, such as Mickey
+# Mouse, Star Wars and video game characters, and film-only versions), with strip and European
+# characters that have no item of their own added by their series (Calvin and Hobbes, Mafalda).
+# Title characters are also scored by their series, so Garfield is placed by whichever ranks
+# higher. Cut at the 500th word, plus well-known characters below it added back by hand. Heroes
+# are followed by their best-known real names; "The" is dropped (Joker, Penguin).
+
+Q60146: Abomination                         # Abomination
+Q2465865: Absorbing Man                     # Absorbing Man
+Q1735229: Adam Warlock                      # Adam Warlock
+Q2339646: Agatha Harkness                   # Agatha Harkness
+Q1266082: Alan Ford                         # Alan Ford
+Q1839954: Alan Scott                        # Alan Scott
+Q159051: Alfred Pennyworth                  # Alfred Pennyworth
+Q1994660: Amanda Waller                     # Amanda Waller
+Q2631406: Andy Capp                         # Andy Capp
+Q771247: Annihilus                          # Annihilus
+Q2420783: Ant-Man                           # Ant-Man
+Q2426197: Anti-Monitor                      # Anti-Monitor
+Q2071805: Apocalypse                        # Apocalypse
+Q7237599: April O'Neil                      # April O'Neil
+Q623059: Aquaman, Arthur Curry              # Aquaman
+Q2859491: Arale Norimaki                    # Arale Norimaki
+Q2860154: Archie Andrews                    # Archie Andrews
+Q2663969: Arnim Zola                        # Arnim Zola
+Q2294962: Lupin III                  # Arsène Lupin III
+Q7620503: Asterix                           # Asterix
+Q42490: Asterix                             # Asterix (series)
+Q7576732: Astro Boy                         # Astro Boy
+Q673036: Astro Boy                          # Astro Boy (series)
+Q29719: Atom                                # Atom
+Q5685120: Atom                              # Atom
+Q2453332: Aunt May                          # Aunt May
+Q794106: Azrael                             # Azrael
+Q59693: Azrael                              # Azrael
+Q158940: Bane                               # Bane
+Q647105: Banshee                            # Banshee
+Q194705: Barbara Gordon, Oracle             # Barbara Gordon
+Q2258938: Barry Allen                       # Barry Allen
+Q1660452: Bart Allen                        # Bart Allen
+Q7715748: Bash Street Kids                  # Bash Street Kids
+Q2111860: Bat-Mite                          # Bat-Mite
+Q753713: Batgirl                            # Batgirl
+Q2695156: Batman, Bruce Wayne               # Batman
+Q48833172: Batwoman                         # Batwoman
+Q1798441: Beagle Boys                       # Beagle Boys
+Q302186: Beast                              # Beast
+Q575227: Beast Boy                          # Beast Boy
+Q814154: Beetle Bailey                      # Beetle Bailey
+Q2343504: Ben Reilly                        # Ben Reilly
+Q1987662: Beta Ray Bill                     # Beta Ray Bill
+Q973050: Betsy Braddock                     # Betsy Braddock
+Q2628255: Betty Brant                       # Betty Brant
+Q2900232: Betty Cooper                      # Betty Cooper
+Q616633: Betty Ross                         # Betty Ross
+Q1994866: Beyonder                          # Beyonder
+Q738325: Bianca Castafiore                  # Bianca Castafiore
+Q2296652: Bishop                            # Bishop
+Q59641: Bizarro                             # Bizarro
+Q391161: Black Adam                         # Black Adam
+Q767453: Black Bolt                         # Black Bolt
+Q599124: Black Canary                       # Black Canary
+Q912640: Black Cat                          # Black Cat
+Q3640722: Black Jack                        # Black Jack
+Q133691: Black Jack                         # Black Jack
+Q2539056: Black Knight                      # Black Knight
+Q751117: Black Lightning                    # Black Lightning
+Q2538991: Black Manta                       # Black Manta
+Q2321516: Black Mask                        # Black Mask
+Q998220: Black Panther, T'Challa            # Black Panther
+Q369197: Black Widow, Natasha Romanoff      # Black Widow
+Q881024: Blade                              # Blade
+Q59990: Blake, Mortimer                     # Blake, Mortimer
+Q371692: Blob                               # Blob
+Q526950: Blondie, Dagwood                   # Blondie, Dagwood
+Q885626: Blue Beetle                        # Blue Beetle
+Q137308: Blueberry                          # Blueberry
+Q2519837: Bluto                             # Bluto
+Q391201: Booster Gold                       # Booster Gold
+Q592909: Brainiac                           # Brainiac
+Q4376780: Brook                             # Brook
+Q969746: Buck Rogers                        # Buck Rogers
+Q28006858: Bucky Barnes                     # Bucky Barnes
+Q388316: Bullseye                           # Bullseye
+Q1614785: Bulma                             # Bulma
+Q1019385: Bécassine                         # Bécassine
+Q2267017: Cable                             # Cable
+Q2082331: Cacofonix                         # Cacofonix
+Q211035: Calvin, Hobbes                     # Calvin, Hobbes
+Q1194236: Cannonball                        # Cannonball
+Q190679: Captain America, Steve Rogers      # Captain America
+Q514912: Captain Atom                       # Captain Atom
+Q2405949: Captain Britain                   # Captain Britain
+Q717106: Captain Cold                       # Captain Cold
+Q1640063: Captain Haddock, Haddock          # Captain Haddock
+Q15284139: Captain Harlock                  # Captain Harlock
+Q534153: Captain Marvel, Shazam, Billy Batson# Captain Marvel
+Q2937657: Captain Marvel                    # Captain Marvel
+Q2663956: Carmine Falcone                   # Carmine Falcone
+Q1753328: Carnage                           # Carnage
+Q726756: Carol Danvers                      # Carol Danvers
+Q427647: Cassandra Cain                     # Cassandra Cain
+Q158952: Catwoman, Selina Kyle              # Catwoman
+Q859351: Cell                               # Cell
+Q162238: Cerebus                            # Cerebus
+Q521305: Chameleon                          # Chameleon
+Q1168491: Charlie Brown                     # Charlie Brown
+Q2620997: Cheetah                           # Cheetah
+Q701050: Chibi Maruko-chan                  # Chibi Maruko-chan
+Q551747: Clayface                           # Clayface
+Q2982927: Collector                         # Collector
+Q60002: Colossus                            # Colossus
+Q1778905: Conner Kent                       # Conner Kent
+Q27642997: Corto Maltese                    # Corto Maltese
+Q12116: Corto Maltese                       # Corto Maltese (series)
+Q120300: Shin-chan                          # Crayon Shin-chan
+Q2418760: Crystal                           # Crystal
+Q1635605: Professor Calculus, Calculus      # Cuthbert Calculus
+Q2466726: Cyborg                            # Cyborg
+Q857921: Cyclops, Scott Summers             # Cyclops
+Q1211948: Daltons                           # Daltons
+Q660695: Damian Wayne                       # Damian Wayne
+Q92440: Dan Dare                            # Dan Dare
+Q327553: Daredevil, Matt Murdock            # Daredevil
+Q430698: Darkseid                           # Darkseid
+Q2584217: Dazzler                           # Dazzler
+Q1631090: Deadpool, Wade Wilson             # Deadpool
+Q511769: Deadshot                           # Deadshot
+Q1181328: Deathstroke                       # Deathstroke
+Q3022996: Dennis the Menace                 # Dennis the Menace (US strip)
+Q5259097: Dennis the Menace, Gnasher        # Dennis the Menace, Gnasher
+Q5264934: Desperate Dan                     # Desperate Dan
+Q1208013: Diabolik                          # Diabolik
+Q660051: Dick Grayson, Nightwing            # Dick Grayson
+Q18822150: Dick Tracy                       # Dick Tracy
+Q1129715: Dick Tracy                        # Dick Tracy (strip)
+Q726431: Dilbert, Dogbert                   # Dilbert, Dogbert
+Q430178: Doctor Doom                        # Doctor Doom
+Q1233853: Doctor Fate                       # Doctor Fate
+Q2519257: Doctor Manhattan                  # Doctor Manhattan
+Q578094: Doctor Octopus                     # Doctor Octopus
+Q907767: Doctor Strange, Stephen Strange    # Doctor Strange
+Q1752911: Dogmatix                          # Dogmatix
+Q59644: Domino                              # Domino
+Q323925: Donatello                          # Donatello
+Q3713898: Donna Troy                        # Donna Troy
+Q126680: Doomsday                           # Doomsday
+Q1186309: Doraemon                          # Doraemon
+Q235311: Doraemon                           # Doraemon (series)
+Q2066394: Dormammu                          # Dormammu
+Q898039: Drax the Destroyer                 # Drax the Destroyer
+Q2014932: Paperinik, Duck Avenger           # Duck Avenger
+Q12098: Dylan Dog                           # Dylan Dog (series)
+Q2604715: Eddie Brock                       # Eddie Brock
+Q987751: Edward Elric                       # Edward Elric
+Q544290: Edwin Jarvis                       # Edwin Jarvis
+Q2642342: Ego the Living Planet             # Ego the Living Planet
+Q2297886: Electro                           # Electro
+Q913359: Elektra                            # Elektra
+Q1995969: Emma Frost                        # Emma Frost
+Q587036: Enchantress                        # Enchantress
+Q5375407: Enchantress                       # Enchantress
+Q2576702: Eobard Thawne                     # Eobard Thawne
+Q18206694: Eren Yeager                      # Eren Yeager
+Q690541: Etrigan the Demon                  # Etrigan the Demon
+Q672591: Falcon, Sam Wilson                 # Falcon
+Q2737454: Fantasio                          # Fantasio
+Q2072455: Fethry Duck                       # Fethry Duck
+Q2635751: Firefly                           # Firefly
+Q578279: Firestar                           # Firestar
+Q1419023: Firestorm                         # Firestorm
+Q180784: Flash                              # Flash
+Q92566: Flash Gordon                        # Flash Gordon
+Q552000: Flash Thompson                     # Flash Thompson
+Q842511: Flintheart Glomgold                # Flintheart Glomgold
+Q2624716: Franklin Richards                 # Franklin Richards
+Q1190670: Franky                            # Franky
+Q757313: Frieza                             # Frieza
+Q1413936: Fritz the Cat                     # Fritz the Cat
+Q221196: Gaara                              # Gaara
+Q1429836: Galactus                          # Galactus
+Q2639150: Gambit                            # Gambit
+Q2721152: Gamora                            # Gamora
+Q767120: Garfield                           # Garfield
+Q72533: Garfield                            # Garfield (strip)
+Q920224: Gargamel                           # Gargamel
+Q506920: Gaston                             # Gaston
+Q737153: Gaston                             # Gaston (series)
+Q1368693: Kitarō                            # GeGeGe no Kitarō
+Q2260732: General Zod                       # General Zod
+Q1756333: Getafix                           # Getafix
+Q868958: Ghost Rider                        # Ghost Rider
+Q854212: Gladstone Gander                   # Gladstone Gander
+Q752269: Gohan                              # Gohan
+Q2142: Goku                                 # Goku
+Q1122254: Golgo 13                          # Golgo 13
+Q2717608: Gon Freecss                       # Gon Freecss
+Q783089: Gorilla Grodd                      # Gorilla Grodd
+Q5595476: Grandmaster                       # Grandmaster
+Q611993: Green Arrow, Oliver Queen          # Green Arrow
+Q735721: Green Goblin                       # Green Goblin
+Q32884: Green Lantern                       # Green Lantern
+Q3116935: Groot                             # Groot
+Q2305538: Guts                              # Guts
+Q59528: Guy Gardner                         # Guy Gardner
+Q945817: Gwen Stacy                         # Gwen Stacy
+Q837005: Gyro Gearloose                     # Gyro Gearloose
+Q2345627: Hal Jordan                        # Hal Jordan
+Q2719607: Hammerhead                        # Hammerhead
+Q726269: Handala                            # Handala
+Q1319498: Happy Hogan                       # Happy Hogan
+Q849477: Harley Quinn                       # Harley Quinn
+Q1779361: Harry Osborn                      # Harry Osborn
+Q849486: Havok                              # Havok
+Q19095: Hawkeye, Clint Barton               # Hawkeye
+Q5685072: Hawkeye                           # Hawkeye
+Q2210354: Hawkgirl                          # Hawkgirl
+Q2359610: Hawkman                           # Hawkman
+Q3783774: Hawkman                           # Hawkman
+Q1139706: Heimdall                          # Heimdall
+Q3043221: Hela                              # Hela
+Q1150106: Hellboy                           # Hellboy
+Q2057532: Hank Pym                          # Henry Pym
+Q534889: Hercules                           # Hercules
+Q2568013: High Evolutionary                 # High Evolutionary
+Q3785909: Hit-Girl                          # Hit-Girl
+Q849818: Hobgoblin                          # Hobgoblin
+Q2624726: Hood                              # Hood
+Q2708105: Howard the Duck                   # Howard the Duck
+Q2287724: Hugo Strange                      # Hugo Strange
+Q188760: Hulk, Bruce Banner                 # Hulk
+Q584585: Human Torch, Johnny Storm          # Human Torch
+Q1004568: Human Torch                       # Human Torch
+Q114471: Huntress                           # Huntress
+Q2723547: Huntress                          # Huntress
+Q2282627: Hush                              # Hush
+Q1990090: Hydro-Man                         # Hydro-Man
+Q221099: Hägar the Horrible, Hägar          # Hägar the Horrible, Hägar
+Q838088: Iceman                             # Iceman
+Q719114: Ichigo Kurosaki                    # Ichigo Kurosaki
+Q858425: Inuyasha                           # Inuyasha
+Q3294090: Invincible                        # Invincible
+Q510450: Invisible Woman, Sue Storm         # Invisible Woman
+Q1194243: Iron Fist                         # Iron Fist
+Q180704: Iron Man, Tony Stark               # Iron Man
+Q1043344: Itachi Uchiha                     # Itachi Uchiha
+Q845259: Iznogoud                           # Iznogoud
+Q1992523: J. Jonah Jameson                  # J. Jonah Jameson
+Q1857616: Wimpy                             # J. Wellington Wimpy
+Q2584005: Jackal                            # Jackal
+Q1370752: Jane Foster                       # Jane Foster
+Q1087546: Jason Todd                        # Jason Todd
+Q1120560: Jay Garrick                       # Jay Garrick
+Q5350072: Jean Grey                         # Jean Grey
+Q1188309: Jessica Drew                      # Jessica Drew
+Q2271377: Jessica Jones                     # Jessica Jones
+Q116113: Jim Gordon                         # Jim Gordon
+Q1689418: Jimmy Olsen                       # Jimmy Olsen
+Q2663841: John Constantine, Constantine     # John Constantine
+Q1775579: John D. Rockerduck                # John D. Rockerduck
+Q2423326: John Jameson                      # John Jameson
+Q2556873: John Stewart                      # John Stewart
+Q836748: Johnny Blaze                       # Johnny Blaze
+Q62603901: Joker                            # Joker
+Q2321418: Jolly Jumper                      # Jolly Jumper
+Q277545: Jon Arbuckle                       # Jon Arbuckle
+Q27965060: Jon Kent                         # Jon Kent
+Q11082378: Jonah Hex                        # Jonah Hex
+Q2068759: Jor-El                            # Jor-El
+Q1058700: Jotaro Kujo                       # Jotaro Kujo
+Q59665: Jubilee                             # Jubilee
+Q1065786: Judge Dredd                       # Judge Dredd
+Q841372: Juggernaut                         # Juggernaut
+Q3188107: Jughead Jones                     # Jughead Jones
+Q2276597: Julia Carpenter                   # Julia Carpenter
+Q938086: Ka-Zar                             # Ka-Zar
+Q1332798: Kaito Kuroba                      # Kaito Kuroba
+Q1767: Kakashi Hatake                       # Kakashi Hatake
+Q15208946: Kamala Khan                      # Kamala Khan
+Q1982051: Kang the Conqueror                # Kang the Conqueror
+Q738569: Kara Zor-El                        # Kara Zor-El
+Q6375088: Katana                            # Katana
+Q2469992: Kate Kane                         # Kate Kane
+Q1315973: Katzenjammer Kids                 # Katzenjammer Kids
+Q137471: Ken Parker                         # Ken Parker
+Q6388279: Ken Parker                        # Ken Parker (series)
+Q1185545: Kenshiro                          # Kenshiro
+Q3196369: Kid Flash                         # Kid Flash
+Q974336: Killer Croc                        # Killer Croc
+Q1753322: Kingpin                           # Kingpin
+Q11673431: Kitarō                           # Kitarō
+Q547306: Kitty Pryde                        # Kitty Pryde
+Q2703749: Klaw                              # Klaw
+Q85774745: Knull                            # Knull
+Q654588: Kraven the Hunter                  # Kraven the Hunter
+Q726731: Krazy Kat, Ignatz                  # Krazy Kat, Ignatz
+Q757141: Krillin                            # Krillin
+Q5136609: Krypto                            # Krypto
+Q302550: Kyle Rayner                        # Kyle Rayner
+Q52863: L                                   # L
+Q2448071: Lady Deathstrike                  # Lady Deathstrike
+Q944728: Lana Lang                          # Lana Lang
+Q727911: Largo Winch                        # Largo Winch
+Q1607791: Legion                            # Legion
+Q323934: Leonardo                           # Leonardo
+Q30311583: Levi Ackerman                    # Levi Ackerman
+Q694790: Lex Luthor                         # Lex Luthor
+Q1866715: Li'l Abner                        # Li'l Abner
+Q843545: Light Yagami                       # Light Yagami
+Q2351248: Linus van Pelt                    # Linus van Pelt
+Q2453186: Little Lulu                       # Little Lulu
+Q113531: Little Nemo                        # Little Nemo
+Q1865791: Little Orphan Annie, Orphan Annie # Little Orphan Annie, Orphan Annie
+Q19382: Lizard                              # Lizard
+Q44121: Lobo                                # Lobo
+Q845922: Lois Lane                          # Lois Lane
+Q1147326: Loki                              # Loki
+Q159202: Lucius Fox                         # Lucius Fox
+Q137475: Lucky Luke                         # Lucky Luke
+Q2422491: Lucy van Pelt                     # Lucy van Pelt
+Q2267760: Luke Cage                         # Luke Cage
+Q2300752: Lum Invader                       # Lum Invader
+Q876182: Lupin III                          # Lupin the Third (series)
+Q2917078: Mac Gargan                        # Mac Gargan
+Q83629: Mad Hatter                          # Mad Hatter
+Q2204761: Madame Web                        # Madame Web
+Q517331: Mafalda                            # Mafalda
+Q1647361: Magica De Spell                   # Magica De Spell
+Q2651308: Magik                             # Magik
+Q840291: Magneto                            # Magneto
+Q910881: Majin Buu                          # Majin Buu
+Q1471053: Man-Bat                           # Man-Bat
+Q2417914: Mandarin                          # Mandarin
+Q59694: Mandrake the Magician               # Mandrake the Magician
+Q2009899: Mantis                            # Mantis
+Q927598: Mar-Vell                           # Mar-Vell
+Q1319784: Maria Hill                        # Maria Hill
+Q841812: Marsupilami                        # Marsupilami
+Q675179: Martian Manhunter                  # Martian Manhunter
+Q684109: Martin Mystère                     # Martin Mystère (series)
+Q27810: Mary Jane Watson                    # Mary Jane Watson
+Q1752065: Master Roshi                      # Master Roshi
+Q316894: Max, Moritz                        # Max, Moritz
+Q1649604: Maxwell Lord                      # Maxwell Lord
+Q2418665: Mephisto                          # Mephisto
+Q1528452: Metamorpho                        # Metamorpho
+Q323920: Michelangelo                       # Michelangelo
+Q113870: Michonne                            # Michonne
+Q30311579: Mikasa Ackerman                  # Mikasa Ackerman
+Q59826: Miles Morales                       # Miles Morales
+Q6509755: Minnie the Minx                   # Minnie the Minx
+Q865017: Mister Fantastic, Reed Richards    # Mister Fantastic
+Q1638775: Mister Hyde                       # Mister Hyde
+Q2365204: Mister Miracle                    # Mister Miracle
+Q3316968: Mister Negative                   # Mister Negative
+Q302534: Mister Sinister                    # Mister Sinister
+Q16170148: Usagi Yojimbo, Miyamoto Usagi    # Miyamoto Usagi
+Q73544: Mockingbird                         # Mockingbird
+Q957752: Modesty Blaise                     # Modesty Blaise
+Q208927: MODOK                              # MODOK
+Q927578: Molecule Man                       # Molecule Man
+Q2447271: Mongul                            # Mongul
+Q938975: Monica                             # Monica and Friends
+Q3320731: Monica Rambeau                    # Monica Rambeau
+Q477948: Monkey D. Luffy                    # Monkey D. Luffy
+Q1037532: Moon Knight                       # Moon Knight
+Q1087722: Morbius                           # Morbius
+Q1100856: Mortadelo, Filemón                # Mortadelo, Filemón
+Q557584: Mr. Freeze                         # Mr. Freeze
+Q3316552: Ms. Marvel                        # Ms. Marvel
+Q1955932: Mutt, Jeff                        # Mutt, Jeff
+Q2283843: Mysterio                          # Mysterio
+Q737236: Mystique                           # Mystique
+Q877964: Nami                               # Nami
+Q613067: Namor                              # Namor
+Q2373170: Nancy, Sluggo                     # Nancy, Sluggo
+Q931: Naruto Uzumaki                        # Naruto Uzumaki
+Q2721134: Nebula                            # Nebula
+Q3337686: Ned Leeds                         # Ned Leeds
+Q15378790: Negan                            # Negan
+Q2150767: Nestor                            # Nestor
+Q975100: Nick Fury                          # Nick Fury
+Q1190653: Nico Robin                        # Nico Robin
+Q5342183: Nightcrawler                      # Nightcrawler
+Q686623: Nightwing                          # Nightwing
+Q17090877: Norman Osborn                    # Norman Osborn
+Q2356215: Nova                              # Nova
+Q7063995: Nova                              # Nova
+Q19398: Nova                                # Nova
+Q715597: Obelix                             # Obelix
+Q986209: Odie                               # Odie
+Q1319513: Odin                              # Odin
+Q2531690: Olive Oyl                         # Olive Oyl
+Q2420335: Omega Red                         # Omega Red
+Q3352056: Omni-Man                          # Omni-Man
+Q2075745: Onslaught                         # Onslaught
+Q1744341: Orochimaru                        # Orochimaru
+Q939734: Papa Smurf                         # Papa Smurf
+Q838258: Peacemaker                         # Peacemaker
+Q3898777: Peggy Carter                      # Peggy Carter
+Q21994166: Pepe the Frog                    # Pepe the Frog
+Q936542: Pepper Potts                       # Pepper Potts
+Q2094514: Peppermint Patty                  # Peppermint Patty
+Q2342943: Perry White                       # Perry White
+Q3815697: Phantom                           # Phantom
+Q1785114: Phantom Stranger                  # Phantom Stranger
+Q8347897: Phoenix Force                     # Phoenix Force
+Q151659: Piccolo                            # Piccolo
+Q746838: Plastic Man                        # Plastic Man
+Q2100584: Pogo                              # Pogo
+Q375671: Poison Ivy                         # Poison Ivy
+Q2071256: Polaris                           # Polaris
+Q199796: Popeye                             # Popeye
+Q2084755: Portgas D. Ace                    # Portgas D. Ace
+Q948668: Power Girl                         # Power Girl
+Q48209: Prince Valiant                      # Prince Valiant
+Q838076: Professor X, Charles Xavier        # Professor X
+Q2274942: Prowler                           # Prowler
+Q729150: Punisher, Frank Castle             # Punisher
+Q2339776: Pyro                              # Pyro
+Q2092954: Question                          # Question
+Q929273: Quicksilver                        # Quicksilver
+Q158931: Ra's al Ghul                       # Ra's al Ghul
+Q258015: Rachel Summers                     # Rachel Summers
+Q699792: Ranma Saotome                      # Ranma Saotome
+Q59692: Rantanplan                          # Rantanplan
+Q2078291: Raphael                           # Raphael
+Q3222411: Rastapopoulos                     # Rastapopoulos
+Q245928: Raven                              # Raven
+Q2143880: Red Hood                          # Red Hood
+Q2034529: Red Skull                         # Red Skull
+Q162335: Red Sonja                          # Red Sonja
+Q572626: Rhino                              # Rhino
+Q2190861: Richie Rich                       # Richie Rich
+Q348845: Richie Rich                        # Richie Rich (series)
+Q605417: Rick Grimes                        # Rick Grimes
+Q836789: Riddler, Edward Nygma              # Riddler
+Q944573: Robbie Robertson                   # Robbie Robertson
+Q59996: Robin                               # Robin
+Q638476: Rocket Raccoon                     # Rocket Raccoon
+Q838097: Rogue                              # Rogue
+Q4048401: Rogue Trooper                     # Rogue Trooper
+Q1772041: Ronan the Accuser                 # Ronan the Accuser
+Q858432: Roronoa Zoro                       # Roronoa Zoro
+Q2346769: Rorschach                         # Rorschach
+Q1841232: Roy Harper                        # Roy Harper
+Q4377323: Rupert Bear                       # Rupert Bear
+Q2328583: Ryuk                              # Ryuk
+Q431862: Sabretooth                         # Sabretooth
+Q3944383: Sabrina Spellman                  # Sabrina Spellman
+Q220784: Sailor Jupiter                     # Sailor Jupiter
+Q840529: Sailor Mars                        # Sailor Mars
+Q429403: Sailor Mercury                     # Sailor Mercury
+Q1643098: Sailor Moon                       # Sailor Moon (series)
+Q521902: Sailor Venus                       # Sailor Venus
+Q203240: Sakura Haruno                      # Sakura Haruno
+Q2481694: Sally Brown                       # Sally Brown
+Q1049890: Sandman                           # Sandman
+Q72512: Sandman                             # Sandman
+Q1061765: Sanji                             # Sanji
+Q1740: Sasuke Uchiha                        # Sasuke Uchiha
+Q1140442: Sazae-san                         # Sazae-san
+Q295375: Scarecrow                          # Scarecrow
+Q3589344: Scarecrow                         # Scarecrow
+Q929285: Scarlet Witch, Wanda Maximoff      # Scarlet Witch
+Q246384: Schroeder                          # Schroeder
+Q81787: Scott Lang                          # Scott Lang
+Q6122585: Scott Pilgrim                     # Scott Pilgrim
+Q1199291: Scott Pilgrim                     # Scott Pilgrim (series)
+Q11937: Scrooge McDuck                      # Scrooge McDuck
+Q2265812: Sebastian Shaw                    # Sebastian Shaw
+Q782181: Sentinel                           # Sentinel
+Q491609: Sentry                             # Sentry
+Q2262357: Shang-Chi                         # Shang-Chi
+Q2321523: Shanks                            # Shanks
+Q978515: Sharon Carter                      # Sharon Carter
+Q1462707: Shazam                            # Shazam
+Q677627: She-Hulk                           # She-Hulk
+Q844697: Shinichi Kudo                      # Shinichi Kudo
+Q608166: Shin-chan, Shinnosuke Nohara                  # Shinnosuke Nohara
+Q2015743: Shocker                           # Shocker
+Q252662: Shredder                           # Shredder
+Q7505397: Shuri                             # Shuri
+Q18754954: Silk                             # Silk
+Q1877130: Silver Sable                      # Silver Sable
+Q898201: Silver Samurai                     # Silver Samurai
+Q95153: Silver Surfer                       # Silver Surfer
+Q2500449: Silvermane                        # Silvermane
+Q2279525: Sinestro                          # Sinestro
+Q4537599: Smurf                            # Smurf
+Q305405: Smurfette                          # Smurfette
+Q207369: Snoopy                             # Snoopy
+Q1640056: Snowy                             # Snowy
+Q2090850: Solomon Grundy                    # Solomon Grundy
+Q839858: Spawn                              # Spawn
+Q496879: Spectre                            # Spectre
+Q2186500: Spider-Girl                       # Spider-Girl
+Q79037: Spider-Man, Peter Parker            # Spider-Man
+Q48732969: Spider-Man                       # Spider-Man
+Q2092660: Spider-Man 2099                   # Spider-Man 2099
+Q3966701: Spider-Man Noir                   # Spider-Man Noir
+Q20979395: Spider-Woman                     # Spider-Woman
+Q2922722: Spider-Woman                      # Spider-Woman
+Q59999: Spirit                              # Spirit
+Q721050: Spirou                             # Spirou
+Q1130014: Spirou, Fantasio                  # Spirou & Fantasio
+Q2082114: Splinter                          # Splinter
+Q4353353: Squirrel Girl                     # Squirrel Girl
+Q3496918: Star-Lord, Peter Quill            # Star-Lord
+Q427987: Starfire                           # Starfire
+Q2005691: Steel                             # Steel
+Q287548: Stephanie Brown                    # Stephanie Brown
+Q3973228: Steppenwolf                       # Steppenwolf
+Q632212: Storm                              # Storm
+Q977088: Sunfire                            # Sunfire
+Q601199: Sunspot                            # Sunspot
+Q1412720: Superboy                          # Superboy
+Q2723204: Superboy-Prime                    # Superboy-Prime
+Q8981293: Supergirl                         # Supergirl
+Q3832603: Supergirl                         # Supergirl
+Q79015: Superman, Clark Kent, Kal-El        # Superman
+Q2428427: Superman                          # Superman
+Q1427625: Swamp Thing                       # Swamp Thing
+Q281901: Talia al Ghul                      # Talia al Ghul
+Q85805158: Tanjirō Kamado                   # Tanjirō Kamado
+Q2141950: Tank Girl                         # Tank Girl
+Q2532044: Taskmaster                        # Taskmaster
+Q12088: Tex Willer                          # Tex Willer
+Q2276627: Thanos                            # Thanos
+Q744536: Tintin                             # The Adventures of Tintin
+Q104880994: Homelander                      # The Homelander
+Q217533: Joker                              # The Joker
+Q2328990: Leader                            # The Leader
+Q384193: Penguin, Oswald Cobblepot          # The Penguin
+Q947755: Phantom                            # The Phantom (strip)
+Q11221: Smurf                               # The Smurfs
+Q910204: Thing, Ben Grimm                   # Thing
+Q1756503: Thomson, Thompson                 # Thomson, Thompson
+Q717588: Thor                               # Thor
+Q1841525: Thunderbolt Ross                  # Thunderbolt Ross
+Q1076696: Tim Drake                         # Tim Drake
+Q2623764: Tinkerer                          # Tinkerer
+Q52986: Tintin                              # Tintin
+Q174874: Titeuf                             # Titeuf
+Q2377661: Toad                              # Toad
+Q59643: Tombstone                           # Tombstone
+Q1152213: Tony Tony Chopper                 # Tony Tony Chopper
+Q757302: Trunks                             # Trunks
+Q295599: Two-Face, Harvey Dent              # Two-Face
+Q2540291: U.S. Agent                        # U.S. Agent
+Q615226: Uatu                               # Uatu
+Q2474195: Ultron                            # Ultron
+Q2299139: Uncle Ben                         # Uncle Ben
+Q757015: Sailor Moon, Usagi Tsukino         # Usagi Tsukino
+Q901608: Usagi Yojimbo                      # Usagi Yojimbo (series)
+Q1078696: Usopp                             # Usopp
+Q209092: V                                  # V
+Q2128793: Valkyrie                          # Valkyrie
+Q658568: Valérian, Laureline                # Valérian, Laureline
+Q128429: Vampirella                         # Vampirella
+Q2513638: Vandal Savage                     # Vandal Savage
+Q180916: Vegeta                             # Vegeta
+Q1621261: Venom                             # Venom
+Q2624426: Ventriloquist                     # Ventriloquist
+Q3564252: Veronica Lodge                    # Veronica Lodge
+Q2663997: Victor Zsasz                      # Victor Zsasz
+Q568267: Viper                              # Viper
+Q2307071: Vision                            # Vision
+Q2445695: Vitalstatistix                    # Vitalstatistix
+Q2296291: Vulture                           # Vulture
+Q611576: Wally West                         # Wally West
+Q616337: War Machine                        # War Machine
+Q770064: Angel, Warren Worthington          # Warren Worthington III
+Q648125: Wasp                               # Wasp
+Q2551564: William Stryker                   # William Stryker
+Q186422: Wolverine, Logan                   # Wolverine
+Q919576: Wonder Girl                        # Wonder Girl
+Q2656267: Wonder Girl                       # Wonder Girl
+Q1041907: Wonder Man                        # Wonder Man
+Q338430: Wonder Woman, Diana Prince         # Wonder Woman
+Q4357278: Wong                              # Wong
+Q246867: Woodstock                          # Woodstock
+Q1872439: X-23                              # X-23
+Q892228: Yellow Kid                         # Yellow Kid
+Q137485: Zagor                              # Zagor
+Q3574569: Zagor                             # Zagor (series)
+Q860922: Zatanna                            # Zatanna
