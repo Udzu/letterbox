@@ -225,7 +225,9 @@ function checkNumbers(tree, numbers, rules, ops) {
   const options = ls.map((leaf) => {
     const ways = splits(leaf, numbers);
     if (!ways.length) {
-      throw new ExprError(`${leafText(leaf)} isn't made from the numbers`);
+      throw new ExprError(leaf.frac === null && !(ops.concat && leaf.int.length > 1)
+        ? `There's no ${leaf.int}`
+        : `${leafText(leaf)} can't be made from the numbers`);
     }
     return ways;
   });
@@ -234,33 +236,45 @@ function checkNumbers(tree, numbers, rules, ops) {
     if (leaf.rep && !ops.rec) throw new ExprError("Recurring decimals aren't allowed");
     if (leaf.frac !== null && !leaf.rep && !ops.dot) throw new ExprError("Decimals aren't allowed");
   }
-  // try every combination of splits (there are very few)
-  const fits = (ordered, all) => {
-    const go = (k, parts) => {
-      if (k === ls.length) return assign(parts, numbers, ordered, all);
-      return options[k].some((w) => (ops.concat || w.length === 1) && go(k + 1, [...parts, ...w]));
-    };
-    return go(0, []);
+  // every combination of splits (there are very few)
+  const combos = [];
+  const go = (k, parts) => {
+    if (k === ls.length) combos.push(parts);
+    else for (const w of options[k]) if (ops.concat || w.length === 1) go(k + 1, [...parts, ...w]);
   };
+  go(0, []);
+  const fits = (ordered, all) => combos.some((parts) => assign(parts, numbers, ordered, all));
   if (fits(!!rules.order, !!rules.all)) return;
-  if (!fits(false, false)) throw new ExprError("Uses numbers that aren't available");
+  if (!fits(false, false)) {
+    // name the numbers used too often, in the combination that overuses fewest
+    let best = null;
+    for (const parts of combos) {
+      const left = new Map();
+      for (const n of numbers) left.set(n, (left.get(n) ?? 0) + 1);
+      const over = new Set();
+      let excess = 0;
+      for (const n of parts) {
+        const k = (left.get(n) ?? 0) - 1;
+        left.set(n, k);
+        if (k < 0) { over.add(n); excess++; }
+      }
+      if (!best || excess < best.excess) best = { excess, over };
+    }
+    const names = [...best.over].sort((a, b) => a - b).map((n) => `${n}s`);
+    throw new ExprError(`Uses too many ${names.join(" and ")}`);
+  }
   if (rules.order && !fits(true, false)) throw new ExprError("The numbers must be used in order");
   throw new ExprError("All the numbers must be used");
 }
 
-/**
- * Evaluate a parsed expression exactly, checking it against the puzzle.
- * Returns [numerator, denominator], as Numbers if they fit exactly, else as
- * BigInts; throws ExprError.
- */
-export function evaluate(tree, { numbers, rules = {}, ops = {} }) {
-  checkNumbers(tree, numbers, rules, ops);
-  const need = (op) => {
-    if (!ops[op]) throw new ExprError(`${OP_NAMES[op]} isn't allowed`);
-  };
+// The exact value of an expression, the operations it uses, and whether any
+// step is a fraction; throws ExprError for maths errors (like division by zero).
+function calculate(tree) {
+  const used = new Set();
+  let fraction = false;
   const ev = (t) => {
     const v = value(t);
-    if (rules.integers && v[1] !== 1n) throw new ExprError("Fractions aren't allowed");
+    if (v[1] !== 1n) fraction = true;
     return v;
   };
   const value = (t) => {
@@ -277,7 +291,7 @@ export function evaluate(tree, { numbers, rules = {}, ops = {} }) {
       }
       case "neg": { const [n, d] = ev(t.a); return [-n, d]; }
       case "!": {
-        need("fact");
+        used.add("fact");
         const [n, d] = ev(t.a);
         if (d !== 1n || n < 0n) throw new ExprError("Factorials need a whole number that isn't negative");
         if (n > 500n) throw new ExprError(TOO_BIG);
@@ -285,19 +299,16 @@ export function evaluate(tree, { numbers, rules = {}, ops = {} }) {
         for (let i = 2n; i <= n; i++) f *= i;
         return rat(f, 1n);
       }
-      case "sqrt": need("sqrt"); return power(ev(t.a), [1n, 2n], "Square root");
+      case "sqrt": used.add("sqrt"); return power(ev(t.a), [1n, 2n], "Square root");
       case "root": {
-        need("root");
+        used.add("root");
         const [bn, bd] = ev(t.b);
         if (bn === 0n) throw new ExprError("0th root");
         return power(ev(t.a), bn < 0n ? [-bd, -bn] : [bd, bn], "Root");
       }
-      case "^": {
-        need("pow");
-        return power(ev(t.a), ev(t.b), "Power");
-      }
+      case "^": used.add("pow"); return power(ev(t.a), ev(t.b), "Power");
       case "@": {
-        need("cat");
+        used.add("cat");
         const [a, b] = ev(t.a), [c, d] = ev(t.b);
         if (b !== 1n || d !== 1n || a < 0n || c < 0n) throw new ExprError("‖ joins whole numbers that aren't negative");
         if (a === 0n) throw new ExprError("‖ can't start with 0");
@@ -315,7 +326,44 @@ export function evaluate(tree, { numbers, rules = {}, ops = {} }) {
     }
     throw new Error(`Unknown node ${t.type}`);
   };
-  return toNumbers(ev(tree));
+  return { value: toNumbers(ev(tree)), used, fraction };
+}
+
+/**
+ * Evaluate a parsed expression exactly and check it against the puzzle (if
+ * given). Returns { value, error }: value is [numerator, denominator], as
+ * Numbers if they fit exactly, else as BigInts, and is missing after a maths
+ * error; error is the first problem found, if any.
+ */
+export function check(tree, puzzle) {
+  let result;
+  try {
+    result = calculate(tree);
+  } catch (e) {
+    if (e instanceof ExprError) return { error: e.message };
+    throw e;
+  }
+  const { value, used, fraction } = result;
+  if (!puzzle) return { value };
+  const { numbers, rules = {}, ops = {} } = puzzle;
+  try {
+    checkNumbers(tree, numbers, rules, ops);
+  } catch (e) {
+    if (e instanceof ExprError) return { value, error: e.message };
+    throw e;
+  }
+  for (const op of ["cat", "pow", "fact", "sqrt", "root"]) {
+    if (used.has(op) && !ops[op]) return { value, error: `${OP_NAMES[op]} isn't allowed` };
+  }
+  if (rules.integers && fraction) return { value, error: "Fractions aren't allowed" };
+  return { value };
+}
+
+/** check(), but returning just the value and throwing ExprError on any problem. */
+export function evaluate(tree, puzzle) {
+  const { value, error } = check(tree, puzzle);
+  if (error) throw new ExprError(error);
+  return value;
 }
 
 export function formatValue([n, d]) {
