@@ -1,0 +1,211 @@
+# name: Month names
+# description: The months of the Gregorian, Islamic, Hebrew, Hindu, Persian, French Republican, Ethiopian, Coptic and Baháʼí calendars.
+# tag: language
+
+# =========
+# Gregorian
+# =========
+
+January
+February
+March
+April
+May
+June
+July
+August
+September
+October
+November
+December
+
+# ===============
+# Islamic (Hijri)
+# ===============
+
+Muharram
+Safar
+Rabi' al-Awwal
+Rabi' al-Thani
+Jumada al-Awwal
+Jumada al-Thani
+Rajab
+Sha'ban
+Ramadan
+Shawwal
+Dhu al-Qadah
+Dhu al-Hijjah
+
+# ====================
+# Hebrew (civil order)
+# ====================
+
+Tishrei
+Cheshvan
+Kislev
+Tevet
+Shevat
+Adar
+Adar I
+Adar II
+Nisan
+Iyar
+Sivan
+Tammuz
+Av
+Elul
+
+# =================================
+# Hindu (lunisolar, Sanskrit names)
+# =================================
+
+Chaitra
+Vaishakha
+Jyeshtha
+Ashadha
+Shravana
+Bhadrapada
+Ashvin
+Kartika
+Agrahayana
+Pausha
+Magha
+Phalguna
+
+# =====================
+# Persian (Solar Hijri)
+# =====================
+
+Farvardin
+Ordibehesht
+Khordad
+Tir
+Mordad
+Shahrivar
+Mehr
+Aban
+Azar
+Dey
+Bahman
+Esfand
+
+# =================
+# French Republican
+# =================
+
+Vendémiaire
+Brumaire
+Frimaire
+Nivôse
+Pluviôse
+Ventôse
+Germinal
+Floréal
+Prairial
+Messidor
+Thermidor
+Fructidor
+
+# =======================================
+# Ethiopian (Tir is listed under Persian)
+# =======================================
+
+Meskerem
+Tikimt
+Hidar
+Tahsas
+Yekatit
+Megabit
+Miyazya
+Ginbot
+Sene
+Hamle
+Nehase
+Pagume
+
+# ======
+# Coptic
+# ======
+
+Thout
+Paopi
+Hathor
+Koiak
+Tobi
+Meshir
+Paremhat
+Parmouti
+Pashons
+Paoni
+Epip
+Mesori
+Pi Kogi Enavot
+
+# ======
+# Baháʼí
+# ======
+
+Bahá
+Jalál
+Jamál
+ʻAẓamat
+Núr
+Raḥmat
+Kalimát
+Kamál
+Asmáʼ
+ʻIzzat
+Mashíyyat
+ʻIlm
+Qudrat
+Qawl
+Masáʼil
+Sharaf
+Sulṭán
+Mulk
+ʻAláʼ
+
+# =====================
+# Alternative spellings
+# =====================
+
+Rabi' al-Akhir
+Jumada al-Ula
+Jumada al-Akhirah
+Shaban
+Ramadhan
+Ramazan
+Shawal
+Dhu al-Qa'dah
+Dhu al-Hijja
+Nissan
+Iyyar
+Tamuz
+Tishri
+Heshvan
+Marcheshvan
+Chislev
+Tebeth
+Shvat
+Vaisakha
+Baisakh
+Jyaistha
+Asadha
+Shravan
+Sawan
+Bhadra
+Ashwin
+Kartik
+Margashirsha
+Paush
+Magh
+Phalgun
+Amordad
+Isfand
+Tikemt
+Hedar
+Yakatit
+Maggabit
+Genbot
+Nehasse
+Pagumen
