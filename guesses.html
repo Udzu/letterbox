@@ -1,0 +1,815 @@
+<!doctype html>
+<!-- Generated from src/guesses/guesses.template.html by scripts/build.mjs: do not edit -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+  // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+</script>
+<title>Guesses</title>
+<style>
+  :root {
+    --green: #3b9a4b;
+    --yellow: #d6a520;
+    --grey: #858b91;
+  }
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "setup" "game" "history";
+    gap: 16px 32px;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    main {
+      grid-template-columns: 400px minmax(0, 1fr);
+      grid-template-areas: "setup game" "history history";
+    }
+  }
+  #setup { grid-area: setup; }
+  #game-section { grid-area: game; }
+  #history-section { grid-area: history; }
+  .intro { margin: 0 0 16px; color: #666; }
+  h2 { margin: 0 0 8px; font-size: 1.1rem; }
+  fieldset { border: none; margin: 0 0 14px; padding: 0; min-width: 0; }
+  legend { padding: 0; margin-bottom: 6px; color: #444; font-weight: 600; }
+  fieldset:disabled { opacity: 0.6; }
+  label { color: #444; }
+  input { font: inherit; font-size: 1rem; }
+  input[type="number"] { padding: 5px 6px; box-sizing: border-box; width: 4em; }
+  input:invalid { outline: 2px solid #d00; }
+  button { font-size: 1rem; cursor: pointer; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-bottom: 8px; }
+  .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 4px 12px; }
+  .checks label { white-space: nowrap; }
+  .nowrap { white-space: nowrap; }
+  .group-name { color: #444; min-width: 3.4em; }
+  .note { color: #888; font-size: 0.85rem; }
+  .list-row { display: grid; grid-template-columns: 5.5em auto auto; justify-content: start; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .list-row .note { grid-column: 1 / -1; margin: 0 0 4px; }
+  .list-name { color: #444; }
+  #lists-help, #counts { margin: 6px 0 0; }
+  a { color: #06c; }
+
+  /* game */
+  #top-line { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  #new-game { font-size: 1.15rem; font-weight: 600; padding: 8px 18px; }
+  #board { container-type: inline-size; display: grid; gap: 6px; max-width: calc(var(--n) * 3.6rem); margin-bottom: 10px; }
+  .board-row { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 6px; }
+  .tile {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #d3d6da; box-sizing: border-box;
+    font-weight: 700; font-size: min(1.8rem, calc(60cqi / var(--n)));
+    text-transform: uppercase; user-select: none;
+  }
+  .tile.filled { border-color: #878a8c; }
+  .tile.g, .tile.y, .tile.x { color: #fff; border-color: transparent; }
+  .g { background: var(--green); }
+  .y { background: var(--yellow); }
+  .x { background: var(--grey); }
+  .board-row.shake { animation: shake 0.3s; }
+  @keyframes shake {
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+  }
+  #message { min-height: 1.5em; margin: 4px 0 8px; }
+  #message.win { color: #070; font-weight: 600; }
+  #message.error { color: #c00; }
+  #message .answer { font-weight: 600; }
+  #keyboard { display: grid; gap: 6px; max-width: 520px; margin-bottom: 10px; user-select: none; }
+  .key-row { display: flex; gap: 5px; justify-content: center; }
+  .key {
+    flex: 1 1 0; min-width: 0; height: 3.2rem; padding: 0;
+    border: none; border-radius: 4px; background: #dfe2e6; color: #000;
+    font-size: 1rem; font-weight: 600; touch-action: manipulation;
+  }
+  .key.wide { flex-grow: 1.6; font-size: 0.85rem; }
+  .key.g, .key.y, .key.x { color: #fff; }
+  .key.g { background: var(--green); }
+  .key.y { background: var(--yellow); }
+  .key.x { background: var(--grey); }
+  .key:disabled { cursor: default; }
+  #possible-line { margin: 6px 0; color: #444; }
+  #possible-list { columns: 8em; column-gap: 16px; font-family: ui-monospace, monospace; font-size: 0.9rem; margin-top: 6px; }
+
+  /* history */
+  .header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+  .header h2 { margin: 0; }
+  #history-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  th { color: #444; font-weight: 600; border-bottom: 1px solid #999; }
+  td.num { font-variant-numeric: tabular-nums; }
+  td.win { color: #070; }
+  td.lose { color: #a50; }
+  td .rules { display: block; color: #888; font-size: 0.8rem; }
+  #history-empty { color: #888; }
+
+  nav { max-width: 1300px; margin: 0 auto 16px; font-size: 0.95rem; color: #666; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <b>Guesses</b> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
+<main>
+  <section id="setup">
+    <p class="intro">Find a hidden word in a few guesses, as in Wordle. After each guess, green marks a right letter in the right place and yellow a right letter in the wrong place.</p>
+    <fieldset id="lists-set">
+      <legend>Lists</legend>
+      <div class="list-row">
+        <span class="list-name">Word list</span>
+        <button type="button" id="load-words">Load…</button>
+        <button type="button" id="clear-words">Clear</button>
+        <span id="words-info" class="note"></span>
+        <input type="file" id="words-file" accept=".txt,text/plain" hidden>
+      </div>
+      <div class="list-row">
+        <span class="list-name">@ list</span>
+        <button type="button" id="load-at">Load…</button>
+        <button type="button" id="clear-at">Clear</button>
+        <span id="at-info" class="note"></span>
+        <input type="file" id="at-file" accept=".txt,text/plain" hidden>
+      </div>
+      <p id="lists-help" class="note">Load a text file with one word or phrase per line, or a <a href="wordlists.html">ready-made list</a>. Answers come from the @ list if there is one, and guesses from either list. The lists are shared with the <a href="patterns.html">Patterns</a> page.</p>
+    </fieldset>
+    <fieldset id="rules-set">
+      <legend>Rules</legend>
+      <div class="row">
+        <span class="nowrap"><input type="number" id="length" min="2" max="20" step="1" required> <label for="length">letters</label></span>
+        <span class="nowrap"><label title="Without a limit, keep guessing until you find the word or give up"><input type="checkbox" id="limited"> Limit of</label>
+        <input type="number" id="limit" min="1" max="30" step="1" required aria-label="Guess limit"> <label for="limit">guesses</label></span>
+      </div>
+      <div class="row">
+        <span class="group-name">Allow:</span>
+        <label title="Answers can repeat a letter (guesses always can)"><input type="checkbox" id="duplicates"> duplicates</label>
+        <label title="Answers can have capital letters, as names and abbreviations do (guesses always can)"><input type="checkbox" id="capitals"> capitals</label>
+        <label title="Answers and guesses can be phrases, using only their letters, so “a lot” is ALOT"><input type="checkbox" id="phrases"> phrases</label>
+      </div>
+      <div class="row">
+        <span class="group-name">Lock:</span>
+        <label title="Later guesses must keep green letters in place"><input type="checkbox" id="lock-greens"> greens</label>
+        <label title="Later guesses must use yellow letters somewhere"><input type="checkbox" id="lock-yellows"> yellows</label>
+      </div>
+      <p id="counts" class="note" aria-live="polite"></p>
+    </fieldset>
+    <fieldset id="help-set">
+      <legend>Help</legend>
+      <label title="After each guess, show how many answers still fit the colours, with a button to list them"><input type="checkbox" id="show-possible"> Show possible answer count</label>
+    </fieldset>
+  </section>
+
+  <section id="game-section">
+    <div id="top-line">
+      <button type="button" id="new-game">New word</button>
+      <button type="button" id="give-up" disabled>Give up</button>
+    </div>
+    <div id="board" aria-label="Guesses"></div>
+    <div id="message" aria-live="polite"></div>
+    <div id="keyboard"></div>
+    <div id="possible-line" hidden>
+      <span id="possible-count"></span>
+      <button type="button" id="possible-toggle" class="small-button">List them</button>
+      <div id="possible-list" hidden></div>
+    </div>
+  </section>
+
+  <section id="history-section">
+    <div class="header">
+      <h2>History</h2>
+      <button type="button" id="clear-history">Clear</button>
+    </div>
+    <div id="history-wrap">
+      <table>
+        <thead><tr><th>Answer</th><th>Result</th><th>Time</th><th>Rules</th></tr></thead>
+        <tbody id="history"></tbody>
+      </table>
+    </div>
+    <p id="history-empty">No games yet.</p>
+  </section>
+</main>
+<script>
+(() => {
+  // src/patterns/charset.js
+  var MAX_CP = 1114111;
+  var CharSet = class _CharSet {
+    // ranges must already be normalised: use CharSet.from for arbitrary ranges
+    constructor(ranges) {
+      this.ranges = ranges;
+      Object.freeze(ranges);
+      Object.freeze(this);
+    }
+    static from(ranges) {
+      const sorted = ranges.filter(([lo, hi]) => lo <= hi).sort((x, y) => x[0] - y[0]);
+      const out = [];
+      for (const [lo, hi] of sorted) {
+        const last = out[out.length - 1];
+        if (last && lo <= last[1] + 1) last[1] = Math.max(last[1], hi);
+        else out.push([lo, hi]);
+      }
+      return new _CharSet(out.map((r) => Object.freeze(r)));
+    }
+    static of(...cps) {
+      return _CharSet.from(cps.map((cp) => [cp, cp]));
+    }
+    isEmpty() {
+      return this.ranges.length === 0;
+    }
+    isAll() {
+      return this.ranges.length === 1 && this.ranges[0][0] === 0 && this.ranges[0][1] === MAX_CP;
+    }
+    has(cp) {
+      const r = this.ranges;
+      let lo = 0;
+      let hi = r.length - 1;
+      while (lo <= hi) {
+        const mid = lo + hi >> 1;
+        if (cp < r[mid][0]) hi = mid - 1;
+        else if (cp > r[mid][1]) lo = mid + 1;
+        else return true;
+      }
+      return false;
+    }
+    // number of code points in the set
+    size() {
+      return this.ranges.reduce((n, [lo, hi]) => n + hi - lo + 1, 0);
+    }
+    union(other) {
+      return _CharSet.from([...this.ranges, ...other.ranges].map(([lo, hi]) => [lo, hi]));
+    }
+    intersect(other) {
+      const a = this.ranges;
+      const b = other.ranges;
+      const out = [];
+      let i = 0;
+      let j = 0;
+      while (i < a.length && j < b.length) {
+        const lo = Math.max(a[i][0], b[j][0]);
+        const hi = Math.min(a[i][1], b[j][1]);
+        if (lo <= hi) out.push(Object.freeze([lo, hi]));
+        if (a[i][1] < b[j][1]) i++;
+        else j++;
+      }
+      return new _CharSet(out);
+    }
+    complement() {
+      const out = [];
+      let next = 0;
+      for (const [lo, hi] of this.ranges) {
+        if (lo > next) out.push(Object.freeze([next, lo - 1]));
+        next = hi + 1;
+      }
+      if (next <= MAX_CP) out.push(Object.freeze([next, MAX_CP]));
+      return new _CharSet(out);
+    }
+    minus(other) {
+      return this.intersect(other.complement());
+    }
+    equals(other) {
+      return this.ranges.length === other.ranges.length && this.ranges.every(([lo, hi], i) => lo === other.ranges[i][0] && hi === other.ranges[i][1]);
+    }
+    isSubsetOf(other) {
+      return this.minus(other).isEmpty();
+    }
+    toString() {
+      const fmt = (cp) => cp >= 33 && cp <= 126 ? String.fromCodePoint(cp) : `U+${cp.toString(16).toUpperCase()}`;
+      return `{${this.ranges.map(([lo, hi]) => lo === hi ? fmt(lo) : `${fmt(lo)}-${fmt(hi)}`).join(",")}}`;
+    }
+  };
+  CharSet.EMPTY = new CharSet([]);
+  CharSet.ALL = new CharSet([Object.freeze([0, MAX_CP])]);
+
+  // src/patterns/wordlist.js
+  function parseWords(text) {
+    const words = /* @__PURE__ */ new Set();
+    let header = true;
+    for (const line of text.split("\n")) {
+      const word = line.replace(/\r$/, "").normalize("NFC");
+      if (header && (word === "" || word.startsWith("#"))) continue;
+      header = false;
+      if (word !== "") words.add(word);
+    }
+    return [...words];
+  }
+
+  // src/guesses/game.js
+  var UNDECOMPOSED = { \u00F8: "o", \u0142: "l", \u0111: "d", \u0131: "i", \u0127: "h", \u0167: "t", \u00E6: "ae", \u0153: "oe", \u00DF: "ss", \u00FE: "th", \u00F0: "d" };
+  function letters(entry) {
+    const folded = [...entry.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")].map((c) => UNDECOMPOSED[c] ?? c).join("");
+    return [...folded].filter((c) => /\p{L}/u.test(c)).join("").toUpperCase();
+  }
+  function entryInfo(entry) {
+    const key = letters(entry);
+    return {
+      entry,
+      key: /^[A-Z]+$/.test(key) ? key : null,
+      phrase: !/^\p{L}+$/u.test(entry.normalize("NFD").replace(/\p{M}/gu, ""))
+    };
+  }
+  var usable = ({ key, phrase }, { length, phrases }) => key !== null && key.length === length && (phrases || !phrase);
+  function keysOf(infos, settings) {
+    const keys = /* @__PURE__ */ new Map();
+    for (const info of infos) {
+      if (!usable(info, settings)) continue;
+      if (!keys.has(info.key)) keys.set(info.key, []);
+      keys.get(info.key).push(info.entry);
+    }
+    return keys;
+  }
+  function puzzleWords(words, at, settings) {
+    const answers = keysOf(at ?? words, settings);
+    const guesses = new Set(answers.keys());
+    if (at) for (const key of keysOf(words, settings).keys()) guesses.add(key);
+    if (settings.duplicates === false) {
+      for (const key of answers.keys()) if (new Set(key).size < key.length) answers.delete(key);
+    }
+    if (settings.capitals === false) {
+      for (const [key, entries2] of answers) {
+        const lower = entries2.filter((e) => !/\p{Lu}/u.test(e));
+        if (lower.length) answers.set(key, lower);
+        else answers.delete(key);
+      }
+    }
+    return { answers, guesses };
+  }
+  function score(guess, answer) {
+    const result = Array(guess.length).fill(".");
+    const left = /* @__PURE__ */ new Map();
+    for (let i = 0; i < answer.length; i++) {
+      if (guess[i] === answer[i]) result[i] = "g";
+      else left.set(answer[i], (left.get(answer[i]) ?? 0) + 1);
+    }
+    for (let i = 0; i < guess.length; i++) {
+      if (result[i] === "g") continue;
+      const n = left.get(guess[i]) ?? 0;
+      if (n > 0) {
+        result[i] = "y";
+        left.set(guess[i], n - 1);
+      }
+    }
+    return result.join("");
+  }
+  var ORDINALS = ["1st", "2nd", "3rd"];
+  var ordinal = (n) => ORDINALS[n - 1] ?? `${n}th`;
+  var TIMES = ["", "", " twice", " three times", " four times"];
+  var times = (n) => TIMES[n] ?? ` ${n} times`;
+  function lockError(guess, history, { lockGreens, lockYellows }) {
+    if (lockGreens) {
+      for (const { guess: g, colours } of history) {
+        for (let i = 0; i < g.length; i++) {
+          if (colours[i] === "g" && guess[i] !== g[i]) return `The ${ordinal(i + 1)} letter must be ${g[i]}`;
+        }
+      }
+    }
+    if (lockYellows) {
+      const needed = /* @__PURE__ */ new Map();
+      for (const { guess: g, colours } of history) {
+        const counts = /* @__PURE__ */ new Map();
+        for (let i = 0; i < g.length; i++) {
+          if (colours[i] === "y" || lockGreens && colours[i] === "g") counts.set(g[i], (counts.get(g[i]) ?? 0) + 1);
+        }
+        for (const [c, n] of counts) needed.set(c, Math.max(needed.get(c) ?? 0, n));
+      }
+      for (const [c, n] of needed) {
+        const have = [...guess].filter((x) => x === c).length;
+        if (have < n) return `The guess must use ${c}${times(n)}`;
+      }
+    }
+    return null;
+  }
+  function possible(answers, history) {
+    return [...answers].filter((a) => history.every(({ guess, colours }) => score(guess, a) === colours));
+  }
+
+  // src/guesses/page.js
+  var SETTINGS_KEY = "guesses-settings";
+  var HISTORY_KEY = "guesses-history";
+  var DEFAULTS = { length: 5, phrases: false, duplicates: true, capitals: false, limited: true, limit: 6, lockGreens: false, lockYellows: false, showPossible: false };
+  var MIN_LENGTH = 2;
+  var MAX_LENGTH = 20;
+  var MAX_LIMIT = 30;
+  var KEY_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "+ZXCVBNM-"];
+  var RANK = { x: 1, y: 2, g: 3 };
+  var POSSIBLE_SHOWN = 1e3;
+  var $ = (id) => document.getElementById(id);
+  var board = $("board");
+  var message = $("message");
+  var storage = {
+    get(key) {
+      try {
+        return JSON.parse(localStorage.getItem(key));
+      } catch (e) {
+        return null;
+      }
+    },
+    set(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+      }
+    }
+  };
+  var randInt = (n) => Math.floor(Math.random() * n);
+  var count = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : noun.endsWith("s") ? "es" : "s"}`;
+  var entries = (n) => `${n.toLocaleString()} ${n === 1 ? "entry" : "entries"}`;
+  var escapeHtml = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  var DB = { name: "patterns", store: "wordlist" };
+  var SLOTS = {
+    words: { key: "list", load: "load-words", clear: "clear-words", info: "words-info", file: "words-file", none: "None loaded", list: null },
+    at: { key: "at-list", load: "load-at", clear: "clear-at", info: "at-info", file: "at-file", none: "None loaded, so answers come from the word list", list: null }
+  };
+  function openDb() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB.name, 1);
+      request.onupgradeneeded = () => request.result.createObjectStore(DB.store);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+  async function storeList(slot, value) {
+    try {
+      const db = await openDb();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(DB.store, "readwrite");
+        if (value === null) tx.objectStore(DB.store).delete(slot.key);
+        else tx.objectStore(DB.store).put(value, slot.key);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch {
+    }
+  }
+  async function fetchList(slot) {
+    try {
+      const db = await openDb();
+      return await new Promise((resolve, reject) => {
+        const request = db.transaction(DB.store).objectStore(DB.store).get(slot.key);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error);
+      });
+    } catch {
+      return null;
+    }
+  }
+  var makeList = (name, text) => {
+    const words = parseWords(text);
+    return { name, size: words.length, infos: words.map(entryInfo) };
+  };
+  function setList(slot, list) {
+    slot.list = list;
+    listsChanged();
+  }
+  async function loadListFile(slot) {
+    const file = $(slot.file).files[0];
+    if (!file) return;
+    $(slot.info).textContent = "Loading\u2026";
+    const text = await file.text();
+    $(slot.file).value = "";
+    setList(slot, makeList(file.name, text));
+    storeList(slot, { name: file.name, text });
+  }
+  function clearList(slot) {
+    setList(slot, null);
+    storeList(slot, null);
+  }
+  var wordsCache = null;
+  function currentWords(s) {
+    const key = JSON.stringify([s.length, s.phrases, s.duplicates, s.capitals]);
+    if (wordsCache?.key !== key) {
+      const words = SLOTS.words.list, at = SLOTS.at.list;
+      wordsCache = {
+        key,
+        words: words ? puzzleWords(words.infos, at?.infos ?? null, s) : null
+      };
+    }
+    return wordsCache.words;
+  }
+  function listsChanged() {
+    wordsCache = null;
+    for (const slot of Object.values(SLOTS)) {
+      $(slot.clear).disabled = slot.list === null;
+      $(slot.info).textContent = slot.list === null ? slot.none : `${slot.list.name}: ${entries(slot.list.size)}`;
+    }
+    showCounts();
+  }
+  function readSettings() {
+    const int = (id, min, max, fallback) => {
+      const n = Number($(id).value);
+      return Number.isInteger(n) && n >= min && n <= max ? n : fallback;
+    };
+    return {
+      length: int("length", MIN_LENGTH, MAX_LENGTH, null),
+      phrases: $("phrases").checked,
+      duplicates: $("duplicates").checked,
+      capitals: $("capitals").checked,
+      limited: $("limited").checked,
+      limit: int("limit", 1, MAX_LIMIT, null),
+      lockGreens: $("lock-greens").checked,
+      lockYellows: $("lock-yellows").checked,
+      showPossible: $("show-possible").checked
+    };
+  }
+  function applySettings(s) {
+    $("length").value = s.length;
+    $("phrases").checked = s.phrases;
+    $("duplicates").checked = s.duplicates;
+    $("capitals").checked = s.capitals;
+    $("limited").checked = s.limited;
+    $("limit").value = s.limit;
+    $("lock-greens").checked = s.lockGreens;
+    $("lock-yellows").checked = s.lockYellows;
+    $("show-possible").checked = s.showPossible;
+  }
+  function loadSettings() {
+    const s = { ...DEFAULTS, ...storage.get(SETTINGS_KEY) };
+    if (!Number.isInteger(s.length) || s.length < MIN_LENGTH || s.length > MAX_LENGTH) s.length = DEFAULTS.length;
+    if (!Number.isInteger(s.limit) || s.limit < 1 || s.limit > MAX_LIMIT) s.limit = DEFAULTS.limit;
+    return s;
+  }
+  function settingsChanged() {
+    const s = readSettings();
+    $("limit").disabled = !s.limited;
+    const saved = { ...s, length: s.length ?? loadSettings().length, limit: s.limit ?? loadSettings().limit };
+    storage.set(SETTINGS_KEY, saved);
+    showCounts();
+    if (!game) drawBoard();
+    showPossible();
+  }
+  function showCounts() {
+    const s = readSettings();
+    const valid = s.length !== null && (s.limit !== null || !s.limited);
+    $("new-game").disabled = !valid;
+    if (!valid) {
+      $("counts").textContent = "";
+      return;
+    }
+    const words = currentWords(s);
+    $("counts").textContent = !words ? "Load a word list to play." : `${count(words.answers.size, "answer")} and ${count(words.guesses.size, "allowed guess")} with these rules.`;
+    $("new-game").disabled = !words?.answers.size;
+  }
+  var game = null;
+  function newGame() {
+    const s = readSettings();
+    const words = currentWords(s);
+    if (!words?.answers.size) return;
+    const keys = [...words.answers.keys()];
+    const answer = keys[randInt(keys.length)];
+    game = { answer, forms: words.answers.get(answer), words, settings: s, rows: [], typed: "", start: Date.now(), over: false };
+    setMessage("");
+    lockSettings(true);
+    drawBoard();
+    drawKeyboard();
+    showPossible();
+    if (matchMedia("(max-width: 899px)").matches) $("game-section").scrollIntoView({ behavior: "smooth" });
+    document.activeElement?.blur();
+  }
+  function lockSettings(locked) {
+    for (const id of ["lists-set", "rules-set"]) $(id).disabled = locked;
+    $("give-up").disabled = !locked;
+  }
+  var playing = () => game !== null && !game.over;
+  function type(c) {
+    if (!playing() || game.typed.length >= game.settings.length) return;
+    game.typed += c;
+    setMessage("");
+    drawBoard();
+  }
+  function backspace() {
+    if (!playing() || !game.typed) return;
+    game.typed = game.typed.slice(0, -1);
+    setMessage("");
+    drawBoard();
+  }
+  function submit() {
+    if (!playing()) return;
+    const guess = game.typed;
+    let error = null;
+    if (guess.length < game.settings.length) error = "Not enough letters";
+    else if (!game.words.guesses.has(guess)) error = "Not in the lists";
+    else error = lockError(guess, game.rows, game.settings);
+    if (error) {
+      setMessage(error, "error");
+      const row = board.children[game.rows.length];
+      row.classList.remove("shake");
+      void row.offsetWidth;
+      row.classList.add("shake");
+      return;
+    }
+    game.rows.push({ guess, colours: score(guess, game.answer) });
+    game.typed = "";
+    drawBoard();
+    drawKeyboard();
+    showPossible();
+    if (guess === game.answer) endGame("win");
+    else if (game.settings.limited && game.rows.length >= game.settings.limit) endGame("lose");
+  }
+  function endGame(how) {
+    game.over = true;
+    lockSettings(false);
+    const g = game;
+    const seconds = Math.round((Date.now() - g.start) / 1e3);
+    addHistory({
+      id: `${Date.now()}-${randInt(1e9)}`,
+      answer: g.answer,
+      forms: g.forms,
+      won: how === "win",
+      guesses: g.rows.length,
+      gaveUp: how === "give-up",
+      seconds,
+      settings: g.settings,
+      lists: [SLOTS.words.list?.name ?? null, SLOTS.at.list?.name ?? null]
+    });
+    const forms = `<span class="answer">${g.forms.map(escapeHtml).join(" / ")}</span>`;
+    if (how === "win") setMessage(`Solved in ${count(g.rows.length, "guess")}: ${forms}`, "win", true);
+    else setMessage(`${how === "give-up" ? "Given up" : "Out of guesses"}. The answer was ${forms}`, "", true);
+    drawBoard();
+    showPossible();
+    $("new-game").focus();
+  }
+  function setMessage(text, cls = "", html = false) {
+    message.className = cls;
+    if (html) message.innerHTML = text;
+    else message.textContent = text;
+  }
+  function drawBoard() {
+    const s = game?.settings ?? readSettings();
+    const n = s.length ?? DEFAULTS.length;
+    board.style.setProperty("--n", n);
+    const rows = game?.rows ?? [];
+    const total = s.limited && s.limit ? Math.max(s.limit, rows.length) : rows.length + (playing() || !game ? 1 : 0);
+    board.replaceChildren();
+    for (let r = 0; r < total; r++) {
+      const row = document.createElement("div");
+      row.className = "board-row";
+      const done = rows[r];
+      const text = done ? done.guess : playing() && r === rows.length ? game.typed : "";
+      for (let i = 0; i < n; i++) {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.textContent = text[i] ?? "";
+        if (done) tile.classList.add(done.colours[i] === "." ? "x" : done.colours[i]);
+        else if (text[i]) tile.classList.add("filled");
+        row.appendChild(tile);
+      }
+      board.appendChild(row);
+    }
+  }
+  function drawKeyboard() {
+    const best = /* @__PURE__ */ new Map();
+    for (const { guess, colours } of game?.rows ?? []) {
+      for (let i = 0; i < guess.length; i++) {
+        const c = colours[i] === "." ? "x" : colours[i];
+        if ((RANK[c] ?? 0) > (RANK[best.get(guess[i])] ?? 0)) best.set(guess[i], c);
+      }
+    }
+    const keyboard = $("keyboard");
+    keyboard.replaceChildren();
+    for (const keys of KEY_ROWS) {
+      const row = document.createElement("div");
+      row.className = "key-row";
+      for (const k of keys) {
+        const key = document.createElement("button");
+        key.type = "button";
+        key.tabIndex = -1;
+        key.className = "key";
+        if (k === "+") {
+          Object.assign(key, { textContent: "Enter", className: "key wide" });
+          key.dataset.key = "Enter";
+        } else if (k === "-") {
+          Object.assign(key, { textContent: "\u232B", className: "key wide", title: "Backspace" });
+          key.setAttribute("aria-label", "Backspace");
+          key.dataset.key = "Backspace";
+        } else {
+          key.textContent = k;
+          key.dataset.key = k;
+          if (best.has(k)) key.classList.add(best.get(k));
+        }
+        row.appendChild(key);
+      }
+      keyboard.appendChild(row);
+    }
+  }
+  function showPossible() {
+    const line = $("possible-line");
+    const shown = readSettings().showPossible && playing();
+    line.hidden = !shown;
+    if (!shown) return;
+    const left = possible(game.words.answers.keys(), game.rows);
+    $("possible-count").textContent = `${count(left.length, "possible answer")}`;
+    const list = $("possible-list");
+    if (!list.hidden) {
+      list.innerHTML = left.slice(0, POSSIBLE_SHOWN).map((w) => `<div>${w}</div>`).join("") + (left.length > POSSIBLE_SHOWN ? "<div>\u2026</div>" : "");
+    }
+  }
+  function rulesSummary({ settings: s, lists }) {
+    const parts = [`${s.length} letters`];
+    if (s.duplicates === false) parts.push("no repeated letters");
+    if (s.capitals) parts.push("capitals");
+    if (s.phrases) parts.push("phrases");
+    parts.push(s.limited ? `limit ${s.limit}` : "no limit");
+    if (s.lockGreens) parts.push("greens locked");
+    if (s.lockYellows) parts.push("yellows locked");
+    const [words, at] = lists ?? [];
+    if (words) parts.push(words);
+    if (at) parts.push(`@ ${at}`);
+    return parts.join(" \xB7 ");
+  }
+  function addHistory(entry) {
+    const history = storage.get(HISTORY_KEY) ?? [];
+    history.unshift(entry);
+    storage.set(HISTORY_KEY, history.slice(0, 500));
+    renderHistory(history);
+  }
+  function renderHistory(history = storage.get(HISTORY_KEY) ?? []) {
+    const body = $("history");
+    body.replaceChildren();
+    for (const h of history) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td></td><td class="${h.won ? "win" : "lose"}"></td><td class="num"></td><td class="rules"></td>`;
+      const cells = tr.children;
+      cells[0].textContent = h.forms.join(" / ");
+      cells[1].textContent = h.won ? `\u2713 in ${h.guesses}` : h.gaveUp ? `gave up after ${h.guesses}` : `\u2717 (${h.guesses})`;
+      cells[2].textContent = h.seconds >= 60 ? `${Math.floor(h.seconds / 60)}m ${h.seconds % 60}s` : `${h.seconds}s`;
+      cells[3].textContent = rulesSummary(h);
+      body.appendChild(tr);
+    }
+    $("history-empty").hidden = history.length > 0;
+    $("clear-history").disabled = !history.length;
+  }
+  applySettings(loadSettings());
+  $("limit").disabled = !$("limited").checked;
+  listsChanged();
+  drawBoard();
+  drawKeyboard();
+  renderHistory();
+  for (const slot of Object.values(SLOTS)) {
+    $(slot.load).addEventListener("click", () => $(slot.file).click());
+    $(slot.file).addEventListener("change", () => loadListFile(slot));
+    $(slot.clear).addEventListener("click", () => clearList(slot));
+  }
+  for (const el of document.querySelectorAll("#setup input:not([type=file])")) {
+    el.addEventListener(el.type === "number" ? "input" : "change", settingsChanged);
+  }
+  $("new-game").addEventListener("click", newGame);
+  $("give-up").addEventListener("click", () => playing() && endGame("give-up"));
+  $("possible-toggle").addEventListener("click", () => {
+    const list = $("possible-list");
+    list.hidden = !list.hidden;
+    $("possible-toggle").textContent = list.hidden ? "List them" : "Hide list";
+    showPossible();
+  });
+  $("keyboard").addEventListener("pointerdown", (e) => e.preventDefault());
+  $("keyboard").addEventListener("click", (e) => {
+    const key = e.target.closest(".key")?.dataset.key;
+    if (key === "Enter") submit();
+    else if (key === "Backspace") backspace();
+    else if (key) type(key);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented) return;
+    if (e.target.closest?.("input, select, textarea")) return;
+    if (!playing()) {
+      if (e.key === "Enter" && e.target.tagName !== "BUTTON" && !$("new-game").disabled) {
+        e.preventDefault();
+        newGame();
+      }
+      return;
+    }
+    if (e.key === "Enter") submit();
+    else if (e.key === "Backspace") backspace();
+    else if (e.key.length === 1 || [...e.key].length === 1) {
+      const c = letters(e.key);
+      if (c.length !== 1 || !/[A-Z]/.test(c)) return;
+      type(c);
+    } else return;
+    e.preventDefault();
+  });
+  $("clear-history").addEventListener("click", () => {
+    if (!confirm("Clear the history?")) return;
+    storage.set(HISTORY_KEY, []);
+    renderHistory([]);
+  });
+  Promise.all([fetchList(SLOTS.words), fetchList(SLOTS.at)]).then(([words, at]) => {
+    if (words && SLOTS.words.list === null) SLOTS.words.list = makeList(words.name, words.text);
+    if (at && SLOTS.at.list === null) SLOTS.at.list = makeList(at.name, at.text);
+    listsChanged();
+  });
+})();
+</script>
+</body>
+</html>
