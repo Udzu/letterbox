@@ -293,6 +293,8 @@ function setMessage(text, cls = "", html = false) {
   else message.textContent = text;
 }
 
+// The tiles are updated in place, and rows only added or removed as needed, since replacing
+// them all on every key made some phone browsers scroll the page.
 function drawBoard() {
   const s = game?.settings ?? readSettings();
   const n = s.length ?? DEFAULTS.length;
@@ -300,21 +302,24 @@ function drawBoard() {
   const rows = game?.rows ?? [];
   // with a limit, every row is shown; without one, the guesses so far and the next
   const total = s.limited && s.limit ? Math.max(s.limit, rows.length) : rows.length + (playing() || !game ? 1 : 0);
-  board.replaceChildren();
-  for (let r = 0; r < total; r++) {
+  if (board.firstElementChild && board.firstElementChild.children.length !== n) board.replaceChildren();
+  while (board.children.length > total) board.lastElementChild.remove();
+  while (board.children.length < total) {
     const row = document.createElement("div");
     row.className = "board-row";
+    for (let i = 0; i < n; i++) row.appendChild(document.createElement("div"));
+    board.appendChild(row);
+  }
+  for (let r = 0; r < total; r++) {
     const done = rows[r];
     const text = done ? done.guess : playing() && r === rows.length ? game.typed : "";
-    for (let i = 0; i < n; i++) {
-      const tile = document.createElement("div");
-      tile.className = "tile";
-      tile.textContent = text[i] ?? "";
-      if (done) tile.classList.add(done.colours[i] === "." ? "x" : done.colours[i]);
-      else if (text[i]) tile.classList.add("filled");
-      row.appendChild(tile);
-    }
-    board.appendChild(row);
+    [...board.children[r].children].forEach((tile, i) => {
+      const letter = text[i] ?? "";
+      const state = done ? (done.colours[i] === "." ? "x" : done.colours[i]) : letter ? "filled" : "";
+      const className = state ? `tile ${state}` : "tile";
+      if (tile.textContent !== letter) tile.textContent = letter;
+      if (tile.className !== className) tile.className = className;
+    });
   }
 }
 
