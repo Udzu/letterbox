@@ -143,13 +143,18 @@ function updateControls() {
   const ops = readSettings().ops;
   for (const li of document.querySelectorAll(".syntax [data-op]")) li.classList.toggle("off", !ops[li.dataset.op]);
   const valid = readNumbers() !== null;
-  $("new-target").disabled = !valid;
+  $("new-target").disabled = !canStart();
   $("solve-all").disabled = !valid;
 }
+
+// A game can start when the numbers are valid and so is the timer, if it's on.
+const canStart = () => readNumbers() !== null && (!$("timed").checked || $("seconds").checkValidity());
 
 function saveSettings() {
   const s = readSettings();
   if (!s.numbers) s.numbers = storage.get(SETTINGS_KEY)?.numbers ?? DEFAULTS.numbers;
+  // keep the last valid timer length while the box holds an invalid one
+  if (!$("seconds").checkValidity()) s.seconds = storage.get(SETTINGS_KEY)?.seconds ?? DEFAULTS.seconds;
   // remember the ticked operations, including any greyed out
   s.ops = Object.fromEntries(opBoxes.map((b) => [b.dataset.op, b.checked]));
   storage.set(SETTINGS_KEY, s);
@@ -283,7 +288,7 @@ let game = null; // { target, puzzle, start, best, timer, deadline, attempts }
 function lockSettings(locked) {
   for (const set of settingSets) set.disabled = locked;
   $("ops-none").disabled = locked; // controls in a fieldset's legend aren't disabled with it
-  $("new-target").disabled = readNumbers() === null;
+  $("new-target").disabled = !canStart();
   // answers can be tried out any time, but only submitted during a game
   $("try").disabled = $("give-up").disabled = !locked;
 }
@@ -295,7 +300,7 @@ function newTarget() {
     game = null;
   }
   const puzzle = currentPuzzle();
-  if (!puzzle) return;
+  if (!puzzle || !canStart()) return;
   const s = readSettings();
   const job = solver.get(puzzle); // also used to show a solution at the end
   const begin = (target) => {
@@ -419,16 +424,47 @@ function endGame(how) {
     if (!job.solutions) rest = "Solving…";
     else if (job.solutions.has(g.target)) {
       rest = `${how === "win" ? "Simplest" : "Solution"}: <span class="math">${textToHTML(job.solutions.get(g.target))}</span>`;
-    } else if (job.exact) rest = "It’s impossible.";
-    else if (!job.done) rest = "Solving…";
-    else rest = "No solution found (the search was limited).";
+    } else if (!job.exact && !job.done) rest = "Solving…";
+    else {
+      // no solution: say how close the solver got, or that the player's best was as close
+      const near = closest(job.solutions, g.target);
+      rest = `No solution found${job.exact ? "" : " (the search was limited)"}. ${closenessHTML(g.best, near, g.target)}`;
+    }
     outcome.innerHTML = `${lead} ${rest}`;
-    const final = job.done || job.solutions?.has(g.target);
-    // show the solution in the history too
-    if (final && how !== "win") updateHistory(entry.id, { solution: job.solutions.get(g.target) ?? null });
+    const final = job.exact || job.done || job.solutions?.has(g.target);
+    // show the solution, or the closest one, in the history too
+    if (final && how !== "win") {
+      const solution = job.solutions.get(g.target) ?? null;
+      updateHistory(entry.id, solution === null ? { solution, closest: closest(job.solutions, g.target) } : { solution });
+    }
     return final;
   });
   $("new-target").focus();
+}
+
+// The solved target nearest the given one, as { value, text }, or null if none is solved
+// (the lower one on a tie).
+function closest(solutions, target) {
+  for (let off = 1; off < 1000; off++) {
+    for (const t of [target - off, target + off]) if (solutions.has(t)) return { value: t, text: solutions.get(t) };
+  }
+  return null;
+}
+
+// Whether the player's best answer ({ value } or null) is at least as close as the solver's
+// nearest result (or there is none).
+function asClose(best, near, target) {
+  return best !== null && (near === null || Math.abs(best.value - target) <= Math.abs(near.value - target));
+}
+
+// How close the solver got, compared with the player's best answer ({ value } or null).
+function closenessHTML(best, near, target) {
+  const bestOff = best ? Math.abs(best.value - target) : Infinity;
+  const nearOff = near ? Math.abs(near.value - target) : Infinity;
+  if (best && bestOff < nearOff) return "Your answer is closer than any the solver found.";
+  if (best && bestOff === nearOff) return "Your answer is as close as any the solver found.";
+  if (near) return `Closest: <span class="math">${textToHTML(near.text)}</span> = ${near.value}, off by ${nearOff}.`;
+  return "";
 }
 
 // ---- history
@@ -461,6 +497,9 @@ function updateHistory(id, changes) {
   renderHistory(history);
 }
 
+// whether an unsolved game's best answer was as close as the solver got
+const closestFound = (h) => h.solution === null && h.closest !== undefined && asClose(h.value === null ? null : h, h.closest, h.target);
+
 function renderHistory(history = storage.get(HISTORY_KEY) ?? []) {
   const body = $("history");
   body.replaceChildren();
@@ -468,7 +507,7 @@ function renderHistory(history = storage.get(HISTORY_KEY) ?? []) {
     const tr = document.createElement("tr");
     const result = h.won ? "✓" : h.value === null ? "—" : `off by ${Math.abs(h.value - h.target)}`;
     const time = h.seconds >= 60 ? `${Math.floor(h.seconds / 60)}m ${h.seconds % 60}s` : `${h.seconds}s`;
-    tr.innerHTML = `<td class="target"></td><td class="${h.won ? "win" : "lose"}"></td>
+    tr.innerHTML = `<td class="target"></td><td class="${h.won || closestFound(h) ? "win" : "lose"}"></td>
       <td class="answer"></td><td class="num"></td><td><span class="numbers"></span><span class="rules"></span></td>`;
     const cells = tr.children;
     cells[0].textContent = pad(h.target);
@@ -477,7 +516,7 @@ function renderHistory(history = storage.get(HISTORY_KEY) ?? []) {
     if (!h.won && h.solution !== undefined) {
       cells[2].insertAdjacentHTML("beforeend", h.solution
         ? `<span class="solution">Solution: <span class="math">${textToHTML(h.solution)}</span></span>`
-        : `<span class="solution">No solution found</span>`);
+        : `<span class="solution">No solution found.${h.closest === undefined ? "" : ` ${closenessHTML(h.value === null ? null : h, h.closest, h.target)}`}</span>`);
     }
     cells[3].textContent = time;
     cells[4].querySelector(".numbers").textContent = h.numbers.join(" ");
@@ -561,6 +600,7 @@ $("random").addEventListener("click", randomNumbers);
 for (const el of document.querySelectorAll("#setup input:not(#boxes input), #setup select")) {
   el.addEventListener("change", settingsChanged);
 }
+$("seconds").addEventListener("input", settingsChanged); // so New target is disabled as soon as it's invalid
 $("new-target").addEventListener("click", newTarget);
 $("try").addEventListener("click", tryAnswer);
 $("give-up").addEventListener("click", () => game && endGame("give-up"));

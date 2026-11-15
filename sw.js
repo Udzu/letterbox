@@ -8,7 +8,7 @@ const FILES = {
   "index.html": "167603c00e6e",
   "lipograms.html": "fc24e3576415",
   "lsystems.html": "a4ff28cd71d8",
-  "numbers.html": "514644cc19c2",
+  "numbers.html": "013987b2c17c",
   "palindromes.html": "e804eb3bac27",
   "pangrams.html": "0cc45fc4a505",
   "patterns.html": "7db4c653a0b3",
