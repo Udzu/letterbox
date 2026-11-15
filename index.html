@@ -61,6 +61,7 @@
   .grid a:hover, .grid a:focus-visible { border-color: #06c; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
   .grid a:focus-visible { outline: 2px solid #06c; outline-offset: 1px; }
   .grid .name { display: block; font-size: 1.2rem; font-weight: 600; color: #06c; }
+  .grid .game .name::before { content: "🧩 "; }
   .grid .description { display: block; margin-top: 4px; }
   /* in the installed app, a toggle on each box for the page the app opens on (see the script below) */
   .grid li { position: relative; }
@@ -89,7 +90,7 @@
       <span class="name">Anagrams</span>
       <span class="description">Rearrange the letters of a phrase, with unused and unavailable letters highlighted.</span>
     </a></li>
-    <li><a href="guesses.html">
+    <li><a href="guesses.html" class="game" title="A puzzle game">
       <span class="name">Guesses</span>
       <span class="description">Find a hidden word from coloured clues, as in Wordle, with answers from any word list.</span>
     </a></li>
@@ -133,7 +134,7 @@
       <span class="name">L-Systems</span>
       <span class="description">Draw fractals from string rewriting rules, including random ones.</span>
     </a></li>
-    <li class="other"><a href="numbers.html">
+    <li class="other"><a href="numbers.html" class="game" title="A puzzle game">
       <span class="name">Numbers</span>
       <span class="description">Make a target from given numbers, as in Countdown or the four fours puzzle.</span>
     </a></li>
