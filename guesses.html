@@ -184,7 +184,7 @@
     <div id="keyboard"></div>
     <div id="possible-line" hidden>
       <span id="possible-count"></span>
-      <button type="button" id="possible-toggle" class="small-button">List them</button>
+      <button type="button" id="possible-toggle" class="small-button">List answers</button>
       <div id="possible-list" hidden></div>
     </div>
   </section>
@@ -713,7 +713,8 @@
     line.hidden = !shown;
     if (!shown) return;
     const left = possible(game.words.answers.keys(), game.rows);
-    $("possible-count").textContent = `${count(left.length, "possible answer")}`;
+    const others = possible([...game.words.guesses].filter((g) => !game.words.answers.has(g)), game.rows).length;
+    $("possible-count").textContent = count(left.length, "possible answer") + (others ? ` (and ${others.toLocaleString()} other ${others === 1 ? "word that fits" : "words that fit"})` : "");
     const list = $("possible-list");
     if (!list.hidden) {
       list.innerHTML = left.slice(0, POSSIBLE_SHOWN).map((w) => `<div>${w}</div>`).join("") + (left.length > POSSIBLE_SHOWN ? "<div>\u2026</div>" : "");
@@ -773,7 +774,7 @@
   $("possible-toggle").addEventListener("click", () => {
     const list = $("possible-list");
     list.hidden = !list.hidden;
-    $("possible-toggle").textContent = list.hidden ? "List them" : "Hide list";
+    $("possible-toggle").textContent = list.hidden ? "List answers" : "Hide answers";
     showPossible();
   });
   $("keyboard").addEventListener("pointerdown", (e) => e.preventDefault());

@@ -4,7 +4,7 @@ const FILES = {
   "anagrams.html": "c212ae28f6f1",
   "dates.html": "c50d797ff866",
   "dice.html": "f9e99540b564",
-  "guesses.html": "d9dad46d4b52",
+  "guesses.html": "e8cc305ae03f",
   "index.html": "167603c00e6e",
   "lipograms.html": "fc24e3576415",
   "lsystems.html": "a4ff28cd71d8",

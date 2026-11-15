@@ -365,7 +365,10 @@ function showPossible() {
   line.hidden = !shown;
   if (!shown) return;
   const left = possible(game.words.answers.keys(), game.rows);
-  $("possible-count").textContent = `${count(left.length, "possible answer")}`;
+  // other allowed guesses that fit the clues (more if the @ list or the rules narrow the answers)
+  const others = possible([...game.words.guesses].filter((g) => !game.words.answers.has(g)), game.rows).length;
+  $("possible-count").textContent = count(left.length, "possible answer") +
+    (others ? ` (and ${others.toLocaleString()} other ${others === 1 ? "word that fits" : "words that fit"})` : "");
   const list = $("possible-list");
   if (!list.hidden) {
     list.innerHTML = left.slice(0, POSSIBLE_SHOWN).map((w) => `<div>${w}</div>`).join("") + (left.length > POSSIBLE_SHOWN ? "<div>…</div>" : "");
@@ -434,7 +437,7 @@ $("give-up").addEventListener("click", () => playing() && endGame("give-up"));
 $("possible-toggle").addEventListener("click", () => {
   const list = $("possible-list");
   list.hidden = !list.hidden;
-  $("possible-toggle").textContent = list.hidden ? "List them" : "Hide list";
+  $("possible-toggle").textContent = list.hidden ? "List answers" : "Hide answers";
   showPossible();
 });
 $("keyboard").addEventListener("pointerdown", (e) => e.preventDefault()); // keep focus off the keys
