@@ -37,7 +37,7 @@
   #install .text { flex: 1; min-width: 12em; }
   #install button { font: inherit; cursor: pointer; }
   #install .dismiss { border: none; background: none; color: #888; font-size: 1.2rem; line-height: 1; padding: 0 2px; }
-  /* one grid of boxes, each box a link (the non-word pages last, in another colour): 3 columns on desktop, 1 on narrow phones */
+  /* one grid of boxes, each box a link (the non-word pages last, in another colour): up to 3 columns on desktop, compact pairs on phones */
   .grid {
     list-style: none;
     margin: 0;
@@ -73,7 +73,19 @@
   .grid .home svg { display: block; margin: auto; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
   .grid .home[aria-pressed="true"] svg { fill: currentColor; }
   .grid .home:focus-visible { outline: 2px solid #06c; }
-  @media (max-width: 559px) { .grid { grid-template-columns: 1fr; } }
+  /* on phones, compact boxes two to a row, with names only, so every page fits on about one screen
+     (up to 599px, above the ~580px at which the grid above drops to one column, scrollbar included) */
+  @media (max-width: 599px) {
+    .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid a { padding: 12px 10px; }
+    .grid .name { font-size: 1.05rem; white-space: nowrap; }
+    .grid .description { display: none; }
+    /* a smaller house, so names like Palindromes still fit beside it at 320px */
+    .app .grid .name { padding-right: 14px; }
+    .grid .home { top: 50%; right: 2px; width: 24px; height: 24px; transform: translateY(-50%); }
+    .grid .home svg { width: 18px; height: 18px; }
+  }
+  @media (max-width: 359px) { .grid .name { font-size: 0.95rem; } }
 </style>
 </head>
 <body>
