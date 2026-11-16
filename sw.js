@@ -10,7 +10,7 @@ const FILES = {
   "lsystems.html": "a4ff28cd71d8",
   "numbers.html": "013987b2c17c",
   "palindromes.html": "e804eb3bac27",
-  "pangrams.html": "0cc45fc4a505",
+  "pangrams.html": "8da4105a7351",
   "patterns.html": "7db4c653a0b3",
   "rhymes.html": "3b89b6119ab9",
   "unicode.html": "63bf9950210f",
