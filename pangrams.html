@@ -234,6 +234,8 @@
       if (missing !== "") {
         textSpan.className = "incomplete";
         span.classList.add("grey");
+      } else if (total === 26) {
+        span.classList.add("green");
       }
       span.append(`[${total}] `, textSpan);
       span.title = "Load into box";
