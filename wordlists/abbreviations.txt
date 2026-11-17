@@ -1,0 +1,239 @@
+# name: English abbreviations
+# description: Common abbreviations such as Mr, etc and Feb, written without full stops (acronyms and unit symbols are separate).
+# tag: general
+
+# ============================================================
+# Titles and ranks
+# ============================================================
+
+Adm
+Bp
+Br
+Brig
+Capt
+Cdr
+Cllr
+Col
+Cpl
+Det
+Dr
+Esq
+Fr
+Gen
+Gov
+Hon
+Insp
+Jnr
+Jr
+Lt
+Maj
+Messrs
+Mlle
+Mme
+Mmes
+Mr
+Mrs
+Ms
+Msgr
+Mx
+Pres
+Prof
+Pte
+Pvt
+Rep
+Rev
+Revd
+Sen
+Sgt
+Snr
+Sr
+St
+Supt
+
+# ============================================================
+# Latin and scholarly
+# ============================================================
+
+anon
+app
+ca
+cf
+ch
+chap
+cp
+ed
+eds
+edn
+eg
+et al
+et seq
+etc
+fig
+figs
+fl
+ibid
+id
+ie
+illus
+loc cit
+mss
+no
+nos
+op cit
+para
+paras
+pp
+qv
+repr
+sc
+sect
+trans
+viz
+vol
+vols
+vs
+
+# ============================================================
+# Dates (calendar order)
+# ============================================================
+
+Jan
+Feb
+Mar
+Apr
+Jun
+Jul
+Aug
+Sep
+Sept
+Oct
+Nov
+Dec
+Mon
+Tue
+Tues
+Wed
+Thu
+Thur
+Thurs
+Fri
+Sat
+Sun
+Xmas
+
+# ============================================================
+# Addresses and places
+# ============================================================
+
+Apt
+Ave
+Bldg
+Blvd
+Cres
+Ct
+Dist
+Ft
+Gdns
+Hwy
+Ln
+Mt
+Mtn
+Pk
+Pl
+Rd
+Rm
+Sq
+Ste
+Stn
+Terr
+
+# ============================================================
+# Business and correspondence
+# ============================================================
+
+Bros
+Co
+Corp
+Inc
+Ltd
+Pty
+acct
+amt
+assn
+assoc
+asst
+attn
+dept
+encl
+est
+ext
+govt
+intl
+mfg
+mfr
+mgmt
+mgr
+natl
+pkg
+ref
+tel
+
+# ============================================================
+# General writing and grammar
+# ============================================================
+
+abbr
+adj
+adv
+approx
+avg
+conj
+cont
+contd
+esp
+fem
+incl
+masc
+max
+min
+misc
+orig
+pl
+poss
+prep
+prob
+pron
+qty
+sing
+temp
+
+# ============================================================
+# Texting
+# ============================================================
+
+2day
+2moro
+2nite
+abt
+b4
+bc
+bday
+cya
+gr8
+hw
+l8r
+msg
+pls
+plz
+ppl
+rly
+smth
+srsly
+sry
+sth
+thx
+tmrw
+txt
+ur
+wknd
+yday
