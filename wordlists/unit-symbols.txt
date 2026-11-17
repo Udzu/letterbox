@@ -1,0 +1,242 @@
+# name: Unit symbols
+# description: Symbols and abbreviations for units of measurement such as kg, °C and mph, each written once.
+# tag: science & academia
+
+# =============================
+# SI base and derived units
+# =============================
+
+A
+Bq
+cd
+C
+°C
+F
+g
+Gy
+H
+Hz
+J
+kat
+K
+kg
+lm
+lx
+m
+mol
+N
+Ω
+Pa
+rad
+s
+S
+Sv
+sr
+T
+V
+W
+Wb
+
+# ===============================================
+# SI prefixes (except m, T and R, listed elsewhere),
+# and common units that use them
+# ===============================================
+
+q
+r
+y
+z
+a
+f
+p
+n
+µ
+c
+d
+da
+h
+k
+M
+G
+P
+E
+Z
+Y
+Q
+
+cl
+cm
+dl
+GB
+GW
+hPa
+kB
+kcal
+kHz
+kJ
+km
+kW
+kWh
+MB
+MHz
+MP
+Mt
+MW
+µg
+µm
+µs
+mbar
+mg
+ml
+mm
+ms
+nm
+ns
+PB
+TB
+
+# =====================================
+# Other metric and scientific units
+# =====================================
+
+Å
+au
+atm
+bar
+b
+cal
+ct
+Ci
+Da
+dB
+den
+dyn
+eV
+erg
+Gs
+ha
+ly
+L
+pc
+rem
+R
+tex
+t
+Torr
+ppm
+ppb
+
+# =====================
+# Imperial and US units
+# =====================
+
+ac
+bbl
+BTU
+bu
+ch
+cup
+dr
+fl oz
+fc
+ft
+fur
+gal
+gi
+gr
+hh
+hp
+in
+kn
+kt
+lb
+mi
+nmi
+oz
+ozt
+pk
+dwt
+pt
+qt
+qr
+rd
+st
+tbsp
+tsp
+cwt
+thm
+tn
+yd
+
+# ==========================
+# Time, angle and data
+# ==========================
+
+min
+wk
+yr
+°
+′
+″
+arcmin
+arcsec
+grad
+gon
+rev
+tr
+bit
+B
+Bd
+bps
+kbps
+Mbps
+Gbps
+kbit
+Mbit
+Gbit
+kb
+Mb
+Gb
+KiB
+MiB
+GiB
+TiB
+
+# ==========================
+# Compound units
+# ==========================
+
+cm²
+m²
+km²
+cm³
+m³
+cc
+m/s
+m/s²
+km/h
+kph
+mph
+mpg
+psi
+rpm
+
+# =============================================
+# Alternative and informal forms
+# =============================================
+
+mL
+cL
+dL
+AU
+Btu
+mcg
+doz
+sec
+secs
+mins
+hr
+hrs
+yrs
+lbs
+yds
