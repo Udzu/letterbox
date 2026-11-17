@@ -1,0 +1,98 @@
+# name: UK prime ministers
+# description: Prime ministers of Great Britain and the UK by their best-known names, in order of first terms, then other names.
+# tag: politics & religion
+
+# ============================================================
+# Prime ministers, in order of their first terms. Peers are
+# listed by title if that's how they're best known as prime
+# minister (Wellington, Salisbury), and names shared by two
+# prime ministers (Pitt, Grenville) appear once.
+# ============================================================
+
+Walpole
+Wilmington
+Pelham
+Newcastle
+Devonshire
+Bute
+Grenville
+Rockingham
+Pitt
+Grafton
+North
+Shelburne
+Portland
+Addington
+Perceval
+Liverpool
+Canning
+Goderich
+Wellington
+Grey
+Melbourne
+Peel
+Russell
+Derby
+Aberdeen
+Palmerston
+Disraeli
+Gladstone
+Salisbury
+Rosebery
+Balfour
+Campbell-Bannerman
+Asquith
+Lloyd George
+Bonar Law
+Baldwin
+MacDonald
+Chamberlain
+Churchill
+Attlee
+Eden
+Macmillan
+Douglas-Home
+Wilson
+Heath
+Callaghan
+Thatcher
+Major
+Blair
+Brown
+Cameron
+May
+Johnson
+Truss
+Sunak
+Starmer
+Burnham
+
+# ============================================================
+# Other names: family names of peers, and other titles and
+# names they're known by, in the order of the list above
+# ============================================================
+
+Compton
+Pelham-Holles
+Cavendish
+Stuart
+Watson-Wentworth
+Chatham
+FitzRoy
+Petty
+Cavendish-Bentinck
+Sidmouth
+Jenkinson
+Robinson
+Wellesley
+Lamb
+Smith-Stanley
+Stanley
+Hamilton-Gordon
+Temple
+Beaconsfield
+Gascoyne-Cecil
+Cecil
+Primrose
+Law
+Home
