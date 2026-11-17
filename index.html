@@ -29,9 +29,12 @@
     font-family: system-ui, sans-serif;
   }
   main { max-width: 900px; margin: 0 auto; }
-  h1 { margin: 0 0 8px; font-size: 1.8rem; }
-  .intro { margin: 0 0 24px; color: #666; }
+  nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #f4f4f4; box-shadow: 0 0 0 100vmax #f4f4f4, 0 1px 0 100vmax #ddd; clip-path: inset(0 -100vmax -1px); }
+  nav a, nav b { white-space: nowrap; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
   /* how to install the site as an app, where the browser supports it (see the script below) */
+  .intro { margin: 0 0 24px; color: #666; }
   #install { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin: -8px 0 20px; padding: 8px 12px; border-radius: 6px; background: #f4f4f4; color: #444; font-size: 0.95rem; }
   #install[hidden] { display: none; }
   #install .text { flex: 1; min-width: 12em; }
@@ -89,9 +92,9 @@
 </style>
 </head>
 <body>
+<nav><b>Letterbox</b> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="guesses.html">Guesses</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
 <main>
-  <h1>Letterbox</h1>
-  <p class="intro">Simple offline web tools.</p>
+  <p class="intro">Letterbox: simple offline tools.</p>
   <div id="install" hidden>
     <span class="text"></span>
     <button type="button" class="install" hidden>Install app</button>
