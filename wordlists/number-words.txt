@@ -1,0 +1,109 @@
+# name: Number words
+# description: English names of numbers, from zero to googolplex, then ordinals and fractions, in order of value.
+# tag: language
+
+# ============================================================
+# Numbers, with words for the same value after them
+# ============================================================
+
+zero
+nought
+naught
+nil
+one
+single
+two
+couple
+pair
+twain
+three
+four
+five
+six
+half-dozen
+seven
+eight
+nine
+ten
+eleven
+twelve
+dozen
+thirteen
+baker's dozen
+fourteen
+fifteen
+sixteen
+seventeen
+eighteen
+nineteen
+twenty
+score
+thirty
+forty
+fifty
+sixty
+seventy
+eighty
+ninety
+hundred
+gross
+thousand
+great gross
+myriad
+lakh
+million
+crore
+billion
+milliard
+trillion
+quadrillion
+quintillion
+sextillion
+septillion
+octillion
+nonillion
+decillion
+vigintillion
+googol
+centillion
+googolplex
+
+# ============================================================
+# Ordinals and fractions
+# ============================================================
+
+zeroth
+first
+second
+half
+third
+fourth
+quarter
+fifth
+sixth
+seventh
+eighth
+ninth
+tenth
+eleventh
+twelfth
+thirteenth
+fourteenth
+fifteenth
+sixteenth
+seventeenth
+eighteenth
+nineteenth
+twentieth
+thirtieth
+fortieth
+fiftieth
+sixtieth
+seventieth
+eightieth
+ninetieth
+hundredth
+thousandth
+millionth
+billionth
+trillionth
