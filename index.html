@@ -35,6 +35,7 @@
   nav b { color: #000; }
   /* how to install the site as an app, where the browser supports it (see the script below) */
   .intro { margin: 0 0 24px; color: #666; }
+  .intro .narrow { display: none; }
   #install { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin: -8px 0 20px; padding: 8px 12px; border-radius: 6px; background: #f4f4f4; color: #444; font-size: 0.95rem; }
   #install[hidden] { display: none; }
   #install .text { flex: 1; min-width: 12em; }
@@ -83,6 +84,7 @@
     .grid a { padding: 12px 10px; }
     .grid .name { font-size: 1.05rem; white-space: nowrap; }
     .grid .description { display: none; }
+    .intro .narrow { display: inline; }
     /* a smaller house, so names like Palindromes still fit beside it at 320px */
     .app .grid .name { padding-right: 14px; }
     .grid .home { top: 50%; right: 2px; width: 24px; height: 24px; transform: translateY(-50%); }
@@ -94,7 +96,7 @@
 <body>
 <nav><b>Letterbox</b> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="guesses.html">Guesses</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
 <main>
-  <p class="intro">Letterbox: simple offline tools.</p>
+  <p class="intro">Letterbox: simple offline tools.<span class="narrow"> Rotate your phone or widen the window to see what each tool does.</span></p>
   <div id="install" hidden>
     <span class="text"></span>
     <button type="button" class="install" hidden>Install app</button>
@@ -175,7 +177,7 @@
     }
     if (!(matchMedia("(display-mode: standalone)").matches || navigator.standalone)) return;
     document.body.classList.add("app");
-    document.querySelector(".intro").textContent += " Tap the house on a tool to open it whenever the app starts.";
+    document.querySelector(".intro").append(" Tap the house on a tool to open it whenever the app starts.");
     const buttons = links.map((a) => {
       const button = document.createElement("button");
       button.type = "button";
