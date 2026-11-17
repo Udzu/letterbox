@@ -1,0 +1,517 @@
+# name: Deities
+# description: Gods and goddesses of religions and mythologies around the world, past and present, most prominent first.
+# tag: politics & religion
+# attribution: From [Wikidata](https://www.wikidata.org/), ordered by [QRank](https://qrank.wmcloud.org/) and [danker](https://github.com/athalhammer/danker). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like Wikipedia.
+
+# Wikidata items that are instances of a kind of deity, cut at about 450 of the ranking, plus gods
+# from under-ranked traditions (Yoruba, Polynesian, Mesoamerican, Native American, Celtic, Slavic,
+# Chinese) and ones missing from Wikidata's deity classes (Jesus, Rama, Waheguru). Left out:
+# heroes and demigods (Heracles), nymphs, monsters and giants, angels and demons (Lucifer), groups
+# (Valkyries, Moirai), forms and aspects of a deity (Nataraja), concepts (Trimurti, God the Father),
+# minor personifications without a cult (Zelus, Geras), mortals and sages, and parody gods. Names
+# follow English Wikipedia titles, without "The" or Japanese "-no-Mikoto", and God in Islam is Allah.
+
+Q190: God
+Q11378: Shiva
+Q34201: Zeus
+Q37340: Apollo
+Q37122: Athena
+Q11380: Vishnu
+Q42891: Krishna
+Q41680: Dionysus
+Q35500: Aphrodite
+Q41127: Poseidon
+Q39503: Artemis
+Q41484: Hermes
+Q4649: Jupiter                            # Jupiter (god)
+Q38012: Hera
+Q11389: Brahma
+Q1579: Ganesha
+Q47652: Venus                             # Venus (mythology)
+Q41410: Hades
+Q43610: Odin
+Q128335: Indra
+Q93172: Gaia
+Q40901: Ares
+Q40730: Demeter
+Q44204: Cronus
+Q132127: Kali
+Q42952: Thor
+Q83160: Prometheus
+Q188618: Hanuman
+Q170485: Parvati
+Q766677: Yahweh
+Q79876: Isis
+Q131443: Lakshmi
+Q112: Mars                                # Mars (mythology)
+Q45967: Persephone
+Q121973: Eros
+Q134270: Helios
+Q44384: Hephaestus
+Q46491: Osiris
+Q382973: Durga
+Q58838: Saraswati
+Q83223: Asclepius
+Q130818: Atlas                            # Atlas (mythology)
+Q590467: Baal
+Q188236: Cybele
+Q79999: Uranus                            # Uranus (mythology)
+Q380817: Kartikeya
+Q1252904: Ra
+Q32102: Ceres                             # Ceres (mythology)
+Q193849: Avalokiteśvara
+Q58373: Amun
+Q1150: Mercury                            # Mercury (mythology)
+Q84122: Horus
+Q126916: Minerva
+Q132582: Pan                              # Pan (god)
+Q161419: Oceanus
+Q2095353: Allah                           # God in Islam
+Q193461: Maitreya
+Q179575: Ahura Mazda
+Q125046: Juno                             # Juno (mythology)
+Q204418: Surya
+Q131575: Hecate
+Q131585: Selene
+Q101322: Tartarus
+Q394867: Agni
+Q41419: Hestia
+Q191114: Sita
+Q455602: Amaterasu
+Q187602: Circe
+Q1647325: Freyja
+Q132543: Diana                            # Diana (mythology)
+Q108419: Rhea                             # Rhea (mythology)
+Q134388: Saturn                           # Saturn (mythology)
+Q165023: Nike                             # Nike (mythology)
+Q131203: Nyx
+Q159168: Themis
+Q3954: Neptune                            # Neptune (mythology)
+Q1001037: Varuna
+Q188676: Garuda
+Q146921: Thoth
+Q190123: Marduk
+Q133147: Loki
+Q494511: Devi
+Q178417: Eos
+Q103107: Leto
+Q715162: Guanyin
+Q131795: Set                              # Set (deity)
+Q47534: Anubis
+Q167685: Janus
+Q131122: Erebus
+Q542758: Styx
+Q133343: Hathor
+Q113904: Radha
+Q172713: Týr
+Q131090: Chaos                            # Chaos (mythology)
+Q272523: Inanna
+Q152262: Pluto                            # Pluto (god)
+Q184216: Tethys                           # Tethys (mythology)
+Q5011: Cupid
+Q185747: Nemesis
+Q272918: Chronos
+Q140001: Eris                             # Eris (mythology)
+Q179543: Iapetus
+Q102884: Mnemosyne
+Q47553: Ishtar
+Q199647: Thanatos
+Q179818: Quetzalcōātl
+Q4640: Vulcan                             # Vulcan (mythology)
+Q189175: Aether                           # Aether (mythology)
+Q170471: Maat
+Q131654: Frigg
+Q179209: Hyperion                         # Hyperion (Titan)
+Q45097: Yama
+Q184232: Theia
+Q163920: Adonis
+Q214494: Sol Invictus
+Q6497135: Mitra
+Q206878: Priapus
+Q131125: Hebe                             # Hebe (mythology)
+Q131658: Baldr
+Q148030: Triton                           # Triton (mythology)
+Q178710: Vesta                            # Vesta (goddess)
+Q130227: Aten
+Q189726: Enki
+Q3678579: Jehovah
+Q146321: Ptah
+Q131171: Imhotep
+Q473731: Vayu
+Q131474: Freyr
+Q604687: Kṣitigarbha
+Q129106: Bastet
+Q6183204: Al-Lat
+Q1061795: Chandra
+Q4654: Fortuna
+Q184570: Iris                             # Iris (mythology)
+Q189347: Hypnos
+Q180222: Amphitrite
+Q471696: Manjushri
+Q190565: Metis                            # Metis (mythology)
+Q130274: Astarte
+Q183281: Phoebe                           # Phoebe (Titaness)
+Q214672: Enlil
+Q41054: Epimetheus
+Q191589: Hel                              # Hel (mythological being)
+Q182837: Coeus
+Q191481: Proteus
+Q332188: Shamash
+Q189527: Nereus
+Q978079: Harmonia
+Q192107: Hemera
+Q190563: Pontus                           # Pontus (mythology)
+Q418226: Mazu
+Q855310: Rudra
+Q131196: Heimdall
+Q217420: Sin                              # Sin (mythology)
+Q192136: Crius
+Q1316633: El                              # El (deity)
+Q188536: Anu
+Q146104: Sekhmet
+Q1324655: Kāla
+Q170569: Atum
+Q1796078: Sati                            # Sati (Hindu goddess)
+Q204691: Iðunn
+Q1061606: Balarama
+Q272993: Susanoo                          # Susanoo-no-Mikoto
+Q165496: Nut                              # Nut (goddess)
+Q916959: Brihaspati
+Q223617: Kubera
+Q580113: Ganga                            # Ganga (goddess)
+Q1364799: Tian
+Q860434: Jade Emperor
+Q204146: Hermaphroditus
+Q146313: Sobek
+Q208150: Apis                             # Apis (deity)
+Q193879: Njörðr
+Q172549: Aeolus                           # Aeolus (son of Hippotes)
+Q332246: Ananke
+Q190521: Khonsu
+Q200382: Phorcys
+Q2714875: Shangdi
+Q239847: Vairocana
+Q94066: Eileithyia
+Q168444: Geb
+Q868915: Elohim
+Q169040: Nephthys
+Q214554: Serapis
+Q244032: Skaði
+Q654596: Sól                              # Sól (Germanic mythology)
+Q270867: Terra                            # Terra (mythology)
+Q213440: Tyche
+Q219412: Huītzilōpōchtli
+Q145983: Tiamat
+Q209644: Flora                            # Flora (mythology)
+Q868306: Samantabhadra                    # Samantabhadra (Bodhisattva)
+Q467515: Zephyrus
+Q190511: Apophis
+Q645312: Bacchus
+Q2628783: Ammavaru
+Q1296733: Shani
+Q205233: Maia
+Q109220: Boreas
+Q206561: Perun
+Q191815: Neith
+Q851426: Budha
+Q7785309: Perumal                         # Perumal (deity)
+Q183097: Khnum
+Q250588: Astraeus
+Q14515330: Proserpina
+Q572235: Shukra
+Q308902: Victoria                         # Victoria (mythology)
+Q106240: Deimos                           # Deimos (deity)
+Q950298: Rahu
+Q336496: Mímir
+Q194012: Morpheus
+Q813858: Izanagi
+Q1349003: Phanes
+Q468912: Nergal
+Q113155: Kamadeva
+Q209489: Ceto
+Q289162: Brahmā                           # Brahmā (Buddhism)
+Q29409: Mut
+Q199923: Dione                            # Dione (Titaness)
+Q170138: Shu                              # Shu (god)
+Q116273: Tefnut
+Q850805: Dattatreya
+Q192322: Min                              # Min (god)
+Q549619: Dumuzid
+Q2017194: Prajapati
+Q372614: Víðarr
+Q682306: Izanami
+Q457294: Pallas                           # Pallas (Titan)
+Q105019: Phobos                           # Phobos (mythology)
+Q641632: Nüwa
+Q215940: Khepri
+Q275010: Moloch
+Q59697: Hesperus
+Q746709: Tara                             # Tara (Buddhism)
+Q311363: Al-Uzza
+Q61078183: Vishvakarma
+Q188931: Bes
+Q204900: Höðr
+Q213479: Ullr
+Q276563: Nun                              # Nun (mythology)
+Q659437: Thalassa
+Q623065: Dagon
+Q146007: Wadjet
+Q581805: Bhumi                            # Bhumi (goddess)
+Q2477202: Ayyappan
+Q320333: Quirinus
+Q199959: Bragi
+Q32143: Hapi                              # Hapi (Nile god)
+Q18642285: Asteria
+Q202257: Hygieia
+Q392239: Nabu
+Q719665: Inari                            # Inari Ōkami
+Q854730: Bhairava
+Q943459: Manat                            # Manat (goddess)
+Q739765: Máni
+Q1064059: Queen Mother of the West
+Q2481517: Tengri
+Q1366849: Vajrapani
+Q1370311: Jagannath
+Q465875: Dike                             # Dike (mythology)
+Q1133509: Dyaus
+Q232870: Tláloc
+Q276944: Ōkuninushi
+Q860314: Orcus
+Q846981: Váli
+Q484278: Anahita
+Q83975: Asherah
+Q207435: Taweret
+Q742680: Astraea
+Q548730: Jörð
+Q62548: Forseti
+Q747657: Enyo
+Q734508: Sigyn
+Q1367259: Ketu                            # Ketu (mythology)
+Q2849275: Mangala
+Q660924: Perses                           # Perses (son of Crius)
+Q178831: Aurora                           # Aurora (mythology)
+Q866315: Vaiśravaṇa
+Q207234: Bellona                          # Bellona (goddess)
+Q204927: Ægir
+Q841255: Nandi                            # Nandi (Hinduism)
+Q756797: Tezcatlipoca
+Q579612: Hermóðr
+Q685878: Ashur                            # Ashur (god)
+Q140406: Zagreus
+Q293560: Óðr
+Q31666: Aditi
+Q696702: Vamana
+Q626032: Montu
+Q836029: Hœnir
+Q466462: Chang'e
+Q266462: Pachamama
+Q391379: Achelous
+Q211611: Anuket
+Q836170: Ninhursag
+Q215683: Lugh
+Q724896: Bona Dea
+Q208735: Amunet
+Q1775444: Phosphorus                      # Phosphorus (morning star)
+Q145915: Nekhbet
+Q1235172: Luna                            # Luna (goddess)
+Q2418874: Shesha
+Q753294: Atropos
+Q4439972: Aglaia                          # Aglaia (Grace)
+Q746235: Gefjon
+Q245395: Pangu
+Q654458: Ereshkigal
+Q214987: Eirene                           # Eirene (goddess)
+Q726282: Ninurta
+Q427355: Eir
+Q207636: Serket
+Q1134694: Scamander
+Q8140979: Menoetius                       # Menoetius (Greek mythology)
+Q1465683: Mahasthamaprapta
+Q663348: Rán
+Q2643299: Pietas
+Q1127847: Gerðr
+Q1129855: Libertas
+Q3089703: Faunus
+Q847429: Fulla
+Q953033: Roma                             # Roma (personification)
+Q337624: Acala
+Q478490: Seshat
+Q746495: Narayana
+Q487290: Anat
+Q572133: Anteros
+Q416174: Ākāśagarbha
+Q216763: Kvasir
+Q500390: Nanna                            # Nanna (Norse deity)
+Q829669: Clotho
+Q1199937: Sol                             # Sol (Roman mythology)
+Q595520: Tsukuyomi                        # Tsukuyomi-no-Mikoto
+Q824249: Veles                            # Veles (god)
+Q547105: Nezha
+Q205251: Plutus
+Q12614595: Mithra
+Q877405: Tanit
+Q2578801: Indrani
+Q682855: Hadad
+Q2670522: Tudigong
+Q898947: Lachesis
+Q818468: Benzaiten
+Q579072: Ushas
+Q828550: Morrígan                         # The Morrígan
+Q372560: Wepwawet
+Q689422: Euphrosyne
+Q261637: Hachiman
+Q213771: Inti
+Q605139: Fides                            # Fides (deity)
+Q369938: Ninlil
+Q221574: Abzu
+Q253056: Ēostre
+Q171239: Pomona                           # Pomona (mythology)
+Q464227: Nefertem
+Q843206: Satis                            # Satis (goddess)
+Q326767: Thaumas
+Q835976: Epona
+Q1200549: Mariamman
+Q1130661: Lofn
+Q936979: Morana                           # Morana (goddess)
+Q506770: Hymen                            # Hymen (god)
+Q1332956: Mitra                           # Mitra (Hindu god)
+Q859392: Ops
+Q850227: Panacea
+Q746321: Concordia                        # Concordia (mythology)
+Q1444745: Śakra                           # Śakra (Buddhism)
+Q526992: Utu
+Q2668647: Venkateswara
+Q604633: Heqet
+Q920416: Eunomia
+Q3178796: Melinoë
+Q611171: Peitho
+Q548445: Silvanus                         # Silvanus (mythology)
+Q2006388: Skanda                          # Skanda (Buddhism)
+Q1341130: Prithvi
+Q319989: Sokar
+Q1895710: Wadd
+Q255459: Brigid
+Q210871: Ate                              # Ate (mythology)
+Q436436: Dagda                            # The Dagda
+Q167849: Resheph
+Q1228338: Dis Pater
+Q944790: Dellingr
+Q255116: Ogun
+Q392435: Aristaeus
+Q164846: Aion                             # Aion (deity)
+Q209605: Viracocha
+Q1501311: Lóðurr
+Q739737: Cernunnos
+Q1145491: Liber
+Q250060: Taranis
+Q846113: Heka                             # Heka (god)
+Q622781: Asopus
+Q289933: Hubal
+Q704070: Xuanwu                           # Xuanwu (god)
+Q463956: Belenus
+Q1053307: Ophion                          # Ophion (god)
+Q3296670: Vithoba
+Q911084: Alpheus                          # Alpheus (deity)
+Q2724362: Yaghūth
+Q1254651: Hlín
+Q288633: Ériu
+Q1129330: Ebisu                           # Ebisu (mythology)
+Q1056017: Ninigi                          # Ninigi-no-Mikoto
+Q3545810: Veritas
+Q57417205: Mohini
+Q462803: Ame-no-Uzume
+Q930167: Sopdet
+Q787492: Harpocrates
+Q1126848: Heh                             # Heh (god)
+Q1163388: Mahadevi
+Q843408: Melqart
+Q858754: Onuris
+Q836518: Eurus
+Q2672099: Virabhadra
+Q1260484: Thalia                          # Thalia (Grace)
+Q635526: Snotra
+Q2894617: Bel                             # Bel (mythology)
+Q1477162: Yemọja
+Q147914: Svetovit
+Q3316160: Suwa'
+Q3360794: Caelus
+Q506285: Eurybia                          # Eurybia (mythology)
+Q5666548: Ya'uq
+Q818378: Bennu
+Q2070934: Vör
+Q829508: Cōātlīcue
+Q864020: Kek                              # Kek (mythology)
+Q689826: Svarog
+Q1888724: Manannán mac Lir
+Q534133: Shashthi
+Q845614: Maahes
+Q1547934: Shango
+Q922680: Renenutet
+Q522290: Vár
+Q1617533: Meili
+Q922824: Mahakala
+Q768072: Kukulkan
+Q558970: Xipe Totec
+Q1322674: Caishen
+Q817358: Mokosh
+Q591056: Mictlāntēcutli
+Q2441598: Tōnatiuh
+Q247019: Erlang Shen
+Q202011: Dhanvantari
+Q1144144: Dazhbog
+Q598518: Nerthus
+Q752213: Chalchiuhtlicue
+Q279639: Xolotl
+Q1851943: Oshun
+Q616848: Perkūnas
+Q1058253: Chaac
+Q844965: Ukko
+Q1144150: Yarilo
+Q3235126: Houtu
+Q485953: Anansi
+Q1326558: Mixcoatl
+Q729771: Danu                             # Danu (Irish goddess)
+Q248242: Teshub
+Q249178: Kitchen God
+Q1367665: Eshu
+Q279872: Ogma
+Q1543810: Rhiannon
+Q2004715: Ọya
+Q1133063: Pele                            # Pele (deity)
+Q875507: Sedna                            # Sedna (mythology)
+Q58476: Itzamna
+Q378028: Ọrunmila
+Q3118736: Guan Yu                         # Emperor Guan
+Q9052180: Olodumare
+Q1772980: Ixchel
+Q638964: Khandoba
+Q1888234: Mami Wata
+Q1241320: Tangaroa
+Q1929840: Olokun
+Q2745666: Wakan Tanka
+Q650821: Lono
+Q2745502: Kinich Ahau
+Q2361498: Nyame                           # Nyankapon-Nyame-Odomankoma
+Q1758221: Ngai
+Q1790773: Tāne
+Q1516552: Unkulunkulu
+Q4212374: Kāne
+Q160213: Rama
+Q302: Jesus
+Q2008736: Ọbatala
+Q1650920: Waheguru
+Q2130974: Ranginui, Papatūānuku           # Rangi and Papa
+Q6360529: Kanaloa
+Q149042: Xōchiquetzal
+Q1075322: Nuada                           # Nuada Airgetlám
+Q516456: Ōmeteōtl
+Q1137398: Mama Killa
+Q430563: Pachacamac
+Q1546751: Legba                           # Papa Legba
+Q2454771: Mawu                            # Mawu-Lisa
+Q2069971: Jah
+Q1172865: Great Spirit
+Q2743061: Gitche Manitou
+Q782478: Babalú-Ayé
+Q2006270: Tāwhirimātea
+Q1507592: Tūmatauenga
