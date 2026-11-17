@@ -177,7 +177,7 @@
     }
     if (!(matchMedia("(display-mode: standalone)").matches || navigator.standalone)) return;
     document.body.classList.add("app");
-    document.querySelector(".intro .narrow").before(" Tap the house on a tool to open it whenever the app starts.");
+    document.querySelector(".intro").append(" Tap the house on a tool to open it whenever the app starts.");
     const buttons = links.map((a) => {
       const button = document.createElement("button");
       button.type = "button";
