@@ -1,4 +1,4 @@
-// The Guesses page: find a hidden word from coloured clues, with the answers and valid
+// The Words page: find a hidden word from coloured clues, with the answers and valid
 // guesses taken from the word list and @ list shared with the Patterns page.
 
 import { parseWords } from "../patterns/wordlist.js";

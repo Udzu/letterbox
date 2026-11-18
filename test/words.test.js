@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { entryInfo, keyOf, keysOf, letters, lockError, possible, puzzleWords, score } from "../src/guesses/game.js";
+import { entryInfo, keyOf, keysOf, letters, lockError, possible, puzzleWords, score } from "../src/words/game.js";
 
 test("folds accents and special letters, dropping non-letters", () => {
   assert.equal(letters("fiancée"), "FIANCEE");
