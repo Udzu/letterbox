@@ -25,8 +25,8 @@ const SLOTS = {
     button: "load",
     label: () => "Load",
     title: (on) => on
-      ? "Unload the word list from the Anagrams, Guesses, Pangrams and Patterns pages"
-      : "Load as the word list on the Anagrams, Guesses, Pangrams and Patterns pages, replacing the one they use now",
+      ? "Unload the word list from the Anagrams, Pangrams, Patterns and Words pages"
+      : "Load as the word list on the Anagrams, Pangrams, Patterns and Words pages, replacing the one they use now",
     current: [],
   },
   at: {
@@ -35,8 +35,8 @@ const SLOTS = {
     button: "at",
     label: () => "@",
     title: (on) => on
-      ? "Stop using this as the @ list on the Patterns and Guesses pages"
-      : "Load as the @ list: @ on the Patterns page stands for these words, and Guesses takes its answers from them",
+      ? "Stop using this as the @ list on the Patterns and Words pages"
+      : "Load as the @ list: @ on the Patterns page stands for these words, and Words takes its answers from them",
     current: [],
   },
 };

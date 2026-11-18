@@ -1,4 +1,4 @@
-// The Guesses game's logic: turning list entries into puzzle keys, scoring guesses,
+// The Words game's logic: turning list entries into puzzle keys, scoring guesses,
 // checking locked letters, and finding the answers that still fit.
 
 // Letters that don't decompose into a base letter and accents, mapped to A–Z.
