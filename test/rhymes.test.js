@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { COMMON, RARE, Rhymes, lookupKey, parsePronunciations, parseSounds, rhymeParts, letterCount, splitCluster, syllableCount, toIpa } from "../src/rhymes/rhymes.js";
+import { COMMON, RARE, Rhymes, lookupKey, parseMergers, parsePronunciations, parseSounds, rhymeParts, letterCount, splitCluster, syllableCount, toIpa } from "../src/rhymes/rhymes.js";
 
 const DATA = `# name: Pronunciations
 # attribution: From [somewhere](https://example.com).
@@ -625,4 +625,70 @@ tin\ttI1n
   assert.deepEqual(find("caught"), []);
   assert.deepEqual(find("caught", { cotCaught: true }), ["pod"]);
   assert.deepEqual(find("pen", { pinPen: true }), ["tin"]);
+});
+
+test("custom mergers: parsed from groups of sounds in IPA or ASCII", () => {
+  assert.equal(parseMergers(""), null);
+  assert.equal(parseMergers(" , "), null);
+  assert.equal(parseMergers("dð").apply("DEn bAdi"), "dEn bAdi");
+  assert.equal(parseMergers("dD").key, parseMergers("ðd").key);
+  // groups separated by commas; spaces between sounds are ignored, so d Z is two sounds where dZ is one
+  assert.equal(parseMergers("sʃ, zZ").apply("SizZ"), "sizz");
+  assert.equal(parseMergers("d Z").apply("dZ J"), "dd J");
+  // groups that share a sound are joined
+  assert.equal(parseMergers("pb, bm").apply("pbm"), "ppp");
+  assert.equal(parseMergers("pb, bm").key, parseMergers("mpb").key);
+  assert.throws(() => parseMergers("dx"), /Unknown sound “x”/);
+  assert.throws(() => parseMergers("d"), /needs another sound/);
+  assert.throws(() => parseMergers("ɑɒ"), /already the same/);
+  assert.throws(() => parseMergers("da"), /mixes vowels and consonants/);
+});
+
+test("custom mergers apply after the others, in every type of search", () => {
+  const rhymes = new Rhymes(parsePronunciations(`bother\tbA1DR
+fodder\tfA1dR
+then\tDE1n
+den\tdE1n
+pen\tpE1n
+kiss\tkI1s
+fish\tfI1S
+dish\tdI1S
+metal\tmE1tVl
+medal\tmE1dVl
+nettle\tnE1DVl
+abet\tVbE1t
+Obed\to1bEd
+knot\tnA1t
+taught\ttO1t
+cut\tkV1t
+know\tno1\tC\t50\tv
+show\tSo1\tC\t50\tv
+`).entries);
+  const find = (word, options = {}) => rhymes.find(rhymes.pronunciations(word)[0], options);
+  const dD = parseMergers("dð");
+  assert.deepEqual(find("bother"), []);
+  assert.deepEqual(find("bother", { custom: dD }), ["fodder"]);
+  // then and den have the same onset once merged, so they're homophones
+  assert.deepEqual(find("then", { custom: dD }), ["pen"]);
+  assert.deepEqual(find("then", { custom: dD, sameOnset: true }), ["den", "pen"]);
+  assert.deepEqual(find("kiss", { custom: parseMergers("sʃ") }), ["dish", "fish"]);
+  // with flapping, metal's t is d, which is then ð
+  assert.deepEqual(find("nettle", { custom: dD }), ["medal"]);
+  assert.deepEqual(find("nettle", { custom: dD, flapping: true }), ["medal", "metal"]);
+  // with cot-caught, taught's ɔ is ɑ before the custom merger of ɑ and ʌ
+  assert.deepEqual(find("cut", { custom: parseMergers("ɑʌ") }), ["knot"]);
+  assert.deepEqual(find("cut", { custom: parseMergers("ɑʌ"), cotCaught: true }), ["knot", "taught"]);
+  // other types
+  assert.deepEqual(find("abet", { type: "consonants" }), []);
+  assert.deepEqual(find("abet", { type: "consonants", custom: parseMergers("td") }), ["Obed"]);
+  assert.deepEqual(find("cut", { type: "vowels" }), []);
+  assert.deepEqual(find("cut", { type: "vowels", custom: parseMergers("ɑʌ") }), ["knot"]);
+  assert.deepEqual(find("bother", { type: "near" }), []);
+  assert.deepEqual(find("bother", { type: "near", custom: dD }), ["fodder"]);
+  // pronunciations are grouped by their rhymes with the custom mergers too
+  assert.equal(rhymes.pronunciationGroups("then", { custom: dD }).length, 1);
+  // mosaic rhymes: know it and show it for poet, but know it has poet's onset once n is p
+  const poet = { word: "poet", pron: "po1It" };
+  assert.deepEqual([...rhymes.mosaic(poet).keys()].sort(), ["know it", "show it"]);
+  assert.deepEqual([...rhymes.mosaic(poet, { custom: parseMergers("pn") }).keys()], ["show it"]);
 });

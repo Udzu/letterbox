@@ -1,7 +1,7 @@
 // The Rhymes page: look up a word, pick one of its pronunciations, and list its rhymes.
 
 import { attributionParts } from "../wordlists/lists.js";
-import { Rhymes, TYPES, compareWords, lookupKey, parsePronunciations, parseSounds, rhymeParts, toIpa } from "./rhymes.js";
+import { Rhymes, TYPES, compareWords, lookupKey, parseMergers, parsePronunciations, parseSounds, rhymeParts, toIpa } from "./rhymes.js";
 
 const WORD_KEY = "rhymes-word";
 const OPTIONS_KEY = "rhymes-options";
@@ -22,6 +22,9 @@ const summary = document.getElementById("summary");
 const results = document.getElementById("results");
 const attribution = document.getElementById("attribution");
 const soundHelp = document.getElementById("sound-help");
+const stressHelp = document.getElementById("stress-help");
+const customInput = document.getElementById("custom-mergers");
+const customError = document.getElementById("custom-error");
 // option name -> its tickbox
 const OPTIONS = {
   sameOnset: document.getElementById("same-onset"),
@@ -37,12 +40,14 @@ const OPTIONS = {
 // type of search -> its button (see TYPES in rhymes.js)
 const TYPE_BUTTONS = Object.fromEntries([...document.querySelectorAll("#types button")].map((b) => [b.dataset.type, b]));
 const checked = () => Object.fromEntries(Object.entries(OPTIONS).map(([name, box]) => [name, box.checked]));
-const currentOptions = () => ({ ...checked(), type });
+const currentOptions = () => ({ ...checked(), type, custom });
 
 let rhymes = null;
 let grouping = GROUPINGS[load(GROUPING_KEY)] ? load(GROUPING_KEY) : "frequency";
 let type = TYPE_BUTTONS[load(TYPE_KEY)] ? load(TYPE_KEY) : "perfect";
 let shown = { word: null, choices: [], choice: 0 };
+// the custom mergers typed (see parseMergers), or null for none or ones that don't parse
+let custom = null;
 
 function load(name) {
   try {
@@ -198,7 +203,7 @@ function update({ push = false } = {}) {
   const word = input.value;
   save(WORD_KEY, word);
   if (hashWord() !== word.trim()) history[push ? "pushState" : "replaceState"](null, "", hashFor(word));
-  soundHelp.hidden = !word.trim().startsWith("/");
+  showSoundHelp();
   if (word.trim() === shown.word) return;
   shown = { word: word.trim(), choices: [], choice: 0 };
   summary.textContent = "";
@@ -259,10 +264,33 @@ input.addEventListener("input", () => {
   timer = setTimeout(update, 150);
 });
 
+// the sound help, for a pronunciation in the word box, or for custom mergers while typing them (without
+// the part about stress)
+function showSoundHelp() {
+  const mergers = document.activeElement === customInput;
+  soundHelp.hidden = !mergers && !input.value.trim().startsWith("/");
+  stressHelp.hidden = mergers;
+}
+
+const saveOptions = () => save(OPTIONS_KEY, JSON.stringify({ ...checked(), custom: customInput.value }));
 try {
   const saved = JSON.parse(load(OPTIONS_KEY) || "{}");
   for (const [name, box] of Object.entries(OPTIONS)) box.checked = saved[name] === true;
+  if (typeof saved.custom === "string") customInput.value = saved.custom;
 } catch (e) {}
+
+// the custom mergers typed, or an error saying why they don't work (and then none are used)
+function readCustom() {
+  try {
+    custom = parseMergers(customInput.value);
+    customError.textContent = "";
+  } catch (e) {
+    custom = null;
+    customError.textContent = `${e.message}.`;
+  }
+  customInput.classList.toggle("error", Boolean(customError.textContent));
+}
+readCustom();
 // Show the rhymes again after the options or type change. Mergers and types can change which
 // pronunciations have the same rhymes: regroup, keeping the one chosen.
 function optionsChanged() {
@@ -279,10 +307,22 @@ function optionsChanged() {
 }
 for (const box of Object.values(OPTIONS)) {
   box.addEventListener("change", () => {
-    save(OPTIONS_KEY, JSON.stringify(checked()));
+    saveOptions();
     optionsChanged();
   });
 }
+let customTimer = null;
+customInput.addEventListener("input", () => {
+  clearTimeout(customTimer);
+  customTimer = setTimeout(() => {
+    saveOptions();
+    const before = custom?.key;
+    readCustom();
+    if (custom?.key !== before) optionsChanged();
+  }, 300);
+});
+customInput.addEventListener("focus", showSoundHelp);
+customInput.addEventListener("blur", showSoundHelp);
 
 // the type of search, with the current one's button pressed (and the onset options greyed out for
 // types that compare whole words)

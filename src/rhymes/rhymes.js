@@ -171,6 +171,51 @@ export function parseSounds(text) {
   return { pron: out.map((x) => x.p + (x.stress ? x.stress : "")).join(""), assumed: assumed && vowels.length > 1 };
 }
 
+// Other sounds to merge, typed as groups of sounds (in IPA or ASCII, as for parseSounds) separated by
+// commas, such as "dð, sʃ" or "dD,sS": each group's sounds become the same. Spaces between sounds are
+// ignored, so "d Z" is d and ʒ where "dZ" is dʒ. Groups that share a sound are joined. Returns null
+// for no groups, or { key, apply }: a key that's the same for the same mergers, and a function that
+// makes the merged sounds the same in a pronunciation (in the file's codes, as for MERGERS), turning
+// each into the first sound of its group. Throws an error for an unknown sound, a group with fewer
+// than two different sounds, or one that mixes vowels and consonants.
+export function parseMergers(text) {
+  const rep = new Map(); // code -> the first code of its group, as a union-find
+  const find = (c) => (rep.get(c) === c ? c : find(rep.get(c)));
+  for (const group of text.split(/[,;]/)) {
+    const g = group.replace(/[\u0361\u035c]/g, "").trim().replace(/\s+/g, " ");
+    if (!g) continue;
+    const codes = [];
+    for (let i = 0; i < g.length;) {
+      if (g[i] === " ") {
+        i++;
+        continue;
+      }
+      const found = SOUND_SYMBOLS.find(([symbol]) => g.startsWith(symbol, i));
+      if (!found) throw new Error(`Unknown sound “${g[i]}”`);
+      codes.push(found[1]);
+      i += found[0].length;
+    }
+    const distinct = [...new Set(codes)];
+    if (codes.length < 2) throw new Error(`“${g}” needs another sound to merge with`);
+    if (distinct.length < 2) throw new Error(`The sounds in “${g}” are already the same here`);
+    if (new Set(distinct.map((c) => VOWELS.has(c))).size > 1) throw new Error(`“${g}” mixes vowels and consonants`);
+    for (const c of distinct) if (!rep.has(c)) rep.set(c, c);
+    for (const c of distinct.slice(1)) {
+      const [a, b] = [find(distinct[0]), find(c)];
+      if (a !== b) rep.set(b, a);
+    }
+  }
+  if (rep.size === 0) return null;
+  const map = Object.fromEntries([...rep.keys()].filter((c) => find(c) !== c).map((c) => [c, find(c)]));
+  const pattern = new RegExp(`[${Object.keys(map).join("")}]`, "g");
+  const groups = new Map();
+  for (const c of [...rep.keys()].sort()) groups.set(find(c), (groups.get(find(c)) ?? "") + c);
+  return {
+    key: [...groups.values()].sort().join(","),
+    apply: (pron) => pron.replace(pattern, (c) => map[c]),
+  };
+}
+
 // A pronunciation file's attribution and entries ({ word, pron, sources, zipf }), or an error naming
 // the first bad line. Lines starting with # are comments ("# attribution: …" gives the attribution),
 // and blank lines are skipped. Each other line has a word and a pronunciation, separated by a tab,
@@ -263,9 +308,11 @@ export const MERGERS = {
   nonRhotic: (pron) => R_LESS.reduce((p, [from, to]) => p.replace(from, to), pron),
 };
 
-// a pronunciation with the given mergers applied ({ cotCaught: true, ... }), always in the same order
+// a pronunciation with the given mergers applied ({ cotCaught: true, ... }), always in the same order,
+// then any custom ones (custom: as given by parseMergers), which so don't change what the others see
 export function merge(pron, mergers = {}) {
-  return Object.entries(MERGERS).reduce((p, [name, f]) => (mergers[name] ? f(p) : p), pron);
+  const merged = Object.entries(MERGERS).reduce((p, [name, f]) => (mergers[name] ? f(p) : p), pron);
+  return mergers.custom ? mergers.custom.apply(merged) : merged;
 }
 // A rhyme or loose rhyme with the sounds that any merger can change made the same: no merger changes
 // this key, so it finds the candidates for find to check with the mergers chosen. (Merging whole
@@ -554,6 +601,46 @@ export class Rhymes {
     return this.indexes[type];
   }
 
+  // The index to search for the options: as given by index, or with custom mergers (which can merge
+  // sounds that the index keys keep apart), one built from the pronunciations with all the mergers
+  // chosen applied, whose items' parts (and for whole types, pron) are merged too: { byRhyme,
+  // byLoose, key, merged: true }. Only the last of these is kept, as building one means merging every
+  // pronunciation.
+  searchIndex(options) {
+    const { type = "perfect", custom } = options;
+    if (!custom) return this.index(type);
+    const signature = [type, custom.key, ...Object.keys(MERGERS).filter((name) => options[name])].join("|");
+    if (this.mergedIndex?.signature === signature) return this.mergedIndex.index;
+    const { key, whole } = TYPES[type];
+    const index = { byRhyme: new Map(), byLoose: new Map(), key, merged: true };
+    const keys = new Map();
+    const keyOf = (rhyme) => {
+      let k = keys.get(rhyme);
+      if (k === undefined) keys.set(rhyme, (k = key(rhyme)));
+      return k;
+    };
+    const add = (map, k, item) => {
+      const list = map.get(k);
+      if (list) list.push(item);
+      else map.set(k, [item]);
+    };
+    for (const items of this.byRhyme.values()) {
+      for (const { entry } of items) {
+        const pron = merge(entry.pron, options);
+        if (whole) {
+          add(index.byRhyme, key(pron), { entry, pron });
+          continue;
+        }
+        const { rhyme, loose, onset } = rhymeParts(pron);
+        const item = { entry, rhyme, loose, onset };
+        add(index.byRhyme, keyOf(rhyme), item);
+        add(index.byLoose, keyOf(loose), item);
+      }
+    }
+    this.mergedIndex = { signature, index };
+    return index;
+  }
+
   // Mosaic rhymes for an entry (see MOSAIC_TAILS), as a map like matches gives, from each phrase to
   // the frequency of its stressed word: the phrases whose rhyme, as one pronunciation, would be a rhyme
   // for the entry with the same options as matches. The stressed word must be a single word (see
@@ -562,16 +649,21 @@ export class Rhymes {
     const { sameOnset = false, looseOnsets = false, type = "perfect" } = options;
     if (TYPES[type].whole) return new Map();
     const { matcher, shape } = TYPES[type];
-    const index = this.index(type);
-    const mergers = Object.keys(MERGERS).some((name) => options[name]);
+    const index = this.searchIndex(options);
+    const mergers = options.custom || Object.keys(MERGERS).some((name) => options[name]);
     const parts = rhymeParts(entry.pron);
     const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
     const [isRhyme, isLoose] = [matcher(target.rhyme), matcher(target.loose)];
+    // what to look up in the index, merged like it (with a merged index, the stressed word's merged
+    // rhyme can differ from that part of the phrase's where the mergers depend on the next word, as
+    // with flapping, but the index keys ignore most of the differences that makes)
+    const lookup = index.merged ? target : parts;
     const self = lookupKey(entry.word);
     const words = new Map();
     for (const tail of MOSAIC_TAILS) {
-      if (!shape(parts.rhyme).endsWith(shape(tail.rhyme)) || parts.rhyme.length === tail.rhyme.length) continue;
-      for (const item of index.byRhyme.get(index.key(parts.rhyme.slice(0, -tail.rhyme.length))) ?? []) {
+      const tailRhyme = index.merged ? merge(tail.pron, options).replace(/[IU]/g, "V") : tail.rhyme;
+      if (!shape(lookup.rhyme).endsWith(shape(tailRhyme)) || lookup.rhyme.length === tailRhyme.length) continue;
+      for (const item of index.byRhyme.get(index.key(lookup.rhyme.slice(0, -tailRhyme.length))) ?? []) {
         const { word, pron, pos, zipf } = item.entry;
         const subject = (tail.word === "it" || tail.word === "you") && (BEFORE_SUBJECT.has(word) || CLAUSE_VERBS.has(word));
         if (!subject && !tail.also.has(word) && (!pos || ![...tail.after].some((c) => pos.includes(c)))) continue;
@@ -581,7 +673,7 @@ export class Rhymes {
         const phrase = tail.attached ? word + tail.word : `${word} ${tail.word}`;
         const whole = rhymeParts(merge(`${pron} ${tail.pron}`, options));
         if (!isRhyme(whole.rhyme) && !(looseOnsets && isLoose(whole.loose))) continue;
-        if ((!sameOnset && item.onset === parts.onset) || lookupKey(phrase) === self) continue;
+        if ((!sameOnset && item.onset === lookup.onset) || lookupKey(phrase) === self) continue;
         const match = words.get(phrase) ?? { zipf: 0, syllables: new Set() };
         match.zipf = Math.max(match.zipf, zipf);
         match.syllables.add(syllableCount(pron) + syllableCount(tail.pron));
@@ -614,6 +706,7 @@ export class Rhymes {
   // - looseOnsets: allow different consonants at the start of the syllables after the stressed one
   //   (so hip-hop and flip-flop)
   // - any of the MERGERS, such as cotCaught: treat those sounds as the same
+  // - custom: other sounds to treat as the same (see parseMergers)
   // - type: the type of search (see TYPES), perfect by default
   find(entry, options = {}) {
     return [...this.matches(entry, options).keys()].sort(compareWords);
@@ -626,24 +719,27 @@ export class Rhymes {
     const { sameOnset = false, looseOnsets = false, type = "perfect" } = options;
     if (TYPES[type].whole) return this.wholeMatches(entry, options);
     const { matcher } = TYPES[type];
-    const index = this.index(type);
-    const mergers = Object.keys(MERGERS).some((name) => options[name]);
+    const index = this.searchIndex(options);
+    const mergers = options.custom || Object.keys(MERGERS).some((name) => options[name]);
     const parts = rhymeParts(entry.pron);
     const target = mergers ? rhymeParts(merge(entry.pron, options)) : parts;
     const [isRhyme, isLoose] = [matcher(target.rhyme), matcher(target.loose)];
+    // what to look up in the index, merged like it
+    const lookup = index.merged ? target : parts;
     // Loose rhymes also include the strict ones: as loose rhymes split consonants at word breaks, the
     // same sounds can give different loose rhymes (the r of care of ends a syllable, but where've's
     // starts one), so they wouldn't always.
-    const strict = index.byRhyme.get(index.key(parts.rhyme)) ?? [];
-    const candidates = looseOnsets ? [...strict, ...(index.byLoose.get(index.key(parts.loose)) ?? [])] : strict;
+    const strict = index.byRhyme.get(index.key(lookup.rhyme)) ?? [];
+    const candidates = looseOnsets ? [...strict, ...(index.byLoose.get(index.key(lookup.loose)) ?? [])] : strict;
     const self = withoutAccents(lookupKey(entry.word));
     const words = new Map();
     for (const item of candidates) {
-      const other = mergers ? rhymeParts(merge(item.entry.pron, options)) : item;
+      const other = mergers && !index.merged ? rhymeParts(merge(item.entry.pron, options)) : item;
       if (!isRhyme(other.rhyme) && !(looseOnsets && isLoose(other.loose))) continue;
       const { word, zipf } = item.entry;
-      // (onsets as without mergers, which aren't meant to change them)
-      if ((sameOnset || item.onset !== parts.onset) && withoutAccents(lookupKey(word)) !== self) {
+      // (onsets as without the built-in mergers, which aren't meant to change them, but with custom ones,
+      // which can: then and den have the same onset when ð is d)
+      if ((sameOnset || item.onset !== lookup.onset) && withoutAccents(lookupKey(word)) !== self) {
         const match = words.get(word) ?? { zipf: 0, syllables: new Set() };
         match.zipf = Math.max(match.zipf, zipf);
         match.syllables.add(syllableCount(item.entry.pron));
@@ -658,15 +754,15 @@ export class Rhymes {
   // itself. The onset options don't apply.
   wholeMatches(entry, options) {
     const { pattern } = TYPES[options.type];
-    const index = this.index(options.type);
+    const index = this.searchIndex(options);
     const merged = merge(entry.pron, options);
     const target = pattern(merged, options);
     const sound = soundKey(merged);
     const self = withoutAccents(lookupKey(entry.word));
     const words = new Map();
-    for (const item of index.byRhyme.get(index.key(entry.pron)) ?? []) {
+    for (const item of index.byRhyme.get(index.key(index.merged ? merged : entry.pron)) ?? []) {
       const { word, zipf, pron } = item.entry;
-      const other = merge(pron, options);
+      const other = item.pron ?? merge(pron, options);
       if (pattern(other, options) !== target || soundKey(other) === sound || withoutAccents(lookupKey(word)) === self) continue;
       const match = words.get(word) ?? { zipf: 0, syllables: new Set() };
       match.zipf = Math.max(match.zipf, zipf);
