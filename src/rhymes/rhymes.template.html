@@ -39,8 +39,12 @@
   #options, #mergers { display: flex; flex-wrap: wrap; gap: 4px 16px; }
   #options label, #mergers label { cursor: pointer; }
   #options label.disabled { color: #aaa; cursor: default; }
-  #sound-help { margin: 6px 0 0; font-size: 0.85rem; color: #666; line-height: 1.5; }
-  #sound-help span { font-family: ui-monospace, monospace; color: #000; background: #f0f0f0; padding: 0 3px; border-radius: 2px; }
+  #custom-mergers { width: 13em; font: inherit; padding: 0 4px; }
+  #custom-mergers.error { border-color: #d00; outline-color: #d00; }
+  #custom-error { color: #d00; }
+  #custom-error:empty { display: none; }
+  #sound-help { margin: 8px 0 0; font-size: 0.85rem; color: #666; line-height: 1.5; }
+  #sound-help span:not(#stress-help) { font-family: ui-monospace, monospace; color: #000; background: #f0f0f0; padding: 0 3px; border-radius: 2px; }
   #prons .homophones a { color: #000; text-decoration: none; }
   #prons .homophones a:hover, #prons .homophones a:focus { text-decoration: underline; }
   #status { margin: 12px 0 0; color: #666; }
@@ -92,7 +96,6 @@
 <main>
   <p class="intro">Find rhymes in General American English for a word, a phrase, or a pronunciation between slashes, like /ˈhɛd/ or /'hEd/. Click a rhyme to look it up. The pronunciations are fetched online and kept for offline use; you can also download them, or load your own (see the bottom of the page).</p>
   <input id="word" type="text" placeholder="Word or phrase..." autocomplete="off" spellcheck="false" autofocus>
-  <p id="sound-help" hidden>Type sounds in IPA or using: <span>A</span> ɑ <i>father</i> · <span>a</span> æ <i>cat</i> · <span>^</span> ʌ or <span>@</span> ə <i>cut</i> · <span>O</span> ɔ <i>caught</i> · <span>E</span> ɛ <i>bed</i> · <span>3</span> ɝ/ɚ <i>bird</i> · <span>I</span> ɪ <i>bit</i> · <span>i</span> <i>beat</i> · <span>U</span> ʊ <i>book</i> · <span>u</span> <i>boot</i> · <span>eI</span> <i>bait</i> · <span>aI</span> <i>bite</i> · <span>aU</span> <i>out</i> · <span>oU</span> <i>boat</i> · <span>OI</span> <i>boy</i> · <span>S</span> ʃ <i>ship</i> · <span>Z</span> ʒ <i>measure</i> · <span>tS</span> <i>chip</i> · <span>dZ</span> <i>judge</i> · <span>T</span> θ <i>thin</i> · <span>D</span> ð <i>this</i> · <span>N</span> ŋ <i>sing</i> · <span>j</span>/<span>y</span> <i>yes</i>, others as usual. Put <span>'</span> before the stressed syllable (by default the first) and <span>,</span> before a secondary one, e.g. <span>/'m^Nki/</span> <i>monkey</i>.</p>
   <div id="settings">
     <span class="label" title="What to search for">Type:</span>
     <span id="types" class="buttons">
@@ -116,8 +119,11 @@
       <label title="Treat the stressed vowels of poor and pour as the same, as many Americans do (so tour rhymes with more)"><input type="checkbox" id="cure-force"> <i>poor</i>/<i>pour</i></label>
       <label title="Treat stressed e and i as the same before m and n, as in the South (so pen rhymes with win)"><input type="checkbox" id="pin-pen"> <i>pin</i>/<i>pen</i></label>
       <label title="Drop r unless a vowel follows, as in traditional New York, Boston and Southern speech (so lord rhymes with flawed, and Dora with explorer). The r after ah is kept: the pronunciations here use the same vowel for father and bother, so dropping it would make card rhyme with cod, which it doesn't for these speakers"><input type="checkbox" id="non-rhotic"> <i>sauce</i>/<i>source</i></label>
+      <input type="text" id="custom-mergers" placeholder="other sounds, e.g. dð, ɝɔɪ" autocomplete="off" spellcheck="false" aria-label="Other sounds to merge" title="Other sounds to treat as the same, typed like pronunciations: groups of sounds separated by commas, such as dð, ɝɔɪ (so bother rhymes with fodder, and girl with spoil). Applied after the mergers above">
+      <span id="custom-error"></span>
     </div>
   </div>
+  <p id="sound-help" hidden>Type sounds in IPA or using: <span>A</span> ɑ <i>father</i> · <span>a</span> æ <i>cat</i> · <span>^</span> ʌ or <span>@</span> ə <i>cut</i> · <span>O</span> ɔ <i>caught</i> · <span>E</span> ɛ <i>bed</i> · <span>3</span> ɝ/ɚ <i>bird</i> · <span>I</span> ɪ <i>bit</i> · <span>i</span> <i>beat</i> · <span>U</span> ʊ <i>book</i> · <span>u</span> <i>boot</i> · <span>eI</span> <i>bait</i> · <span>aI</span> <i>bite</i> · <span>aU</span> <i>out</i> · <span>oU</span> <i>boat</i> · <span>OI</span> <i>boy</i> · <span>S</span> ʃ <i>ship</i> · <span>Z</span> ʒ <i>measure</i> · <span>tS</span> <i>chip</i> · <span>dZ</span> <i>judge</i> · <span>T</span> θ <i>thin</i> · <span>D</span> ð <i>this</i> · <span>N</span> ŋ <i>sing</i> · <span>j</span>/<span>y</span> <i>yes</i>, others as usual. <span id="stress-help">Put <span>'</span> before the stressed syllable (by default the first) and <span>,</span> before a secondary one, e.g. <span>/'m^Nki/</span> <i>monkey</i>.</span></p>
   <p id="status"></p>
   <div id="prons"></div>
   <p id="summary"></p>
