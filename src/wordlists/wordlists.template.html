@@ -23,6 +23,15 @@
   main { max-width: 900px; margin: 0 auto; }
   .intro { margin: 0 0 24px; color: #666; }
   .intro a { color: #06c; }
+  .nsfw { margin: 0 0 8px; }
+  .nsfw .label { color: #666; margin-right: 8px; }
+  .buttons { display: inline-flex; vertical-align: middle; }
+  .buttons button { font: inherit; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
+  .buttons button + button { border-left: none; }
+  .buttons button:first-child { border-radius: 3px 0 0 3px; }
+  .buttons button:last-child { border-radius: 0 3px 3px 0; }
+  .buttons button[aria-pressed=true] { background: #e8e8e8; border-color: #999; color: #222; }
+  #nsfw-status { margin: 0 0 8px; }
   #lists ul { list-style: none; margin: 0; padding: 0; }
   #lists ul + ul { margin-top: 32px; }
   /* the topic badges between the general and other lists, which filter the other lists */
@@ -71,6 +80,12 @@
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <b>Wordlists</b> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
 <main>
   <p class="intro">Word lists for the <a href="anagrams.html">Anagrams</a>, <a href="pangrams.html">Pangrams</a>, <a href="patterns.html">Patterns</a> and <a href="words.html">Words</a> pages. Load one to use it on those pages straight away (it replaces any list already loaded), add it with <b>+</b> to combine it with the lists already loaded, or download it as a text file to load later. The <b>@</b> button loads a list as the @ list instead, which Patterns uses for <code>@</code> and Words for answers. Unlike the other pages, this one needs an internet connection.</p>
+  <p class="nsfw"><span class="label" title="Whether the general lists include NSFW words, such as swear words and slurs">NSFW words:</span>
+    <span id="nsfw" class="buttons" role="group" aria-label="NSFW words">
+      <button type="button" data-nsfw="included" title="Include NSFW words in the general lists.">Included</button>
+      <button type="button" data-nsfw="excluded" title="Exclude NSFW words from the general lists.">Excluded</button>
+    </span></p>
+  <p class="status" id="nsfw-status" aria-live="polite"></p>
   <div id="lists"></div>
 </main>
 <!-- @wordlists ../../wordlists -->

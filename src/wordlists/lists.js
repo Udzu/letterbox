@@ -76,6 +76,12 @@ export function removeList(text, removed, kept) {
   return lines.length === 0 ? "" : lines.join("\n") + "\n";
 }
 
+// A stripped list without the words in `removed`, a set of NFC forms (such as the NSFW words).
+export function withoutWords(stripped, removed) {
+  const lines = stripped.split("\n").filter((line) => line !== "" && !removed.has(line.normalize("NFC")));
+  return lines.length === 0 ? "" : lines.join("\n") + "\n";
+}
+
 export function wordCount(stripped) {
   return new Set(stripped.split("\n").filter((line) => line !== "").map((line) => line.normalize("NFC"))).size;
 }

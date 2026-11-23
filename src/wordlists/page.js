@@ -2,12 +2,13 @@
 // shared by the Anagrams, Pangrams and Patterns pages (or added to it, combining lists), or as
 // the @ list that @ stands for on the Patterns page, or downloaded. Whichever it is, the
 // list is stripped of comments and blank lines (apart from a downloaded list's attribution, which
-// the other pages skip), so a downloaded list loads with the same words.
+// the other pages skip), so a downloaded list loads with the same words. With the NSFW filter on,
+// the general lists are loaded, added and downloaded without the words in wordlists/nsfw/nsfw.txt.
 
-import { TOPICS, appendList, attributionParts, downloadText, removeList, stripList, wordCount } from "./lists.js";
+import { TOPICS, appendList, attributionParts, downloadText, removeList, stripList, withoutWords, wordCount } from "./lists.js";
 
-// [{ file, name, description, tag?, attribution?, size }], general lists first and then by name,
-// written into the page by the build
+// [{ file, name, description, tag?, attribution?, size, nsfw? }], general lists first and then by
+// name, written into the page by the build; nsfw is a general list's number of NSFW words
 const LISTS = JSON.parse(document.getElementById("lists-data").textContent);
 const BY_FILE = new Map(LISTS.map((list) => [list.file, list]));
 
@@ -77,17 +78,29 @@ async function fetchList(slot) {
 
 const count = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
 
-const texts = new Map(); // file -> stripped text, fetched when first needed
-async function listText(list) {
-  if (!texts.has(list.file)) {
-    const response = await fetch(`wordlists/${encodeURIComponent(list.file)}`);
+// the NSFW filter's setting, kept with the stored lists
+const NSFW_KEY = "nsfw-filter";
+let nsfwFilter = false;
+
+const texts = new Map(); // path -> stripped text, fetched when first needed
+async function fetchText(path) {
+  if (!texts.has(path)) {
+    const response = await fetch(`wordlists/${path}`);
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-    texts.set(list.file, stripList(await response.text()));
+    texts.set(path, stripList(await response.text()));
   }
-  return texts.get(list.file);
+  return texts.get(path);
 }
 
-const rows = new Map(); // file -> { li, buttons: { load, add, at }, status }
+let nsfwWords = null; // the NFC forms of the NSFW words, fetched when first needed
+async function listText(list) {
+  const text = await fetchText(encodeURIComponent(list.file));
+  if (!nsfwFilter || list.tag !== "general") return text;
+  nsfwWords ??= new Set((await fetchText("nsfw/nsfw.txt")).split("\n").filter(Boolean).map((w) => w.normalize("NFC")));
+  return withoutWords(text, nsfwWords);
+}
+
+const rows = new Map(); // file -> { li, buttons: { load, add, at }, size, status }
 
 // the files a stored list came from: just its name for one loaded elsewhere
 const filesOf = (stored) => (stored === null ? [] : stored.files ?? [stored.name]);
@@ -118,6 +131,11 @@ function markSlot(slot, files) {
 // lists loaded or cleared elsewhere (on another page, or in another tab) show up on return
 async function refreshLoaded() {
   for (const slot of Object.values(SLOTS)) markSlot(slot, filesOf(await fetchList(slot)));
+  const on = (await fetchList({ key: NSFW_KEY })) === true;
+  if (on !== nsfwFilter) {
+    nsfwFilter = on;
+    showSizes();
+  }
 }
 
 function setStatus(row, message, error = false) {
@@ -332,7 +350,8 @@ for (const list of LISTS) {
     rowBadges.push({ topic: list.tag, button: badge });
     title.append(badge);
   }
-  title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.add, buttons.at, downloadButton);
+  const size = element("span", "size");
+  title.append(size, buttons.load, buttons.add, buttons.at, downloadButton);
   const status = element("p", "status");
   status.setAttribute("aria-live", "polite");
   const li = element("li");
@@ -342,7 +361,7 @@ for (const list of LISTS) {
   group.ul.append(li);
   if (!general) filtered.push({ list, li });
 
-  const row = { li, buttons, status };
+  const row = { li, buttons, size, status };
   rows.set(list.file, row);
   buttons.load.addEventListener("click", () => toggle(list, row, SLOTS.words));
   buttons.add.addEventListener("click", () => toggleAdd(list, row));
@@ -352,8 +371,55 @@ for (const list of LISTS) {
 
 setFilter(null);
 
+// the NSFW buttons, and each list's size, less its NSFW words if they're excluded and it has any
+function showSizes() {
+  for (const button of nsfwButtons) button.setAttribute("aria-pressed", String((button.dataset.nsfw === "excluded") === nsfwFilter));
+  for (const list of LISTS) {
+    const nsfw = nsfwFilter ? list.nsfw ?? 0 : 0;
+    rows.get(list.file).size.textContent = count(list.size - nsfw, "word") + (nsfw ? ` (excluding ${count(nsfw, "NSFW one")})` : "");
+  }
+}
+
+// The NSFW words: Included | Excluded buttons, before the general lists: switching also redoes the
+// word list and @ list if they're made of lists on this page, at least one of them general.
+const nsfwButtons = [...document.querySelectorAll("#nsfw button")];
+const nsfwStatus = document.getElementById("nsfw-status");
+for (const button of nsfwButtons) {
+  button.addEventListener("click", () => {
+    const on = button.dataset.nsfw === "excluded";
+    if (on !== nsfwFilter) setNsfwFilter(on);
+  });
+}
+
+async function setNsfwFilter(on) {
+  nsfwFilter = on;
+  showSizes();
+  const done = [];
+  try {
+    await storeList({ key: NSFW_KEY }, on);
+    for (const [slot, noun] of [[SLOTS.words, "word list"], [SLOTS.at, "@ list"]]) {
+      const stored = await fetchList(slot);
+      const files = filesOf(stored);
+      const lists = files.map((file) => BY_FILE.get(file));
+      if (files.length === 0 || lists.includes(undefined) || !lists.some((list) => list.tag === "general")) continue;
+      const text = (await Promise.all(lists.map(listText))).reduce(appendList);
+      const change = wordCount(text) - wordCount(stored.text);
+      await storeList(slot, { ...stored, text });
+      if (change) done.push(`${change < 0 ? "Removed" : "Restored"} ${count(Math.abs(change), "NSFW word")} ${change < 0 ? "from" : "to"} the ${noun}.`);
+    }
+  } catch (e) {
+    nsfwStatus.textContent = `Couldn't update the loaded lists (${e.message ?? e}).`;
+    nsfwStatus.classList.add("error");
+    return;
+  }
+  nsfwStatus.classList.remove("error");
+  nsfwStatus.textContent = done.length ? `${done.join(" ")} Reload any of the other pages that are already open to see the change.` : "";
+  if (done.length) for (const row of rows.values()) setStatus(row, "");
+}
+
 // a list loaded from this page (or a file with the same name) is marked as loaded
 for (const slot of Object.values(SLOTS)) markSlot(slot, []);
+showSizes();
 refreshLoaded();
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") refreshLoaded();

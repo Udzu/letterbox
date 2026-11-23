@@ -11,12 +11,13 @@
 //
 // A <!-- @wordlists path/to/dir --> marker is replaced by a JSON <script id="lists-data">
 // holding the metadata and size of each .txt list in that directory, general lists first
-// and then by name. The build fails if any list's header is missing or malformed (see src/wordlists/lists.js).
+// and then by name, with each general list's number of NSFW words (those in nsfw/nsfw.txt
+// in that directory). The build fails if any list's header is missing or malformed (see src/wordlists/lists.js).
 
 import { build } from "esbuild";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { readList, sortLists } from "../src/wordlists/lists.js";
+import { readList, sortLists, stripList } from "../src/wordlists/lists.js";
 
 const [template, output] = process.argv.slice(2);
 if (!template || !output) {
@@ -64,6 +65,13 @@ for (const [, dir] of html.matchAll(LISTS_MARKER)) {
     }
   }
   entries = sortLists(entries);
+  // each general list's number of words in nsfw/nsfw.txt, which the page's NSFW filter leaves out
+  const nsfw = new Set(stripList(await readFile(path.join(full, "nsfw", "nsfw.txt"), "utf8")).split("\n").filter(Boolean).map((w) => w.normalize("NFC")));
+  for (const entry of entries) {
+    if (entry.tag !== "general") continue;
+    const text = stripList(await readFile(path.join(full, entry.file), "utf8"));
+    entry.nsfw = new Set(text.split("\n").filter((w) => nsfw.has(w.normalize("NFC"))).map((w) => w.normalize("NFC"))).size;
+  }
   const fileOf = new Map();
   for (const entry of entries) {
     if (fileOf.has(entry.name)) {

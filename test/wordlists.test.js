@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { parseWords } from "../src/patterns/wordlist.js";
-import { attributionParts, downloadText, plainAttribution, readList, removeList, sortLists, stripList, wordCount, appendList } from "../src/wordlists/lists.js";
+import { attributionParts, downloadText, plainAttribution, readList, removeList, sortLists, stripList, withoutWords, wordCount, appendList } from "../src/wordlists/lists.js";
 
 const HEADER = "# name: Animals\n# description: Some animals.\n# tag: science & academia\n\n";
 
@@ -105,4 +105,21 @@ test("every list in wordlists/ is well formed", async () => {
     // a downloaded copy loads into the other pages with the words the page says it has
     assert.equal(parseWords(downloadText(stripList(text), list.attribution)).length, list.size, file);
   }
+});
+
+test("withoutWords drops the given words, comparing NFC forms", () => {
+  const removed = new Set(["darn", "café"]);
+  assert.equal(withoutWords("cat\ndarn\ncafé\ndog\n", removed), "cat\ndog\n");
+  assert.equal(withoutWords("darn\n", removed), "");
+});
+
+test("every NSFW word is in a general list", async () => {
+  const dir = new URL("../wordlists/", import.meta.url);
+  const general = new Set();
+  for (const file of (await readdir(dir)).filter((file) => file.endsWith(".txt"))) {
+    const text = await readFile(new URL(file, dir), "utf8");
+    if (readList(text).tag === "general") for (const word of stripList(text).split("\n")) general.add(word);
+  }
+  const nsfw = stripList(await readFile(new URL("nsfw/nsfw.txt", dir), "utf8")).split("\n").filter(Boolean);
+  assert.deepEqual(nsfw.filter((word) => !general.has(word)), []);
 });
