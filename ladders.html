@@ -91,6 +91,7 @@
   #board.swappable .board-row.active .tile { touch-action: none; }
   .board-row.active .tile.dragging { opacity: 0.5; }
   .board-row.active .tile.drop { background: #e3ecf7; }
+  .board-row.active .tile.hint { background: #fbeec8; }
   .board-row.active .tile.selected { border-color: var(--blue); box-shadow: inset 0 0 0 2px var(--blue); }
   .board-row.shake { animation: shake 0.3s; }
   @keyframes shake {
@@ -182,6 +183,7 @@
     <div id="top-line">
       <button type="button" id="new-game">New ladder</button>
       <button type="button" id="undo" disabled>Undo</button>
+      <button type="button" id="hint" disabled title="Mark the letters to change next; press again for the word">Hint</button>
       <button type="button" id="give-up" disabled>Give up</button>
     </div>
     <p id="goal"></p>
@@ -561,6 +563,30 @@
     }
     return null;
   }
+  var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  function neighbours(word, moves, has) {
+    const out = /* @__PURE__ */ new Set();
+    const add = (w) => w !== word && has(w) && out.add(w);
+    for (let i = 0; i < word.length; i++) {
+      for (const c of ALPHABET) add(word.slice(0, i) + c + word.slice(i + 1));
+      if (moves.swaps) {
+        for (let j = i + 1; j < word.length; j++) add(word.slice(0, i) + word[j] + word.slice(i + 1, j) + word[i] + word.slice(j + 1));
+      }
+      if (moves.addRemove) add(word.slice(0, i) + word.slice(i + 1));
+    }
+    if (moves.addRemove) {
+      for (let i = 0; i <= word.length; i++) for (const c of ALPHABET) add(word.slice(0, i) + c + word.slice(i));
+    }
+    return [...out];
+  }
+  function hint(graph, toEnd, from, used, moves) {
+    let best = null;
+    for (const word of neighbours(from, moves, (w) => graph.index.has(w) && !used.has(w))) {
+      const left = toEnd.dist[graph.index.get(word)];
+      if (left >= 0 && (best === null || left < best.left)) best = { word, left };
+    }
+    return best;
+  }
 
   // src/ladders/page.js
   var SETTINGS_KEY = "ladders-settings";
@@ -595,6 +621,10 @@
   var entries = (n) => `${n.toLocaleString()} ${n === 1 ? "entry" : "entries"}`;
   var escapeHtml = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   var ladderText = (words) => words.join(" \u2192 ");
+  var hintCount = (presses) => {
+    const n = `${presses >= 2 ? Math.floor(presses / 2).toLocaleString() : ""}${presses % 2 ? "\xBD" : ""}`;
+    return `${n} ${presses === 2 ? "hint" : "hints"}`.replace(/^½ hints$/, "\xBD hint");
+  };
   var DB = { name: "patterns", store: "wordlist" };
   var SLOTS = {
     words: { key: "list", load: "load-words", clear: "clear-words", info: "words-info", file: "words-file", none: "None loaded", list: null },
@@ -763,6 +793,9 @@
       rows: [],
       current: [...puzzle.start],
       selected: 0,
+      hints: 0,
+      hinted: null,
+      toEnd: null,
       began: Date.now(),
       over: false
     };
@@ -782,6 +815,7 @@
   }
   function updateUndo() {
     $("undo").disabled = !playing() || game.rows.length === 0;
+    $("hint").disabled = !playing();
   }
   function showGoal() {
     const s = game?.settings;
@@ -853,11 +887,46 @@
   function undo() {
     if (!playing() || !game.rows.length) return;
     game.rows.pop();
+    game.hinted = null;
     game.current = [...previous()];
     game.selected = 0;
     setMessage("");
     updateUndo();
     drawBoard();
+  }
+  function giveHint() {
+    if (!playing()) return;
+    const g = game;
+    if (!g.hinted) {
+      g.toEnd ??= distances(g.words.graph, g.words.graph.index.get(g.end));
+      const used = /* @__PURE__ */ new Set([g.start, ...g.rows]);
+      const found = hint(g.words.graph, g.toEnd, previous(), used, g.settings);
+      if (!found) {
+        setMessage("The end can't be reached from here: try Undo", "error");
+        return;
+      }
+      if (g.rows.length + 1 + found.left > g.best.length - 1 && g.settings.shortest) {
+        setMessage(`The end can't be reached in ${count(g.best.length - 1, "step")} from here: try Undo`, "error");
+        return;
+      }
+      g.hinted = { word: found.word, shown: false };
+      g.hints++;
+      setMessage("The next step changes the marked letters (press Hint again for the word)");
+    } else {
+      if (!g.hinted.shown) g.hints++;
+      g.hinted.shown = true;
+      g.current = [...g.hinted.word];
+      g.selected = 0;
+      setMessage("Press Enter to use the hint");
+    }
+    drawBoard();
+  }
+  function hintMarks() {
+    const prev = previous(), word = game.hinted.word;
+    if (word.length === prev.length) return { at: changedPositions(prev, word), end: false };
+    let i = 0;
+    while (i < prev.length && prev[i] === word[i]) i++;
+    return { at: i < prev.length ? [i] : [], end: i === prev.length };
   }
   function submit() {
     if (!playing()) return;
@@ -881,6 +950,7 @@
       return;
     }
     game.rows.push(word);
+    game.hinted = null;
     game.current = [...word];
     game.selected = 0;
     setMessage("");
@@ -902,6 +972,7 @@
       won: how === "win",
       steps: how === "win" ? steps : g.rows.length,
       par,
+      hints: g.hints,
       seconds: Math.round((Date.now() - g.began) / 1e3),
       settings: g.settings,
       lists: [SLOTS.words.list?.name ?? null, SLOTS.at.list?.name ?? null]
@@ -909,7 +980,8 @@
     const best = `<span class="ladder">${escapeHtml(ladderText(g.best))}</span>`;
     if (how === "win") {
       const note = steps < par ? `, even shorter than the ${par} expected!` : steps === par ? ", the shortest way!" : `. The shortest takes ${par}: ${best}`;
-      setMessage(`Solved in ${count(steps, "step")}${note}`, "win", true);
+      const hints = g.hints ? ` (with ${hintCount(g.hints)})` : "";
+      setMessage(`Solved in ${count(steps, "step")}${hints}${note}`, "win", true);
     } else {
       g.gaveUp = true;
       setMessage("Given up. Here's a shortest ladder.");
@@ -955,6 +1027,11 @@
         return [c, cls];
       });
       if (canAppend()) tiles.push(["", `tile slot${game.selected === game.current.length ? " selected" : ""}`]);
+      if (game.hinted && !game.hinted.shown) {
+        const { at, end } = hintMarks();
+        for (const i of at) if (tiles[i]) tiles[i][1] += " hint";
+        if (end && canAppend()) tiles.at(-1)[1] += " hint";
+      }
       return tiles;
     }
     const changed = new Set(changedPositions(row.prev, row.text));
@@ -1048,7 +1125,7 @@
       tr.innerHTML = `<td></td><td class="${h.won ? "win" : "lose"}"></td><td class="num"></td><td class="rules"></td>`;
       const cells = tr.children;
       cells[0].textContent = `${h.forms[0].join(" / ")} \u2192 ${h.forms[1].join(" / ")}`;
-      cells[1].textContent = h.won ? `\u2713 in ${h.steps} (shortest ${h.par})` : `gave up after ${count(h.steps, "word")}`;
+      cells[1].textContent = (h.won ? `\u2713 in ${h.steps} (shortest ${h.par})` : `gave up after ${count(h.steps, "word")}`) + (h.hints ? ` \xB7 ${hintCount(h.hints)}` : "");
       cells[2].textContent = h.seconds >= 60 ? `${Math.floor(h.seconds / 60)}m ${h.seconds % 60}s` : `${h.seconds}s`;
       cells[3].textContent = rulesSummary(h);
       body.appendChild(tr);
@@ -1071,7 +1148,12 @@
     el.addEventListener(el.type === "number" ? "input" : "change", settingsChanged);
   }
   $("new-game").addEventListener("click", newGame);
-  $("undo").addEventListener("click", undo);
+  for (const [id, action] of [["undo", undo], ["hint", giveHint]]) {
+    $(id).addEventListener("click", (e) => {
+      action();
+      if (e.detail > 0) e.currentTarget.blur();
+    });
+  }
   $("give-up").addEventListener("click", () => playing() && endGame("give-up"));
   var drag = null;
   var activeTileAt = (x, y) => document.elementFromPoint(x, y)?.closest(".board-row.active .tile:not(.slot)") ?? null;

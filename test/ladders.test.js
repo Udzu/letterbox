@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildGraph, changedPositions, distances, entryInfo, fewerLength, isStep, keysOf, ladderWords, lengthRange, makePuzzle, shortestLadder, stepError, stepKind } from "../src/ladders/game.js";
+import { buildGraph, changedPositions, distances, entryInfo, fewerLength, hint, isStep, keysOf, ladderWords, lengthRange, makePuzzle, neighbours, shortestLadder, stepError, stepKind } from "../src/ladders/game.js";
 
 const infos = (words) => words.map(entryInfo);
 const rules = { length: 4, capitals: false, phrases: false };
@@ -117,4 +117,16 @@ test("the graph and puzzles follow the moves allowed", () => {
     assert.equal(puzzle.end.length, 4);
     assert.equal(puzzle.ladder.length, 3);
   }
+});
+
+test("hints move towards the end, avoiding used words", () => {
+  const graph = buildGraph(LADDER);
+  const toEnd = distances(graph, graph.index.get("WARM"));
+  assert.deepEqual(hint(graph, toEnd, "COLD", new Set(["COLD"]), {}), { word: "CORD", left: 3 });
+  assert.equal(hint(graph, toEnd, "COLD", new Set(["COLD", "CORD"]), {}), null);
+  // from a word outside the graph (only in the word list)
+  assert.deepEqual(hint(graph, toEnd, "CARE", new Set(), {}), { word: "CARD", left: 2 });
+  assert.deepEqual(neighbours("CAT", { addRemove: true }, (w) => ["AT", "CART", "COT", "CAT"].includes(w)).sort(), ["AT", "CART", "COT"]);
+  assert.deepEqual(neighbours("SALT", { swaps: true }, (w) => w === "SLAT"), ["SLAT"]);
+  assert.deepEqual(neighbours("SALT", {}, (w) => w === "SLAT"), []);
 });

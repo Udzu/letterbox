@@ -212,3 +212,35 @@ export function makePuzzle(graph, { steps, fewer, length = null }, random = Math
   }
   return null;
 }
+
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+// The words one step from a word (which needn't be in the graph) with the given moves, among
+// those for which `has` is true.
+export function neighbours(word, moves, has) {
+  const out = new Set();
+  const add = (w) => w !== word && has(w) && out.add(w);
+  for (let i = 0; i < word.length; i++) {
+    for (const c of ALPHABET) add(word.slice(0, i) + c + word.slice(i + 1));
+    if (moves.swaps) {
+      for (let j = i + 1; j < word.length; j++) add(word.slice(0, i) + word[j] + word.slice(i + 1, j) + word[i] + word.slice(j + 1));
+    }
+    if (moves.addRemove) add(word.slice(0, i) + word.slice(i + 1));
+  }
+  if (moves.addRemove) {
+    for (let i = 0; i <= word.length; i++) for (const c of ALPHABET) add(word.slice(0, i) + c + word.slice(i));
+  }
+  return [...out];
+}
+
+// A hint for the step after `from`, towards `end`: { word, left } for a word of the graph one
+// step away (not in `used`) that's as close as possible to the end, `left` steps away from it;
+// or null if the end can't be reached. `toEnd` is the graph's distances from the end.
+export function hint(graph, toEnd, from, used, moves) {
+  let best = null;
+  for (const word of neighbours(from, moves, (w) => graph.index.has(w) && !used.has(w))) {
+    const left = toEnd.dist[graph.index.get(word)];
+    if (left >= 0 && (best === null || left < best.left)) best = { word, left };
+  }
+  return best;
+}

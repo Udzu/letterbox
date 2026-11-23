@@ -90,6 +90,7 @@
   #board.swappable .board-row.active .tile { touch-action: none; }
   .board-row.active .tile.dragging { opacity: 0.5; }
   .board-row.active .tile.drop { background: #e3ecf7; }
+  .board-row.active .tile.hint { background: #fbeec8; }
   .board-row.active .tile.selected { border-color: var(--blue); box-shadow: inset 0 0 0 2px var(--blue); }
   .board-row.shake { animation: shake 0.3s; }
   @keyframes shake {
@@ -181,6 +182,7 @@
     <div id="top-line">
       <button type="button" id="new-game">New ladder</button>
       <button type="button" id="undo" disabled>Undo</button>
+      <button type="button" id="hint" disabled title="Mark the letters to change next; press again for the word">Hint</button>
       <button type="button" id="give-up" disabled>Give up</button>
     </div>
     <p id="goal"></p>

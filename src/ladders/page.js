@@ -2,7 +2,7 @@
 // from the word list and @ list shared with the Patterns and Words pages.
 
 import { parseWords } from "../patterns/wordlist.js";
-import { buildGraph, changedPositions, entryInfo, isStep, ladderWords, lengthRange, letters, makePuzzle, stepError, stepKind } from "./game.js";
+import { buildGraph, changedPositions, distances, entryInfo, hint, isStep, ladderWords, lengthRange, letters, makePuzzle, stepError, stepKind } from "./game.js";
 
 const SETTINGS_KEY = "ladders-settings";
 const HISTORY_KEY = "ladders-history";
@@ -35,6 +35,11 @@ const count = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
 const entries = (n) => `${n.toLocaleString()} ${n === 1 ? "entry" : "entries"}`;
 const escapeHtml = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const ladderText = (words) => words.join(" → ");
+// Hints, from the number of Hint presses, each worth ½: "½ hint", "1 hint", "1½ hints".
+const hintCount = (presses) => {
+  const n = `${presses >= 2 ? Math.floor(presses / 2).toLocaleString() : ""}${presses % 2 ? "½" : ""}`;
+  return `${n} ${presses === 2 ? "hint" : "hints"}`.replace(/^½ hints$/, "½ hint");
+};
 
 // ---- the lists, kept in IndexedDB under the same keys as the Patterns page's
 
@@ -212,7 +217,9 @@ function showCounts() {
 
 // { start, end, best (a shortest ladder), forms, words, settings, rows (the words played),
 //   current (the letters of the word being made, with "" for an added letter not yet typed),
-//   selected (a letter's index, or just past the last letter, for adding one there), began, over }
+//   selected (a letter's index, or just past the last letter, for adding one there),
+//   hints (how many times Hint was pressed, each counting as ½ a hint), hinted (the hint for the word being made: { word, shown }),
+//   toEnd (distances from the end word, found for the first hint), began, over }
 let game = null;
 
 const playing = () => game !== null && !game.over;
@@ -243,6 +250,9 @@ function newGame() {
     rows: [],
     current: [...puzzle.start],
     selected: 0,
+    hints: 0,
+    hinted: null,
+    toEnd: null,
     began: Date.now(),
     over: false,
   };
@@ -265,6 +275,7 @@ function lockSettings(locked) {
 
 function updateUndo() {
   $("undo").disabled = !playing() || game.rows.length === 0;
+  $("hint").disabled = !playing();
 }
 
 function showGoal() {
@@ -356,11 +367,52 @@ function backspace() {
 function undo() {
   if (!playing() || !game.rows.length) return;
   game.rows.pop();
+  game.hinted = null;
   game.current = [...previous()];
   game.selected = 0;
   setMessage("");
   updateUndo();
   drawBoard();
+}
+
+// The first hint for a step marks the letters to change; the second fills in the word.
+function giveHint() {
+  if (!playing()) return;
+  const g = game;
+  if (!g.hinted) {
+    g.toEnd ??= distances(g.words.graph, g.words.graph.index.get(g.end));
+    const used = new Set([g.start, ...g.rows]);
+    const found = hint(g.words.graph, g.toEnd, previous(), used, g.settings);
+    if (!found) {
+      setMessage("The end can't be reached from here: try Undo", "error");
+      return;
+    }
+    if (g.rows.length + 1 + found.left > g.best.length - 1 && g.settings.shortest) {
+      setMessage(`The end can't be reached in ${count(g.best.length - 1, "step")} from here: try Undo`, "error");
+      return;
+    }
+    g.hinted = { word: found.word, shown: false };
+    g.hints++;
+    setMessage("The next step changes the marked letters (press Hint again for the word)");
+  } else {
+    // the word, counted once, and filled in again if it's been changed since
+    if (!g.hinted.shown) g.hints++;
+    g.hinted.shown = true;
+    g.current = [...g.hinted.word];
+    g.selected = 0;
+    setMessage("Press Enter to use the hint");
+  }
+  drawBoard();
+}
+
+// Where the hinted step changes the previous word: the positions of its letters to mark, and
+// whether a letter goes at the end.
+function hintMarks() {
+  const prev = previous(), word = game.hinted.word;
+  if (word.length === prev.length) return { at: changedPositions(prev, word), end: false };
+  let i = 0;
+  while (i < prev.length && prev[i] === word[i]) i++;
+  return { at: i < prev.length ? [i] : [], end: i === prev.length };
 }
 
 function submit() {
@@ -385,6 +437,7 @@ function submit() {
     return;
   }
   game.rows.push(word);
+  game.hinted = null;
   game.current = [...word];
   game.selected = 0;
   setMessage("");
@@ -407,6 +460,7 @@ function endGame(how) {
     won: how === "win",
     steps: how === "win" ? steps : g.rows.length,
     par,
+    hints: g.hints,
     seconds: Math.round((Date.now() - g.began) / 1000),
     settings: g.settings,
     lists: [SLOTS.words.list?.name ?? null, SLOTS.at.list?.name ?? null],
@@ -414,7 +468,8 @@ function endGame(how) {
   const best = `<span class="ladder">${escapeHtml(ladderText(g.best))}</span>`;
   if (how === "win") {
     const note = steps < par ? `, even shorter than the ${par} expected!` : steps === par ? ", the shortest way!" : `. The shortest takes ${par}: ${best}`;
-    setMessage(`Solved in ${count(steps, "step")}${note}`, "win", true);
+    const hints = g.hints ? ` (with ${hintCount(g.hints)})` : "";
+    setMessage(`Solved in ${count(steps, "step")}${hints}${note}`, "win", true);
   } else {
     g.gaveUp = true;
     setMessage("Given up. Here's a shortest ladder.");
@@ -468,6 +523,11 @@ function rowTiles(row, n) {
       return [c, cls];
     });
     if (canAppend()) tiles.push(["", `tile slot${game.selected === game.current.length ? " selected" : ""}`]);
+    if (game.hinted && !game.hinted.shown) {
+      const { at, end } = hintMarks();
+      for (const i of at) if (tiles[i]) tiles[i][1] += " hint";
+      if (end && canAppend()) tiles.at(-1)[1] += " hint";
+    }
     return tiles;
   }
   const changed = new Set(changedPositions(row.prev, row.text));
@@ -571,7 +631,8 @@ function renderHistory(history = storage.get(HISTORY_KEY) ?? []) {
     tr.innerHTML = `<td></td><td class="${h.won ? "win" : "lose"}"></td><td class="num"></td><td class="rules"></td>`;
     const cells = tr.children;
     cells[0].textContent = `${h.forms[0].join(" / ")} → ${h.forms[1].join(" / ")}`;
-    cells[1].textContent = h.won ? `✓ in ${h.steps} (shortest ${h.par})` : `gave up after ${count(h.steps, "word")}`;
+    cells[1].textContent = (h.won ? `✓ in ${h.steps} (shortest ${h.par})` : `gave up after ${count(h.steps, "word")}`) +
+      (h.hints ? ` · ${hintCount(h.hints)}` : "");
     cells[2].textContent = h.seconds >= 60 ? `${Math.floor(h.seconds / 60)}m ${h.seconds % 60}s` : `${h.seconds}s`;
     cells[3].textContent = rulesSummary(h);
     body.appendChild(tr);
@@ -598,7 +659,14 @@ for (const el of document.querySelectorAll("#setup input:not([type=file])")) {
   el.addEventListener(el.type === "number" ? "input" : "change", settingsChanged);
 }
 $("new-game").addEventListener("click", newGame);
-$("undo").addEventListener("click", undo);
+// after a click or tap (not a key press), Undo and Hint let go of the focus, so that Enter
+// goes on submitting words rather than pressing them again
+for (const [id, action] of [["undo", undo], ["hint", giveHint]]) {
+  $(id).addEventListener("click", (e) => {
+    action();
+    if (e.detail > 0) e.currentTarget.blur();
+  });
+}
 $("give-up").addEventListener("click", () => playing() && endGame("give-up"));
 // Tapping a tile of the word being made selects it; with swaps, dragging one onto another
 // swaps them.

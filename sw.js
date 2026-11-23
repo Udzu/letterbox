@@ -5,7 +5,7 @@ const FILES = {
   "dates.html": "59e4683ae432",
   "dice.html": "30593eef985c",
   "index.html": "41ecce9c625a",
-  "ladders.html": "fe7fd644ded0",
+  "ladders.html": "fceb6a30a30f",
   "lipograms.html": "eb8b7fde6e6d",
   "lsystems.html": "22b89026e880",
   "numbers.html": "47df8a17649d",
