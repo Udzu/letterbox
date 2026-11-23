@@ -71,7 +71,10 @@
     font-variant-numeric: tabular-nums;
     line-height: 1.5;
   }
-  #history li { display: flex; align-items: baseline; padding: 2px 0; cursor: default; }
+  /* a row loads its roll when clicked, and stays marked while it's the roll shown */
+  #history li { display: flex; align-items: baseline; padding: 2px 4px; margin: 0 -4px; border-radius: 3px; cursor: pointer; }
+  #history li:hover { background: #f2f2f2; }
+  #history li.selected { background: #fbf3e6; }
   #history .entry { flex: 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
   #history b { flex: none; min-width: 3em; color: #000; }
   #history .number { flex: none; min-width: 2.5em; color: #999; }
@@ -382,8 +385,18 @@
   const historySection = document.getElementById("history-section");
   const historyList = document.getElementById("history");
   let current = null;   // the roll the result line shows, if any
-  let history = [];     // { number, text, total, details, rolled }, newest first, for this visit only
-  let rollCount = 0;    // numbers the rolls in the history, from 1 since it was last cleared
+  // the last MAX_HISTORY rolls, newest first, kept between visits: { number, text, total, dice, c,
+  // rule, settings } (see partsFor), and rollCount, which numbers them from 1 since the last Clear
+  const HISTORY_KEY = "dice-history";
+  const SETTINGS_KEY = "dice-settings";
+  const MAX_HISTORY = 100;
+  let history = [];
+  let rollCount = 0;
+  function saveHistory() {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify({ count: rollCount, history }));
+    } catch (e) {}
+  }
 
   function rollDie(faces) {
     const limit = 2 ** 32 - (2 ** 32 % faces);
@@ -395,6 +408,85 @@
   function clearRoll() {
     totalSpan.textContent = "";
     breakdown.textContent = "";
+    selectRow(null);
+  }
+
+  // the history row whose roll is shown, if it was loaded from the history
+  let selected = null;
+  function selectRow(number) {
+    selected = number;
+    for (const li of historyList.children) li.classList.toggle("selected", Number(li.dataset.number) === number);
+  }
+
+  // the settings, remembered between visits and kept with each history entry to load it again
+  const settings = () => ({
+    n: nInput.value, k: kInput.value, c: cInput.value, r: rInput.value, limit: limitInput.checked, mix: mixInput.checked,
+    rule: Object.keys(RULES).find(key => RULES[key].input.checked) ?? null,
+  });
+  function saveSettings() {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings()));
+    } catch (e) {}
+  }
+  function applySettings(s) {
+    nInput.value = s.n;
+    kInput.value = s.k;
+    cInput.value = s.c;
+    rInput.value = s.r;
+    limitInput.checked = s.limit;
+    mixInput.checked = s.mix;
+    for (const [key, rule] of Object.entries(RULES)) rule.input.checked = key === s.rule;
+  }
+
+  // Clicking a history row loads its settings and shows its roll again (total, dice and chart
+  // highlight), without adding to the history; the page scrolls up if the roll is out of sight.
+  function loadEntry(entry) {
+    applySettings(entry.settings);
+    saveSettings();
+    render();
+    showRoll(entry);
+    selectRow(entry.number);
+    const top = result.getBoundingClientRect().top;
+    if (top < 0 || top > window.innerHeight - 100) result.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // The dice shown for a roll, as boxes in a part for each group, then any constant: from the
+  // roll's data, { dice: [{ m, d, a, faces, dropped }], c, rule }, so the history can be saved.
+  // With label false (in the history, when there's only one group) groups go without "4d6: ".
+  function partsFor(entry, label = true) {
+    const rule = entry.rule ? RULES[entry.rule] : null;
+    const parts = entry.dice.map(g => {
+      const sum = (g.faces.reduce((x, y) => x + y, 0) - (g.dropped >= 0 ? g.faces[g.dropped] : 0)) * g.a;
+      // a subtotal helps when there's more than one part to add up
+      const subtotal = g.a > 1 ? ` (×${g.a} = ${sum})` : g.m > 1 && (entry.dice.length > 1 || entry.c !== 0) ? ` (= ${sum})` : "";
+      const part = document.createElement("span");
+      part.className = "part";
+      if (label) part.append(Object.assign(document.createElement("span"), { className: "label", textContent: `${term(g)}: ` }));
+      part.append(...g.faces.map((face, i) => {
+        const die = document.createElement("span");
+        die.className = "die";
+        if (rule) {
+          die.classList.add(i === g.dropped ? "dropped" : "kept");
+          if (i === g.dropped) die.title = `Dropped (${rule.drop})`;
+        }
+        die.textContent = face;
+        return die;
+      }), subtotal);
+      return part;
+    });
+    if (entry.c !== 0) {
+      const part = document.createElement("span");
+      part.className = "part";
+      part.textContent = entry.c > 0 ? `+ ${entry.c}` : `− ${-entry.c}`;
+      parts.push(part);
+    }
+    return parts;
+  }
+
+  function showRoll(entry) {
+    totalSpan.textContent = entry.total;
+    breakdown.replaceChildren(...partsFor(entry));
+    DiceChart.highlight(entry.total);
   }
 
   function rollDice() {
@@ -402,63 +494,37 @@
     const { groups, c, rule } = current;
     const text = rule ? `${current.text} (${rule.name})` : current.text;
     let total = c;
-    // each part is shown with the dice as boxes, and kept as text for the history
-    const parts = [], texts = [];
-    for (const g of groups) {
+    const dice = groups.map(g => {
       const faces = Array.from({ length: g.m }, () => rollDie(g.d));
       // a rule drops one die from the sum (rules only apply to a single group with a = 1)
       const dropped = rule ? droppedIndex(faces, rule) : -1;
-      const sum = (faces.reduce((x, y) => x + y, 0) - (dropped >= 0 ? faces[dropped] : 0)) * g.a;
-      total += sum;
-      // a subtotal helps when there's more than one part to add up
-      const subtotal = g.a > 1 ? ` (×${g.a} = ${sum})` : g.m > 1 && (groups.length > 1 || c !== 0) ? ` (= ${sum})` : "";
-      const part = document.createElement("span");
-      part.className = "part";
-      // the label is left out of the history when there's only one group
-      part.append(Object.assign(document.createElement("span"), { className: "label", textContent: `${term(g)}: ` }), ...faces.map((face, i) => {
-        const die = document.createElement("span");
-        die.className = "die";
-        if (rule) {
-          die.classList.add(i === dropped ? "dropped" : "kept");
-          if (i === dropped) die.title = `Dropped (${rule.drop})`;
-        }
-        die.textContent = face;
-        return die;
-      }), subtotal);
-      parts.push(part);
-      const faceTexts = faces.map((face, i) => i === dropped ? `(${face} dropped)` : face);
-      texts.push(`${term(g)}: ${faceTexts.join(" ")}${subtotal}`);
-    }
-    if (c !== 0) {
-      const constant = c > 0 ? `+ ${c}` : `− ${-c}`;
-      const part = document.createElement("span");
-      part.className = "part";
-      part.textContent = constant;
-      parts.push(part);
-      texts.push(constant);
-    }
-    const details = texts.join(" · ");
-    totalSpan.textContent = total;
-    breakdown.replaceChildren(...parts);
-    DiceChart.highlight(total);
+      total += (faces.reduce((x, y) => x + y, 0) - (dropped >= 0 ? faces[dropped] : 0)) * g.a;
+      return { m: g.m, d: g.d, a: g.a, faces, dropped };
+    });
+    const ruleKey = Object.keys(RULES).find(key => RULES[key] === rule) ?? null;
+    const entry = { number: ++rollCount, text, total, dice, c, rule: ruleKey, settings: settings() };
+    selectRow(null);
+    showRoll(entry);
     // restart the highlight, so that rolling the same total again still shows
     totalSpan.classList.remove("fresh");
     void totalSpan.offsetWidth;
     totalSpan.classList.add("fresh");
-
-    // the history shows the same dice, without the labels if there's only the one group
-    const rolled = parts.map(part => part.cloneNode(true));
-    if (groups.length === 1) rolled[0].querySelector(".label").remove();
-    history.unshift({ number: ++rollCount, text, total, details, rolled });
+    history.unshift(entry);
+    history.length = Math.min(history.length, MAX_HISTORY);
+    saveHistory();
     renderHistory();
   }
 
   function renderHistory() {
     historySection.hidden = history.length === 0;
     historyList.scrollTop = 0;
-    historyList.replaceChildren(...history.map(({ number, text, total, details, rolled }) => {
+    historyList.replaceChildren(...history.map((item) => {
+      const { number, text, total } = item;
       const li = document.createElement("li");
-      li.title = details;
+      li.title = "Load this roll";
+      li.dataset.number = number;
+      li.classList.toggle("selected", number === selected);
+      li.addEventListener("click", () => loadEntry(item));
       const numberCell = document.createElement("span");
       numberCell.className = "number";
       numberCell.textContent = `${number}.`;
@@ -467,7 +533,7 @@
       totalCell.textContent = total;
       const rolledCell = document.createElement("span");
       rolledCell.className = "rolled";
-      rolledCell.append(...rolled.map(part => part.cloneNode(true)));
+      rolledCell.append(...partsFor(item, item.dice.length > 1));
       const entry = document.createElement("span");
       entry.className = "entry";
       entry.append(text, rolledCell);
@@ -486,6 +552,7 @@
   document.getElementById("clear-history").addEventListener("click", () => {
     history = [];
     rollCount = 0;
+    saveHistory();
     renderHistory();
     clearRoll();
     DiceChart.highlight(null);
@@ -500,14 +567,22 @@
     });
   }
 
-  // set explicitly, so a refresh resets any values the browser restores
-  nInput.value = "10";
-  kInput.value = "6";
-  cInput.value = "";
-  rInput.value = "4";
-  mixInput.checked = false;
-  limitInput.checked = false;
-  for (const rule of Object.values(RULES)) rule.input.checked = false;
+  // the settings from last time, or the defaults (set explicitly, over any the browser restores)
+  applySettings({ n: "10", k: "6", c: "", r: "4", limit: false, mix: false, rule: null });
+  try {
+    const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+    if (saved) applySettings({ ...settings(), ...saved });
+    if (kInput.selectedIndex < 0) kInput.value = "6";
+  } catch (e) {}
+  // the history from last time, without a current roll
+  try {
+    const saved = JSON.parse(localStorage.getItem(HISTORY_KEY));
+    if (saved && Array.isArray(saved.history)) {
+      history = saved.history.slice(0, MAX_HISTORY);
+      rollCount = Number(saved.count) || history.length;
+      renderHistory();
+    }
+  } catch (e) {}
 
   // keep r within 1..n as n shrinks
   nInput.addEventListener("input", () => {
@@ -522,6 +597,7 @@
   }
   for (const input of [nInput, kInput, cInput, rInput, mixInput, limitInput, ...Object.values(RULES).map(rule => rule.input)]) {
     input.addEventListener("input", render);
+    input.addEventListener("input", saveSettings);
   }
   render();
 </script>
