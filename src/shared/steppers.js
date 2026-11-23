@@ -97,4 +97,5 @@ function addStepper(input) {
 const style = document.createElement("style");
 style.textContent = STYLE;
 document.head.append(style);
-for (const input of document.querySelectorAll('input[type="number"]')) addStepper(input);
+// inputs marked data-no-stepper go without (such as the Numbers timer, rarely stepped through)
+for (const input of document.querySelectorAll('input[type="number"]:not([data-no-stepper])')) addStepper(input);

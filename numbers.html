@@ -167,7 +167,7 @@
       <div class="row">
         <label><input type="checkbox" id="solvable"> Solvable only</label>
         <label><input type="checkbox" id="timed"> Timer</label>
-        <span class="nowrap"><input type="number" id="seconds" min="5" max="3600" step="5" required aria-label="Seconds"> <label for="seconds">s</label></span>
+        <span class="nowrap"><input type="number" id="seconds" data-no-stepper min="5" max="3600" step="5" required aria-label="Seconds"> <label for="seconds">s</label></span>
       </div>
     </fieldset>
   </section>
@@ -864,7 +864,7 @@
   var style = document.createElement("style");
   style.textContent = STYLE;
   document.head.append(style);
-  for (const input of document.querySelectorAll('input[type="number"]')) addStepper(input);
+  for (const input of document.querySelectorAll('input[type="number"]:not([data-no-stepper])')) addStepper(input);
 })();
 </script>
 <script>

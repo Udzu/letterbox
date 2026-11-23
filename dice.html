@@ -575,7 +575,7 @@
   var style = document.createElement("style");
   style.textContent = STYLE;
   document.head.append(style);
-  for (const input of document.querySelectorAll('input[type="number"]')) addStepper(input);
+  for (const input of document.querySelectorAll('input[type="number"]:not([data-no-stepper])')) addStepper(input);
 })();
 </script>
 </body>
