@@ -131,7 +131,7 @@
   #words-header .note { margin-left: 0; }
   #words-filters[hidden] { display: none; }
   #words-filters label { font-size: 0.95rem; }
-  #words-filters input { width: 5em; margin-left: 4px; padding: 2px 4px; font: inherit; }
+  #words-filters input[type=text] { width: 5em; margin-left: 4px; padding: 2px 4px; font: inherit; }
   #words-help { margin: 0 0 8px; }
   #words-info { margin: 8px 0 6px; }
   #words-info:empty { display: none; }
@@ -197,6 +197,7 @@
   <div id="words-filters">
     <label title="Only list entries that start with these letters (accents, case and anything but letters and digits don't matter)">Starts with <input id="first-letter" type="text" autocomplete="off" spellcheck="false"></label>
     <label title="Only list entries that end with these letters, such as -ing (accents, case and anything but letters and digits don't matter)">Ends with <input id="last-letter" type="text" autocomplete="off" spellcheck="false"></label>
+    <label title="While the cursor is in or just after a word, only list entries that start with its letters before the cursor"><input type="checkbox" id="complete" checked> Complete the word</label>
   </div>
   <div id="words-info"></div>
   <div id="words"></div>
@@ -335,6 +336,7 @@
     if (word !== null) words.push(word);
     return words;
   }
+  var wordAt = (words, caret) => words.findIndex((w) => w.start < caret && caret <= w.end);
   function capitalAt(value, i) {
     const letter = value.slice(i).match(/^.\p{M}*/su)[0].normalize("NFC");
     if (letter === "\xDF") return "\u1E9E";
@@ -444,8 +446,8 @@
     return { entry, words, letters, plain: plainLetters(entry) };
   }
   var plainLetters = (value) => [...value].flatMap(fold).filter(isWordChar).join("");
-  function entryFilter({ avoided = [], first = "", last = "", rest = null }) {
-    return (info) => avoided.every((f) => !info.letters.includes(f)) && info.plain.startsWith(first) && info.plain.endsWith(last) && (rest === null || isPrefix(info.words, rest));
+  function entryFilter({ avoided = [], first = "", last = "", typed = "", rest = null }) {
+    return (info) => avoided.every((f) => !info.letters.includes(f)) && info.plain.startsWith(first) && info.plain.startsWith(typed) && info.plain.endsWith(last) && (rest === null || isPrefix(info.words, rest));
   }
   function isPrefix(words, rest) {
     const result = check(words, rest);
@@ -627,6 +629,7 @@
   var clearWordsButton = $("clear-words");
   var firstInput = $("first-letter");
   var lastInput = $("last-letter");
+  var completeBox = $("complete");
   var wordList = null;
   var shownFor = null;
   var filtersFor = null;
@@ -674,7 +677,7 @@
     shownFor = null;
     update();
   }
-  function showWords(seq, result) {
+  function showWords(words, seq, result) {
     if (wordList === null) {
       wordsInfo.textContent = "";
       wordsBox.replaceChildren();
@@ -683,14 +686,27 @@
     }
     const avoided = avoidedLetters(avoid.value);
     const first = plainLetters(firstInput.value), last = plainLetters(lastInput.value);
-    const rest = result ? restOf(seq, result.used) : null;
-    const filters = JSON.stringify([avoided, first, last, result ? [sequenceSelect.value, customInput.value, result.used] : null]);
+    const current = currentWord(words);
+    const completing = current !== null && completeBox.checked;
+    let before = current ? current.index : words.findIndex((w) => w.start >= text.selectionStart);
+    if (before < 0) before = words.length;
+    let slot = null, anyLength = "";
+    if (result) {
+      slot = check(words.slice(0, before), seq);
+      if (slot.wrong || slot.beyond) {
+        anyLength = ` (any length, as the text ${slot.wrong ? "goes wrong earlier" : `goes past the digits of ${seq.name} checked`})`;
+        slot = null;
+      }
+    }
+    const typed = completing ? plainLetters(current.typed) : "";
+    const rest = slot ? restOf(seq, slot.used) : null;
+    const filters = JSON.stringify([avoided, first, last, typed, slot ? [sequenceSelect.value, customInput.value, slot.used] : null]);
     if (filters !== filtersFor) shownCount = SHOWN_WORDS;
     filtersFor = filters;
     const key = `${filters} ${shownCount}`;
     if (key === shownFor) return;
     shownFor = key;
-    const fits = entryFilter({ avoided, first, last, rest });
+    const fits = entryFilter({ avoided, first, last, typed, rest });
     const found = wordList.infos.filter(fits);
     const shown = found.slice(0, shownCount);
     const order = (a, b) => (rest ? a.words[0].length - b.words[0].length : 0) || collator.compare(a.entry, b.entry);
@@ -706,11 +722,15 @@
     if (avoided.length) conditions.push(`avoid ${avoided.join("")}`);
     if (first) conditions.push(`start with ${first}`);
     if (last) conditions.push(`end with ${last}`);
+    if (completing) conditions.push(`complete \u201C${current.typed}\u201D`);
     if (rest) {
       const next = nextLengths(rest).filter((n, i) => i === 0 || n <= 20);
-      conditions.push(next.length === 0 ? "fit after the end of the sequence" : `fit the ${result.wrong ? "length where the text goes wrong" : "next length"} (${next.join(" or ")})`);
+      conditions.push(next.length === 0 ? "fit after the end of the sequence" : `fit the ${completing ? "length" : before < words.length ? "length at the cursor" : "next length"} (${next.join(" or ")})`);
     }
-    const which = conditions.length === 0 ? "" : ` that ${conditions.length === 1 ? conditions[0] : `${conditions.slice(0, -1).join(", ")} and ${conditions.at(-1)}`}`;
+    if (found.length === 1) conditions.forEach((c, i) => {
+      conditions[i] = c.replace(/^\w+/, "$&s");
+    });
+    const which = (conditions.length === 0 ? "" : ` that ${conditions.length === 1 ? conditions[0] : `${conditions.slice(0, -1).join(", ")} and ${conditions.at(-1)}`}`) + anyLength;
     if (found.length === 0) {
       wordsInfo.textContent = `No entries${which}.`;
     } else {
@@ -731,18 +751,29 @@
       if (!all) button("Show more", SHOWN_WORDS, true);
     }
   }
-  function insertWord(word) {
-    if (document.activeElement !== text) {
-      text.focus();
-      text.setSelectionRange(text.value.length, text.value.length);
-    }
-    const { selectionStart: start, selectionEnd: end, value } = text;
+  function currentWord(words) {
+    const { selectionStart: start, selectionEnd: end } = text;
+    if (start !== end) return null;
+    const index = wordAt(words, end);
+    return index < 0 ? null : { index, word: words[index], typed: text.value.slice(words[index].start, end) };
+  }
+  function insertWord(entry) {
+    const current = currentWord(findWords(text.value));
+    const start = current ? current.word.start : text.selectionStart;
+    const end = current ? current.word.end : text.selectionEnd;
+    const value = text.value;
     const before = start > 0 && !/\s/.test(value[start - 1]) ? " " : "";
-    const after = end < value.length && !/\s/.test(value[end]) ? " " : "";
-    const inserted = before + word + after;
+    const after = end === value.length || /[\p{L}\p{N}]/u.test(value[end]) ? " " : "";
+    const inserted = before + entry + after;
+    text.focus();
+    text.setSelectionRange(start, end);
     if (!document.execCommand("insertText", false, inserted)) {
       text.setRangeText(inserted, start, end, "end");
       update();
+    }
+    if (after === "" && text.value[text.selectionEnd] === " ") {
+      text.setSelectionRange(text.selectionEnd + 1, text.selectionEnd + 1);
+      refreshWords();
     }
   }
   wordsBox.addEventListener("mousedown", (e) => {
@@ -799,13 +830,18 @@
     copyNote.hidden = total === 0;
     showLengths(words, seq, result);
     showAcrostics(words);
-    showWords(seq, result);
+    showWords(words, seq, result);
     save(TEXT_KEY, text.value);
     save(AVOID_KEY, avoid.value);
     save(SEQUENCE_KEY, sequenceSelect.value);
     save(CUSTOM_KEY, customInput.value);
     save(ACROSTIC_KEY, JSON.stringify({ first: firstBox.checked, last: lastBox.checked, unit: acrosticUnit }));
-    save(LETTERS_KEY, JSON.stringify({ first: firstInput.value, last: lastInput.value }));
+    save(LETTERS_KEY, JSON.stringify({ first: firstInput.value, last: lastInput.value, complete: completeBox.checked }));
+  }
+  function refreshWords() {
+    const words = findWords(text.value);
+    const seq = sequenceFor(sequenceSelect.value, customInput.value);
+    showWords(words, seq, checkable(seq) ? check(words, seq) : null);
   }
   text.value = load(TEXT_KEY, "");
   avoid.value = load(AVOID_KEY, "e");
@@ -828,6 +864,7 @@
     const saved = JSON.parse(load(LETTERS_KEY, "{}"));
     firstInput.value = typeof saved.first === "string" ? saved.first : "";
     lastInput.value = typeof saved.last === "string" ? saved.last : "";
+    completeBox.checked = saved.complete !== false;
   } catch (e) {
   }
   firstBox.addEventListener("change", update);
@@ -842,6 +879,8 @@
   avoid.addEventListener("input", update);
   firstInput.addEventListener("input", update);
   lastInput.addEventListener("input", update);
+  completeBox.addEventListener("change", update);
+  document.addEventListener("selectionchange", () => wordList && refreshWords());
   window.addEventListener("resize", update);
   setWordList(null);
   fetchWordList().then((stored) => {

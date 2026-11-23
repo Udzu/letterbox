@@ -130,7 +130,7 @@
   #words-header .note { margin-left: 0; }
   #words-filters[hidden] { display: none; }
   #words-filters label { font-size: 0.95rem; }
-  #words-filters input { width: 5em; margin-left: 4px; padding: 2px 4px; font: inherit; }
+  #words-filters input[type=text] { width: 5em; margin-left: 4px; padding: 2px 4px; font: inherit; }
   #words-help { margin: 0 0 8px; }
   #words-info { margin: 8px 0 6px; }
   #words-info:empty { display: none; }
@@ -196,6 +196,7 @@
   <div id="words-filters">
     <label title="Only list entries that start with these letters (accents, case and anything but letters and digits don't matter)">Starts with <input id="first-letter" type="text" autocomplete="off" spellcheck="false"></label>
     <label title="Only list entries that end with these letters, such as -ing (accents, case and anything but letters and digits don't matter)">Ends with <input id="last-letter" type="text" autocomplete="off" spellcheck="false"></label>
+    <label title="While the cursor is in or just after a word, only list entries that start with its letters before the cursor"><input type="checkbox" id="complete" checked> Complete the word</label>
   </div>
   <div id="words-info"></div>
   <div id="words"></div>
