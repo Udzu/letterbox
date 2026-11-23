@@ -79,6 +79,25 @@
   #history .rolled { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; color: #888; font-size: 0.85rem; }
   #history .part { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; }
   #history .die { min-width: 1.5em; padding: 0 3px; font-size: 0.8rem; line-height: 1.25; }
+  /* the distribution chart: bars for the roll asked for, an outline for a replacement */
+  #chart { margin-top: 16px; }
+  #chart:empty { margin: 0; }
+  #chart svg { display: block; overflow: visible; touch-action: pan-y; font-family: inherit; }
+  .chart-plot { position: relative; }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-bottom: 6px; font-size: 0.9rem; color: #52514e; }
+  .chart-legend span { display: inline-flex; align-items: center; }
+  .swatch { display: inline-block; flex: none; margin-right: 6px; }
+  .swatch.bars { width: 10px; height: 10px; border-radius: 2px; background: #2a78d6; }
+  .swatch.line { width: 14px; height: 0; border-top: 2px solid #eb6834; }
+  .chart-tip {
+    position: absolute; bottom: calc(100% - 8px); z-index: 1; pointer-events: none; white-space: nowrap;
+    padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    font-size: 0.85rem; color: #0b0b0b; font-variant-numeric: tabular-nums;
+  }
+  .chart-tip div { display: flex; align-items: center; }
+  .chart-note { margin-top: 4px; font-size: 0.9rem; color: #52514e; }
+  .chart-note .dismiss { margin-left: 6px; padding: 0 4px; border: none; background: none; color: #888; font: inherit; font-size: 1.1rem; line-height: 1; cursor: pointer; }
+  .chart-note .dismiss:hover { color: #000; }
   .help { margin-top: 32px; font-size: 0.9rem; color: #666; }
   nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #fbf3e6; box-shadow: 0 0 0 100vmax #fbf3e6, 0 1px 0 100vmax #ecdcbf; clip-path: inset(0 -100vmax -1px); }
   nav a, nav b { white-space: nowrap; }
@@ -111,6 +130,7 @@
     <label id="advantage-label" hidden><input id="advantage" type="checkbox"> advantage</label>
     <label id="disadvantage-label" hidden><input id="disadvantage" type="checkbox"> disadvantage</label>
   </div>
+  <div id="chart"></div>
   <div id="roller">
     <button id="roll-dice" title="Enter">Roll</button>
     <span id="total" aria-live="polite"></span>
@@ -129,6 +149,286 @@
     <b>+ 7</b> adds a fixed number to the result.
   </p>
 </main>
+<script>
+(() => {
+  // src/dice/distribution.js
+  var MAX_WORK = 4e6;
+  var gcd = (x, y) => {
+    while (y) [x, y] = [y, x % y];
+    return x;
+  };
+  function uniformSum(m, k) {
+    let p = new Float64Array([1]);
+    for (let i = 0; i < m; i++) {
+      const next = new Float64Array(p.length + k - 1);
+      let window2 = 0;
+      for (let j = 0; j < next.length; j++) {
+        if (j < p.length) window2 += p[j];
+        if (j - k >= 0) window2 -= p[j - k];
+        next[j] = window2 / k;
+      }
+      p = next;
+    }
+    return { lo: m, step: 1, p };
+  }
+  function respaced(dist, step) {
+    const factor = dist.step / step;
+    if (factor === 1) return dist.p;
+    const p = new Float64Array((dist.p.length - 1) * factor + 1);
+    dist.p.forEach((x, i) => p[i * factor] = x);
+    return p;
+  }
+  function convolve(a, b) {
+    const step = gcd(a.step, b.step);
+    const pa = respaced(a, step), pb = respaced(b, step);
+    const p = new Float64Array(pa.length + pb.length - 1);
+    for (let i = 0; i < pa.length; i++) {
+      if (pa[i] === 0) continue;
+      for (let j = 0; j < pb.length; j++) p[i + j] += pa[i] * pb[j];
+    }
+    return { lo: a.lo + b.lo, step, p };
+  }
+  function distribution({ groups, c = 0, rule = null }) {
+    if (rule) return shifted(ruleDistribution(groups[0].m, groups[0].d, rule.drop), c);
+    const step = groups.map((g) => g.a).reduce(gcd);
+    const lo = groups.reduce((sum, g) => sum + g.m * g.a, 0) + c;
+    const hi = groups.reduce((sum, g) => sum + g.m * g.d * g.a, 0) + c;
+    const cells = (hi - lo) / step + 1;
+    const dice = groups.reduce((sum, g) => sum + g.m, 0);
+    if (cells * dice > MAX_WORK || cells * cells > MAX_WORK * 4) {
+      const mean = groups.reduce((sum, g) => sum + g.m * g.a * (g.d + 1) / 2, 0) + c;
+      const variance = groups.reduce((sum, g) => sum + g.m * g.a * g.a * (g.d * g.d - 1) / 12, 0);
+      return { normal: true, mean, sd: Math.sqrt(variance), lo, hi, step };
+    }
+    let dist = null;
+    for (const g of groups) {
+      const sum = uniformSum(g.m, g.d);
+      const part = { lo: sum.lo * g.a, step: g.a, p: sum.p };
+      dist = dist ? convolve(dist, part) : part;
+    }
+    return shifted(dist, c);
+  }
+  var shifted = (dist, c) => ({ ...dist, lo: dist.lo + c });
+  function ruleDistribution(m, k, drop) {
+    const p = new Float64Array((m - 1) * (k - 1) + 1);
+    const faces = new Array(m);
+    const each = (i) => {
+      if (i === m) {
+        const sum = faces.reduce((x, y) => x + y, 0);
+        const dropped = drop === "lowest" ? Math.min(...faces) : Math.max(...faces);
+        p[sum - dropped - (m - 1)] += 1 / k ** m;
+        return;
+      }
+      for (let f = 1; f <= k; f++) {
+        faces[i] = f;
+        each(i + 1);
+      }
+    };
+    each(0);
+    return { lo: m - 1, step: 1, p };
+  }
+  function phi(z) {
+    const t = 1 / (1 + 0.3275911 * Math.abs(z) / Math.SQRT2);
+    const erf = 1 - t * (0.254829592 + t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429)))) * Math.exp(-z * z / 2);
+    return z >= 0 ? (1 + erf) / 2 : (1 - erf) / 2;
+  }
+  function probabilityBetween(dist, from, to) {
+    from = Math.max(from, dist.lo);
+    if (dist.normal) {
+      to = Math.min(to, dist.hi);
+      const first = dist.lo + Math.ceil((from - dist.lo) / dist.step) * dist.step;
+      const last = dist.lo + Math.floor((to - dist.lo) / dist.step) * dist.step;
+      if (first > last) return 0;
+      const z = (x) => (x - dist.mean) / dist.sd;
+      return phi(z(last + dist.step / 2)) - phi(z(first - dist.step / 2));
+    }
+    let sum = 0;
+    for (let i = Math.ceil((from - dist.lo) / dist.step); i < dist.p.length && dist.lo + i * dist.step <= to; i++) sum += dist.p[i];
+    return sum;
+  }
+  function moments(dist) {
+    if (dist.normal) return { mean: dist.mean, sd: dist.sd };
+    let mean = 0, square = 0;
+    dist.p.forEach((x, i) => {
+      const v = dist.lo + i * dist.step;
+      mean += x * v;
+      square += x * v * v;
+    });
+    return { mean, sd: Math.sqrt(Math.max(0, square - mean * mean)) };
+  }
+  var lowest = (dist) => dist.lo;
+  var highest = (dist) => dist.normal ? dist.hi : dist.lo + (dist.p.length - 1) * dist.step;
+
+  // src/dice/chart.js
+  var MIN_BAR = 5;
+  var HEIGHT = 120;
+  var AXIS = 22;
+  var COLOURS = { bars: "#2a78d6", highlight: "#184f95", line: "#eb6834", lineHighlight: "#b8431a" };
+  var SVG = "http://www.w3.org/2000/svg";
+  function svg(tag, attributes = {}) {
+    const el = document.createElementNS(SVG, tag);
+    for (const [key, value] of Object.entries(attributes)) el.setAttribute(key, value);
+    return el;
+  }
+  var percent = (p) => p === 0 ? "0%" : p < 5e-4 ? "<0.1%" : `${(p * 100).toFixed(1)}%`;
+  function tickStep(span, count) {
+    const raw = span / count;
+    const power = 10 ** Math.floor(Math.log10(raw));
+    return [1, 2, 5, 10].map((m) => m * power).find((s) => s >= raw);
+  }
+  var state = null;
+  function draw(container, series) {
+    state = { container, series: series.map((s) => ({ ...s, dist: distribution(s.roll) })), total: null };
+    render();
+  }
+  function highlight(total) {
+    if (!state) return;
+    state.total = total;
+    render();
+  }
+  function render() {
+    const { container, series, total } = state;
+    const width = container.clientWidth;
+    if (width === 0) return;
+    const dists = series.map((s) => s.dist);
+    const { mean, sd } = moments(dists[0]);
+    const lo = Math.max(lowest(dists[0]), Math.floor(mean - 3.5 * sd));
+    const hi = Math.min(highest(dists[0]), Math.ceil(mean + 3.5 * sd));
+    const maxBins = Math.max(1, Math.floor(width / MIN_BAR));
+    const binSize = Math.ceil((hi - lo + 1) / maxBins);
+    const start = binSize === 1 ? lo : Math.floor(lo / binSize) * binSize;
+    const bins = Math.floor((hi - start) / binSize) + 1;
+    const binWidth = width / bins;
+    const edge = (t) => (t - start) / (bins * binSize) * width;
+    const xOf = (t) => edge(t + 0.5);
+    const binOf = (t) => Math.floor((t - start) / binSize);
+    const density = Array.from({ length: bins }, (_, b) => probabilityBetween(dists[0], start + b * binSize, start + (b + 1) * binSize - 1) / binSize);
+    let outline = [];
+    if (dists.length > 1) {
+      const { lo: first, step } = dists[1];
+      const size = step * Math.ceil(binSize / step);
+      const shift = 0.5 - step / 2;
+      for (let from = first + Math.floor((start - first) / size) * size; from <= hi; from += size) {
+        const density2 = probabilityBetween(dists[1], from, from + size - 1) / size;
+        outline.push({ from: from + shift, to: from + size + shift, density: density2 });
+      }
+    }
+    const top = Math.max(...density, ...outline.map((o) => o.density));
+    const height = (d) => d / top * HEIGHT;
+    const chart = svg("svg", { width, height: HEIGHT + AXIS, viewBox: `0 0 ${width} ${HEIGHT + AXIS}`, role: "img" });
+    chart.setAttribute("aria-label", `Chances of each total from ${lo} to ${hi}`);
+    const hover = svg("rect", { y: 0, height: HEIGHT, width: binWidth, fill: "#000", "fill-opacity": 0.06, visibility: "hidden" });
+    chart.append(hover);
+    const gap = binWidth >= 6 ? 2 : binWidth >= 3 ? 1 : 0;
+    const rolled = total === null || dists.length > 1 ? -1 : binOf(total);
+    for (let b = 0; b < bins; b++) {
+      const h = height(density[b]);
+      if (h < 0.5) continue;
+      const x = b * binWidth + gap / 2, w = binWidth - gap, r = Math.min(3, w / 2, h);
+      const y = HEIGHT - h;
+      chart.append(svg("path", {
+        d: `M${x},${HEIGHT}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${HEIGHT}Z`,
+        fill: b === rolled ? COLOURS.highlight : COLOURS.bars
+      }));
+    }
+    if (outline.length > 0) {
+      const clip = (x) => Math.min(width, Math.max(0, x));
+      let d = `M${clip(edge(outline[0].from))},${HEIGHT}`;
+      let highlighted = null;
+      for (const o of outline) {
+        d += `V${HEIGHT - height(o.density)}H${clip(edge(o.to))}`;
+        if (total !== null && total + 0.5 > o.from && total + 0.5 <= o.to) {
+          const x = clip(edge(o.from)), h = height(o.density);
+          highlighted = svg("path", { d: `M${x},${HEIGHT}V${HEIGHT - h}H${clip(edge(o.to))}V${HEIGHT}`, fill: "none", stroke: COLOURS.lineHighlight, "stroke-width": 4, "stroke-linejoin": "round" });
+        }
+      }
+      chart.append(svg("path", { d: d + `V${HEIGHT}`, fill: "none", stroke: COLOURS.line, "stroke-width": 2, "stroke-linejoin": "round" }));
+      if (highlighted) chart.append(highlighted);
+    }
+    if (total !== null && total >= start && binOf(total) < bins) {
+      const x = xOf(total);
+      chart.append(svg("line", { x1: x, x2: x, y1: 0, y2: HEIGHT, stroke: "#52514e", "stroke-width": 1, "stroke-dasharray": "3 3" }));
+    }
+    chart.append(svg("line", { x1: 0, x2: width, y1: HEIGHT + 0.5, y2: HEIGHT + 0.5, stroke: "#bbb" }));
+    const every = Math.max(tickStep(hi - lo, Math.max(2, Math.floor(width / 70))), 1);
+    for (let t = Math.ceil(lo / every) * every; t <= hi; t += every) {
+      const x = xOf(t);
+      const label = svg("text", { x, y: HEIGHT + 16, "text-anchor": x < 12 ? "start" : x > width - 12 ? "end" : "middle", "font-size": 12, fill: "#52514e" });
+      label.textContent = t.toLocaleString("en-GB");
+      chart.append(svg("line", { x1: x, x2: x, y1: HEIGHT, y2: HEIGHT + 4, stroke: "#bbb" }), label);
+    }
+    const tip = document.createElement("div");
+    tip.className = "chart-tip";
+    tip.hidden = true;
+    const showTip = (event) => {
+      const box = chart.getBoundingClientRect();
+      const b = Math.min(bins - 1, Math.max(0, Math.floor((event.clientX - box.left) / binWidth)));
+      const from = start + b * binSize, to = from + binSize - 1;
+      const range = binSize === 1 ? from.toLocaleString("en-GB") : `${from.toLocaleString("en-GB")}\u2013${to.toLocaleString("en-GB")}`;
+      tip.replaceChildren(Object.assign(document.createElement("b"), { textContent: range }));
+      series.forEach((s, i) => {
+        const line = document.createElement("div");
+        line.append(swatch(i), `${series.length > 1 ? `${s.label}: ` : ""}${percent(probabilityBetween(s.dist, from, to))}`);
+        tip.append(line);
+      });
+      tip.hidden = false;
+      hover.setAttribute("x", b * binWidth);
+      hover.setAttribute("visibility", "visible");
+      const x = (b + 0.5) * binWidth;
+      tip.style.left = `${Math.min(Math.max(x - tip.offsetWidth / 2, 0), width - tip.offsetWidth)}px`;
+    };
+    chart.addEventListener("pointermove", showTip);
+    chart.addEventListener("pointerdown", showTip);
+    chart.addEventListener("pointerleave", () => {
+      tip.hidden = true;
+      hover.setAttribute("visibility", "hidden");
+    });
+    const parts = [];
+    if (series.length > 1) {
+      const legend = document.createElement("div");
+      legend.className = "chart-legend";
+      series.forEach((s, i) => {
+        const item = document.createElement("span");
+        item.append(swatch(i), s.label);
+        legend.append(item);
+      });
+      parts.push(legend);
+    }
+    const plot = document.createElement("div");
+    plot.className = "chart-plot";
+    plot.append(chart, tip);
+    parts.push(plot);
+    if (total !== null) {
+      const dist = dists.at(-1);
+      const below = probabilityBetween(dist, -Infinity, total - 1), above = probabilityBetween(dist, total + 1, Infinity);
+      const note = document.createElement("div");
+      note.className = "chart-note";
+      note.textContent = `${total.toLocaleString("en-GB")} is higher than ${percent(below)} of rolls and lower than ${percent(above)}.`;
+      const dismiss = document.createElement("button");
+      dismiss.type = "button";
+      dismiss.className = "dismiss";
+      dismiss.textContent = "\xD7";
+      dismiss.title = "Clear this roll";
+      dismiss.setAttribute("aria-label", "Clear this roll");
+      dismiss.addEventListener("click", () => container.dispatchEvent(new Event("clearroll")));
+      note.append(dismiss);
+      parts.push(note);
+    }
+    container.replaceChildren(...parts);
+  }
+  function swatch(i) {
+    const span = document.createElement("span");
+    span.className = i === 0 ? "swatch bars" : "swatch line";
+    return span;
+  }
+  window.addEventListener("resize", () => state && render());
+  function clear(container) {
+    state = null;
+    container.replaceChildren();
+  }
+  globalThis.DiceChart = { draw, highlight, clear };
+})();
+</script>
 <script>
   const MAX_N = 999;
   const DICE = [4, 6, 8, 10, 12, 20, 100];
@@ -175,6 +475,7 @@
     return { mean, variance: sumSquares / count - mean * mean };
   }
   const result = document.getElementById("result");
+  const chartBox = document.getElementById("chart");
 
   // A die dk with multiplier a adds a²·(k²−1)/12 to the variance, so a solution for ndk
   // is a set of groups (m dice dk × a) whose weights a²·(k²−1) sum to n·(k²−1), and the
@@ -296,6 +597,7 @@
     mixNote.hidden = canMix;
     rInput.max = Number.isInteger(n) && n >= 1 ? Math.min(n, MAX_N) : MAX_N;
     result.replaceChildren();
+    DiceChart.clear(chartBox);
     if (!nInput.checkValidity() || !cInput.checkValidity() || !Number.isInteger(n) || !Number.isInteger(modifier) ||
         (limit && (!rInput.checkValidity() || !Number.isInteger(r)))) {
       const p = document.createElement("p");
@@ -338,6 +640,11 @@
       line.id = "roll-line";
       line.append(roll, rules);
       result.append(line, stats);
+      // the chart shows the roll asked for, and the replacement if it's different
+      const asked = { groups: [{ m: n, d: k, a: 1 }], c: modifier, rule: current.rule ?? null };
+      const series = [{ label: withConstant(`${n}d${k}`, modifier) + (current.rule ? ` (${current.rule.name})` : ""), roll: asked }];
+      if (!plain) series.push({ label: current.text, roll: { groups: current.groups, c: current.c } });
+      DiceChart.draw(chartBox, series);
     } else {
       const p = document.createElement("p");
       p.className = "none";
@@ -413,6 +720,7 @@
     const details = texts.join(" · ");
     totalSpan.textContent = total;
     breakdown.replaceChildren(...parts);
+    DiceChart.highlight(total);
     // restart the highlight, so that rolling the same total again still shows
     totalSpan.classList.remove("fresh");
     void totalSpan.offsetWidth;
@@ -449,10 +757,18 @@
   }
 
   rollButton.addEventListener("click", rollDice);
+  // the chart's × clears the last roll and its highlight, keeping the history
+  chartBox.addEventListener("clearroll", () => {
+    clearRoll();
+    DiceChart.highlight(null);
+  });
+  // clearing the history clears the last roll too, and its highlight on the chart
   document.getElementById("clear-history").addEventListener("click", () => {
     history = [];
     rollCount = 0;
     renderHistory();
+    clearRoll();
+    DiceChart.highlight(null);
   });
   // Enter in any of the inputs rolls too
   for (const input of [nInput, kInput, cInput, rInput]) {
