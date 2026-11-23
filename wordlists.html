@@ -24,6 +24,15 @@
   main { max-width: 900px; margin: 0 auto; }
   .intro { margin: 0 0 24px; color: #666; }
   .intro a { color: #06c; }
+  .nsfw { margin: 0 0 8px; }
+  .nsfw .label { color: #666; margin-right: 8px; }
+  .buttons { display: inline-flex; vertical-align: middle; }
+  .buttons button { font: inherit; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
+  .buttons button + button { border-left: none; }
+  .buttons button:first-child { border-radius: 3px 0 0 3px; }
+  .buttons button:last-child { border-radius: 0 3px 3px 0; }
+  .buttons button[aria-pressed=true] { background: #e8e8e8; border-color: #999; color: #222; }
+  #nsfw-status { margin: 0 0 8px; }
   #lists ul { list-style: none; margin: 0; padding: 0; }
   #lists ul + ul { margin-top: 32px; }
   /* the topic badges between the general and other lists, which filter the other lists */
@@ -72,6 +81,12 @@
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <b>Wordlists</b> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
 <main>
   <p class="intro">Word lists for the <a href="anagrams.html">Anagrams</a>, <a href="pangrams.html">Pangrams</a>, <a href="patterns.html">Patterns</a> and <a href="words.html">Words</a> pages. Load one to use it on those pages straight away (it replaces any list already loaded), add it with <b>+</b> to combine it with the lists already loaded, or download it as a text file to load later. The <b>@</b> button loads a list as the @ list instead, which Patterns uses for <code>@</code> and Words for answers. Unlike the other pages, this one needs an internet connection.</p>
+  <p class="nsfw"><span class="label" title="Whether the general lists include NSFW words, such as swear words and slurs">NSFW words:</span>
+    <span id="nsfw" class="buttons" role="group" aria-label="NSFW words">
+      <button type="button" data-nsfw="included" title="Include NSFW words in the general lists.">Included</button>
+      <button type="button" data-nsfw="excluded" title="Exclude NSFW words from the general lists.">Excluded</button>
+    </span></p>
+  <p class="status" id="nsfw-status" aria-live="polite"></p>
   <div id="lists"></div>
 </main>
 <script type="application/json" id="lists-data">
@@ -82,7 +97,8 @@
     "description": "English words used about once per million words or more, including common proper nouns, most common first.",
     "tag": "general",
     "attribution": "Adapted from [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)) and [ENABLE](https://github.com/dolph/dictionary), filtered and ordered by [wordfreq](https://github.com/rspeer/wordfreq) frequency, and excluding some name and abbreviation overlaps. Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.",
-    "size": 25449
+    "size": 25449,
+    "nsfw": 52
   },
   {
     "file": "english.txt",
@@ -90,21 +106,24 @@
     "description": "General English words, including common proper nouns, most common first (phrases are a separate list).",
     "tag": "general",
     "attribution": "Adapted from [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)) and [ENABLE](https://github.com/dolph/dictionary), filtered and ordered by [wordfreq](https://github.com/rspeer/wordfreq) frequency, and excluding some name and abbreviation overlaps. Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary and wordfreq's data.",
-    "size": 207227
+    "size": 207227,
+    "nsfw": 620
   },
   {
     "file": "abbreviations.txt",
     "name": "English abbreviations",
     "description": "Common abbreviations such as Mr, etc and Feb, written without full stops (acronyms and unit symbols are separate).",
     "tag": "general",
-    "size": 201
+    "size": 201,
+    "nsfw": 0
   },
   {
     "file": "acronyms.txt",
     "name": "English acronyms",
     "description": "Common acronyms and initialisms such as ASAP, DIY and TV, then internet slang and some well-known names.",
     "tag": "general",
-    "size": 477
+    "size": 477,
+    "nsfw": 21
   },
   {
     "file": "english-phrases.txt",
@@ -112,7 +131,8 @@
     "description": "English phrases, idioms and hyphenated words from Wiktionary, in alphabetical order.",
     "tag": "general",
     "attribution": "Adapted from [Wiktionary](https://en.wiktionary.org/) (via [Kaikki](https://kaikki.org/)). Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), like content from Wiktionary.",
-    "size": 166102
+    "size": 166102,
+    "nsfw": 2556
   },
   {
     "file": "animals.txt",
@@ -474,6 +494,10 @@ ${stripped}` : stripped;
     const lines = text.split("\n").filter((line) => line !== "" && (!gone.has(line.normalize("NFC")) || stay.has(line.normalize("NFC"))));
     return lines.length === 0 ? "" : lines.join("\n") + "\n";
   }
+  function withoutWords(stripped, removed) {
+    const lines = stripped.split("\n").filter((line) => line !== "" && !removed.has(line.normalize("NFC")));
+    return lines.length === 0 ? "" : lines.join("\n") + "\n";
+  }
   function wordCount(stripped) {
     return new Set(stripped.split("\n").filter((line) => line !== "").map((line) => line.normalize("NFC"))).size;
   }
@@ -531,14 +555,23 @@ ${stripped}` : stripped;
     }
   }
   var count = (n, noun) => `${n.toLocaleString()} ${noun}${n === 1 ? "" : "s"}`;
+  var NSFW_KEY = "nsfw-filter";
+  var nsfwFilter = false;
   var texts = /* @__PURE__ */ new Map();
-  async function listText(list) {
-    if (!texts.has(list.file)) {
-      const response = await fetch(`wordlists/${encodeURIComponent(list.file)}`);
+  async function fetchText(path) {
+    if (!texts.has(path)) {
+      const response = await fetch(`wordlists/${path}`);
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-      texts.set(list.file, stripList(await response.text()));
+      texts.set(path, stripList(await response.text()));
     }
-    return texts.get(list.file);
+    return texts.get(path);
+  }
+  var nsfwWords = null;
+  async function listText(list) {
+    const text = await fetchText(encodeURIComponent(list.file));
+    if (!nsfwFilter || list.tag !== "general") return text;
+    nsfwWords ??= new Set((await fetchText("nsfw/nsfw.txt")).split("\n").filter(Boolean).map((w) => w.normalize("NFC")));
+    return withoutWords(text, nsfwWords);
   }
   var rows = /* @__PURE__ */ new Map();
   var filesOf = (stored) => stored === null ? [] : stored.files ?? [stored.name];
@@ -560,6 +593,11 @@ ${stripped}` : stripped;
   }
   async function refreshLoaded() {
     for (const slot of Object.values(SLOTS)) markSlot(slot, filesOf(await fetchList(slot)));
+    const on = await fetchList({ key: NSFW_KEY }) === true;
+    if (on !== nsfwFilter) {
+      nsfwFilter = on;
+      showSizes();
+    }
   }
   function setStatus(row, message, error = false) {
     row.status.textContent = message;
@@ -744,7 +782,8 @@ ${stripped}` : stripped;
       rowBadges.push({ topic: list.tag, button: badge });
       title.append(badge);
     }
-    title.append(element("span", "size", count(list.size, "word")), buttons.load, buttons.add, buttons.at, downloadButton);
+    const size = element("span", "size");
+    title.append(size, buttons.load, buttons.add, buttons.at, downloadButton);
     const status = element("p", "status");
     status.setAttribute("aria-live", "polite");
     const li = element("li");
@@ -753,7 +792,7 @@ ${stripped}` : stripped;
     li.append(status);
     group.ul.append(li);
     if (!general) filtered.push({ list, li });
-    const row = { li, buttons, status };
+    const row = { li, buttons, size, status };
     rows.set(list.file, row);
     buttons.load.addEventListener("click", () => toggle(list, row, SLOTS.words));
     buttons.add.addEventListener("click", () => toggleAdd(list, row));
@@ -761,7 +800,48 @@ ${stripped}` : stripped;
     downloadButton.addEventListener("click", () => download(list, row));
   }
   setFilter(null);
+  function showSizes() {
+    for (const button of nsfwButtons) button.setAttribute("aria-pressed", String(button.dataset.nsfw === "excluded" === nsfwFilter));
+    for (const list of LISTS) {
+      const nsfw = nsfwFilter ? list.nsfw ?? 0 : 0;
+      rows.get(list.file).size.textContent = count(list.size - nsfw, "word") + (nsfw ? ` (excluding ${count(nsfw, "NSFW one")})` : "");
+    }
+  }
+  var nsfwButtons = [...document.querySelectorAll("#nsfw button")];
+  var nsfwStatus = document.getElementById("nsfw-status");
+  for (const button of nsfwButtons) {
+    button.addEventListener("click", () => {
+      const on = button.dataset.nsfw === "excluded";
+      if (on !== nsfwFilter) setNsfwFilter(on);
+    });
+  }
+  async function setNsfwFilter(on) {
+    nsfwFilter = on;
+    showSizes();
+    const done = [];
+    try {
+      await storeList({ key: NSFW_KEY }, on);
+      for (const [slot, noun] of [[SLOTS.words, "word list"], [SLOTS.at, "@ list"]]) {
+        const stored = await fetchList(slot);
+        const files = filesOf(stored);
+        const lists = files.map((file) => BY_FILE.get(file));
+        if (files.length === 0 || lists.includes(void 0) || !lists.some((list) => list.tag === "general")) continue;
+        const text = (await Promise.all(lists.map(listText))).reduce(appendList);
+        const change = wordCount(text) - wordCount(stored.text);
+        await storeList(slot, { ...stored, text });
+        if (change) done.push(`${change < 0 ? "Removed" : "Restored"} ${count(Math.abs(change), "NSFW word")} ${change < 0 ? "from" : "to"} the ${noun}.`);
+      }
+    } catch (e) {
+      nsfwStatus.textContent = `Couldn't update the loaded lists (${e.message ?? e}).`;
+      nsfwStatus.classList.add("error");
+      return;
+    }
+    nsfwStatus.classList.remove("error");
+    nsfwStatus.textContent = done.length ? `${done.join(" ")} Reload any of the other pages that are already open to see the change.` : "";
+    if (done.length) for (const row of rows.values()) setStatus(row, "");
+  }
   for (const slot of Object.values(SLOTS)) markSlot(slot, []);
+  showSizes();
   refreshLoaded();
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") refreshLoaded();

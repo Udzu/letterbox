@@ -1,0 +1,7 @@
+# Entries of the general lists the NSFW rules miss, one per line.
+
+AF
+af
+JFC
+jfc
+fml
