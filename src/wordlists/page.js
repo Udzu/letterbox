@@ -6,6 +6,7 @@
 // the general lists are loaded, added and downloaded without the words in wordlists/nsfw/nsfw.txt.
 
 import { TOPICS, appendList, attributionParts, downloadText, removeList, stripList, withoutWords, wordCount } from "./lists.js";
+import { zipFiles } from "./zip.js";
 
 // [{ file, name, description, tag?, attribution?, size, nsfw? }], general lists first and then by
 // name, written into the page by the build; nsfw is a general list's number of NSFW words
@@ -246,12 +247,49 @@ async function download(list, row) {
     return;
   }
   setStatus(row, "");
-  const url = URL.createObjectURL(new Blob([downloadText(text, list.attribution)], { type: "text/plain;charset=utf-8" }));
+  save(new Blob([downloadText(text, list.attribution)], { type: "text/plain;charset=utf-8" }), list.file);
+}
+
+function save(blob, name) {
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = list.file;
+  a.download = name;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// the Download all button: every list, each as its own Download button saves it, in one ZIP
+// file, whatever the topic filter shows
+const downloadAllButton = document.getElementById("download-all");
+downloadAllButton.addEventListener("click", downloadAll);
+
+async function downloadAll() {
+  const status = document.getElementById("nsfw-status");
+  const report = (message, error = false) => {
+    status.textContent = message;
+    status.classList.toggle("error", error);
+  };
+  downloadAllButton.disabled = true;
+  try {
+    const files = [];
+    let fetched = 0;
+    report(`Fetching the lists (0 of ${LISTS.length})…`);
+    await Promise.all(LISTS.map(async (list) => {
+      const text = await listText(list);
+      files.push({ list, text });
+      report(`Fetching the lists (${++fetched} of ${LISTS.length})…`);
+    }));
+    report("Compressing…");
+    files.sort((a, b) => LISTS.indexOf(a.list) - LISTS.indexOf(b.list));
+    const zip = await zipFiles(files.map(({ list, text }) => ({ name: list.file, text: downloadText(text, list.attribution) })));
+    save(zip, nsfwFilter ? "letterbox-wordlists-sfw.zip" : "letterbox-wordlists.zip");
+    report("");
+  } catch (e) {
+    report(`Couldn't download the lists (${e.message ?? e}).`, true);
+  } finally {
+    downloadAllButton.disabled = false;
+  }
 }
 
 function element(tag, className, text) {

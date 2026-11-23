@@ -23,8 +23,9 @@
   main { max-width: 900px; margin: 0 auto; }
   .intro { margin: 0 0 24px; color: #666; }
   .intro a { color: #06c; }
-  .nsfw { margin: 0 0 8px; }
-  .nsfw .label { color: #666; margin-right: 8px; }
+  .nsfw { margin: 0 0 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  #download-all { margin-left: 16px; }
+  .nsfw .label { color: #666; }
   .buttons { display: inline-flex; vertical-align: middle; }
   .buttons button { font: inherit; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
   .buttons button + button { border-left: none; }
@@ -84,7 +85,8 @@
     <span id="nsfw" class="buttons" role="group" aria-label="NSFW words">
       <button type="button" data-nsfw="included" title="Include NSFW words in the general lists.">Included</button>
       <button type="button" data-nsfw="excluded" title="Exclude NSFW words from the general lists.">Excluded</button>
-    </span></p>
+    </span>
+    <button type="button" id="download-all" title="Save every list in one ZIP file, with or without NSFW words as chosen">Download all</button></p>
   <p class="status" id="nsfw-status" aria-live="polite"></p>
   <div id="lists"></div>
 </main>
