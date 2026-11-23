@@ -135,11 +135,10 @@
   #words-info { margin: 8px 0 6px; }
   #words-info:empty { display: none; }
   #words-info button { font: inherit; font-size: 0.9rem; }
-  #words { max-height: 24em; overflow-y: auto; }
-  #words:not(:empty) { border: 1px solid #999; padding: 0 8px; }
-  #words .block { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 0; }
-  #words .block + .block { border-top: 1px solid #ddd; }
+  #words { display: flex; flex-wrap: wrap; gap: 4px 14px; max-height: 24em; overflow-y: auto; }
+  #words:not(:empty) { border: 1px solid #999; padding: 6px 8px; }
   #words .word { cursor: pointer; white-space: pre; }
+  #words .word.added { color: #767676; }
   #words .word:hover { text-decoration: underline; }
   nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #eef4fb; box-shadow: 0 0 0 100vmax #eef4fb, 0 1px 0 100vmax #cddcee; clip-path: inset(0 -100vmax -1px); }
   nav a, nav b { white-space: nowrap; }

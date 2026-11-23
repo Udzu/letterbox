@@ -274,24 +274,18 @@ function showWords(seq, result) {
   const fits = entryFilter({ avoided, first, last, rest });
   const found = wordList.infos.filter(fits);
   const shown = found.slice(0, shownCount);
-  // each batch of SHOWN_WORDS is sorted on its own, so "Show more" adds to the end without
-  // moving the words already shown: alphabetically, and while checking lengths (where a 1
-  // can stand for 1 letter or for 10 to 19), by the first word's length first
+  // sorted alphabetically, and while checking lengths (where a 1 can stand for 1 letter or
+  // for 10 to 19), by the first word's length first; after "Show more", the words it added
+  // are in grey
   const order = (a, b) => (rest ? a.words[0].length - b.words[0].length : 0) || collator.compare(a.entry, b.entry);
-  const blocks = [];
-  for (let i = 0; i < shown.length; i += SHOWN_WORDS) {
-    const block = document.createElement("div");
-    block.className = "block";
-    block.append(...shown.slice(i, i + SHOWN_WORDS).sort(order).map(({ entry }) => {
-      const span = document.createElement("span");
-      span.className = "word";
-      span.textContent = entry;
-      span.title = "Add to the text";
-      return span;
-    }));
-    blocks.push(block);
-  }
-  wordsBox.replaceChildren(...blocks);
+  const added = new Set(shownCount > SHOWN_WORDS ? shown.slice(shownCount - SHOWN_WORDS) : []);
+  wordsBox.replaceChildren(...[...shown].sort(order).map((info) => {
+    const span = document.createElement("span");
+    span.className = added.has(info) ? "word added" : "word";
+    span.textContent = info.entry;
+    span.title = "Add to the text";
+    return span;
+  }));
 
   const conditions = [];
   if (avoided.length) conditions.push(`avoid ${avoided.join("")}`);
@@ -305,18 +299,24 @@ function showWords(seq, result) {
   const which = conditions.length === 0 ? "" : ` that ${conditions.length === 1 ? conditions[0] : `${conditions.slice(0, -1).join(", ")} and ${conditions.at(-1)}`}`;
   if (found.length === 0) {
     wordsInfo.textContent = `No entries${which}.`;
-  } else if (shown.length === found.length) {
-    wordsInfo.textContent = `${entries(found.length)}${which}:`;
   } else {
-    wordsInfo.textContent = `${entries(found.length)}${which}, showing the first ${shown.length.toLocaleString()}: `;
-    const more = document.createElement("button");
-    more.type = "button";
-    more.textContent = "Show more";
-    more.addEventListener("click", () => {
-      shownCount += SHOWN_WORDS;
-      update();
-    });
-    wordsInfo.append(more);
+    const all = shown.length === found.length;
+    wordsInfo.textContent = `${entries(found.length)}${which}${all ? "" : `, showing the first ${shown.length.toLocaleString()}`}:`;
+    // with more than one batch to show, Show less is always there (disabled for the first batch),
+    // and Show more until everything is shown
+    const button = (label, change, enabled) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = label;
+      b.disabled = !enabled;
+      b.addEventListener("click", () => {
+        shownCount += change;
+        update();
+      });
+      wordsInfo.append(" ", b);
+    };
+    if (found.length > SHOWN_WORDS) button("Show less", -SHOWN_WORDS, shownCount > SHOWN_WORDS);
+    if (!all) button("Show more", SHOWN_WORDS, true);
   }
 }
 

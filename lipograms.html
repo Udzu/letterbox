@@ -136,11 +136,10 @@
   #words-info { margin: 8px 0 6px; }
   #words-info:empty { display: none; }
   #words-info button { font: inherit; font-size: 0.9rem; }
-  #words { max-height: 24em; overflow-y: auto; }
-  #words:not(:empty) { border: 1px solid #999; padding: 0 8px; }
-  #words .block { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 0; }
-  #words .block + .block { border-top: 1px solid #ddd; }
+  #words { display: flex; flex-wrap: wrap; gap: 4px 14px; max-height: 24em; overflow-y: auto; }
+  #words:not(:empty) { border: 1px solid #999; padding: 6px 8px; }
   #words .word { cursor: pointer; white-space: pre; }
+  #words .word.added { color: #767676; }
   #words .word:hover { text-decoration: underline; }
   nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #eef4fb; box-shadow: 0 0 0 100vmax #eef4fb, 0 1px 0 100vmax #cddcee; clip-path: inset(0 -100vmax -1px); }
   nav a, nav b { white-space: nowrap; }
@@ -695,20 +694,14 @@
     const found = wordList.infos.filter(fits);
     const shown = found.slice(0, shownCount);
     const order = (a, b) => (rest ? a.words[0].length - b.words[0].length : 0) || collator.compare(a.entry, b.entry);
-    const blocks = [];
-    for (let i = 0; i < shown.length; i += SHOWN_WORDS) {
-      const block = document.createElement("div");
-      block.className = "block";
-      block.append(...shown.slice(i, i + SHOWN_WORDS).sort(order).map(({ entry }) => {
-        const span = document.createElement("span");
-        span.className = "word";
-        span.textContent = entry;
-        span.title = "Add to the text";
-        return span;
-      }));
-      blocks.push(block);
-    }
-    wordsBox.replaceChildren(...blocks);
+    const added = new Set(shownCount > SHOWN_WORDS ? shown.slice(shownCount - SHOWN_WORDS) : []);
+    wordsBox.replaceChildren(...[...shown].sort(order).map((info) => {
+      const span = document.createElement("span");
+      span.className = added.has(info) ? "word added" : "word";
+      span.textContent = info.entry;
+      span.title = "Add to the text";
+      return span;
+    }));
     const conditions = [];
     if (avoided.length) conditions.push(`avoid ${avoided.join("")}`);
     if (first) conditions.push(`start with ${first}`);
@@ -720,18 +713,22 @@
     const which = conditions.length === 0 ? "" : ` that ${conditions.length === 1 ? conditions[0] : `${conditions.slice(0, -1).join(", ")} and ${conditions.at(-1)}`}`;
     if (found.length === 0) {
       wordsInfo.textContent = `No entries${which}.`;
-    } else if (shown.length === found.length) {
-      wordsInfo.textContent = `${entries(found.length)}${which}:`;
     } else {
-      wordsInfo.textContent = `${entries(found.length)}${which}, showing the first ${shown.length.toLocaleString()}: `;
-      const more = document.createElement("button");
-      more.type = "button";
-      more.textContent = "Show more";
-      more.addEventListener("click", () => {
-        shownCount += SHOWN_WORDS;
-        update();
-      });
-      wordsInfo.append(more);
+      const all = shown.length === found.length;
+      wordsInfo.textContent = `${entries(found.length)}${which}${all ? "" : `, showing the first ${shown.length.toLocaleString()}`}:`;
+      const button = (label, change, enabled) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = label;
+        b.disabled = !enabled;
+        b.addEventListener("click", () => {
+          shownCount += change;
+          update();
+        });
+        wordsInfo.append(" ", b);
+      };
+      if (found.length > SHOWN_WORDS) button("Show less", -SHOWN_WORDS, shownCount > SHOWN_WORDS);
+      if (!all) button("Show more", SHOWN_WORDS, true);
     }
   }
   function insertWord(word) {
