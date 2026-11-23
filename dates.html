@@ -24,6 +24,8 @@
   #start { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 1.1rem; }
   #start input { font-size: 1.1rem; font-family: inherit; padding: 4px; }
   .utc { color: #666; }
+  #kinds { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 12px; color: #666; }
+  #kinds label { color: #000; white-space: nowrap; }
   #month-header {
     display: flex;
     justify-content: space-between;
@@ -93,6 +95,12 @@
     <span class="utc">UTC</span>
     <button id="billion" title="Reset to 1 billion seconds ago">Reset</button>
   </div>
+  <div id="kinds">
+    Show:
+    <label title="Years, months, Islamic years and Hebrew years"><input type="checkbox" data-kind="long" checked> long units</label>
+    <label title="Weeks, days, hours, minutes and seconds"><input type="checkbox" data-kind="short" checked> short units</label>
+    <label title="Years on other planets, and Mars sols"><input type="checkbox" data-kind="astronomical" checked> astronomical units</label>
+  </div>
   <div id="month-header">
     <button id="prev" title="Previous month">◀</button>
     <span id="month-label"></span>
@@ -110,25 +118,31 @@
 </main>
 <script>
   const STORAGE_KEY = "anniversaries-start";
+  const KINDS_KEY = "anniversaries-kinds";
   const DAY = 86400000;
   const MAX_SHOWN = 10;
-  // fixed-length units, in milliseconds
+  // fixed-length units, in milliseconds, with their kind for the Show: filter: long units are
+  // Earth units of a month or more (also years, months, Islamic and Hebrew years), short units
+  // Earth units under a month, and astronomical units those of other planets
   const FIXED_UNITS = [
-    { name: "week", score: 2, ms: 7 * DAY },
-    { name: "day", score: 2, ms: DAY },
-    { name: "hour", score: 2, ms: 3600000 },
-    { name: "minute", score: 2, ms: 60000 },
-    { name: "second", score: 2, ms: 1000 },
+    { name: "week", score: 2, ms: 7 * DAY, kind: "short" },
+    { name: "day", score: 2, ms: DAY, kind: "short" },
+    { name: "hour", score: 2, ms: 3600000, kind: "short" },
+    { name: "minute", score: 2, ms: 60000, kind: "short" },
+    { name: "second", score: 2, ms: 1000, kind: "short" },
     // sidereal orbital periods, in days
-    { name: "Mercury year", score: 1, ms: 87.969 * DAY },
-    { name: "Venus year", score: 1, ms: 224.701 * DAY },
-    { name: "Mars year", score: 1, ms: 686.980 * DAY },
-    { name: "Jupiter year", score: 1, ms: 4332.59 * DAY },
-    { name: "Saturn year", score: 1, ms: 10759.22 * DAY },
-    { name: "Uranus year", score: 1, ms: 30688.5 * DAY },
+    { name: "Mercury year", score: 1, ms: 87.969 * DAY, kind: "astronomical" },
+    { name: "Venus year", score: 1, ms: 224.701 * DAY, kind: "astronomical" },
+    { name: "Mars year", score: 1, ms: 686.980 * DAY, kind: "astronomical" },
+    { name: "Jupiter year", score: 1, ms: 4332.59 * DAY, kind: "astronomical" },
+    { name: "Saturn year", score: 1, ms: 10759.22 * DAY, kind: "astronomical" },
+    { name: "Uranus year", score: 1, ms: 30688.5 * DAY, kind: "astronomical" },
     // Martian solar day
-    { name: "Mars sol", score: 1, ms: 88775244 },
+    { name: "Mars sol", score: 1, ms: 88775244, kind: "astronomical" },
   ];
+  // the kinds of unit shown, all of them unless the user unticks some
+  const kindBoxes = [...document.querySelectorAll("#kinds input")];
+  const shownKinds = () => new Set(kindBoxes.filter(box => box.checked).map(box => box.dataset.kind));
   const UNIT_ORDER = ["year", "month", ...FIXED_UNITS.map(u => u.name), "Islamic year", "Hebrew year"];
 
   const dateInput = document.getElementById("date");
@@ -263,12 +277,20 @@
   }
 
   // all anniversaries falling within the given UTC month
-  function anniversaries(start, year, month) {
+  function anniversaries(start, year, month, kinds) {
     const results = [];
     const add = (unit, count, unitScore, ms) => {
       const info = countInfo(count);
       if (info !== null) results.push({ unit, count, label: info.label, score: unitScore + info.score, ms });
     };
+    const from = utc(year, month, 1), to = utc(year, month + 1, 1);
+
+    for (const unit of FIXED_UNITS.filter(u => kinds.has(u.kind))) {
+      const lo = Math.ceil((from - start.ms) / unit.ms);
+      const hi = Math.floor((to - 1 - start.ms) / unit.ms);
+      for (const c of niceCounts(lo, hi)) add(unit.name, c, unit.score, start.ms + c * unit.ms);
+    }
+    if (!kinds.has("long")) return results;
 
     // calendar units: skipped when the start day doesn't exist in the target month
     if (start.d <= daysInMonth(year, month)) {
@@ -278,7 +300,6 @@
       if (month === start.mo && year > start.y) add("year", year - start.y, 2, ms);
     }
 
-    const from = utc(year, month, 1), to = utc(year, month + 1, 1);
     // Islamic years: at most two Islamic years overlap a Gregorian month
     const startIslamic = toIslamic(utc(start.y, start.mo, start.d));
     const timeOfDay = start.ms - utc(start.y, start.mo, start.d);
@@ -299,12 +320,6 @@
       const month = hebrewMonthIn(hy, startHebrew.m);
       const day = fromHebrew(hy, month, startHebrew.d, start.ms + count * HEBREW_YEAR);
       if (day !== null && day >= from && day < to) add("Hebrew year", count, 1, day + timeOfDay);
-    }
-
-    for (const unit of FIXED_UNITS) {
-      const lo = Math.ceil((from - start.ms) / unit.ms);
-      const hi = Math.floor((to - 1 - start.ms) / unit.ms);
-      for (const c of niceCounts(lo, hi)) add(unit.name, c, unit.score, start.ms + c * unit.ms);
     }
     return results;
   }
@@ -328,7 +343,7 @@
 
   function render() {
     const start = getStart();
-    const list = anniversaries(start, viewYear, viewMonth);
+    const list = anniversaries(start, viewYear, viewMonth, shownKinds());
     const byDay = new Map();
     for (const a of list) {
       const d = new Date(a.ms).getUTCDate();
@@ -451,6 +466,20 @@
     selectedDay = now.getUTCDate();
     render();
   });
+
+  // the Show: filter is remembered, but not reset by Reset
+  try {
+    const kinds = JSON.parse(localStorage.getItem(KINDS_KEY));
+    if (Array.isArray(kinds)) for (const box of kindBoxes) box.checked = kinds.includes(box.dataset.kind);
+  } catch (e) {}
+  for (const box of kindBoxes) {
+    box.addEventListener("change", () => {
+      try {
+        localStorage.setItem(KINDS_KEY, JSON.stringify([...shownKinds()]));
+      } catch (e) {}
+      render();
+    });
+  }
 
   for (const input of [dateInput, timeInput]) {
     input.addEventListener("input", () => {
