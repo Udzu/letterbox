@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+  // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+</script>
+<title>Ladders</title>
+<style>
+  :root {
+    --green: #3b9a4b;
+    --yellow: #d6a520;
+    --grey: #858b91;
+    --blue: #4a78b0;
+  }
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "setup" "game" "history";
+    gap: 16px 32px;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    main {
+      grid-template-columns: 400px minmax(0, 1fr);
+      grid-template-areas: "setup game" "history history";
+    }
+  }
+  #setup { grid-area: setup; }
+  #game-section { grid-area: game; }
+  #history-section { grid-area: history; }
+  .intro { margin: 0 0 16px; color: #666; }
+  h2 { margin: 0 0 8px; font-size: 1.1rem; }
+  fieldset { border: none; margin: 0 0 14px; padding: 0; min-width: 0; }
+  legend { padding: 0; margin-bottom: 6px; color: #444; font-weight: 600; }
+  fieldset:disabled { opacity: 0.6; }
+  label { color: #444; }
+  input { font: inherit; font-size: 1rem; }
+  input[type="number"] { padding: 5px 6px; box-sizing: border-box; width: 4em; }
+  input:invalid { outline: 2px solid #d00; }
+  button { font-size: 1rem; cursor: pointer; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-bottom: 8px; }
+  .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 4px 12px; }
+  .checks label { white-space: nowrap; }
+  .nowrap { white-space: nowrap; }
+  .group-name { color: #444; min-width: 3.4em; }
+  .note { color: #888; font-size: 0.85rem; }
+  .list-row { display: grid; grid-template-columns: 5.5em auto auto; justify-content: start; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .list-row .note { grid-column: 1 / -1; margin: 0 0 4px; }
+  .list-name { color: #444; }
+  #lists-help, #counts { margin: 6px 0 0; }
+  a { color: #06c; }
+
+  /* game */
+  #top-line { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  #new-game { font-size: 1.15rem; font-weight: 600; padding: 8px 18px; }
+  #goal { margin: 0 0 10px; color: #444; min-height: 1.3em; }
+  #board { container-type: inline-size; display: grid; gap: 6px; max-width: calc(var(--n) * 3.6rem); margin-bottom: 10px; }
+  .board-row { display: flex; justify-content: center; gap: 6px; }
+  .tile {
+    flex: 0 0 calc((100% - (var(--n) - 1) * 6px) / var(--n));
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #d3d6da; box-sizing: border-box; border-radius: 3px;
+    font-weight: 700; font-size: min(1.8rem, calc(60cqi / var(--n)));
+    text-transform: uppercase; user-select: none; -webkit-user-select: none;
+  }
+  .tile.fixed { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .tile.done { border-color: #878a8c; }
+  .tile.changed { background: var(--yellow); border-color: var(--yellow); color: #fff; }
+  .tile.shown { background: var(--grey); border-color: var(--grey); color: #fff; }
+  .board-row.active .tile { cursor: pointer; touch-action: manipulation; border-color: #878a8c; }
+  .board-row.active .tile.ghost { color: #b4b8bc; border-color: #d3d6da; }
+  .board-row.active .tile.added, .board-row.active .tile.slot { border-style: dashed; }
+  #board.swappable .board-row.active .tile { touch-action: none; }
+  .board-row.active .tile.dragging { opacity: 0.5; }
+  .board-row.active .tile.drop { background: #e3ecf7; }
+  .board-row.active .tile.hint { background: #fbeec8; }
+  .board-row.active .tile.selected { border-color: var(--blue); box-shadow: inset 0 0 0 2px var(--blue); }
+  .board-row.shake { animation: shake 0.3s; }
+  @keyframes shake {
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+  }
+  #message { min-height: 1.5em; margin: 4px 0 8px; }
+  #message.win { color: #070; font-weight: 600; }
+  #message.error { color: #c00; }
+  #message .ladder { font-weight: 600; overflow-wrap: anywhere; }
+  #keyboard { display: grid; gap: 6px; max-width: 520px; margin-bottom: 10px; user-select: none; -webkit-user-select: none; }
+  .key-row { display: flex; gap: 5px; justify-content: center; }
+  .key {
+    flex: 1 1 0; min-width: 0; height: 3.2rem; padding: 0;
+    border: none; border-radius: 4px; background: #dfe2e6; color: #000;
+    font-size: 1rem; font-weight: 600; touch-action: manipulation;
+  }
+  .key.wide { flex-grow: 1.6; font-size: 0.85rem; }
+  .key.action { flex: 0 1 7rem; font-size: 0.85rem; }
+  .key:disabled { cursor: default; }
+  #play-help { margin: 0; }
+
+  /* history */
+  .header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+  .header h2 { margin: 0; }
+  #history-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid #ddd; vertical-align: top; }
+  th { color: #444; font-weight: 600; border-bottom: 1px solid #999; }
+  td.num { font-variant-numeric: tabular-nums; }
+  td.win { color: #070; }
+  td.lose { color: #a50; }
+  td .rules { display: block; color: #888; font-size: 0.8rem; }
+  #history-empty { color: #888; }
+
+  nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #eef4fb; box-shadow: 0 0 0 100vmax #eef4fb, 0 1px 0 100vmax #cddcee; clip-path: inset(0 -100vmax -1px); }
+  nav a, nav b { white-space: nowrap; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <b>Ladders</b> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
+<main>
+  <section id="setup">
+    <p class="intro">Climb from the top word to the bottom one, changing one letter at a time, with every step a word.</p>
+    <fieldset id="lists-set">
+      <legend>Lists</legend>
+      <div class="list-row">
+        <span class="list-name">Word list</span>
+        <button type="button" id="load-words">Load…</button>
+        <button type="button" id="clear-words">Clear</button>
+        <span id="words-info" class="note"></span>
+        <input type="file" id="words-file" accept=".txt,text/plain" hidden>
+      </div>
+      <div class="list-row">
+        <span class="list-name">@ list</span>
+        <button type="button" id="load-at">Load…</button>
+        <button type="button" id="clear-at">Clear</button>
+        <span id="at-info" class="note"></span>
+        <input type="file" id="at-file" accept=".txt,text/plain" hidden>
+      </div>
+      <p id="lists-help" class="note">Load a text file with one word or phrase per line, or a <a href="wordlists.html">ready-made list</a>. Puzzles and their lengths come from the @ list if there is one, and steps can use either list. The lists are shared with the <a href="patterns.html">Patterns</a> and <a href="words.html">Words</a> pages.</p>
+    </fieldset>
+    <fieldset id="rules-set">
+      <legend>Rules</legend>
+      <div class="row">
+        <span class="nowrap"><input type="number" id="length" min="2" max="15" step="1" required> <label for="length">letters</label></span>
+        <span class="nowrap"><input type="number" id="steps" min="2" max="30" step="1" required> <label for="steps">steps</label></span>
+        <label title="Puzzles can also be shorter"><input type="checkbox" id="fewer"> or fewer</label>
+      </div>
+      <div class="row">
+        <span class="group-name">Allow:</span>
+        <label title="Words can have capital letters, as names and abbreviations do"><input type="checkbox" id="capitals"> capitals</label>
+        <label title="Words can be phrases, using only their letters, so “a lot” is ALOT"><input type="checkbox" id="phrases"> phrases</label>
+      </div>
+      <div class="row">
+        <span class="group-name">Moves:</span>
+        <label title="Swap any two letters, as well as changing one"><input type="checkbox" id="swaps"> swap letters</label>
+        <label title="Add or remove a letter, as well as changing one (words in between can have up to 2 letters more or fewer)"><input type="checkbox" id="add-remove"> add/remove a letter</label>
+      </div>
+      <div class="row">
+        <label title="The ladder can't be longer than the puzzle's shortest one"><input type="checkbox" id="shortest"> Shortest ladders only</label>
+      </div>
+      <p id="counts" class="note" aria-live="polite"></p>
+    </fieldset>
+  </section>
+
+  <section id="game-section">
+    <div id="top-line">
+      <button type="button" id="new-game">New ladder</button>
+      <button type="button" id="undo" disabled>Undo</button>
+      <button type="button" id="hint" disabled title="Mark the letters to change next; press again for the word">Hint</button>
+      <button type="button" id="give-up" disabled>Give up</button>
+    </div>
+    <p id="goal"></p>
+    <div id="board" aria-label="Ladder"></div>
+    <div id="message" aria-live="polite"></div>
+    <div id="keyboard"></div>
+    <p id="play-help" class="note" title="On a keyboard, the arrow keys select a letter, and Shift+arrow swaps it with its neighbour">Tap a letter and type to change it, then press Enter. Backspace undoes.<span id="help-swaps"> Drag a letter onto another to swap them.</span><span id="help-add-remove"> Insert and Delete add and remove letters (the dashed box adds one at the end).</span></p>
+  </section>
+
+  <section id="history-section">
+    <div class="header">
+      <h2>History</h2>
+      <button type="button" id="clear-history">Clear</button>
+    </div>
+    <div id="history-wrap">
+      <table>
+        <thead><tr><th>Ladder</th><th>Result</th><th>Time</th><th>Rules</th></tr></thead>
+        <tbody id="history"></tbody>
+      </table>
+    </div>
+    <p id="history-empty">No games yet.</p>
+  </section>
+</main>
+<!-- @inline ../shared/steppers.js -->
+<!-- @inline page.js -->
+</body>
+</html>

@@ -41,7 +41,7 @@
   #install .text { flex: 1; min-width: 12em; }
   #install button { font: inherit; cursor: pointer; }
   #install .dismiss { border: none; background: none; color: #888; font-size: 1.2rem; line-height: 1; padding: 0 2px; }
-  /* two grids of boxes, each box a link (the word pages, then the others in another colour): up to 3 columns on desktop, compact pairs on phones */
+  /* a grid of boxes, each box a link (the word pages, then the others in another colour): up to 3 columns on desktop, compact pairs on phones */
   .grid {
     list-style: none;
     margin: 0;
@@ -50,7 +50,6 @@
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 12px;
   }
-  .grid + .grid { margin-top: 24px; }
   .grid a {
     display: block;
     height: 100%;
@@ -82,7 +81,6 @@
      (up to 599px, above the ~580px at which the grid above drops to one column, scrollbar included) */
   @media (max-width: 599px) {
     .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .grid + .grid { margin-top: 16px; }
     .grid a { padding: 12px 10px; }
     .grid .name { font-size: 1.05rem; white-space: nowrap; }
     .grid .description { display: none; }
@@ -96,7 +94,7 @@
 </style>
 </head>
 <body>
-<nav><b>Letterbox</b> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
+<nav><b>Letterbox</b> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
 <main>
   <p class="intro">Letterbox: simple offline tools.<span class="narrow"> Rotate your phone or widen the window to see what each tool does.</span></p>
   <div id="install" hidden>
@@ -108,6 +106,10 @@
     <li><a href="anagrams.html">
       <span class="name">Anagrams</span>
       <span class="description">Rearrange the letters of a phrase, with unused and unavailable letters highlighted.</span>
+    </a></li>
+    <li><a href="ladders.html" class="game" title="A puzzle game">
+      <span class="name">Ladders</span>
+      <span class="description">Change one word into another a letter at a time, making a word at every step.</span>
     </a></li>
     <li><a href="lipograms.html">
       <span class="name">Lipograms</span>
@@ -141,21 +143,19 @@
       <span class="name">Words</span>
       <span class="description">Find a hidden word from coloured clues, as in Wordle, with answers from any word list.</span>
     </a></li>
-  </ul>
-  <ul class="grid other">
-    <li><a href="dates.html">
+    <li class="other"><a href="dates.html">
       <span class="name">Dates</span>
       <span class="description">Find notable anniversaries of a date, from a billion seconds to a first Saturn year.</span>
     </a></li>
-    <li><a href="dice.html">
+    <li class="other"><a href="dice.html">
       <span class="name">Dice</span>
       <span class="description">Roll dice, or replace many dice with fewer, keeping the same mean and variance.</span>
     </a></li>
-    <li><a href="lsystems.html">
+    <li class="other"><a href="lsystems.html">
       <span class="name">L-Systems</span>
       <span class="description">Draw fractals from string rewriting rules, including random ones.</span>
     </a></li>
-    <li><a href="numbers.html" class="game" title="A puzzle game">
+    <li class="other"><a href="numbers.html" class="game" title="A puzzle game">
       <span class="name">Numbers</span>
       <span class="description">Make a target from given numbers, as in Countdown or the four fours puzzle.</span>
     </a></li>
