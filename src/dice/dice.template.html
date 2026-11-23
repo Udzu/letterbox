@@ -78,6 +78,25 @@
   #history .rolled { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; color: #888; font-size: 0.85rem; }
   #history .part { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; }
   #history .die { min-width: 1.5em; padding: 0 3px; font-size: 0.8rem; line-height: 1.25; }
+  /* the distribution chart: bars for the roll asked for, an outline for a replacement */
+  #chart { margin-top: 16px; }
+  #chart:empty { margin: 0; }
+  #chart svg { display: block; overflow: visible; touch-action: pan-y; font-family: inherit; }
+  .chart-plot { position: relative; }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-bottom: 6px; font-size: 0.9rem; color: #52514e; }
+  .chart-legend span { display: inline-flex; align-items: center; }
+  .swatch { display: inline-block; flex: none; margin-right: 6px; }
+  .swatch.bars { width: 10px; height: 10px; border-radius: 2px; background: #2a78d6; }
+  .swatch.line { width: 14px; height: 0; border-top: 2px solid #eb6834; }
+  .chart-tip {
+    position: absolute; bottom: calc(100% - 8px); z-index: 1; pointer-events: none; white-space: nowrap;
+    padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    font-size: 0.85rem; color: #0b0b0b; font-variant-numeric: tabular-nums;
+  }
+  .chart-tip div { display: flex; align-items: center; }
+  .chart-note { margin-top: 4px; font-size: 0.9rem; color: #52514e; }
+  .chart-note .dismiss { margin-left: 6px; padding: 0 4px; border: none; background: none; color: #888; font: inherit; font-size: 1.1rem; line-height: 1; cursor: pointer; }
+  .chart-note .dismiss:hover { color: #000; }
   .help { margin-top: 32px; font-size: 0.9rem; color: #666; }
   nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #fbf3e6; box-shadow: 0 0 0 100vmax #fbf3e6, 0 1px 0 100vmax #ecdcbf; clip-path: inset(0 -100vmax -1px); }
   nav a, nav b { white-space: nowrap; }
@@ -110,6 +129,7 @@
     <label id="advantage-label" hidden><input id="advantage" type="checkbox"> advantage</label>
     <label id="disadvantage-label" hidden><input id="disadvantage" type="checkbox"> disadvantage</label>
   </div>
+  <div id="chart"></div>
   <div id="roller">
     <button id="roll-dice" title="Enter">Roll</button>
     <span id="total" aria-live="polite"></span>
@@ -128,6 +148,7 @@
     <b>+ 7</b> adds a fixed number to the result.
   </p>
 </main>
+<!-- @inline chart.js -->
 <script>
   const MAX_N = 999;
   const DICE = [4, 6, 8, 10, 12, 20, 100];
@@ -174,6 +195,7 @@
     return { mean, variance: sumSquares / count - mean * mean };
   }
   const result = document.getElementById("result");
+  const chartBox = document.getElementById("chart");
 
   // A die dk with multiplier a adds a²·(k²−1)/12 to the variance, so a solution for ndk
   // is a set of groups (m dice dk × a) whose weights a²·(k²−1) sum to n·(k²−1), and the
@@ -295,6 +317,7 @@
     mixNote.hidden = canMix;
     rInput.max = Number.isInteger(n) && n >= 1 ? Math.min(n, MAX_N) : MAX_N;
     result.replaceChildren();
+    DiceChart.clear(chartBox);
     if (!nInput.checkValidity() || !cInput.checkValidity() || !Number.isInteger(n) || !Number.isInteger(modifier) ||
         (limit && (!rInput.checkValidity() || !Number.isInteger(r)))) {
       const p = document.createElement("p");
@@ -337,6 +360,11 @@
       line.id = "roll-line";
       line.append(roll, rules);
       result.append(line, stats);
+      // the chart shows the roll asked for, and the replacement if it's different
+      const asked = { groups: [{ m: n, d: k, a: 1 }], c: modifier, rule: current.rule ?? null };
+      const series = [{ label: withConstant(`${n}d${k}`, modifier) + (current.rule ? ` (${current.rule.name})` : ""), roll: asked }];
+      if (!plain) series.push({ label: current.text, roll: { groups: current.groups, c: current.c } });
+      DiceChart.draw(chartBox, series);
     } else {
       const p = document.createElement("p");
       p.className = "none";
@@ -412,6 +440,7 @@
     const details = texts.join(" · ");
     totalSpan.textContent = total;
     breakdown.replaceChildren(...parts);
+    DiceChart.highlight(total);
     // restart the highlight, so that rolling the same total again still shows
     totalSpan.classList.remove("fresh");
     void totalSpan.offsetWidth;
@@ -448,10 +477,18 @@
   }
 
   rollButton.addEventListener("click", rollDice);
+  // the chart's × clears the last roll and its highlight, keeping the history
+  chartBox.addEventListener("clearroll", () => {
+    clearRoll();
+    DiceChart.highlight(null);
+  });
+  // clearing the history clears the last roll too, and its highlight on the chart
   document.getElementById("clear-history").addEventListener("click", () => {
     history = [];
     rollCount = 0;
     renderHistory();
+    clearRoll();
+    DiceChart.highlight(null);
   });
   // Enter in any of the inputs rolls too
   for (const input of [nInput, kInput, cInput, rInput]) {
