@@ -2,7 +2,7 @@
 // sequence (Pilish), show acrostics, and list words from the shared word list that fit.
 
 import { parseWords } from "../patterns/wordlist.js";
-import { acrostic, avoidedLetters, check, checkable, DIGITS, entryFilter, entryInfo, findWords, fold, nextLengths, plainLetters, restOf, sequenceFor, upcoming } from "./text.js";
+import { acrostic, avoidedLetters, check, checkable, DIGITS, entryFilter, entryInfo, findWords, fold, nextLengths, plainLetters, restOf, sequenceFor, upcoming, wordAt } from "./text.js";
 
 const TEXT_KEY = "lipogram-text";
 const AVOID_KEY = "lipogram-avoid";
@@ -198,6 +198,7 @@ const listInfo = $("list-info");
 const clearWordsButton = $("clear-words");
 const firstInput = $("first-letter");
 const lastInput = $("last-letter");
+const completeBox = $("complete");
 let wordList = null; // { name, size, infos }, in the list's order
 let shownFor = null; // the filters and count the words were last listed for
 let filtersFor = null; // the filters alone, to list from the start again when they change
@@ -252,9 +253,11 @@ function setWordList(list) {
 
 
 // List the entries that fit: they avoid the letters, start and end with the chosen letters,
-// and, while checking the lengths, have the next length(s) (where the text first goes wrong,
-// or after its last word).
-function showWords(seq, result) {
+// and, while checking the lengths, have the length(s) for the cursor's place, where a click adds
+// them (unless the text goes wrong before it). With "Complete the word", when the cursor is in
+// or just after a word, they must start with its letters before the cursor, and the cursor's
+// place is that word's.
+function showWords(words, seq, result) {
   if (wordList === null) {
     wordsInfo.textContent = "";
     wordsBox.replaceChildren();
@@ -263,15 +266,34 @@ function showWords(seq, result) {
   }
   const avoided = avoidedLetters(avoid.value);
   const first = plainLetters(firstInput.value), last = plainLetters(lastInput.value);
-  const rest = result ? restOf(seq, result.used) : null;
-  const filters = JSON.stringify([avoided, first, last, result ? [sequenceSelect.value, customInput.value, result.used] : null]);
+  // with "Complete the word", the word at the cursor is being completed
+  const current = currentWord(words);
+  const completing = current !== null && completeBox.checked;
+  // the words before the cursor's place: those before the word at the cursor, or that start
+  // before the cursor (or the selection, which a click replaces)
+  let before = current ? current.index : words.findIndex((w) => w.start >= text.selectionStart);
+  if (before < 0) before = words.length;
+  let slot = null, anyLength = "";
+  if (result) {
+    slot = check(words.slice(0, before), seq);
+    // if the text goes wrong before then, the place's length isn't known (and the length where
+    // it goes wrong would be no use, as a click adds the word at the cursor), which the
+    // summary says
+    if (slot.wrong || slot.beyond) {
+      anyLength = ` (any length, as the text ${slot.wrong ? "goes wrong earlier" : `goes past the digits of ${seq.name} checked`})`;
+      slot = null;
+    }
+  }
+  const typed = completing ? plainLetters(current.typed) : "";
+  const rest = slot ? restOf(seq, slot.used) : null;
+  const filters = JSON.stringify([avoided, first, last, typed, slot ? [sequenceSelect.value, customInput.value, slot.used] : null]);
   if (filters !== filtersFor) shownCount = SHOWN_WORDS;
   filtersFor = filters;
   const key = `${filters} ${shownCount}`;
   if (key === shownFor) return;
   shownFor = key;
 
-  const fits = entryFilter({ avoided, first, last, rest });
+  const fits = entryFilter({ avoided, first, last, typed, rest });
   const found = wordList.infos.filter(fits);
   const shown = found.slice(0, shownCount);
   // sorted alphabetically, and while checking lengths (where a 1 can stand for 1 letter or
@@ -291,12 +313,15 @@ function showWords(seq, result) {
   if (avoided.length) conditions.push(`avoid ${avoided.join("")}`);
   if (first) conditions.push(`start with ${first}`);
   if (last) conditions.push(`end with ${last}`);
+  if (completing) conditions.push(`complete “${current.typed}”`);
   if (rest) {
     // longer words still fit, but lengths over 20 (like 40 for 4, 0) are too rare to mention
     const next = nextLengths(rest).filter((n, i) => i === 0 || n <= 20);
-    conditions.push(next.length === 0 ? "fit after the end of the sequence" : `fit the ${result.wrong ? "length where the text goes wrong" : "next length"} (${next.join(" or ")})`);
+    conditions.push(next.length === 0 ? "fit after the end of the sequence" : `fit the ${completing ? "length" : before < words.length ? "length at the cursor" : "next length"} (${next.join(" or ")})`);
   }
-  const which = conditions.length === 0 ? "" : ` that ${conditions.length === 1 ? conditions[0] : `${conditions.slice(0, -1).join(", ")} and ${conditions.at(-1)}`}`;
+  // each condition starts with a verb, which takes an s for a single entry ("avoids e")
+  if (found.length === 1) conditions.forEach((c, i) => { conditions[i] = c.replace(/^\w+/, "$&s"); });
+  const which = (conditions.length === 0 ? "" : ` that ${conditions.length === 1 ? conditions[0] : `${conditions.slice(0, -1).join(", ")} and ${conditions.at(-1)}`}`) + anyLength;
   if (found.length === 0) {
     wordsInfo.textContent = `No entries${which}.`;
   } else {
@@ -321,20 +346,36 @@ function showWords(seq, result) {
 }
 
 
-// insert at the cursor (or at the end, if the text isn't focused), with spaces to separate it
-// from neighbouring words, in a way Ctrl+Z can undo
-function insertWord(word) {
-  if (document.activeElement !== text) {
-    text.focus();
-    text.setSelectionRange(text.value.length, text.value.length);
-  }
-  const { selectionStart: start, selectionEnd: end, value } = text;
+// The word the cursor (with nothing selected) is in or just after, which a click replaces: its
+// index in `words`, the word and the text typed before the cursor; or null. The cursor counts
+// even while the text isn't focused, as it's where words are added.
+function currentWord(words) {
+  const { selectionStart: start, selectionEnd: end } = text;
+  if (start !== end) return null;
+  const index = wordAt(words, end);
+  return index < 0 ? null : { index, word: words[index], typed: text.value.slice(words[index].start, end) };
+}
+
+// Add a word at the cursor, in place of the word it's in or just after if there is one, with spaces
+// to separate it from neighbouring words and a space after it at the end of the text (or
+// moving past the space after it), ready for the next word, in a way Ctrl+Z can undo.
+function insertWord(entry) {
+  const current = currentWord(findWords(text.value));
+  const start = current ? current.word.start : text.selectionStart;
+  const end = current ? current.word.end : text.selectionEnd;
+  const value = text.value;
   const before = start > 0 && !/\s/.test(value[start - 1]) ? " " : "";
-  const after = end < value.length && !/\s/.test(value[end]) ? " " : "";
-  const inserted = before + word + after;
+  const after = end === value.length || /[\p{L}\p{N}]/u.test(value[end]) ? " " : "";
+  const inserted = before + entry + after;
+  text.focus();
+  text.setSelectionRange(start, end);
   if (!document.execCommand("insertText", false, inserted)) {
     text.setRangeText(inserted, start, end, "end");
     update();
+  }
+  if (after === "" && text.value[text.selectionEnd] === " ") {
+    text.setSelectionRange(text.selectionEnd + 1, text.selectionEnd + 1);
+    refreshWords();
   }
 }
 
@@ -405,14 +446,21 @@ function update() {
 
   showLengths(words, seq, result);
   showAcrostics(words);
-  showWords(seq, result);
+  showWords(words, seq, result);
 
   save(TEXT_KEY, text.value);
   save(AVOID_KEY, avoid.value);
   save(SEQUENCE_KEY, sequenceSelect.value);
   save(CUSTOM_KEY, customInput.value);
   save(ACROSTIC_KEY, JSON.stringify({ first: firstBox.checked, last: lastBox.checked, unit: acrosticUnit }));
-  save(LETTERS_KEY, JSON.stringify({ first: firstInput.value, last: lastInput.value }));
+  save(LETTERS_KEY, JSON.stringify({ first: firstInput.value, last: lastInput.value, complete: completeBox.checked }));
+}
+
+// list the words again for where the cursor now is (cheap when nothing changed)
+function refreshWords() {
+  const words = findWords(text.value);
+  const seq = sequenceFor(sequenceSelect.value, customInput.value);
+  showWords(words, seq, checkable(seq) ? check(words, seq) : null);
 }
 
 text.value = load(TEXT_KEY, "");
@@ -435,6 +483,7 @@ try {
   const saved = JSON.parse(load(LETTERS_KEY, "{}"));
   firstInput.value = typeof saved.first === "string" ? saved.first : "";
   lastInput.value = typeof saved.last === "string" ? saved.last : "";
+  completeBox.checked = saved.complete !== false;
 } catch (e) {}
 firstBox.addEventListener("change", update);
 lastBox.addEventListener("change", update);
@@ -448,6 +497,8 @@ text.addEventListener("input", update);
 avoid.addEventListener("input", update);
 firstInput.addEventListener("input", update);
 lastInput.addEventListener("input", update);
+completeBox.addEventListener("change", update);
+document.addEventListener("selectionchange", () => wordList && refreshWords());
 window.addEventListener("resize", update);
 setWordList(null);
 fetchWordList().then((stored) => {

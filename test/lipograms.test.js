@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { avoidedLetters, check, entryFilter, entryInfo, findWords, nextLengths, plainLetters, restOf, sequenceFor } from "../src/lipograms/text.js";
+import { avoidedLetters, check, entryFilter, entryInfo, findWords, nextLengths, plainLetters, restOf, sequenceFor, wordAt } from "../src/lipograms/text.js";
 
 const lengths = (text) => findWords(text).map((w) => w.length);
 const fitting = (entries, options) => entries.map(entryInfo).filter((i) => i !== null).filter(entryFilter(options)).map((i) => i.entry);
@@ -85,4 +85,19 @@ test("the next word's possible lengths", () => {
   assert.deepEqual(nextLengths(restOf(sequenceFor("custom", "10"), 0)), [1]);
   const lengths = sequenceFor("custom", "3 14");
   assert.deepEqual([0, 1, 2].map((used) => nextLengths(restOf(lengths, used))), [[3], [14], []]);
+});
+
+test("the word at the cursor needs a letter before it", () => {
+  const words = findWords("How I nee");
+  assert.equal(wordAt(words, 9), 2); // just after "nee"
+  assert.equal(wordAt(words, 7), 2); // inside it
+  assert.equal(wordAt(words, 6), -1); // just before it
+  assert.equal(wordAt(words, 4), -1); // in the space after "How"
+  assert.equal(wordAt(words, 3), 0);
+});
+
+test("entries can be limited to ones continuing a typed word", () => {
+  const list = ["need", "needs", "Needham", "knee", "née"];
+  assert.deepEqual(fitting(list, { typed: plainLetters("nee") }), ["need", "needs", "Needham", "née"]);
+  assert.deepEqual(fitting(list, { typed: "nee", rest: restOf(sequenceFor("pi", ""), 2) }), ["need"]);
 });

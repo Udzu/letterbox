@@ -49,6 +49,10 @@ export function findWords(value) {
   return words;
 }
 
+// The index of the word (from findWords) that a cursor at string index `caret` is in or
+// just after, with at least one of its letters before the cursor, or -1 if none.
+export const wordAt = (words, caret) => words.findIndex((w) => w.start < caret && caret <= w.end);
+
 // The letter (or digit) at index i of the text, with any accents after it, in capitals: ß
 // becomes ẞ, and letters with no single capital (such as the ligature ﬁ) stay as they are.
 export function capitalAt(value, i) {
@@ -205,12 +209,14 @@ export function entryInfo(entry) {
 export const plainLetters = (value) => [...value].flatMap(fold).filter(isWordChar).join("");
 
 // A test for which entries' infos fit: none of the `avoided` letters, letters they start and
-// end with (folded, from plainLetters, "" for any), and, if `rest` is a sequence, words whose lengths match its
+// end with (folded, from plainLetters, "" for any; `typed` is the start of a word being typed,
+// which they must also start with), and, if `rest` is a sequence, words whose lengths match its
 // start (so a phrase must match as many lengths as it has words).
-export function entryFilter({ avoided = [], first = "", last = "", rest = null }) {
+export function entryFilter({ avoided = [], first = "", last = "", typed = "", rest = null }) {
   return (info) =>
     avoided.every((f) => !info.letters.includes(f)) &&
     info.plain.startsWith(first) &&
+    info.plain.startsWith(typed) &&
     info.plain.endsWith(last) &&
     (rest === null || isPrefix(info.words, rest));
 }
