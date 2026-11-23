@@ -2,13 +2,14 @@
 // from the word list and @ list shared with the Patterns and Words pages.
 
 import { parseWords } from "../patterns/wordlist.js";
-import { buildGraph, entryInfo, isStep, ladderWords, letters, makePuzzle, stepError } from "./game.js";
+import { buildGraph, changedPositions, entryInfo, isStep, ladderWords, lengthRange, letters, makePuzzle, stepError, stepKind } from "./game.js";
 
 const SETTINGS_KEY = "ladders-settings";
 const HISTORY_KEY = "ladders-history";
-const DEFAULTS = { length: 4, steps: 4, fewer: true, shortest: false, capitals: false, phrases: false };
+const DEFAULTS = { length: 4, steps: 4, fewer: true, shortest: false, capitals: false, phrases: false, swaps: false, addRemove: false };
 const MIN_LENGTH = 2, MAX_LENGTH = 15, MIN_STEPS = 2, MAX_STEPS = 30;
 const KEY_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "+ZXCVBNM-"]; // + is Enter, - is Backspace
+const DRAG_DISTANCE = 8; // how far (in pixels) a tile must be dragged to swap it, rather than select it
 
 const $ = (id) => document.getElementById(id);
 const board = $("board");
@@ -111,7 +112,7 @@ let wordsCache = null; // { key, words } for the current lists and settings
 // The puzzle words, allowed words and the graph of steps for the current lists and the
 // given settings (null without a word list).
 function currentWords(s) {
-  const key = JSON.stringify([s.length, s.phrases, s.capitals]);
+  const key = JSON.stringify([s.length, s.phrases, s.capitals, s.swaps, s.addRemove]);
   if (wordsCache?.key !== key) {
     const words = SLOTS.words.list, at = SLOTS.at.list;
     let value = null;
@@ -147,6 +148,8 @@ function readSettings() {
     shortest: $("shortest").checked,
     capitals: $("capitals").checked,
     phrases: $("phrases").checked,
+    swaps: $("swaps").checked,
+    addRemove: $("add-remove").checked,
   };
 }
 
@@ -157,6 +160,8 @@ function applySettings(s) {
   $("shortest").checked = s.shortest;
   $("capitals").checked = s.capitals;
   $("phrases").checked = s.phrases;
+  $("swaps").checked = s.swaps;
+  $("add-remove").checked = s.addRemove;
 }
 
 function loadSettings() {
@@ -171,7 +176,18 @@ function settingsChanged() {
   const saved = loadSettings();
   storage.set(SETTINGS_KEY, { ...s, length: s.length ?? saved.length, steps: s.steps ?? saved.steps });
   showCounts();
-  if (!game) drawBoard();
+  showMoveHelp();
+  if (!game) {
+    drawBoard();
+    drawKeyboard();
+  }
+}
+
+// The help for the moves the settings (or the game's) allow.
+function showMoveHelp() {
+  const s = game?.settings ?? readSettings();
+  $("help-swaps").hidden = !s.swaps;
+  $("help-add-remove").hidden = !s.addRemove;
 }
 
 // How many words the settings give.
@@ -184,17 +200,19 @@ function showCounts() {
     return;
   }
   const words = currentWords(s);
-  const extra = words ? words.allowed.size - words.pool.size : 0;
+  const ends = words ? [...words.pool.keys()].filter((w) => w.length === s.length).length : 0;
+  const extra = words ? words.allowed.size - ends : 0;
   $("counts").textContent = !words
     ? "Load a word list to play."
-    : `${count(words.pool.size, "word")} for puzzles${extra ? `, and ${extra.toLocaleString()} more for steps` : ""}, with these rules.`;
-  $("new-game").disabled = words === null || words.pool.size < 2;
+    : `${count(ends, "word")} to start and end with${extra ? `, and ${extra.toLocaleString()} more for steps` : ""}, with these rules.`;
+  $("new-game").disabled = ends < 2;
 }
 
 // ---- the game
 
 // { start, end, best (a shortest ladder), forms, words, settings, rows (the words played),
-//   current (the letters of the word being made), selected, began, over }
+//   current (the letters of the word being made, with "" for an added letter not yet typed),
+//   selected (a letter's index, or just past the last letter, for adding one there), began, over }
 let game = null;
 
 const playing = () => game !== null && !game.over;
@@ -208,8 +226,8 @@ const maxRows = () => (game.settings.shortest ? game.best.length - 2 : Infinity)
 function newGame() {
   const s = readSettings();
   const words = currentWords(s);
-  if (!words || words.pool.size < 2) return;
-  words.graph ??= buildGraph(words.pool.keys());
+  if (!words || $("new-game").disabled) return;
+  words.graph ??= buildGraph(words.pool.keys(), s);
   const puzzle = makePuzzle(words.graph, s);
   if (!puzzle) {
     setMessage(`No ladders of ${s.fewer ? "2 to " : ""}${count(s.steps, "step")} found with these words: try ${s.fewer ? "other" : "fewer"} steps.`, "error");
@@ -231,7 +249,9 @@ function newGame() {
   setMessage("");
   lockSettings(true);
   showGoal();
+  showMoveHelp();
   drawBoard();
+  drawKeyboard();
   // on narrow screens the game is below the settings
   if (matchMedia("(max-width: 899px)").matches) $("game-section").scrollIntoView({ behavior: "smooth" });
   document.activeElement?.blur();
@@ -261,25 +281,65 @@ function showGoal() {
       : `The shortest ladder takes at most ${count(s.steps, "step")}.`;
 }
 
+// Whether a letter can be added at the end of the word being made.
+const canAppend = () => game.settings.addRemove && game.current.length < lengthRange(game.settings)[1];
+
 function select(i) {
   if (!playing()) return;
-  game.selected = Math.max(0, Math.min(game.current.length - 1, i));
+  game.selected = Math.max(0, Math.min(game.current.length - (canAppend() ? 0 : 1), i));
   drawBoard();
 }
 
 function type(c) {
   if (!playing()) return;
-  game.current[game.selected] = c;
+  if (game.selected === game.current.length) game.current.push(c);
+  else game.current[game.selected] = c;
   game.selected = Math.min(game.selected + 1, game.current.length - 1);
   setMessage("");
   drawBoard();
 }
 
+// Add a blank letter before the selected one (or at the end), to be typed.
+function insert() {
+  if (!playing() || !game.settings.addRemove || game.current.length >= lengthRange(game.settings)[1]) return;
+  game.current.splice(game.selected, 0, "");
+  setMessage("");
+  drawBoard();
+}
+
+// Remove the selected letter.
+function remove() {
+  if (!playing() || !game.settings.addRemove || game.current.length <= lengthRange(game.settings)[0]) return;
+  if (game.selected >= game.current.length) return;
+  game.current.splice(game.selected, 1);
+  game.selected = Math.min(game.selected, game.current.length - (canAppend() ? 0 : 1));
+  setMessage("");
+  drawBoard();
+}
+
+// Swap two letters.
+function swap(i, j) {
+  const n = game.current.length;
+  if (!playing() || !game.settings.swaps || i === j || i < 0 || j < 0 || i >= n || j >= n) return;
+  [game.current[i], game.current[j]] = [game.current[j], game.current[i]];
+  game.selected = j;
+  setMessage("");
+  drawBoard();
+}
+
 // Put back the selected letter if it was changed, or else the nearest changed letter before
-// it; with nothing changed, undo the last step.
+// it; with nothing changed, undo the last step. If letters were added, removed or swapped, put
+// the whole word back.
 function backspace() {
   if (!playing()) return;
   const prev = previous();
+  if (game.current.length !== prev.length || stepKind(prev, game.current.join("")) === "swap") {
+    game.current = [...prev];
+    game.selected = 0;
+    setMessage("");
+    drawBoard();
+    return;
+  }
   let i = game.selected;
   while (i >= 0 && game.current[i] === prev[i]) i--;
   if (i < 0) i = game.current.findIndex((c, j) => c !== prev[j]);
@@ -307,10 +367,13 @@ function submit() {
   if (!playing()) return;
   const word = game.current.join("");
   const prev = previous();
-  let error = stepError(prev, word);
+  const [min, max] = lengthRange(game.settings);
+  let error = game.current.includes("") ? "Type the added letter" : null;
+  if (!error && (word.length < min || word.length > max)) error = `Words can have ${min} to ${max} letters`;
+  error ??= stepError(prev, word, game.settings);
   if (!error && !game.words.allowed.has(word)) error = "Not in the lists";
   if (!error && (word === game.start || word === game.end || game.rows.includes(word))) error = "Already in the ladder";
-  if (!error && game.rows.length + 1 >= maxRows() && !isStep(word, game.end)) {
+  if (!error && game.rows.length + 1 >= maxRows() && !isStep(word, game.end, game.settings)) {
     error = `That isn't one step from ${game.end}, and the ladder can't be any longer`;
   }
   if (error) {
@@ -326,7 +389,7 @@ function submit() {
   game.selected = 0;
   setMessage("");
   updateUndo();
-  if (isStep(word, game.end)) endGame("win");
+  if (isStep(word, game.end, game.settings)) endGame("win");
   else drawBoard();
 }
 
@@ -389,34 +452,49 @@ function boardRows() {
   return rows;
 }
 
-// The tiles are updated in place, and rows only added or removed as needed, since replacing
-// them all on every key can make phone browsers scroll the page.
-function drawBoard() {
-  const n = game?.settings.length ?? readSettings().length ?? DEFAULTS.length;
-  board.style.setProperty("--n", n);
-  const rows = boardRows();
-  if (board.firstElementChild && board.firstElementChild.children.length !== n) board.replaceChildren();
-  while (board.children.length > rows.length) board.lastElementChild.remove();
-  while (board.children.length < rows.length) {
-    const row = document.createElement("div");
-    for (let i = 0; i < n; i++) row.appendChild(document.createElement("div"));
-    board.appendChild(row);
+// The tiles of a row: [letter, class] pairs.
+function rowTiles(row, n) {
+  if (row.kind === "blank") return Array.from({ length: n }, () => ["", "tile"]);
+  if (row.kind === "fixed") return [...row.text].map((c) => [c, "tile fixed"]);
+  if (row.kind === "active") {
+    const word = game.current.join("");
+    // which letters are new, once the word has no blanks (until then, the letters that moved)
+    const changed = new Set(game.current.includes("") ? [] : changedPositions(row.prev, word));
+    const tiles = game.current.map((c, i) => {
+      let cls = "tile";
+      if (c === "") cls += " added";
+      else if (!changed.has(i) && (game.current.length !== row.prev.length || c === row.prev[i])) cls += " ghost";
+      if (i === game.selected) cls += " selected";
+      return [c, cls];
+    });
+    if (canAppend()) tiles.push(["", `tile slot${game.selected === game.current.length ? " selected" : ""}`]);
+    return tiles;
   }
+  const changed = new Set(changedPositions(row.prev, row.text));
+  const mark = row.kind === "shown" ? " shown" : " changed";
+  return [...row.text].map((c, i) => [c, `tile${changed.has(i) ? mark : " done"}`]);
+}
+
+// The tiles are updated in place, and rows only added or removed as needed, since replacing
+// them all on every key can make phone browsers scroll the page. Rows are centred, and tiles
+// are sized for the longest word allowed.
+function drawBoard() {
+  const s = game?.settings ?? readSettings();
+  const length = s.length ?? DEFAULTS.length;
+  board.style.setProperty("--n", lengthRange({ ...s, length })[1]);
+  board.classList.toggle("swappable", playing() && game.settings.swaps);
+  const rows = boardRows();
+  while (board.children.length > rows.length) board.lastElementChild.remove();
+  while (board.children.length < rows.length) board.appendChild(document.createElement("div"));
   rows.forEach((row, r) => {
     const el = board.children[r];
     const rowClass = row.kind === "active" ? "board-row active" : "board-row";
     if (el.className !== rowClass) el.className = rowClass;
-    [...el.children].forEach((tile, i) => {
-      const letter = row.text?.[i] ?? "";
-      let className = "tile";
-      if (row.kind === "fixed") className += " fixed";
-      else if (row.kind === "done" || row.kind === "shown") {
-        className += row.text[i] === row.prev[i] ? " done" : row.kind === "shown" ? " shown" : " changed";
-      }
-      else if (row.kind === "active") {
-        if (row.text[i] === row.prev[i]) className += " ghost";
-        if (i === game.selected) className += " selected";
-      }
+    const tiles = rowTiles(row, length);
+    while (el.children.length > tiles.length) el.lastElementChild.remove();
+    while (el.children.length < tiles.length) el.appendChild(document.createElement("div"));
+    tiles.forEach(([letter, className], i) => {
+      const tile = el.children[i];
       if (tile.textContent !== letter) tile.textContent = letter;
       if (tile.className !== className) tile.className = className;
       tile.dataset.index = i;
@@ -450,6 +528,17 @@ function drawKeyboard() {
     }
     keyboard.appendChild(row);
   }
+  if ((game?.settings ?? readSettings()).addRemove) {
+    const row = document.createElement("div");
+    row.className = "key-row";
+    for (const [label, name, title] of [["Insert", "Insert", "Add a letter before the selected one"], ["Delete", "Delete", "Remove the selected letter"]]) {
+      const key = document.createElement("button");
+      Object.assign(key, { type: "button", tabIndex: -1, className: "key action", textContent: label, title });
+      key.dataset.key = name;
+      row.appendChild(key);
+    }
+    keyboard.appendChild(row);
+  }
 }
 
 // ---- history
@@ -459,6 +548,8 @@ function rulesSummary({ settings: s, lists }) {
   if (s.shortest) parts.push("shortest only");
   if (s.capitals) parts.push("capitals");
   if (s.phrases) parts.push("phrases");
+  if (s.swaps) parts.push("swaps");
+  if (s.addRemove) parts.push("add/remove");
   const [words, at] = lists ?? [];
   if (words) parts.push(words);
   if (at) parts.push(`@ ${at}`);
@@ -492,6 +583,7 @@ function renderHistory(history = storage.get(HISTORY_KEY) ?? []) {
 // ---- wiring
 
 applySettings(loadSettings());
+showMoveHelp();
 listsChanged();
 drawBoard();
 drawKeyboard();
@@ -508,15 +600,51 @@ for (const el of document.querySelectorAll("#setup input:not([type=file])")) {
 $("new-game").addEventListener("click", newGame);
 $("undo").addEventListener("click", undo);
 $("give-up").addEventListener("click", () => playing() && endGame("give-up"));
-board.addEventListener("click", (e) => {
+// Tapping a tile of the word being made selects it; with swaps, dragging one onto another
+// swaps them.
+let drag = null; // { from, x, y, moved, over }
+const activeTileAt = (x, y) => document.elementFromPoint(x, y)?.closest(".board-row.active .tile:not(.slot)") ?? null;
+function markDrop(tile) {
+  if (drag.over === tile) return;
+  drag.over?.classList.remove("drop");
+  drag.over = tile;
+  tile?.classList.add("drop");
+}
+board.addEventListener("pointerdown", (e) => {
   const tile = e.target.closest(".board-row.active .tile");
-  if (tile) select(Number(tile.dataset.index));
+  if (!tile || !playing() || e.button > 0) return;
+  e.preventDefault();
+  drag = { from: Number(tile.dataset.index), slot: tile.classList.contains("slot"), x: e.clientX, y: e.clientY, moved: false, over: null };
+  board.setPointerCapture(e.pointerId);
 });
+board.addEventListener("pointermove", (e) => {
+  if (!drag || drag.slot || !game.settings.swaps) return;
+  if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < DRAG_DISTANCE) return;
+  if (!drag.moved) board.querySelector(`.board-row.active .tile[data-index="${drag.from}"]`)?.classList.add("dragging");
+  drag.moved = true;
+  const tile = activeTileAt(e.clientX, e.clientY);
+  markDrop(tile && Number(tile.dataset.index) !== drag.from ? tile : null);
+});
+function endDrag(e, cancelled) {
+  if (!drag) return;
+  const d = drag;
+  drag = null;
+  d.over?.classList.remove("drop");
+  if (cancelled) return drawBoard();
+  if (!d.moved) return select(d.from);
+  const tile = activeTileAt(e.clientX, e.clientY);
+  if (tile) swap(d.from, Number(tile.dataset.index));
+  drawBoard();
+}
+board.addEventListener("pointerup", (e) => endDrag(e, false));
+board.addEventListener("pointercancel", (e) => endDrag(e, true));
 $("keyboard").addEventListener("pointerdown", (e) => e.preventDefault()); // keep focus off the keys
 $("keyboard").addEventListener("click", (e) => {
   const key = e.target.closest(".key")?.dataset.key;
   if (key === "Enter") submit();
   else if (key === "Backspace") backspace();
+  else if (key === "Insert") insert();
+  else if (key === "Delete") remove();
   else if (key) type(key);
 });
 document.addEventListener("keydown", (e) => {
@@ -534,10 +662,14 @@ document.addEventListener("keydown", (e) => {
     if (e.target.tagName === "BUTTON") return; // pressing a button, such as Undo
     submit();
   } else if (e.key === "Backspace") backspace();
-  else if (e.key === "ArrowLeft") select(game.selected - 1);
+  else if (e.key === "Delete") remove();
+  else if (e.key === "Insert") insert();
+  else if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && e.shiftKey && game.settings.swaps) {
+    swap(game.selected, game.selected + (e.key === "ArrowLeft" ? -1 : 1));
+  } else if (e.key === "ArrowLeft") select(game.selected - 1);
   else if (e.key === "ArrowRight") select(game.selected + 1);
   else if (e.key === "Home") select(0);
-  else if (e.key === "End") select(game.current.length - 1);
+  else if (e.key === "End") select(game.current.length);
   else if (e.key.length === 1 || [...e.key].length === 1) {
     // accented letters count as their plain ones
     const c = letters(e.key);

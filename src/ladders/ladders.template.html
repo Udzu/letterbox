@@ -71,8 +71,9 @@
   #new-game { font-size: 1.15rem; font-weight: 600; padding: 8px 18px; }
   #goal { margin: 0 0 10px; color: #444; min-height: 1.3em; }
   #board { container-type: inline-size; display: grid; gap: 6px; max-width: calc(var(--n) * 3.6rem); margin-bottom: 10px; }
-  .board-row { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 6px; }
+  .board-row { display: flex; justify-content: center; gap: 6px; }
   .tile {
+    flex: 0 0 calc((100% - (var(--n) - 1) * 6px) / var(--n));
     aspect-ratio: 1;
     display: flex; align-items: center; justify-content: center;
     border: 2px solid #d3d6da; box-sizing: border-box; border-radius: 3px;
@@ -85,6 +86,10 @@
   .tile.shown { background: var(--grey); border-color: var(--grey); color: #fff; }
   .board-row.active .tile { cursor: pointer; touch-action: manipulation; border-color: #878a8c; }
   .board-row.active .tile.ghost { color: #b4b8bc; border-color: #d3d6da; }
+  .board-row.active .tile.added, .board-row.active .tile.slot { border-style: dashed; }
+  #board.swappable .board-row.active .tile { touch-action: none; }
+  .board-row.active .tile.dragging { opacity: 0.5; }
+  .board-row.active .tile.drop { background: #e3ecf7; }
   .board-row.active .tile.selected { border-color: var(--blue); box-shadow: inset 0 0 0 2px var(--blue); }
   .board-row.shake { animation: shake 0.3s; }
   @keyframes shake {
@@ -103,6 +108,7 @@
     font-size: 1rem; font-weight: 600; touch-action: manipulation;
   }
   .key.wide { flex-grow: 1.6; font-size: 0.85rem; }
+  .key.action { flex: 0 1 7rem; font-size: 0.85rem; }
   .key:disabled { cursor: default; }
   #play-help { margin: 0; }
 
@@ -160,6 +166,11 @@
         <label title="Words can be phrases, using only their letters, so “a lot” is ALOT"><input type="checkbox" id="phrases"> phrases</label>
       </div>
       <div class="row">
+        <span class="group-name">Moves:</span>
+        <label title="Swap any two letters, as well as changing one"><input type="checkbox" id="swaps"> swap letters</label>
+        <label title="Add or remove a letter, as well as changing one (words in between can have up to 2 letters more or fewer)"><input type="checkbox" id="add-remove"> add/remove a letter</label>
+      </div>
+      <div class="row">
         <label title="The ladder can't be longer than the puzzle's shortest one"><input type="checkbox" id="shortest"> Shortest ladders only</label>
       </div>
       <p id="counts" class="note" aria-live="polite"></p>
@@ -176,7 +187,7 @@
     <div id="board" aria-label="Ladder"></div>
     <div id="message" aria-live="polite"></div>
     <div id="keyboard"></div>
-    <p id="play-help" class="note">Tap a letter (or use the arrow keys) and type to change it, then press Enter. Backspace puts a letter back, or undoes the last step.</p>
+    <p id="play-help" class="note" title="On a keyboard, the arrow keys select a letter, and Shift+arrow swaps it with its neighbour">Tap a letter and type to change it, then press Enter. Backspace undoes.<span id="help-swaps"> Drag a letter onto another to swap them.</span><span id="help-add-remove"> Insert and Delete add and remove letters (the dashed box adds one at the end).</span></p>
   </section>
 
   <section id="history-section">
