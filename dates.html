@@ -99,7 +99,7 @@
     Show:
     <label title="Years, months, Islamic years and Hebrew years"><input type="checkbox" data-kind="long" checked> long units</label>
     <label title="Weeks, days, hours, minutes and seconds"><input type="checkbox" data-kind="short" checked> short units</label>
-    <label title="Years on other planets, and Mars sols"><input type="checkbox" data-kind="astronomical" checked> astronomical units</label>
+    <label title="Years on other planets"><input type="checkbox" data-kind="astronomical" checked> astronomical units</label>
   </div>
   <div id="month-header">
     <button id="prev" title="Previous month">◀</button>
@@ -137,8 +137,6 @@
     { name: "Jupiter year", score: 1, ms: 4332.59 * DAY, kind: "astronomical" },
     { name: "Saturn year", score: 1, ms: 10759.22 * DAY, kind: "astronomical" },
     { name: "Uranus year", score: 1, ms: 30688.5 * DAY, kind: "astronomical" },
-    // Martian solar day
-    { name: "Mars sol", score: 1, ms: 88775244, kind: "astronomical" },
   ];
   // the kinds of unit shown, all of them unless the user unticks some
   const kindBoxes = [...document.querySelectorAll("#kinds input")];
