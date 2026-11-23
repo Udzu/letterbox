@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+  // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+</script>
+<title>Lipogram Workshop</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main { max-width: 900px; margin: 0 auto; }
+  label { font-size: 1rem; }
+  #avoid {
+    width: 10em;
+    margin-left: 8px;
+    padding: 4px 8px;
+    font-size: 1.1rem;
+    font-family: inherit;
+  }
+  /* The textarea's text is transparent; an identical copy with highlights is
+     drawn behind it. Both must share exactly the same text metrics. */
+  #editor {
+    position: relative;
+    margin-top: 16px;
+  }
+  #editor textarea, #backdrop {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 12em;
+    margin: 0;
+    padding: 8px;
+    border: 1px solid #999;
+    font-family: inherit;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    letter-spacing: normal;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+  #backdrop {
+    position: absolute;
+    inset: 0;
+    border-color: transparent;
+    color: #000;
+    pointer-events: none;
+  }
+  #editor textarea {
+    position: relative;
+    display: block;
+    background: transparent;
+    color: transparent;
+    caret-color: #000;
+    resize: none;
+    overflow: hidden;
+  }
+  /* the textarea's colour is transparent, which Firefox would otherwise use for the placeholder */
+  #editor textarea::placeholder { color: #767676; opacity: 1; }
+  #editor textarea::selection { background: rgba(0, 120, 255, 0.25); color: transparent; }
+  .bad { color: #d00; }
+  #summary { margin-top: 12px; font-size: 1.1rem; }
+  #copy, #reset { margin-top: 12px; font-size: 1rem; cursor: pointer; }
+  #copy:disabled { cursor: default; }
+  .note { margin-left: 8px; font-size: 0.9rem; color: #666; }
+  .pilish-bad { text-decoration: underline wavy #e80; text-decoration-skip-ink: none; }
+  #lengths-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 24px 0 8px;
+  }
+  #lengths-header h2 { margin: 0; font-size: 1.1rem; }
+  #lengths-header label { font-size: 0.95rem; }
+  #lengths {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  #lengths:not(:empty) { border: 1px solid #999; padding: 6px 8px; }
+  #lengths .row + .row { border-top: 1px solid #eee; }
+  #lengths .count { margin-right: 0.6em; }
+  #lengths .ok { color: #080; }
+  #lengths .after { color: #aaa; }
+  #lengths .expected { color: #888; }
+  #lengths-header select, #custom { font: inherit; }
+  #custom { width: 16em; padding: 2px 6px; }
+  #custom-help { margin: 0 0 8px; }
+  #check-note { margin-top: 8px; }
+  /* the acrostics: first and/or last letters of the words or lines, each in a box like the lengths */
+  #acrostics-header { display: flex; gap: 8px 16px; align-items: center; flex-wrap: wrap; margin: 24px 0 8px; }
+  #acrostics-header h2 { margin: 0; font-size: 1.1rem; }
+  #acrostics-header label, #acrostics-header .of { font-size: 0.95rem; }
+  .buttons { display: inline-flex; vertical-align: middle; }
+  .buttons button { font: inherit; font-size: 0.95rem; padding: 1px 8px; border: 1px solid #bbb; background: #fff; color: #666; cursor: pointer; }
+  .buttons button + button { border-left: none; }
+  .buttons button:first-child { border-radius: 3px 0 0 3px; }
+  .buttons button:last-child { border-radius: 0 3px 3px 0; }
+  .buttons button[aria-pressed=true] { background: #e8e8e8; border-color: #999; color: #222; }
+  .acrostic { margin-bottom: 8px; }
+  .acrostic .caption { font-size: 0.9rem; color: #666; margin-bottom: 2px; }
+  .acrostic .letters {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    border: 1px solid #999;
+    padding: 6px 8px;
+    min-height: 1.6em;
+  }
+  .acrostic .row + .row { border-top: 1px solid #eee; }
+  #check-note:empty { display: none; }
+  #check-note .ok { color: #080; }
+  /* the word list: the entries that fit, which can be clicked to add them to the text */
+  #words-header, #words-filters { display: flex; gap: 8px 12px; align-items: center; flex-wrap: wrap; }
+  #words-header { margin: 24px 0 8px; }
+  #words-header h2 { margin: 0 4px 0 0; font-size: 1.1rem; }
+  #words-header button { font: inherit; font-size: 0.95rem; }
+  #words-header .note { margin-left: 0; }
+  #words-filters[hidden] { display: none; }
+  #words-filters label { font-size: 0.95rem; }
+  #words-filters input { width: 5em; margin-left: 4px; padding: 2px 4px; font: inherit; }
+  #words-help { margin: 0 0 8px; }
+  #words-info { margin: 8px 0 6px; }
+  #words-info:empty { display: none; }
+  #words-info button { font: inherit; font-size: 0.9rem; }
+  #words { max-height: 24em; overflow-y: auto; }
+  #words:not(:empty) { border: 1px solid #999; padding: 0 8px; }
+  #words .block { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 0; }
+  #words .block + .block { border-top: 1px solid #ddd; }
+  #words .word { cursor: pointer; white-space: pre; }
+  #words .word:hover { text-decoration: underline; }
+  nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #eef4fb; box-shadow: 0 0 0 100vmax #eef4fb, 0 1px 0 100vmax #cddcee; clip-path: inset(0 -100vmax -1px); }
+  nav a, nav b { white-space: nowrap; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <b>Lipograms</b> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
+<main>
+  <label>Avoid:<input id="avoid" type="text" autocomplete="off"></label>
+  <div id="editor">
+    <div id="backdrop"></div>
+    <textarea id="text" placeholder="Write here…" spellcheck="false" autofocus></textarea>
+  </div>
+  <div id="summary"></div>
+  <button id="copy">Copy</button>
+  <button id="reset">Reset</button>
+  <span id="copy-note" class="note">Remove the avoided letters to copy</span>
+  <div id="lengths-header">
+    <h2>Word lengths</h2>
+    <label title="Check the word lengths against the digits of π, e or φ, or against your own numbers (…). Digits are read as in Standard Pilish: a word of n letters stands for n, 10 letters for 0, and longer words for two digits (12 letters for 1, 2).">Check against:
+      <select id="sequence">
+        <option value=""></option>
+        <option value="pi">π</option>
+        <option value="e">e</option>
+        <option value="phi">φ</option>
+        <option value="custom">…</option>
+      </select>
+    </label>
+    <input id="custom" type="text" placeholder="e.g. 5 7 5 or 1.4142135" autocomplete="off" spellcheck="false" hidden>
+  </div>
+  <p id="custom-help" class="note" hidden>Numbers separated by spaces or commas are exact word lengths. A single number, like 1.4142135, is read digit by digit as in Pilish.</p>
+  <div id="lengths"></div>
+  <div id="check-note"></div>
+  <div id="acrostics-header">
+    <h2>Acrostics</h2>
+    <label title="Show the first letter of each word or line"><input type="checkbox" id="acrostic-first"> First letters</label>
+    <label title="Show the last letter of each word or line"><input type="checkbox" id="acrostic-last"> Last letters</label>
+    <span class="of">of</span>
+    <span id="acrostic-unit" class="buttons" role="group" aria-label="Letters of">
+      <button type="button" data-unit="words" title="The letters of every word, a row for each line">Words</button>
+      <button type="button" data-unit="lines" title="The letters of every line, with a space for each blank line">Lines</button>
+    </span>
+  </div>
+  <div id="acrostic-boxes"></div>
+  <div id="words-header">
+    <h2>Words</h2>
+    <button type="button" id="load-words">Load…</button>
+    <button type="button" id="clear-words">Clear</button>
+    <span id="list-info" class="note"></span>
+    <input type="file" id="words-file" accept=".txt,text/plain" hidden>
+  </div>
+  <p id="words-help" class="note">Load a text file with one word or phrase per line, or a <a href="wordlists.html">ready-made list</a>, to list its first entries that avoid the letters (and fit the next word length, if checking), sorted alphabetically. Click one to add it to the text. The list is shared with the other pages.</p>
+  <div id="words-filters">
+    <label title="Only list entries that start with these letters (accents, case and anything but letters and digits don't matter)">Starts with <input id="first-letter" type="text" autocomplete="off" spellcheck="false"></label>
+    <label title="Only list entries that end with these letters, such as -ing (accents, case and anything but letters and digits don't matter)">Ends with <input id="last-letter" type="text" autocomplete="off" spellcheck="false"></label>
+  </div>
+  <div id="words-info"></div>
+  <div id="words"></div>
+</main>
+<!-- @inline page.js -->
+</body>
+</html>
