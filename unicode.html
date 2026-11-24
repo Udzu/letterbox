@@ -23,6 +23,11 @@
   }
   main { max-width: 900px; margin: 0 auto; }
   .intro { margin: 0 0 24px; color: #666; }
+  .intro:has(~ .help:not([hidden])) { margin-bottom: 8px; }
+  .intro.help { font-size: 0.9rem; }
+  .term { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
+  .term[aria-expanded="true"] { text-decoration-style: solid; }
+  .nowrap { white-space: nowrap; }
   #query {
     width: 100%;
     box-sizing: border-box;
@@ -110,7 +115,9 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <b>Unicode</b> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
 <main>
-  <p class="intro">Find Unicode characters and emoji by name, alias, keyword or codepoint (e.g. U+1F600), or paste non-ASCII text to see what it's made of. Click a character to copy it, or a name for details (including emoji styles and skin tone combinations). To collect several characters, use + or shift-click them.</p>
+  <p class="intro">Find Unicode characters and emoji by name, alias, keyword, <button type="button" class="term" aria-controls="help-codepoint" aria-expanded="false">codepoint</button> or <button type="button" class="term" aria-controls="help-reading" aria-expanded="false">reading</button>, or paste non-ASCII text to see what it's made of. Click a character to copy it, or a name for details (including emoji styles and skin tone combinations). To collect several characters, use + or shift-click them.</p>
+  <p class="intro help" id="help-codepoint" hidden>Look up a codepoint by typing it like U+1F600.</p>
+  <p class="intro help" id="help-reading" hidden>Find CJK ideographs by reading: <span class="nowrap">zh:shui or zh:shui3 (Mandarin)</span>, <span class="nowrap">yue:seoi or yue:seoi2 (Cantonese)</span>, <span class="nowrap">ja:mizu or ja:みず (Japanese)</span>, <span class="nowrap">ko:su or ko:수 (Korean)</span>, <span class="nowrap">vi:thuy (Vietnamese)</span>.</p>
   <input id="query" type="text" placeholder="Name, text or U+codepoint..." autocomplete="off" spellcheck="false" autofocus>
   <div id="filters">
     <select id="category" aria-label="Category"></select>
@@ -150,6 +157,204 @@
     if (last < attribution2.length) parts.push({ text: attribution2.slice(last) });
     return parts;
   }
+
+  // src/unicode/readings.js
+  var LANGUAGES = {
+    zh: { name: "Mandarin", common: "TI" },
+    yue: { name: "Cantonese", common: "GIT" },
+    ja: { name: "Japanese", common: "JMI" },
+    ko: { name: "Korean", common: "EKI" },
+    vi: { name: "Vietnamese", common: "I" }
+  };
+  var CODES = Object.keys(LANGUAGES);
+  function readingQuery(query) {
+    const match = /^\s*([a-z]+)\s*:(.*)$/is.exec(query);
+    const lang = match?.[1].toLowerCase();
+    if (!LANGUAGES[lang]) return null;
+    return { lang, terms: [...new Set(match[2].trim().split(/\s+/).filter(Boolean))] };
+  }
+  var PINYIN_TONES = { "\u0304": 1, "\u0301": 2, "\u030C": 3, "\u0300": 4 };
+  function pinyin(text, marked = false) {
+    let s = text.toLowerCase().normalize("NFD").replace(/u:/g, "v").replace(/u\u0308/g, "v").replace(/\u0302/g, "");
+    let tone2 = 0;
+    for (const [mark, t] of Object.entries(PINYIN_TONES)) {
+      if (s.includes(mark)) {
+        tone2 = t;
+        s = s.replace(mark, "");
+      }
+    }
+    const number = /[0-5]$/.exec(s);
+    if (number) {
+      tone2 = Number(number[0]) || 5;
+      s = s.slice(0, -1);
+    } else if (marked && !tone2) tone2 = 5;
+    return [s.normalize("NFC"), tone2];
+  }
+  function jyutping(text) {
+    const s = text.toLowerCase();
+    const number = /[1-6]$/.exec(s);
+    return number ? [s.slice(0, -1), Number(number[0])] : [s, 0];
+  }
+  var toHiragana = (text) => text.replace(/[\u30a1-\u30f6]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 96));
+  var KANA = {};
+  var rows = {
+    "": "\u3042\u3044\u3046\u3048\u304A",
+    k: "\u304B\u304D\u304F\u3051\u3053",
+    g: "\u304C\u304E\u3050\u3052\u3054",
+    s: "\u3055\u3057\u3059\u305B\u305D",
+    z: "\u3056\u3058\u305A\u305C\u305E",
+    t: "\u305F\u3061\u3064\u3066\u3068",
+    d: "\u3060\u3062\u3065\u3067\u3069",
+    n: "\u306A\u306B\u306C\u306D\u306E",
+    h: "\u306F\u3072\u3075\u3078\u307B",
+    b: "\u3070\u3073\u3076\u3079\u307C",
+    p: "\u3071\u3074\u3077\u307A\u307D",
+    m: "\u307E\u307F\u3080\u3081\u3082",
+    r: "\u3089\u308A\u308B\u308C\u308D"
+  };
+  for (const [c, kana2] of Object.entries(rows)) [..."aiueo"].forEach((v, i) => KANA[c + v] = kana2[i]);
+  Object.assign(KANA, { ya: "\u3084", yu: "\u3086", yo: "\u3088", wa: "\u308F", wi: "\u3090", we: "\u3091", wo: "\u3092", shi: "\u3057", chi: "\u3061", tsu: "\u3064", fu: "\u3075", ji: "\u3058" });
+  for (const [c, i] of Object.entries({ k: "\u304D", g: "\u304E", n: "\u306B", h: "\u3072", b: "\u3073", p: "\u3074", m: "\u307F", r: "\u308A", s: "\u3057", z: "\u3058", t: "\u3061", d: "\u3062" })) {
+    for (const [v, small] of Object.entries({ a: "\u3083", u: "\u3085", o: "\u3087" })) KANA[`${c}y${v}`] = i + small;
+  }
+  for (const [c, i] of Object.entries({ sh: "\u3057", j: "\u3058", ch: "\u3061" })) {
+    for (const [v, small] of Object.entries({ a: "\u3083", u: "\u3085", e: "\u3047", o: "\u3087" })) KANA[c + v] = i + small;
+  }
+  var MACRONS = { \u0101: "aa", \u012B: "ii", \u016B: "uu", \u0113: "ei", \u014D: "ou", \u00E2: "aa", \u00EE: "ii", \u00FB: "uu", \u00EA: "ei", \u00F4: "ou" };
+  function kana(text) {
+    let s = text.toLowerCase().replace(/[āīūēōâîûêô]/g, (c) => MACRONS[c]);
+    if (!/[a-z]/.test(s)) return toHiragana(s);
+    let out = "";
+    while (s) {
+      if (s[0] === "n" && (s[1] === "'" || s[1] === "n")) {
+        out += "\u3093";
+        s = s.slice(2);
+      } else if (s[0] === "n" && !/^[aiueoy]/.test(s.slice(1))) {
+        out += "\u3093";
+        s = s.slice(1);
+      } else if (/^([bcdfghjkmprstwz])\1/.test(s) || s.startsWith("tch")) {
+        out += "\u3063";
+        s = s.slice(1);
+      } else {
+        const length = [3, 2, 1].find((n) => KANA[s.slice(0, n)]);
+        if (!length) return null;
+        out += KANA[s.slice(0, length)];
+        s = s.slice(length);
+      }
+    }
+    return out;
+  }
+  var RR_L = ["g", "kk", "n", "d", "tt", "r", "m", "b", "pp", "s", "ss", "", "j", "jj", "ch", "k", "t", "p", "h"];
+  var RR_V = ["a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o", "wa", "wae", "oe", "yo", "u", "wo", "we", "wi", "yu", "eu", "ui", "i"];
+  var RR_T = ["", "k", "k", "k", "n", "n", "n", "t", "l", "k", "m", "l", "l", "l", "p", "l", "m", "p", "p", "t", "t", "ng", "t", "t", "k", "t", "p", "t"];
+  function romanize(hangul) {
+    return [...hangul].map((c) => {
+      const s = c.codePointAt(0) - 44032;
+      if (s < 0 || s >= 11172) return c;
+      return RR_L[Math.floor(s / 588)] + RR_V[Math.floor(s % 588 / 28)] + RR_T[s % 28];
+    }).join("");
+  }
+  var VI_TONES = /[\u0300\u0301\u0303\u0309\u0323]/g;
+  function vietnamese(text) {
+    const d = text.toLowerCase().normalize("NFD");
+    const tone2 = (d.match(VI_TONES) ?? []).join("");
+    const base = d.replace(VI_TONES, "").normalize("NFC");
+    const plain = base.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+    return { exact: `${base}${tone2}`, plain };
+  }
+  var KEYS2 = {
+    zh: {
+      reading: (r) => [pinyin(r, true)[0]],
+      term: (t) => {
+        const [s, tone2] = pinyin(t);
+        return [s, (r) => !tone2 || pinyin(r, true)[1] === tone2];
+      }
+    },
+    yue: {
+      reading: (r) => [jyutping(r)[0]],
+      term: (t) => {
+        const [s, tone2] = jyutping(t);
+        return [s, (r) => !tone2 || jyutping(r)[1] === tone2];
+      }
+    },
+    ja: {
+      reading: (r) => [toHiragana(r)],
+      term: (t) => {
+        const k = kana(t);
+        return k && [k, () => true];
+      }
+    },
+    ko: {
+      reading: (r) => [r, romanize(r)],
+      term: (t) => [/[\uac00-\ud7a3]/.test(t) ? t : t.toLowerCase(), () => true]
+    },
+    vi: {
+      reading: (r) => [vietnamese(r).plain],
+      term: (t) => {
+        const { exact, plain } = vietnamese(t);
+        return [plain, (r) => exact === plain || vietnamese(r).exact === exact];
+      }
+    }
+  };
+  var Readings = class {
+    constructor(text) {
+      this.rows = /* @__PURE__ */ new Map();
+      let cp = 0;
+      for (const line of text.split("\n")) {
+        if (!line || line.startsWith("#")) continue;
+        const [delta, ...fields] = line.split("	");
+        cp += parseInt(delta, 16);
+        this.rows.set(cp, fields);
+      }
+      this.indexes = {};
+    }
+    // what's known about an ideograph: its readings in each language, radical and strokes, or null
+    get(cp) {
+      const fields = this.rows.get(cp);
+      if (!fields) return null;
+      const readings2 = Object.fromEntries(CODES.map((code, i) => [code, fields[i] ? fields[i].split(" ") : []]));
+      const [radical = "", strokes = "", common = ""] = fields.slice(CODES.length);
+      return { readings: readings2, radical, strokes: Number(strokes) || null, common };
+    }
+    // every reading in a language, by key: {key: [[cp, reading, position], ...]}, made when first needed
+    index(lang) {
+      if (this.indexes[lang]) return this.indexes[lang];
+      const index = /* @__PURE__ */ new Map();
+      const column = CODES.indexOf(lang);
+      for (const [cp, fields] of this.rows) {
+        if (!fields[column]) continue;
+        fields[column].split(" ").forEach((reading, position) => {
+          for (const key2 of new Set(KEYS2[lang].reading(reading))) {
+            if (!index.has(key2)) index.set(key2, []);
+            index.get(key2).push([cp, reading, position]);
+          }
+        });
+      }
+      return this.indexes[lang] = index;
+    }
+    // Ideographs with any of these readings in a language, as {cp, reading}: those for the first term
+    // first, and for each term the more common first (in the language's lists in LANGUAGES, then more
+    // frequent in Chinese), then those for which it's an earlier reading, then in codepoint order (which
+    // within a block is by radical and strokes).
+    search(lang, terms2) {
+      const index = this.index(lang);
+      const common = LANGUAGES[lang].common;
+      const found2 = /* @__PURE__ */ new Map();
+      for (const [t, term] of terms2.entries()) {
+        const key2 = KEYS2[lang].term(term);
+        if (!key2) continue;
+        const [k, check] = key2;
+        for (const [cp, reading, position] of index.get(k) ?? []) {
+          if (found2.has(cp) || !check(reading)) continue;
+          const [, , flags = "", frequency = 0] = this.rows.get(cp).slice(CODES.length);
+          const tier = [...common].findIndex((c) => flags.includes(c));
+          found2.set(cp, { cp, reading, rank: [t, tier < 0 ? common.length : tier, -frequency, position, cp] });
+        }
+      }
+      const compare = (a, b) => a.rank.reduce((d, x, i) => d || x - b.rank[i], 0);
+      return [...found2.values()].sort(compare).map(({ cp, reading }) => ({ cp, reading }));
+    }
+  };
 
   // src/unicode/unicode.js
   var hex = (cp) => cp.toString(16).toUpperCase().padStart(4, "0");
@@ -196,10 +401,10 @@
     if (label.includes(` ${term} `)) return 0;
     return label.includes(` ${term}`) ? 1 : 2;
   }
-  function keywordMatch(keywords, terms) {
+  function keywordMatch(keywords, terms2) {
     const used = [];
     let rank = 0;
-    for (const term of terms) {
+    for (const term of terms2) {
       let best = null;
       for (const k of keywords) {
         if (!k.norm.includes(` ${term}`)) continue;
@@ -226,10 +431,10 @@
   var Unicode = class {
     constructor(text) {
       const sections = {};
-      let rows = null;
+      let rows2 = null;
       for (const line of text.split("\n")) {
-        if (line.startsWith("@")) sections[line.slice(1)] = rows = [];
-        else if (line && !line.startsWith("#") && rows) rows.push(line.split("	"));
+        if (line.startsWith("@")) sections[line.slice(1)] = rows2 = [];
+        else if (line && !line.startsWith("#") && rows2) rows2.push(line.split("	"));
       }
       const range = ([first, last, ...rest]) => ({ first: parseInt(first, 16), last: parseInt(last, 16), rest });
       this.scriptNames = Object.fromEntries(sections.scripts);
@@ -335,17 +540,17 @@
       if (direct) return direct.map((entry) => ({ entry, label: null }));
       const norm = normalize(query);
       if (!norm) return this.entries.filter(filter).map((entry) => ({ entry, label: null }));
-      const terms = [...new Set(norm.split(" "))];
+      const terms2 = [...new Set(norm.split(" "))];
       const found2 = [];
       for (const entry of this.entries) {
         let best = null;
         for (const label of entry.labels) {
-          if (!terms.every((t) => label.norm.includes(t))) continue;
-          const rank = label.norm === ` ${norm} ` ? -1 : Math.max(...terms.map((t) => termLevel(label.norm, t)));
+          if (!terms2.every((t) => label.norm.includes(t))) continue;
+          const rank = label.norm === ` ${norm} ` ? -1 : Math.max(...terms2.map((t) => termLevel(label.norm, t)));
           if (!best || rank < best.rank || rank === best.rank && label.kind < best.label.kind) best = { rank, label };
         }
         if (entry.keywords && !(best?.rank <= 0)) {
-          const keywords = keywordMatch(entry.keywords, terms);
+          const keywords = keywordMatch(entry.keywords, terms2);
           if (keywords && !(best?.rank <= keywords.rank)) best = keywords;
         }
         if (best && filter(entry)) found2.push({ entry, label: best.label, rank: best.rank });
@@ -361,7 +566,7 @@
       const code = /^u\+([0-9a-f]{1,6})$/i.exec(text);
       if (code) {
         const cp = parseInt(code[1], 16);
-        return cp <= 1114111 ? [this.find([cp]) ?? this.entry(cp)] : [];
+        return cp <= 1114111 ? [this.entryFor(cp)] : [];
       }
       if (!/[^\x00-\x7f]/.test(text)) return null;
       const found2 = [];
@@ -370,7 +575,7 @@
         const cps = [...segment].map((c) => c.codePointAt(0));
         const whole = cps.length > 1 && (this.find(cps) ?? this.findToned(cps));
         if (whole) add(whole);
-        else for (const cp of cps) add(this.find([cp]) ?? this.entry(cp));
+        else for (const cp of cps) add(this.entryFor(cp));
       }
       return found2;
     }
@@ -386,6 +591,17 @@
       const tones2 = cps.filter((cp) => TONES.includes(cp));
       const entry = this.entries.find((e) => e.emoji?.tones && withTones(e, tones2) && key(withTones(e, tones2)) === key(cps));
       return entry ? { ...entry, cps } : null;
+    }
+    // the entry for a codepoint, searchable or not, with what the filters and details need, kept for reuse
+    entryFor(cp) {
+      const found2 = this.find([cp]);
+      if (found2) return found2;
+      this.extra ??= /* @__PURE__ */ new Map();
+      if (!this.extra.has(cp)) {
+        const entry = this.entry(cp);
+        this.extra.set(cp, { ...entry, labels: [], order: this.entries.length + cp, script: this.script(cp), block: this.block(cp), age: this.age(cp) });
+      }
+      return this.extra.get(cp);
     }
     // the variation sequences for a character
     variantsOf(cp) {
@@ -600,6 +816,7 @@
   }
   function explanation(entry, label) {
     if (!label || label.text === displayName(entry)) return "";
+    if (label.kind === READING) return label.text;
     if (label.kind === EMOJI) return `emoji name \u201C${label.text}\u201D`;
     if (label.kind === SHORT) return `short name \u201C${label.text}\u201D`;
     if (label.kind === KEYWORDS) return `keywords: ${label.text}`;
@@ -655,7 +872,7 @@
     line("Script", unicode.scriptNames[entry.script] ?? "Unknown");
     line("Block", entry.block);
     line("Added in", entry.unassigned ? "not assigned" : `Unicode ${entry.age}${entry.emoji ? ` (Emoji ${entry.emoji.version})` : ""}`);
-    if (entry.omit) line("Note", "left out of searches, as its name is just its codepoint");
+    if (entry.omit) line("Note", "left out of name searches, as its name is just its codepoint");
     if (entry.aliases.length) line("Aliases", entry.aliases.map((a) => `${a.alias} (${ALIAS_TYPES[a.type] ?? a.type})`).join(", "));
     if (entry.short) line("Short name", entry.short);
     if (entry.emoji) {
@@ -682,6 +899,24 @@
       }
     }
     if (entry.keywords?.length) line("Keywords", entry.keywords.map((k) => k.text).join(", "));
+    if (entry.cps.length === 1 && entry.script === "Hani") {
+      const ideograph = () => {
+        const info = readings?.get(entry.cps[0]);
+        if (!info) return;
+        for (const [code, { name }] of Object.entries(LANGUAGES)) {
+          const list = info.readings[code];
+          if (list.length) line(name, code === "ko" ? list.map((r) => `${r} (${romanize(r)})`).join(", ") : list.join(", "));
+        }
+        const radical = /^(\d+)('*)\.(-?\d+)$/.exec(info.radical);
+        if (radical) {
+          const [, number, simplified, extra] = radical;
+          line("Radical", `${number} ${String.fromCodePoint(12032 + Number(number) - 1)}${simplified ? " (simplified form)" : ""} + ${extra} stroke${extra === "1" ? "" : "s"}${info.strokes ? ` (${info.strokes} in all)` : ""}`);
+        }
+      };
+      if (readings) ideograph();
+      else loadReadings().then(ideograph, () => {
+      });
+    }
     const variants = entry.cps.length === 1 ? unicode.variantsOf(entry.cps[0]) : [];
     if (variants.length) {
       line("Variants", el("span", { className: "choices" }, variants.flatMap((v, i) => [...i ? [" "] : [], glyphButton(entry, v.cps, v.description), ` ${v.description}`])));
@@ -759,13 +994,26 @@
     const active = Object.values(chosen).some(Boolean);
     results.replaceChildren();
     shown = 0;
-    if (!query.trim() && !active) {
+    const clear = (text = "") => {
       found = [];
-      summary.textContent = "";
+      summary.textContent = text;
       fillFilters(null);
-      return;
-    }
-    const all = unicode.search(query);
+    };
+    if (!query.trim() && !active) return clear();
+    const reading = readingQuery(query);
+    let all;
+    if (reading) {
+      const { name } = LANGUAGES[reading.lang];
+      if (!reading.terms.length) return clear(`Type a ${name} reading after the colon.`);
+      if (!readings) {
+        clear("Loading readings\u2026");
+        loadReadings().then(show, () => {
+          if (readingQuery(input.value)) summary.textContent = "Couldn't load the readings. Open this page once while online (in the app, if you've installed it) and they'll be kept for offline use.";
+        });
+        return;
+      }
+      all = readings.search(reading.lang, reading.terms).map(({ cp, reading: r }) => ({ entry: unicode.entryFor(cp), label: { kind: READING, text: `${name} ${r}` } }));
+    } else all = unicode.search(query);
     fillFilters(all.map((r) => r.entry));
     found = all.filter((r) => passes(r.entry));
     if (!query.trim() && (chosen.type === "emoji" || chosen.type.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
@@ -773,6 +1021,59 @@
     summary.textContent = `${n === 0 ? "No" : n.toLocaleString("en")} result${n === 1 ? "" : "s"}`;
     if (n) summary.append(" ", viewButtons());
     more();
+  }
+  var READING = "reading";
+  var READINGS_URL = "unicode/readings.txt";
+  var readings = null;
+  var readingsLoad = null;
+  var withTimeout = (promise) => Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error("browser storage didn't respond")), 2e3))]);
+  function storage(mode, act) {
+    return withTimeout(new Promise((resolve, reject) => {
+      const open = indexedDB.open("unicode", 1);
+      open.onupgradeneeded = () => open.result.createObjectStore("data");
+      open.onerror = () => reject(open.error);
+      open.onsuccess = () => {
+        const request = act(open.result.transaction("data", mode).objectStore("data"));
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      };
+    }));
+  }
+  function loadReadings() {
+    readingsLoad ??= (async () => {
+      let text;
+      try {
+        const response = await fetch(READINGS_URL, { cache: "no-cache" });
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+        text = await response.text();
+        const version = response.headers.get("ETag") ?? response.headers.get("Last-Modified") ?? "";
+        storage("readonly", (store) => store.get("readings-version")).catch(() => null).then((stored) => {
+          if (version && stored === version) return;
+          storage("readwrite", (store) => store.put(text, "readings")).then(() => storage("readwrite", (store) => store.put(version, "readings-version"))).catch(() => {
+          });
+        });
+      } catch (e) {
+        text = await storage("readonly", (store) => store.get("readings")).catch(() => null);
+        if (!text) throw e;
+      }
+      readings = new Readings(text);
+    })();
+    readingsLoad.catch(() => readingsLoad = null);
+    return readingsLoad;
+  }
+  var terms = [...document.querySelectorAll(".intro .term")];
+  for (const term of terms) {
+    const help = document.getElementById(term.getAttribute("aria-controls"));
+    term.title = help.textContent;
+    term.addEventListener("click", () => {
+      const open = help.hidden;
+      for (const other of terms) {
+        other.setAttribute("aria-expanded", "false");
+        document.getElementById(other.getAttribute("aria-controls")).hidden = true;
+      }
+      help.hidden = !open;
+      term.setAttribute("aria-expanded", String(open));
+    });
   }
   document.getElementById("copy").addEventListener("click", async (event) => {
     const button = event.currentTarget;
@@ -809,6 +1110,12 @@
   for (const select of Object.values(FILTERS)) select.style.width = `${select.offsetWidth}px`;
   showTones();
   show();
+  var prefetch = () => loadReadings().catch(() => {
+  });
+  if (navigator.onLine) {
+    if (window.requestIdleCallback) requestIdleCallback(prefetch, { timeout: 3e3 });
+    else setTimeout(prefetch, 2e3);
+  }
   document.getElementById("attribution").replaceChildren(...attributionParts(attribution).map((part) => part.href ? el("a", { href: part.href, textContent: part.text }) : part.text));
 })();
 </script>
