@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { Readings, jyutping, kana, pinyin, readingQuery, romaji, romanize, vietnamese } from "../src/unicode/readings.js";
+import { Readings, jyutping, kana, pinyin, radicalQuery, readingQuery, romaji, romanize, vietnamese } from "../src/unicode/readings.js";
 
 const readings = new Readings(readFileSync(new URL("../unicode/readings.txt", import.meta.url), "utf8"));
 const top = (query, n = 1) => {
@@ -100,4 +100,29 @@ test("definitions: whole matches, ignoring a leading to, common characters first
   assert.equal(meanings("to strike"), "打");
   assert.equal(meanings("wat"), "");
   assert.equal(readings.get(0x6c34).definition, "water, liquid, lotion, juice");
+});
+
+test("radical queries", () => {
+  assert.deepEqual(radicalQuery("rs:85"), { radical: "85", extra: null });
+  assert.deepEqual(radicalQuery(" RS: 水 + 3 "), { radical: "水", extra: 3 });
+  assert.deepEqual(radicalQuery("rs:120'.2"), { radical: "120'", extra: 2 });
+  assert.deepEqual(radicalQuery("rs:"), { radical: "", extra: null });
+  assert.equal(radicalQuery("ja:mizu"), null);
+});
+
+test("radicals: named by number or form, characters by strokes", () => {
+  assert.equal(readings.radicals.size, 246);
+  assert.equal(readings.radicals.get("85").strokes, 4);
+  for (const name of ["85", "水", "氵", "⺡", "⽔"]) assert.equal(readings.radical(name), "85", name);
+  assert.equal(readings.radical("120'"), "120'");
+  assert.equal(readings.radical("江"), null);
+  assert.equal(readings.radical("999"), null);
+  assert.deepEqual(readings.radicalOf(0x6c5f), ["85", 3]);
+  const chars = (radical, extra) => readings.byRadical(radical, extra).map(({ cp }) => String.fromCodePoint(cp));
+  assert.deepEqual(chars("85", 3).slice(0, 3), ["江", "污", "池"]);
+  // simplified forms come after the traditional ones, or alone
+  const silk = readings.byRadical("120");
+  assert.equal(silk[0].radical, "120");
+  assert.equal(silk.at(-1).radical, "120'");
+  assert.ok(readings.byRadical("120'").every((r) => r.radical === "120'"));
 });
