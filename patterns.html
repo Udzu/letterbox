@@ -191,7 +191,7 @@
     <span id="info"><span id="stats"></span> <span id="lengths"></span></span>
     <button id="toggle-diagram" aria-controls="diagram" aria-expanded="true">Hide diagram</button>
     <button id="copy-link" title="Copy a link to this pattern, with its test strings and diagram settings">Copy link</button>
-    <button id="reset" title="Go back to the example pattern and test strings, matching case and accents, and the default diagram (undo brings your text back)">Reset</button>
+    <button id="reset" title="Go back to the example pattern and test strings, matching case and accents, and the default diagram">Reset</button>
   </div>
   <p id="view-help"></p>
   <div id="diagram"><p class="note">Loading…</p></div>
@@ -4306,6 +4306,36 @@
     return `[${negated ? "^" : ""}${body}]`;
   }
 
+  // src/shared/reset.js
+  function resetButton(button, { snapshot, clear, restore }) {
+    const resetTitle = button.title;
+    let before = null;
+    let after = null;
+    function showReset() {
+      before = after = null;
+      button.textContent = "Reset";
+      button.title = resetTitle;
+    }
+    function check() {
+      if (before !== null && JSON.stringify(snapshot()) !== after) showReset();
+    }
+    button.addEventListener("click", () => {
+      if (before === null) {
+        const state = snapshot();
+        clear();
+        before = state;
+        after = JSON.stringify(snapshot());
+        button.textContent = "Undo";
+        button.title = "Bring back what was there before the reset";
+      } else {
+        const state = before;
+        showReset();
+        restore(state);
+      }
+    });
+    return { check };
+  }
+
   // src/patterns/share.js
   function shareQuery({ pattern, tests, view, hidden = false, caseless = false, accentless = false }, defaultView) {
     const params = new URLSearchParams({ p: pattern });
@@ -6445,6 +6475,7 @@
   var diagramHidden = false;
   var buildLarge = false;
   var STORAGE_KEY = "patterns";
+  var reset = null;
   function load() {
     try {
       const saved = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(STORAGE_KEY)) };
@@ -6454,6 +6485,7 @@
     }
   }
   function save() {
+    reset?.check();
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         // a pattern that wasn't restored stays saved until another is typed (see guarded)
@@ -7006,6 +7038,7 @@
   var pending = false;
   var slowTimer = null;
   function schedule() {
+    reset?.check();
     clearTimeout(slowTimer);
     if (atSource() !== null && patternInput.value.includes("@")) {
       $("diagram").classList.add("stale");
@@ -7041,24 +7074,37 @@
   caselessBox.checked = initial.caseless === true;
   accentlessBox.checked = initial.accentless === true;
   if (initial.hidden) toggleDiagram();
-  function reset() {
+  var settings = () => ({
+    pattern: patternInput.value,
+    tests: testsInput.value,
+    view: viewSelect.value,
+    caseless: caselessBox.checked,
+    accentless: accentlessBox.checked,
+    hidden: diagramHidden
+  });
+  function applySettings(state) {
     dismissRestore();
-    for (const [box, text] of [[testsInput, DEFAULTS.tests], [patternInput, DEFAULTS.pattern]]) {
+    for (const [box, text] of [[testsInput, state.tests], [patternInput, state.pattern]]) {
       box.focus();
       box.select();
       edit(box, text);
     }
-    viewSelect.value = DEFAULTS.view;
-    caselessBox.checked = DEFAULTS.caseless;
-    accentlessBox.checked = DEFAULTS.accentless;
+    viewSelect.value = state.view;
+    caselessBox.checked = state.caseless;
+    accentlessBox.checked = state.accentless;
     showViewHelp();
-    if (diagramHidden) toggleDiagram();
+    if (diagramHidden !== state.hidden) toggleDiagram();
     $("examples-note").textContent = "";
     drawLarge = false;
     buildLarge = false;
     showAllMatches = false;
     schedule();
   }
+  reset = resetButton($("reset"), {
+    snapshot: settings,
+    clear: () => applySettings({ ...DEFAULTS, hidden: false }),
+    restore: applySettings
+  });
   patternInput.addEventListener("input", () => {
     if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
     dismissRestore();
@@ -7091,7 +7137,6 @@
   $("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));
   $("copy-link").addEventListener("click", copyLink);
   $("toggle-diagram").addEventListener("click", toggleDiagram);
-  $("reset").addEventListener("click", reset);
   for (const slot of Object.values(SLOTS)) {
     $(slot.load).addEventListener("click", () => $(slot.file).click());
     $(slot.file).addEventListener("change", () => loadListFile(slot));

@@ -306,6 +306,42 @@
     return [...words];
   }
 
+  // src/shared/reset.js
+  function resetButton(button, { snapshot, clear, restore }) {
+    const resetTitle = button.title;
+    let before = null;
+    let after = null;
+    function showReset() {
+      before = after = null;
+      button.textContent = "Reset";
+      button.title = resetTitle;
+    }
+    function check2() {
+      if (before !== null && JSON.stringify(snapshot()) !== after) showReset();
+    }
+    button.addEventListener("click", () => {
+      if (before === null) {
+        const state = snapshot();
+        clear();
+        before = state;
+        after = JSON.stringify(snapshot());
+        button.textContent = "Undo";
+        button.title = "Bring back what was there before the reset";
+      } else {
+        const state = before;
+        showReset();
+        restore(state);
+      }
+    });
+    return { check: check2 };
+  }
+  function setBox(box, value) {
+    box.focus();
+    box.select();
+    const ok = value === "" ? document.execCommand("delete") : document.execCommand("insertText", false, value);
+    if (!ok || box.value !== value) box.value = value;
+  }
+
   // src/lipograms/text.js
   var UNDECOMPOSED = { \u00F8: "o", \u0142: "l", \u0111: "d", \u0131: "i", \u0127: "h", \u0167: "t", \u00E6: "ae", \u0153: "oe", \u00DF: "ss" };
   var fold = (ch) => [...ch.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "")].flatMap((c) => [...UNDECOMPOSED[c] ?? c]);
@@ -478,32 +514,18 @@
   var unitButtons = [...document.querySelectorAll("#acrostic-unit button")];
   var acrosticBoxes = $("acrostic-boxes");
   var acrosticUnit = "words";
-  function setBox(box, value) {
-    box.focus();
-    box.select();
-    const ok = value === "" ? document.execCommand("delete") : document.execCommand("insertText", false, value);
-    if (!ok || box.value !== value) box.value = value;
-  }
-  var resetButton = $("reset");
-  var resetArmed = false;
-  var resetTimer;
-  function disarmReset() {
-    resetArmed = false;
-    clearTimeout(resetTimer);
-    resetButton.textContent = "Reset";
-  }
-  resetButton.addEventListener("blur", disarmReset);
-  resetButton.addEventListener("click", () => {
-    if (!resetArmed) {
-      resetArmed = true;
-      resetButton.textContent = "Click again to reset";
-      resetTimer = setTimeout(disarmReset, 3e3);
-      return;
+  var reset = resetButton($("reset"), {
+    snapshot: () => ({ text: text.value, avoid: avoid.value }),
+    clear: () => {
+      setBox(avoid, "e");
+      setBox(text, "");
+      update();
+    },
+    restore: (state) => {
+      setBox(avoid, state.avoid);
+      setBox(text, state.text);
+      update();
     }
-    disarmReset();
-    setBox(avoid, "e");
-    setBox(text, "");
-    update();
   });
   copyButton.addEventListener("click", async () => {
     try {
@@ -797,6 +819,7 @@
     storeWordList(null);
   });
   function update() {
+    reset.check();
     const avoided = new Map(avoidedLetters(avoid.value).map((f) => [f, 0]));
     const words = findWords(text.value);
     customInput.hidden = customHelp.hidden = sequenceSelect.value !== "custom";

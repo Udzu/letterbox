@@ -2,6 +2,7 @@
 // sequence (Pilish), show acrostics, and list words from the shared word list that fit.
 
 import { parseWords } from "../patterns/wordlist.js";
+import { resetButton, setBox } from "../shared/reset.js";
 import { acrostic, avoidedLetters, check, checkable, DIGITS, entryFilter, entryInfo, findWords, fold, nextLengths, plainLetters, restOf, sequenceFor, upcoming, wordAt } from "./text.js";
 
 const TEXT_KEY = "lipogram-text";
@@ -28,34 +29,19 @@ const unitButtons = [...document.querySelectorAll("#acrostic-unit button")];
 const acrosticBoxes = $("acrostic-boxes");
 let acrosticUnit = "words";
 
-// set a box's value via an editing command where possible, so Ctrl+Z can undo it
-function setBox(box, value) {
-  box.focus();
-  box.select();
-  const ok = value === "" ? document.execCommand("delete") : document.execCommand("insertText", false, value);
-  if (!ok || box.value !== value) box.value = value;
-}
-
-// reset needs two clicks in a row, to avoid accidents
-const resetButton = $("reset");
-let resetArmed = false, resetTimer;
-function disarmReset() {
-  resetArmed = false;
-  clearTimeout(resetTimer);
-  resetButton.textContent = "Reset";
-}
-resetButton.addEventListener("blur", disarmReset);
-resetButton.addEventListener("click", () => {
-  if (!resetArmed) {
-    resetArmed = true;
-    resetButton.textContent = "Click again to reset";
-    resetTimer = setTimeout(disarmReset, 3000);
-    return;
-  }
-  disarmReset();
-  setBox(avoid, "e");
-  setBox(text, "");
-  update();
+// Reset clears the text and goes back to avoiding e, and then becomes Undo until they change again
+const reset = resetButton($("reset"), {
+  snapshot: () => ({ text: text.value, avoid: avoid.value }),
+  clear: () => {
+    setBox(avoid, "e");
+    setBox(text, "");
+    update();
+  },
+  restore: (state) => {
+    setBox(avoid, state.avoid);
+    setBox(text, state.text);
+    update();
+  },
 });
 
 copyButton.addEventListener("click", async () => {
@@ -405,6 +391,7 @@ clearWordsButton.addEventListener("click", () => {
 // ----
 
 function update() {
+  reset.check();
   // avoided characters, ignoring whitespace; keep first-seen order for the breakdown
   const avoided = new Map(avoidedLetters(avoid.value).map((f) => [f, 0]));
 

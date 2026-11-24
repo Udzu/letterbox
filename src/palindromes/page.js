@@ -2,6 +2,7 @@
 // ends of the boxes from the shared word list, and a list of attempts.
 
 import { parseWords } from "../patterns/wordlist.js";
+import { resetButton, setBox } from "../shared/reset.js";
 import { ENDS, endModes, entryInfo, extend, extensions, reversibles } from "./ends.js";
 
 const STORAGE_KEY = "palindrome-attempts";
@@ -56,11 +57,33 @@ function sync(source, target) {
   target.value = spliceLetters(target.value, s, oldLetters.length - p, reverse(inserted).join(""));
 }
 
+// Reset clears the boxes, and then becomes Undo until they change again
+const reset = resetButton(document.getElementById("reset"), {
+  snapshot: () => ({ left: left.value, middle: middle.value, right: right.value }),
+  clear: () => {
+    // clearing the forwards box clears the backwards one through sync
+    setBox(middle, "");
+    setBox(left, "");
+    right.value = "";
+    saveBoxes();
+    showEnds();
+  },
+  restore: (state) => {
+    // the backwards box goes last, keeping its own case and punctuation
+    setBox(middle, state.middle);
+    setBox(left, state.left);
+    setBox(right, state.right);
+    saveBoxes();
+    showEnds();
+  },
+});
+
 // the boxes are kept in local storage, where available, so a reload doesn't lose them
 function saveBoxes() {
   try {
     localStorage.setItem(BOXES_KEY, JSON.stringify({ left: left.value, middle: middle.value, right: right.value }));
   } catch (e) {}
+  reset.check();
 }
 try {
   const saved = JSON.parse(localStorage.getItem(BOXES_KEY));
