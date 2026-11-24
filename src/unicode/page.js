@@ -462,12 +462,12 @@ function loadReadings() {
   return readingsLoad;
 }
 
-// --- Help on the intro's terms: a tooltip, and a line below the intro shown on click (or tap)
+// --- Help on the intro's terms: a tooltip, and examples shown after the term on click (or tap)
 
 const terms = [...document.querySelectorAll(".intro .term")];
 for (const term of terms) {
   const help = document.getElementById(term.getAttribute("aria-controls"));
-  term.title = help.textContent;
+  term.title = help.textContent.trim().replace(/^\((?:e\.g\. )?(.*)\)$/, "e.g. $1");
   term.addEventListener("click", () => {
     const open = help.hidden;
     for (const other of terms) {
