@@ -21,6 +21,7 @@ with a reading or a radical, in codepoint order, with tab-separated fields (trai
                    lists (kGradeLevel), E Korea's basic education hanja, K KS X 1001 hanja (from kHangul)
     frequency      how often it appears in a sample of modern Chinese (the counts in kHanyuPinlu, added
                    up), also used to rank results, as a rough guide to how common it is in each language
+    definition     kDefinition: its meanings in English, separated by commas and semicolons
 
 Readings within a field are separated by spaces.
 """
@@ -38,8 +39,8 @@ READINGS = ["kMandarin", "kCantonese", "kJapanese", "kHangul", "kVietnamese"]
 OUT = Path(__file__).parent.parent / "unicode" / "readings.txt"
 
 HEADER = f"""\
-# name: CJK ideograph readings
-# description: Mandarin, Cantonese, Japanese, Korean and Vietnamese readings, radicals and stroke counts of CJK ideographs, from Unihan in Unicode {VERSION[:-2]} (see scripts/unihan-data.py for the format).
+# name: CJK ideograph readings and definitions
+# description: Mandarin, Cantonese, Japanese, Korean and Vietnamese readings, English definitions, radicals and stroke counts of CJK ideographs, from Unihan in Unicode {VERSION[:-2]} (see scripts/unihan-data.py for the format).
 # attribution: From the [Unihan database](https://www.unicode.org/charts/unihan.html), © Unicode, Inc., under the [Unicode License v3](https://www.unicode.org/license.txt).
 """
 
@@ -93,7 +94,7 @@ def main():
         frequency = sum(int(r.split("(")[1].rstrip(")")) for r in f.get("kHanyuPinlu", "").split())
         for k, r in zip(READINGS, readings):
             counts[k] += bool(r)
-        rows.append("\t".join([f"{cp - previous:x}", *readings, radical, strokes, common, str(frequency or "")]).rstrip("\t"))
+        rows.append("\t".join([f"{cp - previous:x}", *readings, radical, strokes, common, str(frequency or ""), f.get("kDefinition", "")]).rstrip("\t"))
         previous = cp
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(HEADER + "\n".join(rows) + "\n", encoding="utf-8")

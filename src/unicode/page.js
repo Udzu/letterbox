@@ -3,8 +3,8 @@
 
 import DATA from "../../unicode/characters.txt";
 import { attributionParts } from "../wordlists/lists.js";
-import { LANGUAGES, Readings, readingQuery, romanize } from "./readings.js";
-import { ALIAS_TYPES, CATEGORIES, EMOJI, INVISIBLE, KEYWORDS, SHORT, TONES, Unicode, codepoints, displayName, isInvisible, isSequence, withTone, withTones } from "./unicode.js";
+import { LANGUAGES, Readings, readingQuery, romaji, romanize } from "./readings.js";
+import { ALIAS_TYPES, CATEGORIES, EMOJI, INVISIBLE, KEYWORDS, SHORT, TONES, Unicode, codepoints, displayName, isInvisible, isSequence, normalize, withTone, withTones } from "./unicode.js";
 
 const STATE_KEY = "unicode-state";
 const PAGE = { list: 200, grid: 800 }; // results shown at first, and added by each "Show more", in each view
@@ -188,6 +188,7 @@ function glyph(entry, cps) {
 function explanation(entry, label) {
   if (!label || label.text === displayName(entry)) return "";
   if (label.kind === READING) return label.text;
+  if (label.kind === MEANING) return `meaning “${label.text}”`;
   if (label.kind === EMOJI) return `emoji name “${label.text}”`;
   if (label.kind === SHORT) return `short name “${label.text}”`;
   if (label.kind === KEYWORDS) return `keywords: ${label.text}`;
@@ -278,13 +279,16 @@ function details(entry) {
   }
   if (entry.keywords?.length) line("Keywords", entry.keywords.map((k) => k.text).join(", "));
   if (entry.cps.length === 1 && entry.script === "Hani") {
-    // readings and radical, once the readings are loaded (and not if they can't be)
+    // meaning, readings (with romaji and the romanization of Korean) and radical, once the readings
+    // are loaded (and not if they can't be)
     const ideograph = () => {
       const info = readings?.get(entry.cps[0]);
       if (!info) return;
+      if (info.definition) line("Meaning", info.definition);
+      const romanized = { ja: romaji, ko: romanize };
       for (const [code, { name }] of Object.entries(LANGUAGES)) {
         const list = info.readings[code];
-        if (list.length) line(name, code === "ko" ? list.map((r) => `${r} (${romanize(r)})`).join(", ") : list.join(", "));
+        if (list.length) line(name, list.map((r) => (romanized[code] ? `${r} (${romanized[code](r)})` : r)).join(", "));
       }
       const radical = /^(\d+)('*)\.(-?\d+)$/.exec(info.radical);
       if (radical) {
@@ -401,7 +405,17 @@ function show() {
     }
     all = readings.search(reading.lang, reading.terms).map(({ cp, reading: r }) =>
       ({ entry: unicode.entryFor(cp), label: { kind: READING, text: `${name} ${r}` } }));
-  } else all = unicode.search(query);
+  } else {
+    all = unicode.search(query);
+    // then ideographs with the search as a definition (once the readings are loaded), unless it's a lookup
+    if (readings && unicode.lookup(query) === null) {
+      const listed = new Set(all.map((r) => r.entry));
+      for (const { cp, meaning } of readings.define(normalize(query))) {
+        const entry = unicode.entryFor(cp);
+        if (!listed.has(entry)) all.push({ entry, label: { kind: MEANING, text: meaning } });
+      }
+    }
+  }
   fillFilters(all.map((r) => r.entry));
   found = all.filter((r) => passes(r.entry));
   if (!query.trim() && (chosen.type === "emoji" || chosen.type.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
@@ -415,7 +429,8 @@ function show() {
 // needed if that hasn't finished (checking for a newer version each time), and kept in browser
 // storage for offline use
 
-const READING = "reading"; // the kind of label for a reading match
+const READING = "reading"; // the kinds of label for a reading match and a definition match
+const MEANING = "meaning";
 const READINGS_URL = "unicode/readings.txt";
 let readings = null;
 let readingsLoad = null;
@@ -466,7 +481,7 @@ function loadReadings() {
 
 for (const term of document.querySelectorAll(".intro .term")) {
   const help = document.getElementById(term.getAttribute("aria-controls"));
-  term.title = help.textContent.trim().replace(/^\((?:e\.g\. )?(.*)\)$/, "e.g. $1");
+  term.title = help.textContent.trim().replace(/^\((.*)\)$/, "$1");
   term.addEventListener("click", () => {
     help.hidden = !help.hidden;
     term.setAttribute("aria-expanded", String(!help.hidden));
@@ -515,7 +530,10 @@ for (const select of Object.values(FILTERS)) select.style.width = `${select.offs
 showTones();
 show();
 // fetch the readings when the browser is idle, so they're kept for offline use
-const prefetch = () => loadReadings().catch(() => {});
+// (showing the results again if the search matches any definitions)
+const prefetch = () => loadReadings().then(() => {
+  if (input.value.trim() && !readingQuery(input.value) && readings.define(normalize(input.value)).length) show();
+}, () => {});
 if (navigator.onLine) {
   if (window.requestIdleCallback) requestIdleCallback(prefetch, { timeout: 3000 });
   else setTimeout(prefetch, 2000);

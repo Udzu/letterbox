@@ -1,6 +1,7 @@
 // Readings of CJK ideographs, from unicode/readings.txt (see scripts/unihan-data.py for its format), and
 // searching them: zh:shui (Mandarin), yue:seoi (Cantonese), ja:mizu or ja:みず (Japanese), ko:su or
-// ko:수 (Korean), vi:thuy (Vietnamese).
+// ko:수 (Korean), vi:thuy (Vietnamese). Also their English definitions, which a search can match
+// whole ("water" finds 水).
 
 // the languages, in the data's order, with the lists of common characters that rank first (see the
 // script), best first
@@ -98,6 +99,31 @@ export function kana(text) {
   return out;
 }
 
+// Kana as romaji, spelled the way searches take it (so they can be copied into one): shi, tsu, ja, ou
+// for a long o, っ doubling the next consonant (tch before ch), and n' for ん before a vowel or y.
+const ROMAJI = Object.fromEntries(Object.entries(KANA).reverse().map(([r, k]) => [k, r]));
+Object.assign(ROMAJI, { し: "shi", ち: "chi", つ: "tsu", ふ: "fu", じ: "ji", ぁ: "a", ぃ: "i", ぅ: "u", ぇ: "e", ぉ: "o" });
+for (const [r, k] of Object.entries(KANA)) if (k.length === 2 && /^(sh|ch|j)/.test(r)) ROMAJI[k] = r;
+export function romaji(text) {
+  const syllables = [];
+  const k = toHiragana(text);
+  for (let i = 0; i < k.length; i++) {
+    const two = ROMAJI[k.slice(i, i + 2)] && k.slice(i, i + 2);
+    const syllable = two || k[i];
+    if (two) i++;
+    syllables.push(syllable);
+  }
+  let out = "";
+  syllables.forEach((s, i) => {
+    const next = syllables[i + 1] ? ROMAJI[syllables[i + 1]] ?? "" : "";
+    if (s === "っ") out += next.startsWith("ch") ? "t" : next[0] ?? "";
+    else if (s === "ん") out += /^[aiueoy]/.test(next) ? "n'" : "n";
+    else if (s === "ー") out += out.at(-1) ?? "";
+    else out += ROMAJI[s] ?? s;
+  });
+  return out;
+}
+
 // --- Korean: Hangul syllables, also found by their Revised Romanization
 
 const RR_L = ["g", "kk", "n", "d", "tt", "r", "m", "b", "pp", "s", "ss", "", "j", "jj", "ch", "k", "t", "p", "h"];
@@ -164,6 +190,9 @@ const KEYS = {
   },
 };
 
+// a definition as a search would be normalized (see normalize in unicode.js), without a leading "to"
+const meaningKey = (text) => text.toLowerCase().replace(/[-:,]/g, " ").replace(/\s+/g, " ").trim().replace(/^to /, "");
+
 export class Readings {
   constructor(text) {
     this.rows = new Map();
@@ -182,8 +211,38 @@ export class Readings {
     const fields = this.rows.get(cp);
     if (!fields) return null;
     const readings = Object.fromEntries(CODES.map((code, i) => [code, fields[i] ? fields[i].split(" ") : []]));
-    const [radical = "", strokes = "", common = ""] = fields.slice(CODES.length);  // (then frequency)
-    return { readings, radical, strokes: Number(strokes) || null, common };
+    const [radical = "", strokes = "", common = "", , definition = ""] = fields.slice(CODES.length);
+    return { readings, radical, strokes: Number(strokes) || null, common, definition };
+  }
+
+  // Ideographs with a definition that is exactly this search (normalized as in unicode.js, ignoring a
+  // leading "to", so "strike" finds "to strike"), as {cp, meaning}: the more common first.
+  define(norm) {
+    if (!this.definitions) {
+      this.definitions = new Map();
+      for (const [cp, fields] of this.rows) {
+        for (const meaning of (fields[CODES.length + 4] ?? "").split(/[;,]/)) {
+          const key = meaningKey(meaning);
+          if (!key) continue;
+          if (!this.definitions.has(key)) this.definitions.set(key, new Map());
+          if (!this.definitions.get(key).has(cp)) this.definitions.get(key).set(cp, meaning.trim());
+        }
+      }
+    }
+    const found = [...(this.definitions.get(meaningKey(norm))?.entries() ?? [])].map(([cp, meaning]) => ({ cp, meaning }));
+    return found.sort((a, b) => this.commonness(a.cp, "TIJG") - this.commonness(b.cp, "TIJG") || this.frequency(b.cp) - this.frequency(a.cp) || a.cp - b.cp);
+  }
+
+  // where an ideograph comes in a list of common-character lists (their letters, best first), or the
+  // list's length if it's in none, and how often it appears in Chinese
+  commonness(cp, lists) {
+    const flags = this.rows.get(cp)[CODES.length + 2] ?? "";
+    const tier = [...lists].findIndex((c) => flags.includes(c));
+    return tier < 0 ? lists.length : tier;
+  }
+
+  frequency(cp) {
+    return Number(this.rows.get(cp)[CODES.length + 3]) || 0;
   }
 
   // every reading in a language, by key: {key: [[cp, reading, position], ...]}, made when first needed
@@ -217,9 +276,7 @@ export class Readings {
       const [k, check] = key;
       for (const [cp, reading, position] of index.get(k) ?? []) {
         if (found.has(cp) || !check(reading)) continue;
-        const [, , flags = "", frequency = 0] = this.rows.get(cp).slice(CODES.length);
-        const tier = [...common].findIndex((c) => flags.includes(c));
-        found.set(cp, { cp, reading, rank: [t, tier < 0 ? common.length : tier, -frequency, position, cp] });
+        found.set(cp, { cp, reading, rank: [t, this.commonness(cp, common), -this.frequency(cp), position, cp] });
       }
     }
     const compare = (a, b) => a.rank.reduce((d, x, i) => d || x - b.rank[i], 0);
