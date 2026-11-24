@@ -464,18 +464,12 @@ function loadReadings() {
 
 // --- Help on the intro's terms: a tooltip, and examples shown after the term on click (or tap)
 
-const terms = [...document.querySelectorAll(".intro .term")];
-for (const term of terms) {
+for (const term of document.querySelectorAll(".intro .term")) {
   const help = document.getElementById(term.getAttribute("aria-controls"));
   term.title = help.textContent.trim().replace(/^\((?:e\.g\. )?(.*)\)$/, "e.g. $1");
   term.addEventListener("click", () => {
-    const open = help.hidden;
-    for (const other of terms) {
-      other.setAttribute("aria-expanded", "false");
-      document.getElementById(other.getAttribute("aria-controls")).hidden = true;
-    }
-    help.hidden = !open;
-    term.setAttribute("aria-expanded", String(open));
+    help.hidden = !help.hidden;
+    term.setAttribute("aria-expanded", String(!help.hidden));
   });
 }
 

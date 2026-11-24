@@ -333,11 +333,11 @@
     // first, and for each term the more common first (in the language's lists in LANGUAGES, then more
     // frequent in Chinese), then those for which it's an earlier reading, then in codepoint order (which
     // within a block is by radical and strokes).
-    search(lang, terms2) {
+    search(lang, terms) {
       const index = this.index(lang);
       const common = LANGUAGES[lang].common;
       const found2 = /* @__PURE__ */ new Map();
-      for (const [t, term] of terms2.entries()) {
+      for (const [t, term] of terms.entries()) {
         const key2 = KEYS2[lang].term(term);
         if (!key2) continue;
         const [k, check] = key2;
@@ -398,10 +398,10 @@
     if (label.includes(` ${term} `)) return 0;
     return label.includes(` ${term}`) ? 1 : 2;
   }
-  function keywordMatch(keywords, terms2) {
+  function keywordMatch(keywords, terms) {
     const used = [];
     let rank = 0;
-    for (const term of terms2) {
+    for (const term of terms) {
       let best = null;
       for (const k of keywords) {
         if (!k.norm.includes(` ${term}`)) continue;
@@ -537,17 +537,17 @@
       if (direct) return direct.map((entry) => ({ entry, label: null }));
       const norm = normalize(query);
       if (!norm) return this.entries.filter(filter).map((entry) => ({ entry, label: null }));
-      const terms2 = [...new Set(norm.split(" "))];
+      const terms = [...new Set(norm.split(" "))];
       const found2 = [];
       for (const entry of this.entries) {
         let best = null;
         for (const label of entry.labels) {
-          if (!terms2.every((t) => label.norm.includes(t))) continue;
-          const rank = label.norm === ` ${norm} ` ? -1 : Math.max(...terms2.map((t) => termLevel(label.norm, t)));
+          if (!terms.every((t) => label.norm.includes(t))) continue;
+          const rank = label.norm === ` ${norm} ` ? -1 : Math.max(...terms.map((t) => termLevel(label.norm, t)));
           if (!best || rank < best.rank || rank === best.rank && label.kind < best.label.kind) best = { rank, label };
         }
         if (entry.keywords && !(best?.rank <= 0)) {
-          const keywords = keywordMatch(entry.keywords, terms2);
+          const keywords = keywordMatch(entry.keywords, terms);
           if (keywords && !(best?.rank <= keywords.rank)) best = keywords;
         }
         if (best && filter(entry)) found2.push({ entry, label: best.label, rank: best.rank });
@@ -1058,18 +1058,12 @@
     readingsLoad.catch(() => readingsLoad = null);
     return readingsLoad;
   }
-  var terms = [...document.querySelectorAll(".intro .term")];
-  for (const term of terms) {
+  for (const term of document.querySelectorAll(".intro .term")) {
     const help = document.getElementById(term.getAttribute("aria-controls"));
     term.title = help.textContent.trim().replace(/^\((?:e\.g\. )?(.*)\)$/, "e.g. $1");
     term.addEventListener("click", () => {
-      const open = help.hidden;
-      for (const other of terms) {
-        other.setAttribute("aria-expanded", "false");
-        document.getElementById(other.getAttribute("aria-controls")).hidden = true;
-      }
-      help.hidden = !open;
-      term.setAttribute("aria-expanded", String(open));
+      help.hidden = !help.hidden;
+      term.setAttribute("aria-expanded", String(!help.hidden));
     });
   }
   document.getElementById("copy").addEventListener("click", async (event) => {
