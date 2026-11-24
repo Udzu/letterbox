@@ -129,6 +129,7 @@
     <input id="input" type="text" placeholder="Type a potential pangram..." autocomplete="off" autofocus>
     <button id="add" title="Ctrl+Enter">Add to list</button>
     <button id="ducktiles" title="Open the missing letters as tiles on ducktiles.com">Ducktiles</button>
+    <button id="reset" title="Clear the pangram">Reset</button>
     <div id="letters"></div>
     <div id="summary"></div>
     <div id="words-header" class="section-header">
@@ -157,6 +158,7 @@
 <script>
   const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
   const STORAGE_KEY = "pangram-attempts";
+  const INPUT_KEY = "pangram-input";
   const input = document.getElementById("input");
   const lettersDiv = document.getElementById("letters");
   const summary = document.getElementById("summary");
@@ -194,6 +196,7 @@
   }
 
   function update() {
+    checkReset();
     const { counts, total, missing, duplicates } = analyse(input.value);
     for (const ch of ALPHABET) {
       const n = counts[ch];
@@ -205,8 +208,54 @@
     if (duplicates !== "") parts.push(`<span class="c2">Duplicates: ${duplicates.length} (${duplicates})</span>`);
     if (missing === "") parts.push(`<span class="done">✓ ${duplicates === "" ? "perfect pangram" : "pangram"}</span>`);
     summary.innerHTML = parts.join(" &nbsp;·&nbsp; ");
+    try {
+      localStorage.setItem(INPUT_KEY, input.value);
+    } catch (e) {}
     showWords(missing);
   }
+
+  // the state Reset clears, and what it clears it to
+  const resetState = () => ({ input: input.value });
+  const RESET_STATE = { input: "" };
+  function resetTo(state) {
+    setBox(input, state.input);
+    update();
+  }
+
+  // Reset acts at once and then becomes Undo, which brings back what was there before, until
+  // the boxes change in any other way (update() calls checkReset). Boxes are set via editing
+  // commands where possible, so Ctrl+Z can undo too. (The same as src/shared/reset.js.)
+  const resetButton = document.getElementById("reset");
+  const resetTitle = resetButton.title;
+  let beforeReset = null, afterReset = null;
+  function setBox(box, value) {
+    box.focus();
+    box.select();
+    const ok = value === "" ? document.execCommand("delete") : document.execCommand("insertText", false, value);
+    if (!ok || box.value !== value) box.value = value;
+  }
+  function showReset() {
+    beforeReset = afterReset = null;
+    resetButton.textContent = "Reset";
+    resetButton.title = resetTitle;
+  }
+  function checkReset() {
+    if (beforeReset !== null && JSON.stringify(resetState()) !== afterReset) showReset();
+  }
+  resetButton.addEventListener("click", () => {
+    if (beforeReset === null) {
+      const state = resetState();
+      resetTo(RESET_STATE);
+      beforeReset = state;
+      afterReset = JSON.stringify(resetState());
+      resetButton.textContent = "Undo";
+      resetButton.title = "Bring back what was there before the reset";
+    } else {
+      const state = beforeReset;
+      showReset();
+      resetTo(state);
+    }
+  });
 
   // attempts list, saved in the browser's local storage where available
   let attempts = [];
@@ -537,6 +586,10 @@
     if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));
   });
 
+  // the current pangram is kept in local storage, where available, so a reload doesn't lose it
+  try {
+    input.value = localStorage.getItem(INPUT_KEY) || "";
+  } catch (e) {}
   input.addEventListener("input", update);
   update();
   renderAttempts();

@@ -111,6 +111,7 @@
   </div>
   <p class="note">To change a letter's case on one side only, select it and type it again in the other case.</p>
   <button id="add" title="Ctrl+Enter">Add to list</button>
+  <button id="reset" title="Clear the boxes">Reset</button>
   <div id="words-header">
     <h2>Words</h2>
     <button type="button" id="load-words">Load…</button>
@@ -231,6 +232,42 @@
       if (word !== "") words.add(word);
     }
     return [...words];
+  }
+
+  // src/shared/reset.js
+  function resetButton(button, { snapshot, clear, restore }) {
+    const resetTitle = button.title;
+    let before = null;
+    let after = null;
+    function showReset() {
+      before = after = null;
+      button.textContent = "Reset";
+      button.title = resetTitle;
+    }
+    function check() {
+      if (before !== null && JSON.stringify(snapshot()) !== after) showReset();
+    }
+    button.addEventListener("click", () => {
+      if (before === null) {
+        const state = snapshot();
+        clear();
+        before = state;
+        after = JSON.stringify(snapshot());
+        button.textContent = "Undo";
+        button.title = "Bring back what was there before the reset";
+      } else {
+        const state = before;
+        showReset();
+        restore(state);
+      }
+    });
+    return { check };
+  }
+  function setBox(box, value) {
+    box.focus();
+    box.select();
+    const ok = value === "" ? document.execCommand("delete") : document.execCommand("insertText", false, value);
+    if (!ok || box.value !== value) box.value = value;
   }
 
   // src/palindromes/ends.js
@@ -383,11 +420,29 @@
     const inserted = newLetters.slice(p, newLetters.length - s);
     target.value = spliceLetters(target.value, s, oldLetters.length - p, reverse(inserted).join(""));
   }
+  var reset = resetButton(document.getElementById("reset"), {
+    snapshot: () => ({ left: left.value, middle: middle.value, right: right.value }),
+    clear: () => {
+      setBox(middle, "");
+      setBox(left, "");
+      right.value = "";
+      saveBoxes();
+      showEnds();
+    },
+    restore: (state) => {
+      setBox(middle, state.middle);
+      setBox(left, state.left);
+      setBox(right, state.right);
+      saveBoxes();
+      showEnds();
+    }
+  });
   function saveBoxes() {
     try {
       localStorage.setItem(BOXES_KEY, JSON.stringify({ left: left.value, middle: middle.value, right: right.value }));
     } catch (e) {
     }
+    reset.check();
   }
   try {
     const saved = JSON.parse(localStorage.getItem(BOXES_KEY));

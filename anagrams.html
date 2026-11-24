@@ -232,6 +232,7 @@
   }
 
   function update() {
+    checkReset();
     const { html, missing, extra } = analyse(anagrist.value, anagram.value);
     // a trailing newline needs something after it to take up a line
     backdrop.innerHTML = html + "​";
@@ -250,33 +251,48 @@
     showWords(missing);
   }
 
-  // clear via editing commands where possible, so Ctrl+Z can undo it
-  function clearBox(box) {
-    box.focus();
-    box.select();
-    if (!document.execCommand("delete") || box.value !== "") box.value = "";
+  // the state Reset clears, and what it clears it to
+  const resetState = () => ({ anagrist: anagrist.value, anagram: anagram.value });
+  const RESET_STATE = { anagrist: "", anagram: "" };
+  function resetTo(state) {
+    setBox(anagram, state.anagram);
+    setBox(anagrist, state.anagrist);
+    update();
   }
 
-  // reset needs two clicks in a row, to avoid accidents
+  // Reset acts at once and then becomes Undo, which brings back what was there before, until
+  // the boxes change in any other way (update() calls checkReset). Boxes are set via editing
+  // commands where possible, so Ctrl+Z can undo too. (The same as src/shared/reset.js.)
   const resetButton = document.getElementById("reset");
-  let resetArmed = false, resetTimer;
-  function disarmReset() {
-    resetArmed = false;
-    clearTimeout(resetTimer);
-    resetButton.textContent = "Reset";
+  const resetTitle = resetButton.title;
+  let beforeReset = null, afterReset = null;
+  function setBox(box, value) {
+    box.focus();
+    box.select();
+    const ok = value === "" ? document.execCommand("delete") : document.execCommand("insertText", false, value);
+    if (!ok || box.value !== value) box.value = value;
   }
-  resetButton.addEventListener("blur", disarmReset);
+  function showReset() {
+    beforeReset = afterReset = null;
+    resetButton.textContent = "Reset";
+    resetButton.title = resetTitle;
+  }
+  function checkReset() {
+    if (beforeReset !== null && JSON.stringify(resetState()) !== afterReset) showReset();
+  }
   resetButton.addEventListener("click", () => {
-    if (!resetArmed) {
-      resetArmed = true;
-      resetButton.textContent = "Click again to reset";
-      resetTimer = setTimeout(disarmReset, 3000);
-      return;
+    if (beforeReset === null) {
+      const state = resetState();
+      resetTo(RESET_STATE);
+      beforeReset = state;
+      afterReset = JSON.stringify(resetState());
+      resetButton.textContent = "Undo";
+      resetButton.title = "Bring back what was there before the reset";
+    } else {
+      const state = beforeReset;
+      showReset();
+      resetTo(state);
     }
-    disarmReset();
-    clearBox(anagram);
-    clearBox(anagrist);
-    update();
   });
 
   // attempts list, saved in the browser's local storage where available;

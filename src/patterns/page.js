@@ -4,6 +4,7 @@ import { instance } from "@viz-js/viz";
 import { examples } from "./examples.js";
 import { describeLengths, matchLengths } from "./lengths.js";
 import { LIMITS, UNLIMITED, toRegex } from "./regex.js";
+import { resetButton } from "../shared/reset.js";
 import { readShared, shareQuery } from "./share.js";
 import { matcher, parseWords, wordsAutomaton } from "./wordlist.js";
 import {
@@ -54,6 +55,7 @@ let buildLarge = false;
 // pages' text (and the word lists, below), unless the address is a shared link. Reset goes
 // back to the defaults.
 const STORAGE_KEY = "patterns";
+let reset = null; // the Reset/Undo button, set up below
 
 function load() {
   try {
@@ -65,6 +67,7 @@ function load() {
 }
 
 function save() {
+  reset?.check();
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       // a pattern that wasn't restored stays saved until another is typed (see guarded)
@@ -715,6 +718,7 @@ function downloadMatches(found) {
 let pending = false;
 let slowTimer = null;
 function schedule() {
+  reset?.check();
   clearTimeout(slowTimer);
   if (atSource() !== null && patternInput.value.includes("@")) {
     $("diagram").classList.add("stale");
@@ -755,27 +759,36 @@ caselessBox.checked = initial.caseless === true;
 accentlessBox.checked = initial.accentless === true;
 if (initial.hidden) toggleDiagram(); // nothing is drawn yet, so this only hides it
 
-// Back to the default pattern, test strings and view, with the diagram showing and case and
-// accents mattering. The text is
-// replaced as an edit, so undo brings it back.
-function reset() {
+// Reset goes back to the default pattern, test strings and view, with the diagram showing and
+// case and accents mattering, and then becomes Undo until any of them change again. The text
+// is replaced as an edit, so Ctrl+Z also brings it back.
+const settings = () => ({
+  pattern: patternInput.value, tests: testsInput.value, view: viewSelect.value,
+  caseless: caselessBox.checked, accentless: accentlessBox.checked, hidden: diagramHidden,
+});
+function applySettings(state) {
   dismissRestore();
-  for (const [box, text] of [[testsInput, DEFAULTS.tests], [patternInput, DEFAULTS.pattern]]) {
+  for (const [box, text] of [[testsInput, state.tests], [patternInput, state.pattern]]) {
     box.focus();
     box.select();
     edit(box, text);
   }
-  viewSelect.value = DEFAULTS.view;
-  caselessBox.checked = DEFAULTS.caseless;
-  accentlessBox.checked = DEFAULTS.accentless;
+  viewSelect.value = state.view;
+  caselessBox.checked = state.caseless;
+  accentlessBox.checked = state.accentless;
   showViewHelp();
-  if (diagramHidden) toggleDiagram();
+  if (diagramHidden !== state.hidden) toggleDiagram();
   $("examples-note").textContent = "";
   drawLarge = false;
   buildLarge = false;
   showAllMatches = false;
   schedule();
 }
+reset = resetButton($("reset"), {
+  snapshot: settings,
+  clear: () => applySettings({ ...DEFAULTS, hidden: false }),
+  restore: applySettings,
+});
 
 patternInput.addEventListener("input", () => {
   if (patternInput.value.includes("\n")) patternInput.value = patternInput.value.replace(/\n/g, "");
@@ -810,7 +823,6 @@ $("clear-tests").addEventListener("click", clearTests);
 $("copy-regex").addEventListener("click", () => copyText($("copy-regex"), $("regex").textContent));
 $("copy-link").addEventListener("click", copyLink);
 $("toggle-diagram").addEventListener("click", toggleDiagram);
-$("reset").addEventListener("click", reset);
 for (const slot of Object.values(SLOTS)) {
   $(slot.load).addEventListener("click", () => $(slot.file).click());
   $(slot.file).addEventListener("change", () => loadListFile(slot));
