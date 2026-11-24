@@ -3,7 +3,7 @@
 
 import DATA from "../../unicode/characters.txt";
 import { attributionParts } from "../wordlists/lists.js";
-import { LANGUAGES, Readings, readingQuery, romaji, romanize } from "./readings.js";
+import { LANGUAGES, Readings, radicalQuery, readingQuery, romaji, romanize } from "./readings.js";
 import { ALIAS_TYPES, CATEGORIES, EMOJI, INVISIBLE, KEYWORDS, SHORT, TONES, Unicode, codepoints, displayName, isInvisible, isSequence, normalize, withTone, withTones } from "./unicode.js";
 
 const STATE_KEY = "unicode-state";
@@ -290,10 +290,12 @@ function details(entry) {
         const list = info.readings[code];
         if (list.length) line(name, list.map((r) => (romanized[code] ? `${r} (${romanized[code](r)})` : r)).join(", "));
       }
-      const radical = /^(\d+)('*)\.(-?\d+)$/.exec(info.radical);
-      if (radical) {
-        const [, number, simplified, extra] = radical;
-        line("Radical", `${number} ${String.fromCodePoint(0x2f00 + Number(number) - 1)}${simplified ? " (simplified form)" : ""} + ${extra} stroke${extra === "1" ? "" : "s"}${info.strokes ? ` (${info.strokes} in all)` : ""}`);
+      const rs = readings.radicalOf(entry.cps[0]);
+      if (rs && readings.radicals.has(rs[0])) {
+        const [radical, extra] = rs;
+        const link = el("button", { type: "button", className: "link", textContent: radicalName(radical), title: `List the characters with this radical (rs:${radical})` });
+        link.addEventListener("click", () => searchRadical(radical));
+        line("Radical", link, ` + ${strokes(extra)}${info.strokes ? ` (${info.strokes} in all)` : ""}`);
       }
     };
     if (readings) ideograph();
@@ -391,18 +393,27 @@ function show() {
     fillFilters(null);
   };
   if (!query.trim() && !active) return clear();
-  const reading = readingQuery(query);
+  const rs = radicalQuery(query);
+  const reading = rs ? null : readingQuery(query);
+  if (reading && !reading.terms.length) return clear(`Type a ${LANGUAGES[reading.lang].name} reading after the colon.`);
+  if ((rs || reading) && !readings) {
+    clear("Loading readings…");
+    loadReadings().then(show, () => {
+      if (radicalQuery(input.value) || readingQuery(input.value)) summary.textContent = "Couldn't load the readings. Open this page once while online (in the app, if you've installed it) and they'll be kept for offline use.";
+    });
+    return;
+  }
   let all;
-  if (reading) {
+  let about = "";
+  if (rs) {
+    if (!rs.radical) return showRadicals();
+    const id = readings.radical(rs.radical);
+    if (!id) return clear(notRadical(rs.radical));
+    about = ` with radical ${radicalName(id)}${rs.extra === null ? "" : ` + ${strokes(rs.extra)}`}`;
+    all = readings.byRadical(id, rs.extra).map(({ cp, radical, extra }) =>
+      ({ entry: unicode.entryFor(cp), label: { kind: READING, text: `radical ${radical} + ${strokes(extra)}` } }));
+  } else if (reading) {
     const { name } = LANGUAGES[reading.lang];
-    if (!reading.terms.length) return clear(`Type a ${name} reading after the colon.`);
-    if (!readings) {
-      clear("Loading readings…");
-      loadReadings().then(show, () => {
-        if (readingQuery(input.value)) summary.textContent = "Couldn't load the readings. Open this page once while online (in the app, if you've installed it) and they'll be kept for offline use.";
-      });
-      return;
-    }
     all = readings.search(reading.lang, reading.terms).map(({ cp, reading: r }) =>
       ({ entry: unicode.entryFor(cp), label: { kind: READING, text: `${name} ${r}` } }));
   } else {
@@ -420,9 +431,59 @@ function show() {
   found = all.filter((r) => passes(r.entry));
   if (!query.trim() && (chosen.type === "emoji" || chosen.type.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
   const n = found.length;
-  summary.textContent = `${n === 0 ? "No" : n.toLocaleString("en")} result${n === 1 ? "" : "s"}`;
+  summary.textContent = `${n === 0 ? "No" : n.toLocaleString("en")} result${n === 1 ? "" : "s"}${about}`;
   if (n) summary.append(" ", viewButtons());
   more();
+}
+
+// --- Radicals
+
+const strokes = (n) => `${n} stroke${Math.abs(n) === 1 ? "" : "s"}`;
+
+// a radical as its number, character and name, like "85 ⽔ water", or "120' 纟 silk (simplified)"
+function radicalName(id) {
+  const r = readings.radicals.get(id);
+  const base = readings.radicals.get(id.replace(/'+$/, ""));
+  const name = unicode.info(base.char).name.replace(/^KANGXI RADICAL /, "").toLowerCase();
+  return `${id} ${String.fromCodePoint(r.char ?? r.ideograph)} ${name}${id === base.radical ? "" : " (simplified)"}`;
+}
+
+function searchRadical(id) {
+  input.value = `rs:${id}`;
+  show();
+  save();
+  input.scrollIntoView({ block: "nearest" });
+}
+
+// why a radical search found nothing
+function notRadical(name) {
+  const cps = [...name].map((c) => c.codePointAt(0));
+  const rs = cps.length === 1 && readings.radicalOf(cps[0]);
+  if (rs) return `${name} isn't a radical: it's radical ${radicalName(rs[0])} + ${strokes(rs[1])} (rs:${rs[0]}).`;
+  return `No radical “${name}”. Type rs: on its own to see them all.`;
+}
+
+// the 214 radicals, by strokes, each listing its characters when clicked
+function showRadicals() {
+  found = [];
+  fillFilters(null);
+  summary.textContent = "The 214 radicals, by number of strokes. Click one to list its characters.";
+  const byStrokes = new Map();
+  for (const r of readings.radicals.values()) {
+    if (r.radical.includes("'")) continue;
+    if (!byStrokes.has(r.strokes)) byStrokes.set(r.strokes, []);
+    byStrokes.get(r.strokes).push(r);
+  }
+  const table = el("div", { className: "radicals" });
+  for (const [n, list] of [...byStrokes].sort((a, b) => a[0] - b[0])) {
+    const buttons = list.map((r) => {
+      const button = el("button", { type: "button", textContent: String.fromCodePoint(r.ideograph), title: radicalName(r.radical) });
+      button.addEventListener("click", () => searchRadical(r.radical));
+      return button;
+    });
+    table.append(el("div", { className: "row" }, [el("span", { className: "strokes", textContent: n }), el("span", { className: "buttons" }, buttons)]));
+  }
+  results.append(table);
 }
 
 // --- Readings of CJK ideographs: fetched in the background once the page has loaded, or when first

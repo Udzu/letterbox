@@ -1,7 +1,8 @@
 // Readings of CJK ideographs, from unicode/readings.txt (see scripts/unihan-data.py for its format), and
 // searching them: zh:shui (Mandarin), yue:seoi (Cantonese), ja:mizu or ja:みず (Japanese), ko:su or
 // ko:수 (Korean), vi:thuy (Vietnamese). Also their English definitions, which a search can match
-// whole ("water" finds 水).
+// whole ("water" finds 水). And their radicals: rs:85 or rs:水 lists the characters with radical 85,
+// rs:85+3 those with 3 more strokes.
 
 // the languages, in the data's order, with the lists of common characters that rank first (see the
 // script), best first
@@ -193,16 +194,47 @@ const KEYS = {
 // a definition as a search would be normalized (see normalize in unicode.js), without a leading "to"
 const meaningKey = (text) => text.toLowerCase().replace(/[-:,]/g, " ").replace(/\s+/g, " ").trim().replace(/^to /, "");
 
+// A radical search, like "rs:85+3": {radical, extra}, where radical is a number (with ' for a
+// simplified form, like 120'), a character standing for one (水, 氵, ⺡), or "" for none (to list the
+// radicals), and extra is the number of strokes beyond the radical, or null for any. Null if the
+// query isn't one.
+export function radicalQuery(query) {
+  const match = /^\s*rs\s*:\s*(.*?)\s*$/is.exec(query);
+  if (!match) return null;
+  const [, radical, extra] = /^(.*?)(?:\s*[+.]\s*(-?\d+))?$/s.exec(match[1]);
+  return { radical, extra: extra === undefined ? null : Number(extra) };
+}
+
+// a radical with its strokes: [radical, extra] from Unihan's kRSUnicode (like "120'.3"), or null
+const splitRS = (rs) => {
+  const match = /^(\d+'*)\.(-?\d+)$/.exec(rs);
+  return match && [match[1], Number(match[2])];
+};
+
 export class Readings {
   constructor(text) {
     this.rows = new Map();
+    this.radicals = new Map(); // radical: {radical, char, ideograph, strokes}, in order
+    this.forms = new Map(); // character: radical
     let cp = 0;
+    let section = null;
     for (const line of text.split("\n")) {
       if (!line || line.startsWith("#")) continue;
-      const [delta, ...fields] = line.split("\t");
-      cp += parseInt(delta, 16);
-      this.rows.set(cp, fields);
+      if (line.startsWith("@")) {
+        section = line.slice(1);
+        continue;
+      }
+      const fields = line.split("\t");
+      if (section === "radicals") {
+        const [radical, char, ideograph] = fields;
+        this.radicals.set(radical, { radical, char: char ? parseInt(char, 16) : null, ideograph: parseInt(ideograph, 16) });
+      } else if (section === "forms") this.forms.set(parseInt(fields[0], 16), fields[1]);
+      else {
+        cp += parseInt(fields[0], 16);
+        this.rows.set(cp, fields.slice(1));
+      }
     }
+    for (const r of this.radicals.values()) r.strokes = Number(this.rows.get(r.ideograph)?.[CODES.length + 1]) || null;
     this.indexes = {};
   }
 
@@ -243,6 +275,41 @@ export class Readings {
 
   frequency(cp) {
     return Number(this.rows.get(cp)[CODES.length + 3]) || 0;
+  }
+
+  // The radical a search names (see radicalQuery): its number, as in @radicals, or null.
+  radical(name) {
+    if (/^\d+'*$/.test(name)) return this.radicals.has(name) ? name : null;
+    const chars = [...name];
+    return chars.length === 1 ? this.forms.get(name.codePointAt(0)) ?? null : null;
+  }
+
+  // the radical and strokes of an ideograph, as [radical, extra], or null
+  radicalOf(cp) {
+    const fields = this.rows.get(cp);
+    return fields ? splitRS(fields[CODES.length]) : null;
+  }
+
+  // Ideographs with a radical (and, unless extra is null, that many strokes beyond it), as
+  // {cp, radical, extra}: a radical without ' also finds its simplified forms (85 finds 85'), which
+  // come after it; then by strokes, then the more common first.
+  byRadical(radical, extra = null) {
+    if (!this.byRadicalIndex) {
+      this.byRadicalIndex = new Map();
+      for (const cp of this.rows.keys()) {
+        const rs = this.radicalOf(cp);
+        if (!rs) continue;
+        const base = rs[0].replace(/'+$/, "");
+        if (!this.byRadicalIndex.has(base)) this.byRadicalIndex.set(base, []);
+        this.byRadicalIndex.get(base).push({ cp, radical: rs[0], extra: rs[1] });
+      }
+    }
+    const simplified = radical.includes("'");
+    const found = (this.byRadicalIndex.get(radical.replace(/'+$/, "")) ?? [])
+      .filter((r) => (!simplified || r.radical === radical) && (extra === null || r.extra === extra));
+    const primes = (r) => r.radical.length - r.radical.replace(/'+$/, "").length;
+    return found.sort((a, b) => primes(a) - primes(b) || a.extra - b.extra ||
+      this.commonness(a.cp, "TIJG") - this.commonness(b.cp, "TIJG") || this.frequency(b.cp) - this.frequency(a.cp) || a.cp - b.cp);
   }
 
   // every reading in a language, by key: {key: [[cp, reading, position], ...]}, made when first needed
