@@ -467,7 +467,7 @@ function endGame(how) {
   });
   const best = `<span class="ladder">${escapeHtml(ladderText(g.best))}</span>`;
   if (how === "win") {
-    const note = steps < par ? `, even shorter than the ${par} expected!` : steps === par ? ", the shortest way!" : `. The shortest takes ${par}: ${best}`;
+    const note = steps < par ? `, even shorter than the ${par} expected: ${best}` : steps === par ? ", the shortest way!" : `. The shortest takes ${par}: ${best}`;
     const hints = g.hints ? ` (with ${hintCount(g.hints)})` : "";
     setMessage(`Solved in ${count(steps, "step")}${hints}${note}`, "win", true);
   } else {
@@ -631,7 +631,7 @@ function renderHistory(history = storage.get(HISTORY_KEY) ?? []) {
     tr.innerHTML = `<td></td><td class="${h.won ? "win" : "lose"}"></td><td class="num"></td><td class="rules"></td>`;
     const cells = tr.children;
     cells[0].textContent = `${h.forms[0].join(" / ")} → ${h.forms[1].join(" / ")}`;
-    cells[1].textContent = (h.won ? `✓ in ${h.steps} (shortest ${h.par})` : `gave up after ${count(h.steps, "word")}`) +
+    cells[1].textContent = (h.won ? `✓ in ${h.steps} (${h.steps < h.par ? "expected" : "shortest"} ${h.par})` : `gave up after ${count(h.steps, "word")}`) +
       (h.hints ? ` · ${hintCount(h.hints)}` : "");
     cells[2].textContent = h.seconds >= 60 ? `${Math.floor(h.seconds / 60)}m ${h.seconds % 60}s` : `${h.seconds}s`;
     cells[3].textContent = rulesSummary(h);
