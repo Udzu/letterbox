@@ -54,11 +54,10 @@
   .day:hover { border-color: #bbb; }
   .day.today { font-weight: bold; text-decoration: underline; }
   .day.selected { border-color: #000; }
-  .s1 { background: #fdf6e7; }
-  .s2 { background: #fbe5b4; }
-  .s3 { background: #f8cf7a; }
-  .s4 { background: #f0ab3c; }
-  .s5 { background: #e48a10; color: #fff; }  #legend { display: flex; gap: 12px; align-items: center; margin-top: 8px; font-size: 0.85rem; color: #666; }
+  .s1 { background: #fbe5b4; }
+  .s2 { background: #f8cf7a; }
+  .s3 { background: #f0ab3c; }
+  .s4 { background: #e48a10; color: #fff; }  #legend { display: flex; gap: 12px; align-items: center; margin-top: 8px; font-size: 0.85rem; color: #666; }
   #legend span.swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
   #details h2 { font-size: 1.1rem; margin: 24px 0 8px; }
   #details ul { list-style: none; margin: 0; padding: 0; }
@@ -113,7 +112,7 @@
     <span><span class="swatch s2"></span>2</span>
     <span><span class="swatch s3"></span>3</span>
     <span><span class="swatch s4"></span>4</span>
-    <span><span class="swatch s5"></span>5</span>  </div>
+  </div>
   <div id="details"></div>
 </main>
 <script>
@@ -125,11 +124,11 @@
   // Earth units of a month or more (also years, months, Islamic and Hebrew years), short units
   // Earth units under a month, and astronomical units those of other planets
   const FIXED_UNITS = [
-    { name: "week", score: 2, ms: 7 * DAY, kind: "short" },
-    { name: "day", score: 2, ms: DAY, kind: "short" },
-    { name: "hour", score: 2, ms: 3600000, kind: "short" },
-    { name: "minute", score: 2, ms: 60000, kind: "short" },
-    { name: "second", score: 2, ms: 1000, kind: "short" },
+    { name: "week", score: 1, ms: 7 * DAY, kind: "short" },
+    { name: "day", score: 1, ms: DAY, kind: "short" },
+    { name: "hour", score: 1, ms: 3600000, kind: "short" },
+    { name: "minute", score: 1, ms: 60000, kind: "short" },
+    { name: "second", score: 1, ms: 1000, kind: "short" },
     // sidereal orbital periods, in days
     { name: "Mercury year", score: 1, ms: 87.969 * DAY, kind: "astronomical" },
     { name: "Venus year", score: 1, ms: 224.701 * DAY, kind: "astronomical" },
@@ -294,8 +293,8 @@
     if (start.d <= daysInMonth(year, month)) {
       const ms = utc(year, month, start.d, start.h, start.mi, start.s);
       const months = (year - start.y) * 12 + (month - start.mo);
-      if (months >= 1) add("month", months, 2, ms);
-      if (month === start.mo && year > start.y) add("year", year - start.y, 2, ms);
+      if (months >= 1) add("month", months, 1, ms);
+      if (month === start.mo && year > start.y) add("year", year - start.y, 1, ms);
     }
 
     // Islamic years: at most two Islamic years overlap a Gregorian month
