@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+  // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+</script>
+<title>Palindrome Explorer</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  #boxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  button { font-size: 1rem; cursor: pointer; }
+  .note { margin: 8px 0 0; font-size: 0.9rem; color: #666; }
+  #add { margin-top: 8px; }
+  #attempts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 24px 0 8px;
+  }
+  h2 { margin: 0; font-size: 1.1rem; }
+  #attempts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #999;
+    min-height: 6em;
+  }
+  #attempts li {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 6px 8px;
+    border-bottom: 1px solid #ddd;
+  }
+  #attempts li:last-child { border-bottom: none; }
+  #attempts li:hover { background: #f3f3f3; }
+  #attempts .text { flex: 1; overflow-wrap: anywhere; cursor: pointer; }
+  #attempts .remove {
+    border: none;
+    background: none;
+    color: #888;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 4px;
+  }
+  #attempts .remove:hover { color: #d00; }
+  input {
+    flex: 1 1 300px;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 8px;
+    font-size: 1.2rem;
+    font-family: inherit;
+  }
+  #left { text-align: right; }
+  #middle {
+    flex: 0 0 2.5em;
+    text-align: center;
+  }
+  /* the word suggestions: a column under each end of the boxes, two per row on narrow screens */
+  #words-header { display: flex; gap: 8px 12px; align-items: center; flex-wrap: wrap; margin: 24px 0 8px; }
+  #words-header .note { margin: 0; }
+  #ends { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 16px; margin-top: 8px; }
+  @media (max-width: 700px) { #ends { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .end[hidden] { display: block; visibility: hidden; }
+  .end .caption { font-size: 0.9rem; color: #666; margin-bottom: 2px; overflow-wrap: anywhere; }
+  .end .caption b { color: #000; font-weight: normal; }
+  .end ul { list-style: none; margin: 0; padding: 4px 8px; border: 1px solid #999; max-height: 20em; overflow-y: auto; }
+  .end li { cursor: pointer; overflow-wrap: anywhere; }
+  .end li:hover .word { text-decoration: underline; }
+  .end .word b { font-weight: 600; }
+  .end .sep, .end .mirror { color: #888; }
+  .end .more-line { margin-top: 4px; font-size: 0.9rem; color: #666; }
+  .end .more { font-size: 0.9rem; }
+  .end .toggle { margin-left: 4px; font-size: 0.8rem; padding: 0 6px; }
+  nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #eef4fb; box-shadow: 0 0 0 100vmax #eef4fb, 0 1px 0 100vmax #cddcee; clip-path: inset(0 -100vmax -1px); }
+  nav a, nav b { white-space: nowrap; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+</style>
+</head>
+<body>
+<nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <a href="lipograms.html">Lipograms</a> · <b>Palindromes</b> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
+<main>
+  <div id="boxes">
+    <input id="left" type="text" placeholder="Forwards..." autocomplete="off" autofocus>
+    <input id="middle" type="text" maxlength="1" autocomplete="off" title="Middle letter">
+    <input id="right" type="text" placeholder="...backwards" autocomplete="off">
+  </div>
+  <p class="note">To change a letter's case on one side only, select it and type it again in the other case.</p>
+  <button id="add" title="Ctrl+Enter">Add to list</button>
+  <div id="words-header">
+    <h2>Words</h2>
+    <button type="button" id="load-words">Load…</button>
+    <button type="button" id="clear-words">Clear</button>
+    <span id="list-info" class="note"></span>
+    <input type="file" id="words-file" accept=".txt,text/plain" hidden>
+  </div>
+  <p class="note">Load a text file with one word or phrase per line, or a <a href="wordlists.html">ready-made list</a>, to see ways to extend the words at the start and end of each box, in the list's order. An end that finishes with a space or punctuation is left alone. Click one to add it, and its letters in reverse at the other side. The list is shared with the other pages.</p>
+  <div id="ends"></div>
+  <div id="attempts-header">
+    <h2>Attempts</h2>
+    <span>
+      <button id="export">Export list</button>
+      <button id="clear">Clear list</button>
+    </span>
+  </div>
+  <ul id="attempts"></ul>
+</main>
+<!-- @inline page.js -->
+</body>
+</html>

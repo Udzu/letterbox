@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Generated from src/palindromes/palindromes.template.html by scripts/build.mjs: do not edit -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -78,6 +79,22 @@
     flex: 0 0 2.5em;
     text-align: center;
   }
+  /* the word suggestions: a column under each end of the boxes, two per row on narrow screens */
+  #words-header { display: flex; gap: 8px 12px; align-items: center; flex-wrap: wrap; margin: 24px 0 8px; }
+  #words-header .note { margin: 0; }
+  #ends { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 16px; margin-top: 8px; }
+  @media (max-width: 700px) { #ends { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .end[hidden] { display: block; visibility: hidden; }
+  .end .caption { font-size: 0.9rem; color: #666; margin-bottom: 2px; overflow-wrap: anywhere; }
+  .end .caption b { color: #000; font-weight: normal; }
+  .end ul { list-style: none; margin: 0; padding: 4px 8px; border: 1px solid #999; max-height: 20em; overflow-y: auto; }
+  .end li { cursor: pointer; overflow-wrap: anywhere; }
+  .end li:hover .word { text-decoration: underline; }
+  .end .word b { font-weight: 600; }
+  .end .sep, .end .mirror { color: #888; }
+  .end .more-line { margin-top: 4px; font-size: 0.9rem; color: #666; }
+  .end .more { font-size: 0.9rem; }
+  .end .toggle { margin-left: 4px; font-size: 0.8rem; padding: 0 6px; }
   nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #eef4fb; box-shadow: 0 0 0 100vmax #eef4fb, 0 1px 0 100vmax #cddcee; clip-path: inset(0 -100vmax -1px); }
   nav a, nav b { white-space: nowrap; }
   nav a { color: #06c; }
@@ -94,6 +111,15 @@
   </div>
   <p class="note">To change a letter's case on one side only, select it and type it again in the other case.</p>
   <button id="add" title="Ctrl+Enter">Add to list</button>
+  <div id="words-header">
+    <h2>Words</h2>
+    <button type="button" id="load-words">Load…</button>
+    <button type="button" id="clear-words">Clear</button>
+    <span id="list-info" class="note"></span>
+    <input type="file" id="words-file" accept=".txt,text/plain" hidden>
+  </div>
+  <p class="note">Load a text file with one word or phrase per line, or a <a href="wordlists.html">ready-made list</a>, to see ways to extend the words at the start and end of each box, in the list's order. An end that finishes with a space or punctuation is left alone. Click one to add it, and its letters in reverse at the other side. The list is shared with the other pages.</p>
+  <div id="ends"></div>
   <div id="attempts-header">
     <h2>Attempts</h2>
     <span>
@@ -104,23 +130,202 @@
   <ul id="attempts"></ul>
 </main>
 <script>
-  const STORAGE_KEY = "palindrome-attempts";
-  const left = document.getElementById("left");
-  const middle = document.getElementById("middle");
-  const right = document.getElementById("right");
-  const addButton = document.getElementById("add");
-  const attemptsList = document.getElementById("attempts");
+(() => {
+  // src/patterns/charset.js
+  var MAX_CP = 1114111;
+  var CharSet = class _CharSet {
+    // ranges must already be normalised: use CharSet.from for arbitrary ranges
+    constructor(ranges) {
+      this.ranges = ranges;
+      Object.freeze(ranges);
+      Object.freeze(this);
+    }
+    static from(ranges) {
+      const sorted = ranges.filter(([lo, hi]) => lo <= hi).sort((x, y) => x[0] - y[0]);
+      const out = [];
+      for (const [lo, hi] of sorted) {
+        const last = out[out.length - 1];
+        if (last && lo <= last[1] + 1) last[1] = Math.max(last[1], hi);
+        else out.push([lo, hi]);
+      }
+      return new _CharSet(out.map((r) => Object.freeze(r)));
+    }
+    static of(...cps) {
+      return _CharSet.from(cps.map((cp) => [cp, cp]));
+    }
+    isEmpty() {
+      return this.ranges.length === 0;
+    }
+    isAll() {
+      return this.ranges.length === 1 && this.ranges[0][0] === 0 && this.ranges[0][1] === MAX_CP;
+    }
+    has(cp) {
+      const r = this.ranges;
+      let lo = 0;
+      let hi = r.length - 1;
+      while (lo <= hi) {
+        const mid = lo + hi >> 1;
+        if (cp < r[mid][0]) hi = mid - 1;
+        else if (cp > r[mid][1]) lo = mid + 1;
+        else return true;
+      }
+      return false;
+    }
+    // number of code points in the set
+    size() {
+      return this.ranges.reduce((n, [lo, hi]) => n + hi - lo + 1, 0);
+    }
+    union(other) {
+      return _CharSet.from([...this.ranges, ...other.ranges].map(([lo, hi]) => [lo, hi]));
+    }
+    intersect(other) {
+      const a = this.ranges;
+      const b = other.ranges;
+      const out = [];
+      let i = 0;
+      let j = 0;
+      while (i < a.length && j < b.length) {
+        const lo = Math.max(a[i][0], b[j][0]);
+        const hi = Math.min(a[i][1], b[j][1]);
+        if (lo <= hi) out.push(Object.freeze([lo, hi]));
+        if (a[i][1] < b[j][1]) i++;
+        else j++;
+      }
+      return new _CharSet(out);
+    }
+    complement() {
+      const out = [];
+      let next = 0;
+      for (const [lo, hi] of this.ranges) {
+        if (lo > next) out.push(Object.freeze([next, lo - 1]));
+        next = hi + 1;
+      }
+      if (next <= MAX_CP) out.push(Object.freeze([next, MAX_CP]));
+      return new _CharSet(out);
+    }
+    minus(other) {
+      return this.intersect(other.complement());
+    }
+    equals(other) {
+      return this.ranges.length === other.ranges.length && this.ranges.every(([lo, hi], i) => lo === other.ranges[i][0] && hi === other.ranges[i][1]);
+    }
+    isSubsetOf(other) {
+      return this.minus(other).isEmpty();
+    }
+    toString() {
+      const fmt = (cp) => cp >= 33 && cp <= 126 ? String.fromCodePoint(cp) : `U+${cp.toString(16).toUpperCase()}`;
+      return `{${this.ranges.map(([lo, hi]) => lo === hi ? fmt(lo) : `${fmt(lo)}-${fmt(hi)}`).join(",")}}`;
+    }
+  };
+  CharSet.EMPTY = new CharSet([]);
+  CharSet.ALL = new CharSet([Object.freeze([0, MAX_CP])]);
 
-  // letters are handled as arrays of code points, so letters outside the BMP work
-  const isLetter = ch => /[\p{L}0-9]/u.test(ch);
-  const letters = s => [...s].filter(isLetter);
-  const reverse = arr => [...arr].reverse();
+  // src/patterns/wordlist.js
+  function parseWords(text) {
+    const words = /* @__PURE__ */ new Set();
+    let header = true;
+    for (const line of text.split("\n")) {
+      const word = line.replace(/\r$/, "").normalize("NFC");
+      if (header && (word === "" || word.startsWith("#"))) continue;
+      header = false;
+      if (word !== "") words.add(word);
+    }
+    return [...words];
+  }
 
-  // Replace the letters with indices [start, end) in text with ins, leaving any
-  // non-letters (spaces, punctuation) where they are.
+  // src/palindromes/ends.js
+  var isLetter = (ch) => /[\p{L}0-9]/u.test(ch);
+  var lettersOf = (chars) => chars.filter(isLetter).map((ch) => ch.toLowerCase()).join("");
+  var ENDS = [
+    { box: "left", at: "start" },
+    { box: "left", at: "end" },
+    { box: "right", at: "start" },
+    { box: "right", at: "end" }
+  ];
+  function fragment(value, at) {
+    const chars = at === "start" ? [...value] : [...value].reverse();
+    if (chars.length === 0 || !isLetter(chars[0])) return null;
+    let i = 1;
+    while (i < chars.length && (isLetter(chars[i]) || /['’-]/u.test(chars[i]) && isLetter(chars[i + 1] ?? ""))) i++;
+    const word = chars.slice(0, i);
+    if (at === "end") word.reverse();
+    return { text: word.join(""), letters: lettersOf(word) };
+  }
+  function entryInfo(entry) {
+    const chars = [...entry];
+    const positions = [];
+    chars.forEach((ch, i) => {
+      if (isLetter(ch)) positions.push(i);
+    });
+    if (positions.length === 0) return null;
+    return { entry, chars, positions, letters: [...lettersOf(chars)] };
+  }
+  function extensions(infos, letters2, at) {
+    const want = [...letters2];
+    const n = want.length;
+    const out = [];
+    for (const info of infos) {
+      const total = info.letters.length;
+      if (total <= n) continue;
+      const offset = at === "start" ? total - n : 0;
+      let ok = true;
+      for (let i = 0; i < n; i++) {
+        if (info.letters[offset + i] !== want[i]) {
+          ok = false;
+          break;
+        }
+      }
+      if (!ok) continue;
+      let added, matched, addedLetters;
+      if (at === "start") {
+        const cut = info.positions[total - n];
+        added = info.chars.slice(0, cut).join("");
+        matched = info.chars.slice(cut).join("");
+        addedLetters = info.letters.slice(0, total - n);
+      } else {
+        const cut = info.positions[n - 1] + 1;
+        matched = info.chars.slice(0, cut).join("");
+        added = info.chars.slice(cut).join("");
+        addedLetters = info.letters.slice(n);
+      }
+      out.push({ entry: info.entry, added, matched, mirror: [...addedLetters].reverse().join("") });
+    }
+    return out;
+  }
+  function attach(value, letters2, at) {
+    if (value === "") return letters2;
+    if (at === "start") {
+      const first = [...value][0];
+      return letters2 + (isLetter(first) || /\s/u.test(first) ? "" : " ") + value;
+    }
+    const last = [...value].at(-1);
+    return value + (isLetter(last) || /\s/u.test(last) ? "" : " ") + letters2;
+  }
+  function extend(left2, right2, end, extension) {
+    const { box, at } = ENDS[end];
+    const own = box === "left" ? left2 : right2;
+    const other = box === "left" ? right2 : left2;
+    const grown = at === "start" ? extension.added + own : own + extension.added;
+    const mirrored = attach(other, extension.mirror, at === "start" ? "end" : "start");
+    return box === "left" ? { left: grown, right: mirrored } : { left: mirrored, right: grown };
+  }
+
+  // src/palindromes/page.js
+  var STORAGE_KEY = "palindrome-attempts";
+  var BOXES_KEY = "palindrome-boxes";
+  var left = document.getElementById("left");
+  var middle = document.getElementById("middle");
+  var right = document.getElementById("right");
+  var addButton = document.getElementById("add");
+  var attemptsList = document.getElementById("attempts");
+  var isLetter2 = (ch) => /[\p{L}0-9]/u.test(ch);
+  var letters = (s) => [...s].filter(isLetter2);
+  var reverse = (arr) => [...arr].reverse();
   function spliceLetters(text, start, end, ins) {
     const positions = [];
-    [...text].forEach((ch, i) => { if (isLetter(ch)) positions.push(i); });
+    [...text].forEach((ch, i) => {
+      if (isLetter2(ch)) positions.push(i);
+    });
     let insPos;
     if (start < end) insPos = positions[start];
     else if (start > 0) insPos = positions[start - 1] + 1;
@@ -135,75 +340,86 @@
     if (insPos === text.length) out += ins;
     return out;
   }
-
-  // Propagate an edit in source to target, which holds the same letters reversed.
   function sync(source, target) {
     const newLetters = letters(source.value);
     const oldLetters = reverse(letters(target.value));
-    // compare case-insensitively, so each side can have its own capitalisation
-    const newLower = newLetters.map(ch => ch.toLowerCase());
-    const oldLower = oldLetters.map(ch => ch.toLowerCase());
+    const newLower = newLetters.map((ch) => ch.toLowerCase());
+    const oldLower = oldLetters.map((ch) => ch.toLowerCase());
     if (newLower.join("") === oldLower.join("")) return;
-    // find the changed region via common prefix and suffix
     let p = 0;
     while (p < newLower.length && p < oldLower.length && newLower[p] === oldLower[p]) p++;
     let s = 0;
-    while (s < newLower.length - p && s < oldLower.length - p &&
-           newLower[newLower.length - 1 - s] === oldLower[oldLower.length - 1 - s]) s++;
+    while (s < newLower.length - p && s < oldLower.length - p && newLower[newLower.length - 1 - s] === oldLower[oldLower.length - 1 - s]) s++;
     const inserted = newLetters.slice(p, newLetters.length - s);
-    // in the reversed text, the region [p, len - s) becomes [s, len - p)
     target.value = spliceLetters(target.value, s, oldLetters.length - p, reverse(inserted).join(""));
   }
-
-  left.addEventListener("input", () => sync(left, right));
-  right.addEventListener("input", () => sync(right, left));
-
-  // attempts list, saved in the browser's local storage where available;
-  // each attempt keeps its three parts so it can be loaded back into the boxes
-  let attempts = [];
+  function saveBoxes() {
+    try {
+      localStorage.setItem(BOXES_KEY, JSON.stringify({ left: left.value, middle: middle.value, right: right.value }));
+    } catch (e) {
+    }
+  }
+  try {
+    const saved = JSON.parse(localStorage.getItem(BOXES_KEY));
+    if (saved) {
+      for (const box of [left, middle, right]) if (typeof saved[box.id] === "string") box.value = saved[box.id];
+    }
+  } catch (e) {
+  }
+  left.addEventListener("input", () => {
+    sync(left, right);
+    saveBoxes();
+    showEnds();
+  });
+  right.addEventListener("input", () => {
+    sync(right, left);
+    saveBoxes();
+    showEnds();
+  });
+  middle.addEventListener("input", saveBoxes);
+  var attempts = [];
   try {
     attempts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch (e) {}
-
-  const joined = a => a.left + a.middle + a.right;
-
+  } catch (e) {
+  }
+  var joined = (a) => a.left + a.middle + a.right;
   function saveAttempts() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(attempts));
-    } catch (e) {}
+    } catch (e) {
+    }
   }
-
-  const letterCount = a => (joined(a).match(/\p{L}/gu) || []).length;
-
+  var letterCount = (a) => (joined(a).match(/\p{L}/gu) || []).length;
   function renderAttempts() {
     attemptsList.innerHTML = "";
     attempts.sort((a, b) => letterCount(a) - letterCount(b) || joined(a).localeCompare(joined(b)));
     attempts.forEach((attempt, i) => {
       const li = document.createElement("li");
-      const span = document.createElement("span");
-      span.className = "text";
-      span.textContent = `[${letterCount(attempt)}] ${joined(attempt)}`;
-      span.title = "Load into boxes";
-      span.addEventListener("click", () => {
+      const span2 = document.createElement("span");
+      span2.className = "text";
+      span2.textContent = `[${letterCount(attempt)}] ${joined(attempt)}`;
+      span2.title = "Load into boxes";
+      span2.addEventListener("click", () => {
         left.value = attempt.left;
         middle.value = attempt.middle;
         right.value = attempt.right;
+        saveBoxes();
+        showEnds();
         left.focus();
       });
       const remove = document.createElement("button");
       remove.className = "remove";
       remove.title = "Remove";
-      remove.textContent = "×";
+      remove.textContent = "\xD7";
       remove.addEventListener("click", () => {
         attempts.splice(i, 1);
         saveAttempts();
         renderAttempts();
       });
-      li.append(span, remove);
+      li.append(span2, remove);
       attemptsList.appendChild(li);
     });
   }
-
   addButton.addEventListener("click", () => {
     const attempt = { left: left.value, middle: middle.value, right: right.value };
     if (joined(attempt).trim() === "") return;
@@ -211,7 +427,6 @@
     saveAttempts();
     renderAttempts();
   });
-
   document.getElementById("export").addEventListener("click", () => {
     if (attempts.length === 0) return;
     const blob = new Blob([attempts.map(joined).join("\n") + "\n"], { type: "text/plain" });
@@ -219,26 +434,186 @@
     link.href = URL.createObjectURL(blob);
     link.download = "palindromes.txt";
     link.click();
-    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    setTimeout(() => URL.revokeObjectURL(link.href), 1e3);
   });
-
   document.getElementById("clear").addEventListener("click", () => {
     if (attempts.length === 0 || !confirm("Clear all attempts?")) return;
     attempts = [];
     saveAttempts();
     renderAttempts();
   });
-
   for (const box of [left, middle, right]) {
-    box.addEventListener("keydown", e => {
+    box.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         addButton.click();
       }
     });
   }
-
   renderAttempts();
+  var DB = { name: "patterns", store: "wordlist", key: "list" };
+  var SHOWN = 50;
+  var endsBox = document.getElementById("ends");
+  var listInfo = document.getElementById("list-info");
+  var clearWordsButton = document.getElementById("clear-words");
+  var boxes = { left, right };
+  var wordList = null;
+  var found = ENDS.map(() => ({ key: null, extensions: [], shown: SHOWN, hidden: false }));
+  function openDb() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB.name, 1);
+      request.onupgradeneeded = () => request.result.createObjectStore(DB.store);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+  async function storeWordList(value) {
+    try {
+      const db = await openDb();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(DB.store, "readwrite");
+        if (value === null) tx.objectStore(DB.store).delete(DB.key);
+        else tx.objectStore(DB.store).put(value, DB.key);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (e) {
+    }
+  }
+  async function fetchWordList() {
+    try {
+      const db = await openDb();
+      return await new Promise((resolve, reject) => {
+        const request = db.transaction(DB.store).objectStore(DB.store).get(DB.key);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => reject(request.error);
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+  var entries = (n) => `${n.toLocaleString()} ${n === 1 ? "entry" : "entries"}`;
+  function setWordList(list) {
+    wordList = list;
+    clearWordsButton.disabled = list === null;
+    listInfo.textContent = list === null ? "None loaded" : `${list.name}: ${entries(list.size)}`;
+    for (const f of found) f.key = null;
+    showEnds();
+  }
+  var makeWordList = (name, words) => ({ name, size: words.length, infos: words.map(entryInfo).filter((i) => i !== null) });
+  var span = (className, text) => {
+    const s = document.createElement("span");
+    s.className = className;
+    s.textContent = text;
+    return s;
+  };
+  function wordSpan(ext, at) {
+    const word = span("word", "");
+    const added = document.createElement("b");
+    added.textContent = ext.added;
+    if (at === "start") word.append(added, ext.matched);
+    else word.append(ext.matched, added);
+    return word;
+  }
+  function showEnds() {
+    endsBox.replaceChildren(...ENDS.map(({ box, at }, i) => {
+      const div = document.createElement("div");
+      div.className = "end";
+      const frag = fragment(boxes[box].value, at);
+      if (wordList === null || frag === null) {
+        div.hidden = true;
+        return div;
+      }
+      const f = found[i];
+      if (f.key !== frag.letters + at) {
+        f.key = frag.letters + at;
+        f.extensions = extensions(wordList.infos, frag.letters, at);
+        f.shown = SHOWN;
+        f.hidden = false;
+      }
+      const caption = document.createElement("div");
+      caption.className = "caption";
+      const name = document.createElement("b");
+      name.textContent = frag.text;
+      if (at === "start") caption.append("\u2026", name);
+      else caption.append(name, "\u2026");
+      caption.append(f.extensions.length === 0 ? ": no entries" : `: ${entries(f.extensions.length)}`);
+      div.append(caption);
+      if (f.extensions.length === 0) return div;
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "toggle";
+      toggle.textContent = f.hidden ? "Show" : "Hide";
+      toggle.title = f.hidden ? "Show these suggestions" : "Hide these suggestions until the word here changes";
+      toggle.addEventListener("click", () => {
+        f.hidden = !f.hidden;
+        showEnds();
+      });
+      caption.append(" ", toggle);
+      if (f.hidden) return div;
+      const outer = box === "left" === (at === "start");
+      const sep = span("sep", outer ? " \u2026 " : " \xB7 ");
+      const ul = document.createElement("ul");
+      for (const ext of f.extensions.slice(0, f.shown)) {
+        const li = document.createElement("li");
+        const mirror = span("mirror", ext.mirror);
+        if (box === "left") li.append(wordSpan(ext, at), sep.cloneNode(true), mirror);
+        else li.append(mirror, sep.cloneNode(true), wordSpan(ext, at));
+        li.title = `Add \u201C${ext.added}\u201D here and \u201C${ext.mirror}\u201D at the other side`;
+        li.addEventListener("mousedown", (e) => e.preventDefault());
+        li.addEventListener("click", () => choose(i, ext));
+        ul.append(li);
+      }
+      div.append(ul);
+      if (f.extensions.length > f.shown) {
+        const more = document.createElement("button");
+        more.type = "button";
+        more.className = "more";
+        more.textContent = "Show more";
+        more.addEventListener("click", () => {
+          f.shown += SHOWN;
+          showEnds();
+        });
+        const line = document.createElement("div");
+        line.className = "more-line";
+        line.append(`${f.shown.toLocaleString()} of ${f.extensions.length.toLocaleString()} listed `, more);
+        div.append(line);
+      }
+      return div;
+    }));
+  }
+  function choose(end, ext) {
+    const { box, at } = ENDS[end];
+    const target = extend(left.value, right.value, end, ext);
+    const own = boxes[box];
+    const other = box === "left" ? right : left;
+    const pos = at === "start" ? 0 : own.value.length;
+    own.focus();
+    own.setSelectionRange(pos, pos);
+    if (!document.execCommand("insertText", false, ext.added) || own.value !== target[box]) own.value = target[box];
+    other.value = target[box === "left" ? "right" : "left"];
+    saveBoxes();
+    showEnds();
+  }
+  document.getElementById("load-words").addEventListener("click", () => document.getElementById("words-file").click());
+  document.getElementById("words-file").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    listInfo.textContent = "Loading\u2026";
+    const contents = await file.text();
+    e.target.value = "";
+    setWordList(makeWordList(file.name, parseWords(contents)));
+    storeWordList({ name: file.name, text: contents });
+  });
+  clearWordsButton.addEventListener("click", () => {
+    setWordList(null);
+    storeWordList(null);
+  });
+  setWordList(null);
+  fetchWordList().then((stored) => {
+    if (stored && wordList === null) setWordList(makeWordList(stored.name, parseWords(stored.text)));
+  });
+})();
 </script>
 </body>
 </html>
