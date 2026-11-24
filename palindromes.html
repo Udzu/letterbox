@@ -118,7 +118,7 @@
     <span id="list-info" class="note"></span>
     <input type="file" id="words-file" accept=".txt,text/plain" hidden>
   </div>
-  <p class="note">Load a text file with one word or phrase per line, or a <a href="wordlists.html">ready-made list</a>, to see ways to extend the words at the start and end of each box, in the list's order. An end that finishes with a space or punctuation is left alone. Click one to add it, and its letters in reverse at the other side. The list is shared with the other pages.</p>
+  <p class="note">Load a text file with one word or phrase per line, or a <a href="wordlists.html">ready-made list</a>, to see ways to extend the words at the start and end of each box, in the list's order. Where both an end and the one its letters go to finish with a space or punctuation, it suggests palindromes and words that reverse into others (live … evil). Click one to add it, and its letters in reverse at the other side. The list is shared with the other pages.</p>
   <div id="ends"></div>
   <div id="attempts-header">
     <h2>Attempts</h2>
@@ -292,6 +292,32 @@
     }
     return out;
   }
+  function endModes(left2, right2) {
+    const frags = ENDS.map(({ box, at }) => fragment(box === "left" ? left2 : right2, at));
+    return ENDS.map((_, i) => {
+      if (frags[i] !== null) return { fragment: frags[i] };
+      if (i > 1 || frags[3 - i] !== null) return null;
+      if (i === 1 && left2 === "" && right2 === "") return null;
+      return { reversible: true };
+    });
+  }
+  function reversibles(infos) {
+    const byLetters = /* @__PURE__ */ new Map();
+    for (const info of infos) {
+      const key = info.letters.join("");
+      if (!byLetters.has(key)) byLetters.set(key, info);
+    }
+    const out = [];
+    for (const info of infos) {
+      const key = info.letters.join("");
+      const reversed = [...info.letters].reverse().join("");
+      const partner = byLetters.get(reversed);
+      if (partner === void 0) continue;
+      const palindrome = key === reversed;
+      out.push({ entry: info.entry, added: info.entry, matched: "", mirror: palindrome ? info.entry : partner.entry, whole: true });
+    }
+    return out;
+  }
   function attach(value, letters2, at) {
     if (value === "") return letters2;
     if (at === "start") {
@@ -305,9 +331,13 @@
     const { box, at } = ENDS[end];
     const own = box === "left" ? left2 : right2;
     const other = box === "left" ? right2 : left2;
-    const grown = at === "start" ? extension.added + own : own + extension.added;
+    let inserted = extension.added;
+    if (extension.whole && own !== "" && !/\s/u.test(at === "start" ? [...own][0] : [...own].at(-1))) {
+      inserted = at === "start" ? inserted + " " : " " + inserted;
+    }
+    const grown = at === "start" ? inserted + own : own + inserted;
     const mirrored = attach(other, extension.mirror, at === "start" ? "end" : "start");
-    return box === "left" ? { left: grown, right: mirrored } : { left: mirrored, right: grown };
+    return box === "left" ? { left: grown, right: mirrored, inserted } : { left: mirrored, right: grown, inserted };
   }
 
   // src/palindromes/page.js
@@ -516,27 +546,38 @@
     return word;
   }
   function showEnds() {
+    const modes = endModes(left.value, right.value);
     endsBox.replaceChildren(...ENDS.map(({ box, at }, i) => {
       const div = document.createElement("div");
       div.className = "end";
-      const frag = fragment(boxes[box].value, at);
-      if (wordList === null || frag === null) {
+      const mode = modes[i];
+      if (wordList === null || mode === null) {
         div.hidden = true;
         return div;
       }
       const f = found[i];
-      if (f.key !== frag.letters + at) {
-        f.key = frag.letters + at;
-        f.extensions = extensions(wordList.infos, frag.letters, at);
+      const key = mode.reversible ? "" : mode.fragment.letters;
+      if (f.key !== key) {
+        f.key = key;
+        if (!mode.reversible) f.extensions = extensions(wordList.infos, mode.fragment.letters, at);
+        else {
+          wordList.reversibles ??= reversibles(wordList.infos);
+          f.extensions = wordList.reversibles;
+        }
         f.shown = SHOWN;
         f.hidden = false;
       }
       const caption = document.createElement("div");
       caption.className = "caption";
-      const name = document.createElement("b");
-      name.textContent = frag.text;
-      if (at === "start") caption.append("\u2026", name);
-      else caption.append(name, "\u2026");
+      if (mode.reversible) {
+        caption.append("Palindromes and reversals");
+        caption.title = "Entries whose letters reversed are also an entry, to add as whole words here and, reversed, at the other side";
+      } else {
+        const name = document.createElement("b");
+        name.textContent = mode.fragment.text;
+        if (at === "start") caption.append("\u2026", name);
+        else caption.append(name, "\u2026");
+      }
       caption.append(f.extensions.length === 0 ? ": no entries" : `: ${entries(f.extensions.length)}`);
       div.append(caption);
       if (f.extensions.length === 0) return div;
@@ -544,7 +585,7 @@
       toggle.type = "button";
       toggle.className = "toggle";
       toggle.textContent = f.hidden ? "Show" : "Hide";
-      toggle.title = f.hidden ? "Show these suggestions" : "Hide these suggestions until the word here changes";
+      toggle.title = f.hidden ? "Show these suggestions" : mode.reversible ? "Hide these suggestions until the end here is open" : "Hide these suggestions until the word here changes";
       toggle.addEventListener("click", () => {
         f.hidden = !f.hidden;
         showEnds();
@@ -590,7 +631,7 @@
     const pos = at === "start" ? 0 : own.value.length;
     own.focus();
     own.setSelectionRange(pos, pos);
-    if (!document.execCommand("insertText", false, ext.added) || own.value !== target[box]) own.value = target[box];
+    if (!document.execCommand("insertText", false, target.inserted) || own.value !== target[box]) own.value = target[box];
     other.value = target[box === "left" ? "right" : "left"];
     saveBoxes();
     showEnds();
