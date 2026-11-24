@@ -23,8 +23,7 @@
   }
   main { max-width: 900px; margin: 0 auto; }
   .intro { margin: 0 0 24px; color: #666; }
-  .intro:has(~ .help:not([hidden])) { margin-bottom: 8px; }
-  .intro.help { font-size: 0.9rem; }
+  .intro .help { font-size: 0.9rem; }
   .term { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
   .term[aria-expanded="true"] { text-decoration-style: solid; }
   .nowrap { white-space: nowrap; }
@@ -115,9 +114,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <b>Unicode</b> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
 <main>
-  <p class="intro">Find Unicode characters and emoji by name, alias, keyword, <button type="button" class="term" aria-controls="help-codepoint" aria-expanded="false">codepoint</button> or <button type="button" class="term" aria-controls="help-reading" aria-expanded="false">reading</button>, or paste non-ASCII text to see what it's made of. Click a character to copy it, or a name for details (including emoji styles and skin tone combinations). To collect several characters, use + or shift-click them.</p>
-  <p class="intro help" id="help-codepoint" hidden>Look up a codepoint by typing it like U+1F600.</p>
-  <p class="intro help" id="help-reading" hidden>Find CJK ideographs by reading: <span class="nowrap">zh:shui or zh:shui3 (Mandarin)</span>, <span class="nowrap">yue:seoi or yue:seoi2 (Cantonese)</span>, <span class="nowrap">ja:mizu or ja:みず (Japanese)</span>, <span class="nowrap">ko:su or ko:수 (Korean)</span>, <span class="nowrap">vi:thuy (Vietnamese)</span>.</p>
+  <p class="intro">Find Unicode characters and emoji by name, alias, keyword, <button type="button" class="term" aria-controls="help-codepoint" aria-expanded="false">codepoint</button><span class="help" id="help-codepoint" hidden> (e.g. U+1F600)</span> or <button type="button" class="term" aria-controls="help-reading" aria-expanded="false">reading</button><span class="help" id="help-reading" hidden> (<span class="nowrap">zh:shui or zh:shui3 for Mandarin</span>, <span class="nowrap">yue:seoi or yue:seoi2 Cantonese</span>, <span class="nowrap">ja:mizu or ja:みず Japanese</span>, <span class="nowrap">ko:su or ko:수 Korean</span>, <span class="nowrap">vi:thuy Vietnamese</span>)</span>, or paste non-ASCII text to see what it's made of. Click a character to copy it, or a name for details (including emoji styles and skin tone combinations). To collect several characters, use + or shift-click them.</p>
   <input id="query" type="text" placeholder="Name, text or U+codepoint..." autocomplete="off" spellcheck="false" autofocus>
   <div id="filters">
     <select id="category" aria-label="Category"></select>
@@ -336,11 +333,11 @@
     // first, and for each term the more common first (in the language's lists in LANGUAGES, then more
     // frequent in Chinese), then those for which it's an earlier reading, then in codepoint order (which
     // within a block is by radical and strokes).
-    search(lang, terms2) {
+    search(lang, terms) {
       const index = this.index(lang);
       const common = LANGUAGES[lang].common;
       const found2 = /* @__PURE__ */ new Map();
-      for (const [t, term] of terms2.entries()) {
+      for (const [t, term] of terms.entries()) {
         const key2 = KEYS2[lang].term(term);
         if (!key2) continue;
         const [k, check] = key2;
@@ -401,10 +398,10 @@
     if (label.includes(` ${term} `)) return 0;
     return label.includes(` ${term}`) ? 1 : 2;
   }
-  function keywordMatch(keywords, terms2) {
+  function keywordMatch(keywords, terms) {
     const used = [];
     let rank = 0;
-    for (const term of terms2) {
+    for (const term of terms) {
       let best = null;
       for (const k of keywords) {
         if (!k.norm.includes(` ${term}`)) continue;
@@ -540,17 +537,17 @@
       if (direct) return direct.map((entry) => ({ entry, label: null }));
       const norm = normalize(query);
       if (!norm) return this.entries.filter(filter).map((entry) => ({ entry, label: null }));
-      const terms2 = [...new Set(norm.split(" "))];
+      const terms = [...new Set(norm.split(" "))];
       const found2 = [];
       for (const entry of this.entries) {
         let best = null;
         for (const label of entry.labels) {
-          if (!terms2.every((t) => label.norm.includes(t))) continue;
-          const rank = label.norm === ` ${norm} ` ? -1 : Math.max(...terms2.map((t) => termLevel(label.norm, t)));
+          if (!terms.every((t) => label.norm.includes(t))) continue;
+          const rank = label.norm === ` ${norm} ` ? -1 : Math.max(...terms.map((t) => termLevel(label.norm, t)));
           if (!best || rank < best.rank || rank === best.rank && label.kind < best.label.kind) best = { rank, label };
         }
         if (entry.keywords && !(best?.rank <= 0)) {
-          const keywords = keywordMatch(entry.keywords, terms2);
+          const keywords = keywordMatch(entry.keywords, terms);
           if (keywords && !(best?.rank <= keywords.rank)) best = keywords;
         }
         if (best && filter(entry)) found2.push({ entry, label: best.label, rank: best.rank });
@@ -1061,18 +1058,12 @@
     readingsLoad.catch(() => readingsLoad = null);
     return readingsLoad;
   }
-  var terms = [...document.querySelectorAll(".intro .term")];
-  for (const term of terms) {
+  for (const term of document.querySelectorAll(".intro .term")) {
     const help = document.getElementById(term.getAttribute("aria-controls"));
-    term.title = help.textContent;
+    term.title = help.textContent.trim().replace(/^\((?:e\.g\. )?(.*)\)$/, "e.g. $1");
     term.addEventListener("click", () => {
-      const open = help.hidden;
-      for (const other of terms) {
-        other.setAttribute("aria-expanded", "false");
-        document.getElementById(other.getAttribute("aria-controls")).hidden = true;
-      }
-      help.hidden = !open;
-      term.setAttribute("aria-expanded", String(open));
+      help.hidden = !help.hidden;
+      term.setAttribute("aria-expanded", String(!help.hidden));
     });
   }
   document.getElementById("copy").addEventListener("click", async (event) => {
