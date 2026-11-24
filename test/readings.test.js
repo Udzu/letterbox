@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { Readings, jyutping, kana, pinyin, readingQuery, romanize, vietnamese } from "../src/unicode/readings.js";
+import { Readings, jyutping, kana, pinyin, readingQuery, romaji, romanize, vietnamese } from "../src/unicode/readings.js";
 
 const readings = new Readings(readFileSync(new URL("../unicode/readings.txt", import.meta.url), "utf8"));
 const top = (query, n = 1) => {
@@ -76,4 +76,28 @@ test("ideograph details", () => {
   assert.equal(water.radical, "85.0");
   assert.equal(water.strokes, 4);
   assert.equal(readings.get(0x41), null);
+});
+
+test("romaji from kana, spelled as searches take it", () => {
+  assert.equal(romaji("スイ"), "sui");
+  assert.equal(romaji("みず"), "mizu");
+  assert.equal(romaji("がっこう"), "gakkou");
+  assert.equal(romaji("ちょっと"), "chotto");
+  assert.equal(romaji("しんや"), "shin'ya");
+  assert.equal(romaji("ジョウ"), "jou");
+  assert.equal(romaji("まっちゃ"), "matcha");
+  // every Japanese reading converts back to the same kana
+  for (const cp of [0x6c34, 0x98df, 0x5b66, 0x4e00]) {
+    for (const r of readings.get(cp).readings.ja) assert.equal(kana(romaji(r)), kana(r), r);
+  }
+});
+
+test("definitions: whole matches, ignoring a leading to, common characters first", () => {
+  const meanings = (q, n = 1) => readings.define(q).slice(0, n).map(({ cp }) => String.fromCodePoint(cp)).join("");
+  assert.equal(meanings("water"), "水");
+  assert.equal(meanings("fire"), "火");
+  assert.equal(meanings("strike"), "打");
+  assert.equal(meanings("to strike"), "打");
+  assert.equal(meanings("wat"), "");
+  assert.equal(readings.get(0x6c34).definition, "water, liquid, lotion, juice");
 });

@@ -114,7 +114,7 @@
 <body>
 <nav><a href="index.html">Letterbox</a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <b>Unicode</b> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
 <main>
-  <p class="intro">Find Unicode characters and emoji by name, alias, keyword, <button type="button" class="term" aria-controls="help-codepoint" aria-expanded="false">codepoint</button><span class="help" id="help-codepoint" hidden> (e.g. U+1F600)</span> or <button type="button" class="term" aria-controls="help-reading" aria-expanded="false">reading</button><span class="help" id="help-reading" hidden> (<span class="nowrap">zh:shui or zh:shui3 for Mandarin</span>, <span class="nowrap">yue:seoi or yue:seoi2 Cantonese</span>, <span class="nowrap">ja:mizu or ja:みず Japanese</span>, <span class="nowrap">ko:su or ko:수 Korean</span>, <span class="nowrap">vi:thuy Vietnamese</span>)</span>, or paste non-ASCII text to see what it's made of. Click a character to copy it, or a name for details (including emoji styles and skin tone combinations). To collect several characters, use + or shift-click them.</p>
+  <p class="intro">Find Unicode characters and emoji by name, alias, keyword, <button type="button" class="term" aria-controls="help-codepoint" aria-expanded="false">codepoint</button><span class="help" id="help-codepoint" hidden> (e.g. U+1F600)</span>, <button type="button" class="term" aria-controls="help-meaning" aria-expanded="false">meaning</button><span class="help" id="help-meaning" hidden> (of CJK ideographs, e.g. water finds 水)</span> or <button type="button" class="term" aria-controls="help-reading" aria-expanded="false">reading</button><span class="help" id="help-reading" hidden> (e.g. <span class="nowrap">zh:shui or zh:shui3 for Mandarin</span>, <span class="nowrap">yue:seoi or yue:seoi2 Cantonese</span>, <span class="nowrap">ja:mizu or ja:みず Japanese</span>, <span class="nowrap">ko:su or ko:수 Korean</span>, <span class="nowrap">vi:thuy Vietnamese</span>)</span>, or paste non-ASCII text to see what it's made of. Click a character to copy it, or a name for details (including emoji styles and skin tone combinations). To collect several characters, use + or shift-click them.</p>
   <input id="query" type="text" placeholder="Name, text or U+codepoint..." autocomplete="off" spellcheck="false" autofocus>
   <div id="filters">
     <select id="category" aria-label="Category"></select>
@@ -241,6 +241,28 @@
     }
     return out;
   }
+  var ROMAJI = Object.fromEntries(Object.entries(KANA).reverse().map(([r, k]) => [k, r]));
+  Object.assign(ROMAJI, { \u3057: "shi", \u3061: "chi", \u3064: "tsu", \u3075: "fu", \u3058: "ji", \u3041: "a", \u3043: "i", \u3045: "u", \u3047: "e", \u3049: "o" });
+  for (const [r, k] of Object.entries(KANA)) if (k.length === 2 && /^(sh|ch|j)/.test(r)) ROMAJI[k] = r;
+  function romaji(text) {
+    const syllables = [];
+    const k = toHiragana(text);
+    for (let i = 0; i < k.length; i++) {
+      const two = ROMAJI[k.slice(i, i + 2)] && k.slice(i, i + 2);
+      const syllable = two || k[i];
+      if (two) i++;
+      syllables.push(syllable);
+    }
+    let out = "";
+    syllables.forEach((s, i) => {
+      const next = syllables[i + 1] ? ROMAJI[syllables[i + 1]] ?? "" : "";
+      if (s === "\u3063") out += next.startsWith("ch") ? "t" : next[0] ?? "";
+      else if (s === "\u3093") out += /^[aiueoy]/.test(next) ? "n'" : "n";
+      else if (s === "\u30FC") out += out.at(-1) ?? "";
+      else out += ROMAJI[s] ?? s;
+    });
+    return out;
+  }
   var RR_L = ["g", "kk", "n", "d", "tt", "r", "m", "b", "pp", "s", "ss", "", "j", "jj", "ch", "k", "t", "p", "h"];
   var RR_V = ["a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o", "wa", "wae", "oe", "yo", "u", "wo", "we", "wi", "yu", "eu", "ui", "i"];
   var RR_T = ["", "k", "k", "k", "n", "n", "n", "t", "l", "k", "m", "l", "l", "l", "p", "l", "m", "p", "p", "t", "t", "ng", "t", "t", "k", "t", "p", "t"];
@@ -293,6 +315,7 @@
       }
     }
   };
+  var meaningKey = (text) => text.toLowerCase().replace(/[-:,]/g, " ").replace(/\s+/g, " ").trim().replace(/^to /, "");
   var Readings = class {
     constructor(text) {
       this.rows = /* @__PURE__ */ new Map();
@@ -310,8 +333,35 @@
       const fields = this.rows.get(cp);
       if (!fields) return null;
       const readings2 = Object.fromEntries(CODES.map((code, i) => [code, fields[i] ? fields[i].split(" ") : []]));
-      const [radical = "", strokes = "", common = ""] = fields.slice(CODES.length);
-      return { readings: readings2, radical, strokes: Number(strokes) || null, common };
+      const [radical = "", strokes = "", common = "", , definition = ""] = fields.slice(CODES.length);
+      return { readings: readings2, radical, strokes: Number(strokes) || null, common, definition };
+    }
+    // Ideographs with a definition that is exactly this search (normalized as in unicode.js, ignoring a
+    // leading "to", so "strike" finds "to strike"), as {cp, meaning}: the more common first.
+    define(norm) {
+      if (!this.definitions) {
+        this.definitions = /* @__PURE__ */ new Map();
+        for (const [cp, fields] of this.rows) {
+          for (const meaning of (fields[CODES.length + 4] ?? "").split(/[;,]/)) {
+            const key2 = meaningKey(meaning);
+            if (!key2) continue;
+            if (!this.definitions.has(key2)) this.definitions.set(key2, /* @__PURE__ */ new Map());
+            if (!this.definitions.get(key2).has(cp)) this.definitions.get(key2).set(cp, meaning.trim());
+          }
+        }
+      }
+      const found2 = [...this.definitions.get(meaningKey(norm))?.entries() ?? []].map(([cp, meaning]) => ({ cp, meaning }));
+      return found2.sort((a, b) => this.commonness(a.cp, "TIJG") - this.commonness(b.cp, "TIJG") || this.frequency(b.cp) - this.frequency(a.cp) || a.cp - b.cp);
+    }
+    // where an ideograph comes in a list of common-character lists (their letters, best first), or the
+    // list's length if it's in none, and how often it appears in Chinese
+    commonness(cp, lists) {
+      const flags = this.rows.get(cp)[CODES.length + 2] ?? "";
+      const tier = [...lists].findIndex((c) => flags.includes(c));
+      return tier < 0 ? lists.length : tier;
+    }
+    frequency(cp) {
+      return Number(this.rows.get(cp)[CODES.length + 3]) || 0;
     }
     // every reading in a language, by key: {key: [[cp, reading, position], ...]}, made when first needed
     index(lang) {
@@ -343,9 +393,7 @@
         const [k, check] = key2;
         for (const [cp, reading, position] of index.get(k) ?? []) {
           if (found2.has(cp) || !check(reading)) continue;
-          const [, , flags = "", frequency = 0] = this.rows.get(cp).slice(CODES.length);
-          const tier = [...common].findIndex((c) => flags.includes(c));
-          found2.set(cp, { cp, reading, rank: [t, tier < 0 ? common.length : tier, -frequency, position, cp] });
+          found2.set(cp, { cp, reading, rank: [t, this.commonness(cp, common), -this.frequency(cp), position, cp] });
         }
       }
       const compare = (a, b) => a.rank.reduce((d, x, i) => d || x - b.rank[i], 0);
@@ -814,6 +862,7 @@
   function explanation(entry, label) {
     if (!label || label.text === displayName(entry)) return "";
     if (label.kind === READING) return label.text;
+    if (label.kind === MEANING) return `meaning \u201C${label.text}\u201D`;
     if (label.kind === EMOJI) return `emoji name \u201C${label.text}\u201D`;
     if (label.kind === SHORT) return `short name \u201C${label.text}\u201D`;
     if (label.kind === KEYWORDS) return `keywords: ${label.text}`;
@@ -900,9 +949,11 @@
       const ideograph = () => {
         const info = readings?.get(entry.cps[0]);
         if (!info) return;
+        if (info.definition) line("Meaning", info.definition);
+        const romanized = { ja: romaji, ko: romanize };
         for (const [code, { name }] of Object.entries(LANGUAGES)) {
           const list = info.readings[code];
-          if (list.length) line(name, code === "ko" ? list.map((r) => `${r} (${romanize(r)})`).join(", ") : list.join(", "));
+          if (list.length) line(name, list.map((r) => romanized[code] ? `${r} (${romanized[code](r)})` : r).join(", "));
         }
         const radical = /^(\d+)('*)\.(-?\d+)$/.exec(info.radical);
         if (radical) {
@@ -1010,7 +1061,16 @@
         return;
       }
       all = readings.search(reading.lang, reading.terms).map(({ cp, reading: r }) => ({ entry: unicode.entryFor(cp), label: { kind: READING, text: `${name} ${r}` } }));
-    } else all = unicode.search(query);
+    } else {
+      all = unicode.search(query);
+      if (readings && unicode.lookup(query) === null) {
+        const listed = new Set(all.map((r) => r.entry));
+        for (const { cp, meaning } of readings.define(normalize(query))) {
+          const entry = unicode.entryFor(cp);
+          if (!listed.has(entry)) all.push({ entry, label: { kind: MEANING, text: meaning } });
+        }
+      }
+    }
     fillFilters(all.map((r) => r.entry));
     found = all.filter((r) => passes(r.entry));
     if (!query.trim() && (chosen.type === "emoji" || chosen.type.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
@@ -1020,6 +1080,7 @@
     more();
   }
   var READING = "reading";
+  var MEANING = "meaning";
   var READINGS_URL = "unicode/readings.txt";
   var readings = null;
   var readingsLoad = null;
@@ -1060,7 +1121,7 @@
   }
   for (const term of document.querySelectorAll(".intro .term")) {
     const help = document.getElementById(term.getAttribute("aria-controls"));
-    term.title = help.textContent.trim().replace(/^\((?:e\.g\. )?(.*)\)$/, "e.g. $1");
+    term.title = help.textContent.trim().replace(/^\((.*)\)$/, "$1");
     term.addEventListener("click", () => {
       help.hidden = !help.hidden;
       term.setAttribute("aria-expanded", String(!help.hidden));
@@ -1101,7 +1162,9 @@
   for (const select of Object.values(FILTERS)) select.style.width = `${select.offsetWidth}px`;
   showTones();
   show();
-  var prefetch = () => loadReadings().catch(() => {
+  var prefetch = () => loadReadings().then(() => {
+    if (input.value.trim() && !readingQuery(input.value) && readings.define(normalize(input.value)).length) show();
+  }, () => {
   });
   if (navigator.onLine) {
     if (window.requestIdleCallback) requestIdleCallback(prefetch, { timeout: 3e3 });
