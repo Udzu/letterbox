@@ -256,7 +256,7 @@ export class Unicode {
     const code = /^u\+([0-9a-f]{1,6})$/i.exec(text);
     if (code) {
       const cp = parseInt(code[1], 16);
-      return cp <= 0x10ffff ? [this.find([cp]) ?? this.entry(cp)] : [];
+      return cp <= 0x10ffff ? [this.entryFor(cp)] : [];
     }
     if (!/[^\x00-\x7f]/.test(text)) return null;
     const found = [];
@@ -265,7 +265,7 @@ export class Unicode {
       const cps = [...segment].map((c) => c.codePointAt(0));
       const whole = cps.length > 1 && (this.find(cps) ?? this.findToned(cps));
       if (whole) add(whole);
-      else for (const cp of cps) add(this.find([cp]) ?? this.entry(cp));
+      else for (const cp of cps) add(this.entryFor(cp));
     }
     return found;
   }
@@ -283,6 +283,18 @@ export class Unicode {
     const tones = cps.filter((cp) => TONES.includes(cp));
     const entry = this.entries.find((e) => e.emoji?.tones && withTones(e, tones) && key(withTones(e, tones)) === key(cps));
     return entry ? { ...entry, cps } : null;
+  }
+
+  // the entry for a codepoint, searchable or not, with what the filters and details need, kept for reuse
+  entryFor(cp) {
+    const found = this.find([cp]);
+    if (found) return found;
+    this.extra ??= new Map();
+    if (!this.extra.has(cp)) {
+      const entry = this.entry(cp);
+      this.extra.set(cp, { ...entry, labels: [], order: this.entries.length + cp, script: this.script(cp), block: this.block(cp), age: this.age(cp) });
+    }
+    return this.extra.get(cp);
   }
 
   // the variation sequences for a character

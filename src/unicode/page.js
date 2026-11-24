@@ -3,6 +3,7 @@
 
 import DATA from "../../unicode/characters.txt";
 import { attributionParts } from "../wordlists/lists.js";
+import { LANGUAGES, Readings, readingQuery, romanize } from "./readings.js";
 import { ALIAS_TYPES, CATEGORIES, EMOJI, INVISIBLE, KEYWORDS, SHORT, TONES, Unicode, codepoints, displayName, isInvisible, isSequence, withTone, withTones } from "./unicode.js";
 
 const STATE_KEY = "unicode-state";
@@ -186,6 +187,7 @@ function glyph(entry, cps) {
 // what a match on a label other than the name shown means
 function explanation(entry, label) {
   if (!label || label.text === displayName(entry)) return "";
+  if (label.kind === READING) return label.text;
   if (label.kind === EMOJI) return `emoji name “${label.text}”`;
   if (label.kind === SHORT) return `short name “${label.text}”`;
   if (label.kind === KEYWORDS) return `keywords: ${label.text}`;
@@ -250,7 +252,7 @@ function details(entry) {
   line("Script", unicode.scriptNames[entry.script] ?? "Unknown");
   line("Block", entry.block);
   line("Added in", entry.unassigned ? "not assigned" : `Unicode ${entry.age}${entry.emoji ? ` (Emoji ${entry.emoji.version})` : ""}`);
-  if (entry.omit) line("Note", "left out of searches, as its name is just its codepoint");
+  if (entry.omit) line("Note", "left out of name searches, as its name is just its codepoint");
   if (entry.aliases.length) line("Aliases", entry.aliases.map((a) => `${a.alias} (${ALIAS_TYPES[a.type] ?? a.type})`).join(", "));
   if (entry.short) line("Short name", entry.short);
   if (entry.emoji) {
@@ -275,6 +277,24 @@ function details(entry) {
     }
   }
   if (entry.keywords?.length) line("Keywords", entry.keywords.map((k) => k.text).join(", "));
+  if (entry.cps.length === 1 && entry.script === "Hani") {
+    // readings and radical, once the readings are loaded (and not if they can't be)
+    const ideograph = () => {
+      const info = readings?.get(entry.cps[0]);
+      if (!info) return;
+      for (const [code, { name }] of Object.entries(LANGUAGES)) {
+        const list = info.readings[code];
+        if (list.length) line(name, code === "ko" ? list.map((r) => `${r} (${romanize(r)})`).join(", ") : list.join(", "));
+      }
+      const radical = /^(\d+)('*)\.(-?\d+)$/.exec(info.radical);
+      if (radical) {
+        const [, number, simplified, extra] = radical;
+        line("Radical", `${number} ${String.fromCodePoint(0x2f00 + Number(number) - 1)}${simplified ? " (simplified form)" : ""} + ${extra} stroke${extra === "1" ? "" : "s"}${info.strokes ? ` (${info.strokes} in all)` : ""}`);
+      }
+    };
+    if (readings) ideograph();
+    else loadReadings().then(ideograph, () => {});
+  }
   const variants = entry.cps.length === 1 ? unicode.variantsOf(entry.cps[0]) : [];
   if (variants.length) {
     line("Variants", el("span", { className: "choices" }, variants.flatMap((v, i) => [...(i ? [" "] : []), glyphButton(entry, v.cps, v.description), ` ${v.description}`])));
@@ -361,13 +381,27 @@ function show() {
   const active = Object.values(chosen).some(Boolean);
   results.replaceChildren();
   shown = 0;
-  if (!query.trim() && !active) {
+  const clear = (text = "") => {
     found = [];
-    summary.textContent = "";
+    summary.textContent = text;
     fillFilters(null);
-    return;
-  }
-  const all = unicode.search(query);
+  };
+  if (!query.trim() && !active) return clear();
+  const reading = readingQuery(query);
+  let all;
+  if (reading) {
+    const { name } = LANGUAGES[reading.lang];
+    if (!reading.terms.length) return clear(`Type a ${name} reading after the colon.`);
+    if (!readings) {
+      clear("Loading readings…");
+      loadReadings().then(show, () => {
+        if (readingQuery(input.value)) summary.textContent = "Couldn't load the readings. Open this page once while online (in the app, if you've installed it) and they'll be kept for offline use.";
+      });
+      return;
+    }
+    all = readings.search(reading.lang, reading.terms).map(({ cp, reading: r }) =>
+      ({ entry: unicode.entryFor(cp), label: { kind: READING, text: `${name} ${r}` } }));
+  } else all = unicode.search(query);
   fillFilters(all.map((r) => r.entry));
   found = all.filter((r) => passes(r.entry));
   if (!query.trim() && (chosen.type === "emoji" || chosen.type.startsWith("group:"))) found.sort((a, b) => a.entry.emoji.order - b.entry.emoji.order);
@@ -375,6 +409,74 @@ function show() {
   summary.textContent = `${n === 0 ? "No" : n.toLocaleString("en")} result${n === 1 ? "" : "s"}`;
   if (n) summary.append(" ", viewButtons());
   more();
+}
+
+// --- Readings of CJK ideographs: fetched in the background once the page has loaded, or when first
+// needed if that hasn't finished (checking for a newer version each time), and kept in browser
+// storage for offline use
+
+const READING = "reading"; // the kind of label for a reading match
+const READINGS_URL = "unicode/readings.txt";
+let readings = null;
+let readingsLoad = null;
+
+// browser storage can hang (as in some private windows), so give up on it after a while
+const withTimeout = (promise) => Promise.race([promise, new Promise((_, reject) =>
+  setTimeout(() => reject(new Error("browser storage didn't respond")), 2000))]);
+
+function storage(mode, act) {
+  return withTimeout(new Promise((resolve, reject) => {
+    const open = indexedDB.open("unicode", 1);
+    open.onupgradeneeded = () => open.result.createObjectStore("data");
+    open.onerror = () => reject(open.error);
+    open.onsuccess = () => {
+      const request = act(open.result.transaction("data", mode).objectStore("data"));
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    };
+  }));
+}
+
+function loadReadings() {
+  readingsLoad ??= (async () => {
+    let text;
+    try {
+      const response = await fetch(READINGS_URL, { cache: "no-cache" });
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+      text = await response.text();
+      // stored again only if it's changed (by the server's version of it)
+      const version = response.headers.get("ETag") ?? response.headers.get("Last-Modified") ?? "";
+      storage("readonly", (store) => store.get("readings-version")).catch(() => null).then((stored) => {
+        if (version && stored === version) return;
+        storage("readwrite", (store) => store.put(text, "readings"))
+          .then(() => storage("readwrite", (store) => store.put(version, "readings-version"))).catch(() => {});
+      });
+    } catch (e) {
+      text = await storage("readonly", (store) => store.get("readings")).catch(() => null);
+      if (!text) throw e;
+    }
+    readings = new Readings(text);
+  })();
+  // a failed load can be tried again
+  readingsLoad.catch(() => (readingsLoad = null));
+  return readingsLoad;
+}
+
+// --- Help on the intro's terms: a tooltip, and a line below the intro shown on click (or tap)
+
+const terms = [...document.querySelectorAll(".intro .term")];
+for (const term of terms) {
+  const help = document.getElementById(term.getAttribute("aria-controls"));
+  term.title = help.textContent;
+  term.addEventListener("click", () => {
+    const open = help.hidden;
+    for (const other of terms) {
+      other.setAttribute("aria-expanded", "false");
+      document.getElementById(other.getAttribute("aria-controls")).hidden = true;
+    }
+    help.hidden = !open;
+    term.setAttribute("aria-expanded", String(open));
+  });
 }
 
 // --- Tray
@@ -418,5 +520,11 @@ fillFilters(null);
 for (const select of Object.values(FILTERS)) select.style.width = `${select.offsetWidth}px`;
 showTones();
 show();
+// fetch the readings when the browser is idle, so they're kept for offline use
+const prefetch = () => loadReadings().catch(() => {});
+if (navigator.onLine) {
+  if (window.requestIdleCallback) requestIdleCallback(prefetch, { timeout: 3000 });
+  else setTimeout(prefetch, 2000);
+}
 document.getElementById("attribution").replaceChildren(...attributionParts(attribution).map((part) =>
   part.href ? el("a", { href: part.href, textContent: part.text }) : part.text));
