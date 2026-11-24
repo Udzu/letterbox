@@ -77,6 +77,44 @@ export function extensions(infos, letters, at) {
   return out;
 }
 
+// What each end's column shows: { fragment } for an open end, whose word can be extended;
+// { reversible: true } for a closed end whose paired end (the one its added letters are mirrored
+// at: 0 with 3, 1 with 2) is also closed, so whole words can go at both; otherwise null. The
+// words for a pair are only shown under the forwards box, as the backwards box's column would
+// list the same pairs mirrored, and only once while both boxes are empty, as both pairs are
+// then the same place.
+export function endModes(left, right) {
+  const frags = ENDS.map(({ box, at }) => fragment(box === "left" ? left : right, at));
+  return ENDS.map((_, i) => {
+    if (frags[i] !== null) return { fragment: frags[i] };
+    if (i > 1 || frags[3 - i] !== null) return null;
+    if (i === 1 && left === "" && right === "") return null;
+    return { reversible: true };
+  });
+}
+
+// The entries whose letters reversed are also an entry's, to add as whole words at a closed
+// pair of ends, in the list's order: palindromes (madam … madam) and others (live … evil). Each
+// is an extension (see extensions) that adds the whole entry, with the reversed entry as its
+// mirror, and `whole` set.
+export function reversibles(infos) {
+  const byLetters = new Map();
+  for (const info of infos) {
+    const key = info.letters.join("");
+    if (!byLetters.has(key)) byLetters.set(key, info);
+  }
+  const out = [];
+  for (const info of infos) {
+    const key = info.letters.join("");
+    const reversed = [...info.letters].reverse().join("");
+    const partner = byLetters.get(reversed);
+    if (partner === undefined) continue;
+    const palindrome = key === reversed;
+    out.push({ entry: info.entry, added: info.entry, matched: "", mirror: palindrome ? info.entry : partner.entry, whole: true });
+  }
+  return out;
+}
+
 // Put letters at the start or end of a box's text. They join a word there, or follow a space,
 // but are kept apart from punctuation by a space ("Panama!" + "m" → "Panama! m").
 function attach(value, letters, at) {
@@ -90,12 +128,18 @@ function attach(value, letters, at) {
 }
 
 // What both boxes become when an extension is chosen at an end: the added text goes next to
-// the fragment, and its mirror at the opposite end of the other box. Returns { left, right }.
+// the fragment, and its mirror at the opposite end of the other box; a whole word is kept
+// apart from the box's text by a space. Returns { left, right, inserted }, where inserted is
+// what was added to the end's own box.
 export function extend(left, right, end, extension) {
   const { box, at } = ENDS[end];
   const own = box === "left" ? left : right;
   const other = box === "left" ? right : left;
-  const grown = at === "start" ? extension.added + own : own + extension.added;
+  let inserted = extension.added;
+  if (extension.whole && own !== "" && !/\s/u.test(at === "start" ? [...own][0] : [...own].at(-1))) {
+    inserted = at === "start" ? inserted + " " : " " + inserted;
+  }
+  const grown = at === "start" ? inserted + own : own + inserted;
   const mirrored = attach(other, extension.mirror, at === "start" ? "end" : "start");
-  return box === "left" ? { left: grown, right: mirrored } : { left: mirrored, right: grown };
+  return box === "left" ? { left: grown, right: mirrored, inserted } : { left: mirrored, right: grown, inserted };
 }

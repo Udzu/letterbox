@@ -2,7 +2,7 @@
 // ends of the boxes from the shared word list, and a list of attempts.
 
 import { parseWords } from "../patterns/wordlist.js";
-import { ENDS, entryInfo, extend, extensions, fragment } from "./ends.js";
+import { ENDS, endModes, entryInfo, extend, extensions, reversibles } from "./ends.js";
 
 const STORAGE_KEY = "palindrome-attempts";
 const BOXES_KEY = "palindrome-boxes";
@@ -237,27 +237,39 @@ function wordSpan(ext, at) {
 // there, in the list's order. Each shows, in palindrome order, the new word and the letters
 // added at the other side: "…" between them for the outer ends and "·" for the middle.
 function showEnds() {
+  const modes = endModes(left.value, right.value);
   endsBox.replaceChildren(...ENDS.map(({ box, at }, i) => {
     const div = document.createElement("div");
     div.className = "end";
-    const frag = fragment(boxes[box].value, at);
-    if (wordList === null || frag === null) {
+    const mode = modes[i];
+    if (wordList === null || mode === null) {
       div.hidden = true;
       return div;
     }
     const f = found[i];
-    if (f.key !== frag.letters + at) {
-      f.key = frag.letters + at;
-      f.extensions = extensions(wordList.infos, frag.letters, at);
+    // a closed end's words are the same wherever it is, so they stay hidden until it opens
+    const key = mode.reversible ? "" : mode.fragment.letters;
+    if (f.key !== key) {
+      f.key = key;
+      if (!mode.reversible) f.extensions = extensions(wordList.infos, mode.fragment.letters, at);
+      else {
+        wordList.reversibles ??= reversibles(wordList.infos);
+        f.extensions = wordList.reversibles;
+      }
       f.shown = SHOWN;
       f.hidden = false;
     }
     const caption = document.createElement("div");
     caption.className = "caption";
-    const name = document.createElement("b");
-    name.textContent = frag.text;
-    if (at === "start") caption.append("…", name);
-    else caption.append(name, "…");
+    if (mode.reversible) {
+      caption.append("Palindromes and reversals");
+      caption.title = "Entries whose letters reversed are also an entry, to add as whole words here and, reversed, at the other side";
+    } else {
+      const name = document.createElement("b");
+      name.textContent = mode.fragment.text;
+      if (at === "start") caption.append("…", name);
+      else caption.append(name, "…");
+    }
     caption.append(f.extensions.length === 0 ? ": no entries" : `: ${entries(f.extensions.length)}`);
     div.append(caption);
     if (f.extensions.length === 0) return div;
@@ -265,7 +277,7 @@ function showEnds() {
     toggle.type = "button";
     toggle.className = "toggle";
     toggle.textContent = f.hidden ? "Show" : "Hide";
-    toggle.title = f.hidden ? "Show these suggestions" : "Hide these suggestions until the word here changes";
+    toggle.title = f.hidden ? "Show these suggestions" : mode.reversible ? "Hide these suggestions until the end here is open" : "Hide these suggestions until the word here changes";
     toggle.addEventListener("click", () => {
       f.hidden = !f.hidden;
       showEnds();
@@ -318,7 +330,7 @@ function choose(end, ext) {
   own.focus();
   own.setSelectionRange(pos, pos);
   // the input event this fires mirrors the letters, which are then spaced
-  if (!document.execCommand("insertText", false, ext.added) || own.value !== target[box]) own.value = target[box];
+  if (!document.execCommand("insertText", false, target.inserted) || own.value !== target[box]) own.value = target[box];
   other.value = target[box === "left" ? "right" : "left"];
   saveBoxes();
   showEnds();
