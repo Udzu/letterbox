@@ -467,7 +467,11 @@ function endGame(how) {
   });
   const best = `<span class="ladder">${escapeHtml(ladderText(g.best))}</span>`;
   if (how === "win") {
-    const note = steps < par ? `, even shorter than the ${par} expected: ${best}` : steps === par ? ", the shortest way!" : `. The shortest takes ${par}: ${best}`;
+    // a shortest ladder through words not in the @ list still shows the intended one
+    const offList = g.rows.some((w) => !g.words.pool.has(w));
+    const note = steps < par ? `, even shorter than the ${par} expected: ${best}`
+      : steps === par ? `, the shortest way!${offList ? ` My answer was: ${best}` : ""}`
+      : `. The shortest takes ${par}: ${best}`;
     const hints = g.hints ? ` (with ${hintCount(g.hints)})` : "";
     setMessage(`Solved in ${count(steps, "step")}${hints}${note}`, "win", true);
   } else {
