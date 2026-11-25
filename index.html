@@ -41,7 +41,7 @@
   #install .text { flex: 1; min-width: 12em; }
   #install button { font: inherit; cursor: pointer; }
   #install .dismiss { border: none; background: none; color: #888; font-size: 1.2rem; line-height: 1; padding: 0 2px; }
-  /* a grid of boxes, each box a link (the word pages, then the others in another colour): up to 3 columns on desktop, compact pairs on phones */
+  /* a grid of boxes, each box a link (the word pages, then the other tools and then the collections, each in another colour): up to 3 columns on desktop, compact pairs on phones */
   .grid {
     list-style: none;
     margin: 0;
@@ -62,16 +62,19 @@
     text-decoration: none;
   }
   .other a { background: #fbf3e6; border-color: #ecdcbf; }
+  .collection a { background: #ebf6ed; border-color: #c6e2cc; }
   .grid a:hover, .grid a:focus-visible { border-color: #06c; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
   .grid a:focus-visible { outline: 2px solid #06c; outline-offset: 1px; }
   .grid .name { display: block; font-size: 1.2rem; font-weight: 600; color: #06c; }
   .grid .game .name::before { content: "🧩 "; }
+  .grid .music .name::before { content: "🎶 "; }
   .grid .description { display: block; margin-top: 4px; }
   /* in the installed app, a toggle on each box for the page the app opens on (see the script below) */
   .grid li { position: relative; }
   .app .grid .name { padding-right: 28px; }
   .grid .home { position: absolute; top: 6px; right: 6px; width: 36px; height: 36px; padding: 0; border: none; border-radius: 6px; background: none; color: #9db4cf; cursor: pointer; }
   .other .home { color: #cfb88f; }
+  .collection .home { color: #94c4a0; }
   .grid .home:hover, .grid .home:focus-visible { color: #06c; }
   .grid .home[aria-pressed="true"] { color: #06c; }
   .grid .home svg { display: block; margin: auto; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
@@ -94,7 +97,7 @@
 </style>
 </head>
 <body>
-<nav><b>Letterbox</b> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a></nav>
+<nav><b>Letterbox</b> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="lingtape.html">Lingtape</a></nav>
 <main>
   <p class="intro">Letterbox: simple offline tools.<span class="narrow"> Rotate your phone or widen the window to see what each tool does.</span></p>
   <div id="install" hidden>
@@ -158,6 +161,10 @@
     <li class="other"><a href="numbers.html" class="game" title="A puzzle game">
       <span class="name">Numbers</span>
       <span class="description">Make a target from given numbers, as in Countdown or the four fours puzzle.</span>
+    </a></li>
+    <li class="collection"><a href="lingtape.html" class="music" title="A playlist">
+      <span class="name">Lingtape</span>
+      <span class="description">Explore a playlist of songs in 365 languages by map, continent and language family.</span>
     </a></li>
   </ul>
 </main>
