@@ -35,7 +35,7 @@ const MATCH_CHUNK = 5000; // words checked between pauses that keep the page res
 const SHOWN_MATCHES = 1000;
 const MAX_MATCH_COLUMN = 32; // characters, before a long match wraps
 const LARGE_WORD_LIST = 20000; // above this, patterns using @ take a second or more
-const DEFAULTS = { pattern: ".*(hey+|hi+).*", tests: "heyyy there\noh hiii\nhello\nhe yelled", view: "epsfree", caseless: false, accentless: false };
+const DEFAULTS = { pattern: ".*(coo+l|cu+te).*", tests: "so cooool\ncuuute!\ncold\ncut", view: "epsfree", caseless: false, accentless: false };
 
 const $ = (id) => document.getElementById(id);
 const patternInput = $("pattern");
