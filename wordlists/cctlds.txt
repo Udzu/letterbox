@@ -1,5 +1,5 @@
 # name: Country code TLDs
-# description: Country code top-level domains in use, without the dot: Latin ones, then internationalised ones.
+# description: Country code top-level domains in use, without the dot: Latin-script ones, then internationalised ones.
 # tag: geography
 # attribution: From IANA's [root zone database](https://www.iana.org/domains/root/db), November 2026.
 

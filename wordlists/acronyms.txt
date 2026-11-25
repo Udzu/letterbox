@@ -1,5 +1,5 @@
 # name: English acronyms
-# description: Common acronyms and initialisms such as ASAP, DIY and TV, then internet slang and some well-known names.
+# description: Common acronyms and initialisms such as ASAP, DIY and TV, then internet slang and names such as NASA, NYC and JFK.
 # tag: general
 
 # ============================================================
