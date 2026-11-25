@@ -1,5 +1,5 @@
 # name: Units of measurement
-# description: SI, metric, imperial, US and historical units, with SI prefixes and words for counting.
+# description: SI, metric, imperial, US and historical units, with SI prefixes.
 # tag: science & academia
 
 # =============================
@@ -264,20 +264,9 @@ tun
 verst
 virgate
 
-# =================================
-# Counting, printing and paper
-# =================================
-
-baker's dozen
-brace
-crore
-dozen
-great gross
-gross
-lakh
-myriad
-pair
-score
+# ==================
+# Printing and paper
+# ==================
 
 agate
 cicero

@@ -1,5 +1,5 @@
 # name: Unit symbols
-# description: Symbols and abbreviations for units of measurement such as kg, °C and mph, each written once.
+# description: Symbols and abbreviations for units of measurement such as kg, °C and mph.
 # tag: science & academia
 
 # =============================
