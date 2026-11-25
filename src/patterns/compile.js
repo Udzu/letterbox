@@ -14,7 +14,8 @@
 //            rotation that changes where the string starts (see rotate.js)
 //   (?tn:A)  A with two characters n apart swapped, so (?t1:A) swaps adjacent ones; (?t:A)
 //            swaps any two (see transpose.js)
-//   (?a:A)   anagrams of strings in A, which must be finite (see anagram.js)
+//   (?a:A)   anagrams of strings in A, which must be finite (see anagram.js); (?a<:A) is
+//            sub-anagrams, the anagrams of A-^.*
 //   (?[m:n:s]:A)  slices of strings in A, as in Python but strict: a string too short for
 //            the slice gives nothing (see sliceError in parser.js)
 //   (?z:A/B/C)  A with one substring matching B replaced by one matching C; (?Z:A/B/C)
@@ -259,7 +260,7 @@ function modifier(b, node, from, options) {
       return embed(b, weave(removeEpsilons(compile(node.node, options)), removeEpsilons(gaps), splitDfa(SPLITS["^"])), from);
     }
     case "a": {
-      const anagrams = anagram(compile(node.node, options));
+      const anagrams = anagram(compile(node.node, options), count === "<");
       if (!anagrams) throw new PatternError("Anagrams need a pattern with finitely many strings", ...node.span);
       return embed(b, anagrams, from);
     }

@@ -200,7 +200,7 @@ function modifier(ctx, node, cells, fold) {
       break;
     }
     case "a":
-      return sub(anagramSearch(ctx, inner, cells, fold));
+      return sub(anagramSearch(ctx, inner, cells, fold, node.count === "<"));
     case "X": {
       // only the letters (and whatever else A matched) are shown, not the gaps
       const split = splitAutomaton(ctx, SPLITS["^"]);
@@ -218,8 +218,10 @@ function reorder(cells, moved) {
 
 // (?a:A): an order of the cells that A matches, found by choosing one character at a time.
 // Cells with the same character are interchangeable, so the search tracks how many of each
-// are left, and the cells are then used in their original order.
-function anagramSearch(ctx, node, cells, fold) {
+// are left, and the cells are then used in their original order. For (?a<:A), `sub`, the
+// order can also include characters that aren't in the string (as few as possible), which
+// become synthetic cells.
+function anagramSearch(ctx, node, cells, fold, sub = false) {
   const dfa = automaton(ctx, node, fold);
   const chars = [...new Set(cells.map((c) => c.ch))];
   const left = chars.map((ch) => cells.filter((c) => c.ch === ch).length);
@@ -227,16 +229,27 @@ function anagramSearch(ctx, node, cells, fold) {
     ctx,
     [dfa.start, ...left],
     (state) => state.join(","),
-    ([d, ...counts]) => chars.flatMap((ch, i) => {
-      if (counts[i] === 0) return [];
-      const next = dfa.step(d, ch);
-      return next === dfa.dead ? [] : [[ch, [next, ...counts.map((n, j) => (j === i ? n - 1 : n))]]];
-    }),
+    ([d, ...counts]) => {
+      const out = chars.flatMap((ch, i) => {
+        if (counts[i] === 0) return [];
+        const next = dfa.step(d, ch);
+        return next === dfa.dead ? [] : [[{ ch, extra: false }, [next, ...counts.map((n, j) => (j === i ? n - 1 : n))]]];
+      });
+      if (sub) {
+        for (const ch of sharedChars(ctx, dfa, d, null, 0)) {
+          const next = dfa.step(d, ch);
+          if (next !== dfa.dead) out.push([{ ch, extra: true }, [next, ...counts]]);
+        }
+      }
+      return out;
+    },
     ([d, ...counts]) => counts.every((n) => n === 0) && dfa.accepts(d),
   );
   if (!path) throw new Error("No anagram found");
-  const unused = new Map(chars.map((ch) => [ch, cells.filter((c) => c.ch === ch)]));
-  return reorder(cells, path.map((ch) => unused.get(ch).shift()));
+  // the string's columns are filled in order, with extra characters in new columns between
+  let i = 0;
+  let prev = null;
+  return path.map(({ ch, extra }) => (prev = extra ? synthetic(ctx, ch, prev, cells[i]) : { col: cells[i++].col, ch }));
 }
 
 // Divide cells between concatenated items, giving each item as much as possible in turn.

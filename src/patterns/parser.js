@@ -82,7 +82,7 @@ export const MODIFIERS = {
   r: { count: "none" }, //     reversed
   c: { count: "optional" }, // cipher shift: (?c3:A) by 3 letters, (?c:A) by any of 1-25, (?c-:A) Atbash
   R: { count: "optional" }, // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
-  a: { count: "none" }, //     anagrams (of a finite pattern)
+  a: { count: "none" }, //     anagrams (of a finite pattern); (?a<:A) sub-anagrams
   X: { count: "none" }, //     crossword: (?X:A) is A with any non-letters anywhere, A^\P{L}*
   t: { count: "optional" }, // transposition: (?t1:A) swaps two adjacent characters, (?t:A) any two
   z: { count: "none", parts: 3 }, // replacement: (?z:A/B/C) is A with a B replaced by a C
@@ -483,6 +483,9 @@ class Parser {
     if (flag === "c" && this.peek() === "-" && this.src[this.pos + 1] === ":") {
       this.next(); // (?c-:...) is Atbash, which has "-" as its count
       count = "-";
+    } else if (flag === "a" && this.peek() === "<" && this.src[this.pos + 1] === ":") {
+      this.next(); // (?a<:...) is sub-anagrams, which has "<" as its count
+      count = "<";
     } else if (/[-0-9]/.test(this.peek() ?? "")) {
       const countStart = this.pos;
       if (MODIFIERS[flag].count === "none") {

@@ -137,6 +137,7 @@ const PARSES = [
   ["(?c0:a)", "(?c0 a)"],
   ["(?c:a)", "(?c a)"],
   ["(?c-:a)", "(?c- a)"],
+  ["(?a<:ab)", "(?a< (concat a b))"],
   ["(?R2:abc)", "(?R2 (concat a b c))"],
   ["(?R-2:abc)", "(?R-2 (concat a b c))"],
   ["(?R:abc)", "(?R (concat a b c))"],
