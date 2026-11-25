@@ -122,13 +122,13 @@
   const MAX_SHOWN = 10;
   // fixed-length units, in milliseconds, with their kind for the Show: filter: long units are
   // Earth units of a month or more (also years, months, Islamic and Hebrew years), short units
-  // Earth units under a month, and astronomical units those of other planets
+  // Earth units under a month (scored one less), and astronomical units those of other planets
   const FIXED_UNITS = [
-    { name: "week", score: 1, ms: 7 * DAY, kind: "short" },
-    { name: "day", score: 1, ms: DAY, kind: "short" },
-    { name: "hour", score: 1, ms: 3600000, kind: "short" },
-    { name: "minute", score: 1, ms: 60000, kind: "short" },
-    { name: "second", score: 1, ms: 1000, kind: "short" },
+    { name: "week", score: 0, ms: 7 * DAY, kind: "short" },
+    { name: "day", score: 0, ms: DAY, kind: "short" },
+    { name: "hour", score: 0, ms: 3600000, kind: "short" },
+    { name: "minute", score: 0, ms: 60000, kind: "short" },
+    { name: "second", score: 0, ms: 1000, kind: "short" },
     // sidereal orbital periods, in days
     { name: "Mercury year", score: 1, ms: 87.969 * DAY, kind: "astronomical" },
     { name: "Venus year", score: 1, ms: 224.701 * DAY, kind: "astronomical" },
@@ -278,7 +278,8 @@
     const results = [];
     const add = (unit, count, unitScore, ms) => {
       const info = countInfo(count);
-      if (info !== null) results.push({ unit, count, label: info.label, score: unitScore + info.score, ms });
+      // anniversaries scoring 0 or less aren't shown
+      if (info !== null && unitScore + info.score > 0) results.push({ unit, count, label: info.label, score: unitScore + info.score, ms });
     };
     const from = utc(year, month, 1), to = utc(year, month + 1, 1);
 
