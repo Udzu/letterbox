@@ -98,6 +98,7 @@ test("modifiers and names", () => {
   assert.deepEqual(rows("(?X:@)", "c-a t"), ["c-a t (?X:@)", "c a t   @"]);
   // "tc" is "cat" without the a, rearranged
   assert.deepEqual(rows("(?a:@-^.*)", "tc"), ["t[a]c (?a:@-^.*)", "c   t   @-^.*", "c a t     @", "  a       .*"]);
+  assert.deepEqual(rows("(?a<:@)", "tc"), ["t[a]c (?a<:@)", "c a t   @"]);
   assert.deepEqual(rows("(?<v>ca)(?&v)t", "cacat"), ["cacat (?<v>ca)(?&v)t", "ca      (?<v>ca)", "  ca    (?&v)"]);
   assert.deepEqual(rows("(?i:CAT)", "cat"), ["cat (?i:CAT)"]);
   assert.deepEqual(rows("!a", "bb"), ["bb !a"]);

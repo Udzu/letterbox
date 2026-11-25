@@ -16,8 +16,10 @@
 import { partition } from "./charset.js";
 import { Builder, TooManyStatesError, removeEpsilons } from "./nfa.js";
 
-// Returns the anagrams' DFA, or null if A is infinite.
-export function anagram(a) {
+// Returns the anagrams' DFA, or null if A is infinite. With `sub`, it's the sub-anagrams'
+// (the anagrams of A-^.*): those are exactly the counts within some target's, so every
+// state accepts.
+export function anagram(a, sub = false) {
   const g = removeEpsilons(a); // also trimmed, so any cycle is on an accepting path
   if (hasCycle(g)) return null;
   const labels = [...new Set(g.edges.flat().map((e) => e.label))];
@@ -80,7 +82,7 @@ export function anagram(a) {
     });
   });
   const zero = states.get(key(groups.map(() => 0)));
-  return b.build(zero, [...targets.keys()].map((k) => states.get(k)));
+  return b.build(zero, sub ? list.map((_, id) => id) : [...targets.keys()].map((k) => states.get(k)));
 }
 
 function hasCycle(g) {

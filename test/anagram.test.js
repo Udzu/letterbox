@@ -40,6 +40,12 @@ test("sub-anagrams and other idioms", () => {
   const sub = compile("(?a:listen-^.*)");
   for (const s of ["", "list", "silent", "nest", "tin"]) assert.ok(matches(sub, s), s);
   for (const s of ["lists", "tent", "silents"]) assert.ok(!matches(sub, s), s);
+  const short = compile("(?a<:listen)");
+  for (const s of ["", "list", "silent", "nest", "tin"]) assert.ok(matches(short, s), s);
+  for (const s of ["lists", "tent", "silents"]) assert.ok(!matches(short, s), s);
+  assert.ok(matches(compile("(?a<:ab|ccc)"), "cc"));
+  assert.ok(!matches(compile("(?a<:ab|ccc)"), "ac"));
+  assert.throws(() => compile("(?a<:a*)"), PatternError);
   const containing = compile("(?a:cat)^.*");
   for (const s of ["tack", "attic", "cat"]) assert.ok(matches(containing, s), s);
   for (const s of ["tick", "ca"]) assert.ok(!matches(containing, s), s);

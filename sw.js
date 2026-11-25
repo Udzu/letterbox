@@ -11,7 +11,7 @@ const FILES = {
   "numbers.html": "47df8a17649d",
   "palindromes.html": "aabc1005c295",
   "pangrams.html": "881c4ba9170a",
-  "patterns.html": "56782a7ce808",
+  "patterns.html": "f77275dbf259",
   "rhymes.html": "c99d0737f08e",
   "unicode.html": "a8c76202a09b",
   "wordlists.html": "0e2c55f4d0f0",

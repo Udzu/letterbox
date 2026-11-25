@@ -276,7 +276,7 @@
       <tr><td><code>(?r:P)</code></td><td>P reversed (<code>(?r:stop)</code> matches <i>pots</i>)</td></tr>
       <tr><td><code>(?Rn:P)</code> <code>(?R:P)</code></td><td>P rotated n characters right (left if n is negative); by any amount (<code>(?R:cat)</code> matches <i>atc</i> and <i>tca</i>)</td></tr>
       <tr><td><code>(?tn:P)</code> <code>(?t:P)</code></td><td>P with two characters n apart swapped (<code>(?t1:the)</code> matches <i>teh</i> and <i>hte</i>); any two</td></tr>
-      <tr><td><code>(?a:P)</code></td><td>anagrams of P, which must have finitely many strings, since anagrams of infinite ones may not be regular (<code>(?a:listen)</code> matches <i>silent</i>). <code>(?a:P-^.*)</code> gives sub-anagrams</td></tr>
+      <tr><td><code>(?a:P)</code> <code>(?a&lt;:P)</code></td><td>anagrams of P, which must have finitely many strings, since anagrams of infinite ones may not be regular; sub-anagrams (<code>(?a:listen)</code> matches <i>silent</i>, <code>(?a&lt;:listen)</code> matches <i>tile</i>)</td></tr>
       <tr><td><code>(?X:P)</code></td><td>P with non-letters added anywhere, for crossword answers; the same as <code>P^\P{L}*</code> (<code>(?X:a__t)</code> matches <i>abet</i> and <i>a lot</i>)</td></tr>
       <tr><td><code>(?[m:n]:P)</code> <code>(?[m:n:s]:P)</code></td><td>P sliced as in Python: characters m up to but not including n, counting from 0 (from the end if negative); every s-th one. Too-short strings are skipped (<code>(?[1:-1]:spam)</code> matches <i>pa</i>)</td></tr>
       <tr><td><code>(?z:P/Q/R)</code> <code>(?Z:P/Q/R)</code></td><td>P with a Q replaced by an R; but not at either end (<code>(?z:London/o/u)</code> matches <i>Lundon</i>). To replace at the end or start, write <code>(P-Q)R</code> or <code>R(P~-Q)</code></td></tr>
@@ -4546,7 +4546,7 @@
     R: { count: "optional" },
     // rotation: (?R2:A) right by 2, (?R-2:A) left, (?R:A) any
     a: { count: "none" },
-    //     anagrams (of a finite pattern)
+    //     anagrams (of a finite pattern); (?a<:A) sub-anagrams
     X: { count: "none" },
     //     crossword: (?X:A) is A with any non-letters anywhere, A^\P{L}*
     t: { count: "optional" },
@@ -4915,6 +4915,9 @@
       if (flag === "c" && this.peek() === "-" && this.src[this.pos + 1] === ":") {
         this.next();
         count2 = "-";
+      } else if (flag === "a" && this.peek() === "<" && this.src[this.pos + 1] === ":") {
+        this.next();
+        count2 = "<";
       } else if (/[-0-9]/.test(this.peek() ?? "")) {
         const countStart = this.pos;
         if (MODIFIERS[flag].count === "none") {
@@ -5189,7 +5192,7 @@
   }
 
   // src/patterns/anagram.js
-  function anagram(a) {
+  function anagram(a, sub = false) {
     const g = removeEpsilons(a);
     if (hasCycle(g)) return null;
     const labels = [...new Set(g.edges.flat().map((e) => e.label))];
@@ -5246,7 +5249,7 @@
       });
     });
     const zero = states.get(key(groups.map(() => 0)));
-    return b.build(zero, [...targets.keys()].map((k) => states.get(k)));
+    return b.build(zero, sub ? list.map((_, id) => id) : [...targets.keys()].map((k) => states.get(k)));
   }
   function hasCycle(g) {
     const mark2 = new Uint8Array(g.size);
@@ -5794,7 +5797,7 @@
         return embed(b, weave(removeEpsilons(compile(node2.node, options)), removeEpsilons(gaps), splitDfa(SPLITS["^"])), from);
       }
       case "a": {
-        const anagrams = anagram(compile(node2.node, options));
+        const anagrams = anagram(compile(node2.node, options), count2 === "<");
         if (!anagrams) throw new PatternError("Anagrams need a pattern with finitely many strings", ...node2.span);
         return embed(b, anagrams, from);
       }
@@ -6023,7 +6026,7 @@
         break;
       }
       case "a":
-        return sub(anagramSearch(ctx, inner, cells, fold));
+        return sub(anagramSearch(ctx, inner, cells, fold, node2.count === "<"));
       case "X": {
         const split = splitAutomaton(ctx, SPLITS["^"]);
         return sub(weaveSearch(ctx, split, { left: inner, right: NON_LETTERS }, cells, fold)[0]);
@@ -6034,7 +6037,7 @@
   function reorder(cells, moved) {
     return cells.map(({ col }, i) => ({ col, ch: moved[i].ch }));
   }
-  function anagramSearch(ctx, node2, cells, fold) {
+  function anagramSearch(ctx, node2, cells, fold, sub = false) {
     const dfa = automaton(ctx, node2, fold);
     const chars = [...new Set(cells.map((c) => c.ch))];
     const left = chars.map((ch) => cells.filter((c) => c.ch === ch).length);
@@ -6042,16 +6045,26 @@
       ctx,
       [dfa.start, ...left],
       (state) => state.join(","),
-      ([d, ...counts]) => chars.flatMap((ch, i) => {
-        if (counts[i] === 0) return [];
-        const next = dfa.step(d, ch);
-        return next === dfa.dead ? [] : [[ch, [next, ...counts.map((n, j) => j === i ? n - 1 : n)]]];
-      }),
+      ([d, ...counts]) => {
+        const out = chars.flatMap((ch, i2) => {
+          if (counts[i2] === 0) return [];
+          const next = dfa.step(d, ch);
+          return next === dfa.dead ? [] : [[{ ch, extra: false }, [next, ...counts.map((n, j) => j === i2 ? n - 1 : n)]]];
+        });
+        if (sub) {
+          for (const ch of sharedChars(ctx, dfa, d, null, 0)) {
+            const next = dfa.step(d, ch);
+            if (next !== dfa.dead) out.push([{ ch, extra: true }, [next, ...counts]]);
+          }
+        }
+        return out;
+      },
       ([d, ...counts]) => counts.every((n) => n === 0) && dfa.accepts(d)
     );
     if (!path) throw new Error("No anagram found");
-    const unused = new Map(chars.map((ch) => [ch, cells.filter((c) => c.ch === ch)]));
-    return reorder(cells, path.map((ch) => unused.get(ch).shift()));
+    let i = 0;
+    let prev = null;
+    return path.map(({ ch, extra }) => prev = extra ? synthetic(ctx, ch, prev, cells[i]) : { col: cells[i++].col, ch });
   }
   function splitConcat(ctx, items, cells, fold) {
     const n = cells.length;
