@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { counts, decade, filterSongs, fromHash, parseWriters, toHash } from "../src/chrismukkah/filter.js";
+import { counts, decade, filterSongs, fromHash, parseWriters, toHash, yearText } from "../src/chrismukkah/filter.js";
 
 const SONGS = [
   { year: 1855, language: "English", song: "Hark! The Herald Angels Sing", artist: "Frank Sinatra", nationality: "German", mixed: true, writers: ["Felix Mendelssohn"], note: null, video: "a" },
@@ -10,7 +10,7 @@ const SONGS = [
   { year: 1960, language: "French", song: "Noël, c'est l'amour", artist: "Tino Rossi", nationality: "French", mixed: false, writers: ["Norbert Glanzberg"], note: null, video: "d" },
   { year: 2014, language: "English", song: "Cozy Little Christmas", artist: "Katy Perry", nationality: "American", mixed: true, writers: ["Greg Kurstin", "Jack Antonoff"], note: "(& St Vincent is ~20% Jewish)", video: "e" },
 ];
-const none = { language: null, nationality: null, decade: null, year: null, team: null, writer: null, q: null };
+const none = { list: null, language: null, nationality: null, decade: null, year: null, team: null, writer: null, q: null };
 const names = (selection) => filterSongs(SONGS, { ...none, ...selection }).map((s) => s.song);
 
 test("decades, with the songs before 1900 together", () => {
@@ -61,9 +61,10 @@ test("the selection round-trips through the URL hash", () => {
 
 test("the data has a YouTube video for each song, and flags for the languages and nationalities", () => {
   const data = JSON.parse(readFileSync(new URL("../src/chrismukkah/data.json", import.meta.url)));
-  for (const song of data.songs) {
+  assert.ok(data.christmas.length > 500 && data.hanukkah.length > 20);
+  for (const song of [...data.christmas, ...data.hanukkah]) {
     assert.match(song.video, /^[\w-]{11}$/, song.song);
-    assert.ok(song.writers.length > 0, song.song);
+    assert.ok(song.writers.length > 0 || song.note, song.song);
     assert.ok(song.language === "English" || data.flags[song.language], song.language);
     assert.ok(data.flags[song.nationality], song.nationality);
   }
@@ -76,4 +77,22 @@ test("a year narrows its decade, and needs it", () => {
   assert.deepEqual(fromHash("#decade=1940s&year=1945"), { ...none, decade: "1940s", year: "1945" });
   assert.deepEqual(fromHash("#year=1945"), none);
   assert.deepEqual(fromHash("#decade=1950s&year=1945"), { ...none, decade: "1950s" });
+});
+
+test("the Hanukkah list has its own hash and songwriter teams", () => {
+  const hanukkah = { ...none, list: "hanukkah" };
+  assert.equal(toHash(hanukkah), "#hanukkah");
+  assert.deepEqual(fromHash("#hanukkah"), hanukkah);
+  const selection = { ...hanukkah, decade: "1940s", team: "gentile" };
+  assert.equal(toHash(selection), "#hanukkah&decade=1940s&team=gentile");
+  assert.deepEqual(fromHash(toHash(selection)), selection);
+  assert.deepEqual(fromHash("#team=gentile"), none);
+  assert.deepEqual(fromHash("#hanukkah&team=jewish"), hanukkah);
+  assert.deepEqual(counts(SONGS, hanukkah, "team"), new Map([["mixed", 2], ["gentile", 3]]));
+  assert.deepEqual(filterSongs(SONGS, { ...hanukkah, team: "gentile" }).length, 3);
+});
+
+test("approximate years are shown with a ~", () => {
+  assert.equal(yearText({ year: 1450, approx: true }), "~1450");
+  assert.equal(yearText({ year: 1942 }), "1942");
 });
