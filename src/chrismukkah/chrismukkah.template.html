@@ -67,6 +67,11 @@
     #filters > label, #filters > .label { margin-top: 6px; }
   }
 
+  /* the tabs for the Christmas and Hanukkah lists */
+  #tabs { display: flex; gap: 6px; border-bottom: 1px solid #ccd; margin-bottom: 12px; }
+  .tab { font: inherit; font-size: 1.05rem; padding: 6px 14px; margin-bottom: -1px; border: 1px solid #ccd; border-radius: 6px 6px 0 0; background: #f4f4f8; color: #333; cursor: pointer; }
+  .tab[aria-selected="true"] { background: #fff; border-bottom-color: #fff; color: #000; font-weight: 600; }
+  .tab .count { color: #888; font-size: 0.85rem; font-weight: normal; }
   /* the results: a header with the count and playlist links, then a grid of song cards */
   #results-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 0; border-top: 1px solid #ccd; scroll-margin-top: 8px; }
   #results-header button { font: inherit; font-size: 0.9rem; cursor: pointer; }
@@ -92,8 +97,10 @@
 <body>
 <nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <b>Chrismukkah</b> · <a href="lingtape.html">Lingtape</a></nav>
 <main>
-  <p class="intro"><b>Jewish Christmas</b>: a playlist of Christmas songs written or co-written by Jewish songwriters. Also on <a href="https://music.apple.com/gb/playlist/jewish-christmas/pl.u-NpXmY44FpZbL4N" target="_blank" rel="noopener">Apple Music</a> and <a href="https://open.spotify.com/playlist/2NRHGd5GWUBaQopJLZOtGr" target="_blank" rel="noopener">Spotify</a>.</p>
-  <p class="intro note">Note that “Christmas song” here is being used in its wider “holiday season” sense: there are also New Year’s and winter songs (but no Hanukkah songs) and most of the songs are, unsurprisingly, secular. Similarly, “Jewish” is being used in its wider ethnic, rather than religious sense, though songwriters with only remote Jewish ancestry like Bob Geldof or George Michael are not included.</p>
+  <div id="tabs" role="tablist" aria-label="Playlist"></div>
+  <p class="intro" data-list="christmas"><b>Jewish Christmas</b>: a playlist of Christmas songs written or co-written by Jewish songwriters. Also on <a href="https://music.apple.com/gb/playlist/jewish-christmas/pl.u-NpXmY44FpZbL4N" target="_blank" rel="noopener">Apple Music</a> and <a href="https://open.spotify.com/playlist/2NRHGd5GWUBaQopJLZOtGr" target="_blank" rel="noopener">Spotify</a>.</p>
+  <p class="intro" data-list="hanukkah" hidden><b>Gentile Hanukkah</b>: a playlist of Hanukkah songs written or co-written by Gentile songwriters. Also on <a href="https://music.apple.com/gb/playlist/gentile-hanukkah/pl.u-xlyNJPXCp0VoJG" target="_blank" rel="noopener">Apple Music</a> and <a href="https://open.spotify.com/playlist/20ZiimdBOnIoi5n1uiqzKO" target="_blank" rel="noopener">Spotify</a>.</p>
+  <p class="intro note" data-list="christmas">Note that “Christmas song” here is being used in its wider “holiday season” sense: there are also New Year’s and winter songs (but no Hanukkah songs) and most of the songs are, unsurprisingly, secular. Similarly, “Jewish” is being used in its wider ethnic, rather than religious sense, though songwriters with only remote Jewish ancestry like Bob Geldof or George Michael are not included.</p>
   <div id="timeline" role="group" aria-label="Songs per decade, by when they were written"></div>
   <div id="decades" aria-hidden="true"></div>
   <p class="note">Songs per decade, by when they were written (or published). Click a decade to choose it (and then a year, if you like).</p>
