@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { counts, filterSongs, fold, fromHash, playlistLinks, toHash } from "../src/lingtape/filter.js";
+import { counts, filterSongs, fold, fromHash, toHash } from "../src/lingtape/filter.js";
+import { playlistLinks } from "../src/shared/songs.js";
 
 const SONGS = [
   { language: "Yiddish", iso: "yid", family: "Indo-European", branch: "Germanic", continent: "EU", country: "USA", song: "A", artist: "X", video: "a" },

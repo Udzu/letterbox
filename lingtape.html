@@ -103,7 +103,7 @@
 </style>
 </head>
 <body>
-<nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <b>Lingtape</b></nav>
+<nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="ladders.html">Ladders</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <b>Lingtape</b> · <a href="jewish-christmas.html">Jewish Christmas</a></nav>
 <main>
   <p class="intro"><b>LINGTAPE</b>: a playlist of mostly indie songs, one in each of 365 languages. Also on <a href="https://music.apple.com/gb/playlist/lingtape/pl.u-KVXBBJWsmgB1L9" target="_blank" rel="noopener">Apple Music</a> (the main list), <a href="https://open.spotify.com/playlist/20DP2gan4uhHMloUGLJO9c" target="_blank" rel="noopener">Spotify</a> and <a href="https://www.youtube.com/playlist?list=PLuKEJmCdy7BWyxpSpLrlnHcYHlN_WGpYc" target="_blank" rel="noopener">YouTube</a>.</p>
   <div id="map-box">
@@ -194,15 +194,6 @@
     for (const key of KEYS) selection2[key] = params.get(key) || null;
     if (!selection2.family) selection2.branch = null;
     return selection2;
-  }
-  var PLAYLIST_LIMIT = 50;
-  function playlistLinks(videos) {
-    const links = [];
-    for (let i = 0; i < videos.length; i += PLAYLIST_LIMIT) {
-      const chunk = videos.slice(i, i + PLAYLIST_LIMIT);
-      links.push({ from: i + 1, to: i + chunk.length, url: `https://www.youtube.com/watch_videos?video_ids=${chunk.join(",")}` });
-    }
-    return links;
   }
 
   // src/lingtape/map.js
@@ -342,14 +333,79 @@
     };
   }
 
-  // src/lingtape/page.js
-  var $ = (id) => document.getElementById(id);
+  // src/shared/songs.js
   var el = (tag, props = {}, ...children) => {
     const e = Object.assign(document.createElement(tag), props);
     e.append(...children.filter((c) => c != null && c !== false));
     return e;
   };
   var plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+  var PLAYLIST_LIMIT = 50;
+  function playlistLinks(videos) {
+    const links = [];
+    for (let i = 0; i < videos.length; i += PLAYLIST_LIMIT) {
+      const chunk = videos.slice(i, i + PLAYLIST_LIMIT);
+      links.push({ from: i + 1, to: i + chunk.length, url: `https://www.youtube.com/watch_videos?video_ids=${chunk.join(",")}` });
+    }
+    return links;
+  }
+  function playLinks(videos) {
+    const links = playlistLinks(videos);
+    return links.map(({ from, to, url }, i) => el(
+      "a",
+      { href: url, target: "_blank", rel: "noopener", className: "play-link" },
+      links.length === 1 ? "\u25B6 Play on YouTube" : `${i ? "" : "\u25B6 Play on YouTube: "}${from}\u2013${to}`
+    ));
+  }
+  function createPlayer({ missing = () => el("div", { className: "thumb missing" }, "Not on YouTube") } = {}) {
+    let playing = null;
+    function thumbnail2(song) {
+      if (!song.video) return missing(song);
+      const button = el(
+        "button",
+        { type: "button", className: "thumb", title: `Play ${song.song}`, onclick: () => play(button.closest(".song")) },
+        el("img", { src: `https://i.ytimg.com/vi/${song.video}/mqdefault.jpg`, alt: "", loading: "lazy" }),
+        el("span", { className: "play", ariaHidden: "true" }, "\u25B6")
+      );
+      return button;
+    }
+    function play(card2) {
+      if (playing && playing !== card2) stop(playing);
+      playing = card2;
+      const song = card2.song;
+      card2.querySelector(".thumb").replaceWith(el("iframe", {
+        className: "thumb",
+        src: `https://www.youtube-nocookie.com/embed/${song.video}?autoplay=1&rel=0`,
+        title: `${song.song} by ${song.artist}`,
+        allow: "autoplay; encrypted-media; picture-in-picture; fullscreen",
+        allowFullscreen: true
+      }));
+    }
+    function stop(card2) {
+      card2.querySelector(".thumb").replaceWith(thumbnail2(card2.song));
+      if (playing === card2) playing = null;
+    }
+    function playRandom2(cards2) {
+      const playable = cards2.filter((c) => c.song.video);
+      if (!playable.length) return;
+      const card2 = playable[Math.floor(Math.random() * playable.length)];
+      card2.scrollIntoView({ block: "center", behavior: "smooth" });
+      play(card2);
+    }
+    return { thumbnail: thumbnail2, play, playRandom: playRandom2 };
+  }
+  function showCards(list, wanted) {
+    const keep = new Set(wanted);
+    for (const c of [...list.children]) if (!keep.has(c)) c.remove();
+    let next = list.firstElementChild;
+    for (const c of wanted) {
+      if (c === next) next = next.nextElementSibling;
+      else list.insertBefore(c, next);
+    }
+  }
+
+  // src/lingtape/page.js
+  var $ = (id) => document.getElementById(id);
   var songs = data_default.songs;
   var selection = fromHash(location.hash);
   function select(changes) {
@@ -396,40 +452,14 @@
     search.value = selection.q ?? "";
     render();
   });
-  var playing = null;
-  function thumbnail(song) {
-    if (!song.video) {
-      return el(
-        "div",
-        { className: "thumb missing" },
-        el("span", {}, "Not on YouTube"),
-        el("a", { href: "https://music.apple.com/gb/playlist/lingtape/pl.u-KVXBBJWsmgB1L9", target: "_blank", rel: "noopener" }, "Apple Music playlist")
-      );
-    }
-    const button = el(
-      "button",
-      { type: "button", className: "thumb", title: `Play ${song.song}`, onclick: () => play(button.closest(".song")) },
-      el("img", { src: `https://i.ytimg.com/vi/${song.video}/mqdefault.jpg`, alt: "", loading: "lazy" }),
-      el("span", { className: "play", ariaHidden: "true" }, "\u25B6")
-    );
-    return button;
-  }
-  function play(card2) {
-    if (playing && playing !== card2) stop(playing);
-    playing = card2;
-    const song = card2.song;
-    card2.querySelector(".thumb").replaceWith(el("iframe", {
-      className: "thumb",
-      src: `https://www.youtube-nocookie.com/embed/${song.video}?autoplay=1&rel=0`,
-      title: `${song.song} by ${song.artist}`,
-      allow: "autoplay; encrypted-media; picture-in-picture; fullscreen",
-      allowFullscreen: true
-    }));
-  }
-  function stop(card2) {
-    card2.querySelector(".thumb").replaceWith(thumbnail(card2.song));
-    if (playing === card2) playing = null;
-  }
+  var { thumbnail, playRandom } = createPlayer({
+    missing: () => el(
+      "div",
+      { className: "thumb missing" },
+      el("span", {}, "Not on YouTube"),
+      el("a", { href: "https://music.apple.com/gb/playlist/lingtape/pl.u-KVXBBJWsmgB1L9", target: "_blank", rel: "noopener" }, "Apple Music playlist")
+    )
+  });
   var filterLink = (text, changes, title) => el("button", { type: "button", className: "link", title, onclick: () => {
     select(changes);
     $("results-header").scrollIntoView({ block: "start" });
@@ -466,23 +496,7 @@
     cards.set(song, c);
     return c;
   }
-  $("random").addEventListener("click", () => {
-    const playable = filterSongs(songs, selection).filter((s) => s.video);
-    if (!playable.length) return;
-    const c = card(playable[Math.floor(Math.random() * playable.length)]);
-    c.scrollIntoView({ block: "center", behavior: "smooth" });
-    play(c);
-  });
-  function showCards(wanted) {
-    const list = $("songs");
-    const keep = new Set(wanted);
-    for (const c of [...list.children]) if (!keep.has(c)) c.remove();
-    let next = list.firstElementChild;
-    for (const c of wanted) {
-      if (c === next) next = next.nextElementSibling;
-      else list.insertBefore(c, next);
-    }
-  }
+  $("random").addEventListener("click", () => playRandom(filterSongs(songs, selection).map(card)));
   function render() {
     const results = filterSongs(songs, selection);
     updateMap(counts(songs, selection, "country"), selection.country);
@@ -518,13 +532,8 @@
     );
     $("clear").hidden = !any;
     $("random").disabled = videos.length === 0;
-    const links = playlistLinks(videos);
-    $("play").replaceChildren(...links.map(({ from, to, url }, i) => el(
-      "a",
-      { href: url, target: "_blank", rel: "noopener", className: "play-link" },
-      links.length === 1 ? "\u25B6 Play on YouTube" : `${i ? "" : "\u25B6 Play on YouTube: "}${from}\u2013${to}`
-    )));
-    showCards(results.map(card));
+    $("play").replaceChildren(...playLinks(videos));
+    showCards($("songs"), results.map(card));
     $("empty").hidden = results.length > 0;
   }
   render();

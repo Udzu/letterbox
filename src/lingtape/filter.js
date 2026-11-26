@@ -63,15 +63,3 @@ export function fromHash(hash) {
   if (!selection.family) selection.branch = null;
   return selection;
 }
-
-// YouTube links that play the given videos as an unnamed playlist, at most 50 per link (YouTube's
-// limit), as [{ from, to, url }] with 1-based positions.
-export const PLAYLIST_LIMIT = 50;
-export function playlistLinks(videos) {
-  const links = [];
-  for (let i = 0; i < videos.length; i += PLAYLIST_LIMIT) {
-    const chunk = videos.slice(i, i + PLAYLIST_LIMIT);
-    links.push({ from: i + 1, to: i + chunk.length, url: `https://www.youtube.com/watch_videos?video_ids=${chunk.join(",")}` });
-  }
-  return links;
-}

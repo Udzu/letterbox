@@ -2,16 +2,11 @@
 // language family and search, and play the songs in place or as a YouTube playlist.
 
 import data from "./data.json";
-import { CONTINENTS, counts, filterSongs, fromHash, playlistLinks, toHash } from "./filter.js";
+import { CONTINENTS, counts, filterSongs, fromHash, toHash } from "./filter.js";
 import { createMap, LEVELS } from "./map.js";
+import { createPlayer, el, playLinks, plural, showCards } from "../shared/songs.js";
 
 const $ = (id) => document.getElementById(id);
-const el = (tag, props = {}, ...children) => {
-  const e = Object.assign(document.createElement(tag), props);
-  e.append(...children.filter((c) => c != null && c !== false));
-  return e;
-};
-const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 const songs = data.songs;
 let selection = fromHash(location.hash);
@@ -55,36 +50,10 @@ $("clear").addEventListener("click", () => { search.value = ""; select({ contine
 window.addEventListener("hashchange", () => { selection = fromHash(location.hash); search.value = selection.q ?? ""; render(); });
 
 // --- the songs ---
-let playing = null; // the card whose video is playing in place
-
-function thumbnail(song) {
-  if (!song.video) {
-    return el("div", { className: "thumb missing" }, el("span", {}, "Not on YouTube"),
-      el("a", { href: "https://music.apple.com/gb/playlist/lingtape/pl.u-KVXBBJWsmgB1L9", target: "_blank", rel: "noopener" }, "Apple Music playlist"));
-  }
-  const button = el("button", { type: "button", className: "thumb", title: `Play ${song.song}`, onclick: () => play(button.closest(".song")) },
-    el("img", { src: `https://i.ytimg.com/vi/${song.video}/mqdefault.jpg`, alt: "", loading: "lazy" }),
-    el("span", { className: "play", ariaHidden: "true" }, "▶"));
-  return button;
-}
-
-function play(card) {
-  if (playing && playing !== card) stop(playing);
-  playing = card;
-  const song = card.song;
-  card.querySelector(".thumb").replaceWith(el("iframe", {
-    className: "thumb",
-    src: `https://www.youtube-nocookie.com/embed/${song.video}?autoplay=1&rel=0`,
-    title: `${song.song} by ${song.artist}`,
-    allow: "autoplay; encrypted-media; picture-in-picture; fullscreen",
-    allowFullscreen: true,
-  }));
-}
-
-function stop(card) {
-  card.querySelector(".thumb").replaceWith(thumbnail(card.song));
-  if (playing === card) playing = null;
-}
+const { thumbnail, playRandom } = createPlayer({
+  missing: () => el("div", { className: "thumb missing" }, el("span", {}, "Not on YouTube"),
+    el("a", { href: "https://music.apple.com/gb/playlist/lingtape/pl.u-KVXBBJWsmgB1L9", target: "_blank", rel: "noopener" }, "Apple Music playlist")),
+});
 
 // a link-styled button that sets a filter
 const filterLink = (text, changes, title) => el("button", { type: "button", className: "link", title, onclick: () => { select(changes); $("results-header").scrollIntoView({ block: "start" }); } }, text);
@@ -112,26 +81,7 @@ function card(song) {
   return c;
 }
 
-$("random").addEventListener("click", () => {
-  const playable = filterSongs(songs, selection).filter((s) => s.video);
-  if (!playable.length) return;
-  const c = card(playable[Math.floor(Math.random() * playable.length)]);
-  c.scrollIntoView({ block: "center", behavior: "smooth" });
-  play(c);
-});
-
-// Show the given cards (in the sheet's order, as are those shown) without moving any that are already
-// shown, since moving an iframe reloads it and would restart a playing video.
-function showCards(wanted) {
-  const list = $("songs");
-  const keep = new Set(wanted);
-  for (const c of [...list.children]) if (!keep.has(c)) c.remove();
-  let next = list.firstElementChild;
-  for (const c of wanted) {
-    if (c === next) next = next.nextElementSibling;
-    else list.insertBefore(c, next);
-  }
-}
+$("random").addEventListener("click", () => playRandom(filterSongs(songs, selection).map(card)));
 
 // --- rendering ---
 function render() {
@@ -161,11 +111,9 @@ function render() {
     missing ? ` (${missing} not on YouTube)` : "");
   $("clear").hidden = !any;
   $("random").disabled = videos.length === 0;
-  const links = playlistLinks(videos);
-  $("play").replaceChildren(...links.map(({ from, to, url }, i) => el("a", { href: url, target: "_blank", rel: "noopener", className: "play-link" },
-    links.length === 1 ? "▶ Play on YouTube" : `${i ? "" : "▶ Play on YouTube: "}${from}–${to}`)));
+  $("play").replaceChildren(...playLinks(videos));
 
-  showCards(results.map(card));
+  showCards($("songs"), results.map(card));
   $("empty").hidden = results.length > 0;
 }
 
