@@ -1,4 +1,4 @@
-// Song cards for the playlist pages (Lingtape, Jewish Christmas): YouTube thumbnails that play the video
+// Song cards for the playlist pages (Lingtape, Chrismukkah): YouTube thumbnails that play the video
 // in place, links that play a list of videos on YouTube, and showing a filtered list of cards without
 // restarting a playing video. Songs have a video (a YouTube ID, or null), a song name and an artist.
 
