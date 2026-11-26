@@ -1,12 +1,12 @@
-// Build the data for the Jewish Christmas page: the songs from the Jewish Christmas Songs sheet.
+// Build the data for the Chrismukkah page: the songs from the Jewish Christmas Songs sheet.
 //
-// Usage: node scripts/christmas-data.mjs SHEET_CSV
+// Usage: node scripts/chrismukkah-data.mjs SHEET_CSV
 //
 // SHEET_CSV is the sheet exported as CSV (File > Download > CSV). Its columns are the year the song was
 // written (or published), a flag for the song's language (none for English, 🎵 for instrumentals), the
 // song, the performer, a flag for the songwriters' nationality (none for American), a + if non-Jewish
 // songwriters were involved too, the Jewish songwriters and a YouTube link (or "not found on YouTube").
-// Songs without a link are left out. Writes src/christmas/data.json:
+// Songs without a link are left out. Writes src/chrismukkah/data.json:
 // - songs: in the sheet's order, each with its year, language, song, artist, nationality, mixed (the +),
 //   writers (a list of names: "Ryan & Jack Met" becomes Ryan Met and Jack Met), a note on the writers
 //   (any text in brackets, as in "Jack Antonoff (& St Vincent is ~20% Jewish)") and YouTube video ID
@@ -15,11 +15,11 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import { parseCsv } from "./csv.mjs";
-import { parseWriters } from "../src/christmas/filter.js";
+import { parseWriters } from "../src/chrismukkah/filter.js";
 
 const [csvPath] = process.argv.slice(2);
 if (!csvPath) {
-  console.error("Usage: node scripts/christmas-data.mjs SHEET_CSV");
+  console.error("Usage: node scripts/chrismukkah-data.mjs SHEET_CSV");
   process.exit(1);
 }
 
@@ -55,5 +55,5 @@ const flags = { ...FLAGS };
 for (const [flag, name] of [...Object.entries(LANGUAGES), ...Object.entries(NATIONALITIES)]) if (flag) flags[name] = flag;
 
 const json = JSON.stringify({ songs, flags });
-await writeFile(new URL("../src/christmas/data.json", import.meta.url), json);
+await writeFile(new URL("../src/chrismukkah/data.json", import.meta.url), json);
 console.log(`${songs.length} songs (${rows.filter((r) => r[2]?.trim()).length - songs.length} without a link left out)`);

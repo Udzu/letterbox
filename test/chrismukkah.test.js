@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { counts, decade, filterSongs, fromHash, parseWriters, toHash } from "../src/christmas/filter.js";
+import { counts, decade, filterSongs, fromHash, parseWriters, toHash } from "../src/chrismukkah/filter.js";
 
 const SONGS = [
   { year: 1855, language: "English", song: "Hark! The Herald Angels Sing", artist: "Frank Sinatra", nationality: "German", mixed: true, writers: ["Felix Mendelssohn"], note: null, video: "a" },
@@ -60,7 +60,7 @@ test("the selection round-trips through the URL hash", () => {
 });
 
 test("the data has a YouTube video for each song, and flags for the languages and nationalities", () => {
-  const data = JSON.parse(readFileSync(new URL("../src/christmas/data.json", import.meta.url)));
+  const data = JSON.parse(readFileSync(new URL("../src/chrismukkah/data.json", import.meta.url)));
   for (const song of data.songs) {
     assert.match(song.video, /^[\w-]{11}$/, song.song);
     assert.ok(song.writers.length > 0, song.song);

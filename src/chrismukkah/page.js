@@ -1,4 +1,4 @@
-// The Jewish Christmas page: browse a playlist of Christmas songs by Jewish songwriters by decade,
+// The Chrismukkah page: browse a playlist of Christmas songs by Jewish songwriters by decade,
 // language, songwriter nationality, songwriter and search, and play the songs in place or on YouTube.
 
 import data from "./data.json";
