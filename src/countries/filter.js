@@ -1,6 +1,6 @@
 // Filtering a Countries playlist by continent, country and a text search, with counts for each choice
 // given the other filters, and the selection as a URL hash. A song can map to several modern countries
-// (Prussia: Germany, Poland and Russia), and matches any of them. The selection's list is "jazz" for the
+// (Prussia: Germany and Poland), and matches any of them. The selection's list is "jazz" for the
 // Jazz Countries playlist, or null for Independent Nations.
 
 export const CONTINENTS = {
