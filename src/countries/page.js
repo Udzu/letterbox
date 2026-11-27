@@ -40,7 +40,11 @@ const updateMap = createMap($("map"), data, {
   levels: LEVELS,
   label: (name) => {
     const here = songs.filter((s) => s.countries.includes(name));
-    return here.length ? `${name}: ${here.map((s) => `${s.song} · ${s.artist}`).join(" / ")}` : name;
+    if (!here.length) return name;
+    // just the song named after the country itself (or the first), if there are several
+    const main = here.find((s) => s.name === name) ?? here[0];
+    const others = here.length - 1;
+    return `${name}: ${main.song} · ${main.artist}${others ? ` (+ ${others} other${others === 1 ? "" : "s"})` : ""}`;
   },
 });
 $("legend").append(...LEVELS.map((n, i) => el("span", {}, el("i", { className: `level${i}` }), i === LEVELS.length - 1 ? `${n}+` : String(n))));
@@ -67,7 +71,7 @@ const filterLink = (text, changes, title) => el("button", { type: "button", clas
   onclick: () => { select(changes); $("results-header").scrollIntoView({ block: "start" }); } }, text);
 
 // the song's countries, as flag and link each, after the historical name if it has one:
-// "Prussia (now 🇩🇪 Germany, 🇵🇱 Poland, 🇷🇺 Russia)"
+// "Prussia (now 🇩🇪 Germany, 🇵🇱 Poland)"
 function where(song) {
   const modern = song.countries.flatMap((c, i) => [i ? ", " : "", `${song.flags[i]} `, filterLink(c, { country: c }, "Show this country's songs")]);
   const historical = song.countries.length > 1 || song.name !== song.countries[0];

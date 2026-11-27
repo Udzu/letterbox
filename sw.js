@@ -2,8 +2,8 @@
 // The app shell: each file and a hash of its contents, kept in the cache under file?v=hash.
 const FILES = {
   "anagrams.html": "12111cd204ad",
-  "chrismukkah.html": "1f7e5cdc54f1",
-  "countries.html": "3cfe1febea89",
+  "chrismukkah.html": "ce7a1ebe9284",
+  "countries.html": "7d6c9bd5e457",
   "dates.html": "7347e43f2ff2",
   "dice.html": "2c265c28341b",
   "index.html": "5ce11a823950",
