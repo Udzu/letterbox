@@ -3,22 +3,24 @@
 Usage: uv run --with yt-dlp python scripts/youtube-links.py SHEET_CSV OUTPUT_CSV [--limit N] [--rows N,N,...]
 
 SHEET_CSV is a playlist sheet exported as CSV, with columns named "Song name", "Performer name" and
-"YouTube link" (and optionally one with "songwriter" in its name). For each song without a link, searches
-YouTube for "<song> <performer>" (and "<song> <songwriters>" if nothing matches well) and scores the
+"YouTube link" (and optionally "Album", and one with "songwriter" in its name). For each song without a link, searches
+YouTube and YouTube Music (which often finds the official track when YouTube doesn't) for
+"<song> <performer>" (and YouTube for "<song> <songwriters>" if nothing matches well) and scores the
 top results:
 - the title contains the song name (ignoring case, accents and punctuation, with Cyrillic transliterated):
   +3, or something close to it (as with variant transliterations): +2
 - the channel is the performer's auto-generated "<performer> - Topic" channel (official releases, so
   usually the exact recording): +5, or (close to) the performer's own channel: +4, or the performer is
   named in the title: +3
+- the album matches too (for YouTube Music results, when the sheet has albums): +3
 - words suggesting a different recording or not the song (live, cover, karaoke, lyrics, fan, ...) that
   aren't in the song name: -2 each, and -2 for videos over 8 minutes
 Search results don't always name the channel, so --previous OUTPUT_CSV adds an earlier run's suggestions
 (with their titles and channels) to each song's candidates.
 The best result is kept with a confidence: high (6 or more: title and performer match), medium (3 to 5)
 or low. OUTPUT_CSV has a row per song in the sheet's order (sheet row number, year, song, performer,
-the existing link, then the suggestion, its confidence, title, channel and duration, and two runner-up
-links); a .txt file next to it has just the links (existing, or suggested with high confidence, else
+the existing link, then the suggestion, its confidence, title, channel and duration, two runner-up
+links, and its album if known); a .txt file next to it has just the links (existing, or suggested with high confidence, else
 blank), one per line, to paste into the sheet's link column.
 """
 
@@ -27,6 +29,7 @@ import csv
 import re
 import sys
 import unicodedata
+from urllib.parse import quote
 from difflib import SequenceMatcher
 from concurrent.futures import ThreadPoolExecutor
 
@@ -57,13 +60,27 @@ def contains(text, phrase):
     return bool(phrase) and re.search(rf"\b{re.escape(phrase)}\b", text) is not None
 
 
-def score(entry, song, performer):
+def core(song):
+    """The song name without bracketed extras: "Kenya (2000 Remastered Version)" → "Kenya"."""
+    return re.sub(r"\s*[(\[][^)\]]*[)\]]", "", song).strip() or song
+
+
+def first_act(performer):
+    """The first-named act: "Cedar Walton, George Coleman & Sam Jones" → "Cedar Walton"."""
+    return re.split(r"\s*(?:&|,| and | feat\.? | with )\s*", performer)[0] or performer
+
+
+def score(entry, song, performer, album="", short=""):
     title, channel = fold(entry.get("title") or ""), fold(entry.get("channel") or entry.get("uploader") or "")
     s = 0
-    if contains(title, song):
+    if contains(title, song) or contains(title, short):
         s += 3
-    elif song and close(title, song):
+    elif song and (close(title, song) or (short and close(title, short))):
         s += 2
+    # the same song from the same album (known for YouTube Music results): the same recording, not a
+    # rerelease or another take (but not another track from that album)
+    if s and album and entry.get("album") and (fold(entry["album"]) == album or close(fold(entry["album"]), album)):
+        s += 3
     # performers like "Bing Crosby & Danny Kaye" also match channels for their first-named act
     acts = [performer] + [fold(a) for a in re.split(r"\s*(?:&|,| and | feat\.? | with )\s*", performer) if a]
     topic = channel.endswith(" topic")
@@ -98,14 +115,45 @@ def query(text):
     return [e for e in info.get("entries") or [] if e and e.get("id")]
 
 
-def search(song, performer, songwriters="", previous=()):
-    """The results for "<song> <performer>", and if none scores high, "<song> <songwriters>" too
-    (which finds songs whose performer is misspelt), plus any previous candidates, best first, as
-    (score, entry)."""
-    found = query(f"{song} {performer}")
+MUSIC_RESULTS = 3
+
+
+def music_query(text):
+    """The top YouTube Music song results for text (the same video IDs as YouTube's). Its search results
+    don't name the artist, so each one is looked up for its title, channel and duration."""
+    options = {"quiet": True, "no_warnings": True, "extract_flat": True, "skip_download": True}
+    with yt_dlp.YoutubeDL(options) as ydl:
+        try:
+            info = ydl.extract_info(f"https://music.youtube.com/search?q={quote(text)}#songs", download=False)
+            ids = [e["id"] for e in (info.get("entries") or [])[:MUSIC_RESULTS] if e and e.get("id")]
+        except Exception as e:  # noqa: BLE001 - one failed search shouldn't stop the rest
+            print(f"{text} (YouTube Music): {e}", file=sys.stderr)
+            return []
+    entries = []
+    with yt_dlp.YoutubeDL({"quiet": True, "no_warnings": True, "skip_download": True}) as ydl:
+        for i in ids:
+            try:
+                e = ydl.extract_info(f"https://www.youtube.com/watch?v={i}", download=False)
+                entries.append({"id": i, "title": e.get("title"), "channel": e.get("channel"), "duration": e.get("duration"),
+                                "album": e.get("album")})
+            except Exception as ex:  # noqa: BLE001
+                print(f"{i}: {ex}", file=sys.stderr)
+    return entries
+
+
+def search(song, performer, songwriters="", previous=(), album=""):
+    """The results for "<song> <performer>" (without bracketed extras like "(feat. …)" or "(Remastered)",
+    and with just the first-named performer), on YouTube Music also with the album if known, and if none
+    scores high, "<song> <songwriters>" too (which finds songs whose performer is misspelt), plus any
+    previous candidates, best first, as (score, entry)."""
+    text = f"{core(song)} {first_act(performer)}"
+    found = query(text)
+    for q in ([f"{text} {core(album)}"] if album else []) + [text]:
+        found += [e for e in music_query(q) if e["id"] not in {f["id"] for f in found}]
     ids = {e["id"] for e in found}
     entries = found + [e for e in previous if e["id"] not in ids]
-    rank = lambda es: sorted(((score(e, fold(song), fold(performer)), e) for e in es), key=lambda x: -x[0])
+    rank = lambda es: sorted(((score(e, fold(song), fold(performer), fold(core(album)), fold(core(song))), e) for e in es),
+                             key=lambda x: -x[0])
     results = rank(entries)
     if songwriters and (not results or results[0][0] < 6):
         seen = {e["id"] for e in entries}
@@ -144,6 +192,7 @@ def main():
     header = rows[0]
     col = {name: header.index(name) for name in ["Song name", "Performer name", "YouTube link"]}
     year = header.index("Year") if "Year" in header else None
+    album = header.index("Album") if "Album" in header else None
     writers = next((i for i, h in enumerate(header) if "songwriter" in h.lower()), None)
     songs = [(n, r) for n, r in enumerate(rows[1:], start=2) if any(r) and r[col["Song name"]].strip()]
     todo = [(n, r) for n, r in songs if not r[col["YouTube link"]].strip()]
@@ -155,7 +204,8 @@ def main():
     def run(item):
         n, r = item
         return n, search(r[col["Song name"]].strip(), r[col["Performer name"]].strip(),
-                         r[writers].strip() if writers is not None else "", previous.get(n, []))
+                         r[writers].strip() if writers is not None else "", previous.get(n, []),
+                         r[album].strip() if album is not None else "")
 
     found = {}
     with ThreadPoolExecutor(args.threads) as pool:
@@ -170,7 +220,7 @@ def main():
          open(re.sub(r"\.csv$", "", args.output) + ".txt", "w", encoding="utf8") as links:
         out = csv.writer(f)
         out.writerow(["Row", "Year", "Song", "Performer", "Existing link", "Suggested link", "Confidence",
-                      "Title", "Channel", "Duration", "Runner-up 1", "Runner-up 2"])
+                      "Title", "Channel", "Duration", "Runner-up 1", "Runner-up 2", "Album"])
         for n, r in songs:
             existing = r[col["YouTube link"]].strip()
             results = found.get(n, [])
@@ -183,7 +233,7 @@ def main():
                           url(best[1]) if best else "", level, best[1].get("title", "") if best else "",
                           (best[1].get("channel") or best[1].get("uploader") or "") if best else "",
                           f"{int(duration) // 60}:{int(duration) % 60:02}" if duration else "",
-                          *([url(e) for _, e in results[1:3]] + ["", ""])[:2]])
+                          *([url(e) for _, e in results[1:3]] + ["", ""])[:2], (best[1].get("album") or "") if best else ""])
             links.write((existing or (url(best[1]) if best and level == "high" else "")) + "\n")
     print(f"Searched {len(todo)} songs: " + ", ".join(f"{v} {k}" for k, v in counts.items()), file=sys.stderr)
 
