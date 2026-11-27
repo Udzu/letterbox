@@ -25,7 +25,7 @@
     max-width: 1300px;
     margin: 0 auto;
   }
-  nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #ebf6ed; box-shadow: 0 0 0 100vmax #ebf6ed, 0 1px 0 100vmax #c6e2cc; clip-path: inset(0 -100vmax -1px); }
+  nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #fbeef1; box-shadow: 0 0 0 100vmax #fbeef1, 0 1px 0 100vmax #efc9d3; clip-path: inset(0 -100vmax -1px); }
   nav a, nav b { white-space: nowrap; }
   nav a { color: #06c; }
   nav b { color: #000; }
@@ -103,7 +103,7 @@
 </style>
 </head>
 <body>
-<nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="ladders.html">Ladders</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="chrismukkah.html">Chrismukkah</a> · <b>Lingtape</b></nav>
+<nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="ladders.html">Ladders</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="chrismukkah.html">Chrismukkah</a> · <a href="countries.html">Countries</a> · <b>Lingtape</b></nav>
 <main>
   <p class="intro"><b>LINGTAPE</b>: a playlist of mostly indie songs, one in each of 365 languages. Also on <a href="https://music.apple.com/gb/playlist/lingtape/pl.u-KVXBBJWsmgB1L9" target="_blank" rel="noopener">Apple Music</a>, <a href="https://open.spotify.com/playlist/20DP2gan4uhHMloUGLJO9c" target="_blank" rel="noopener">Spotify</a> and <a href="https://www.youtube.com/playlist?list=PLuKEJmCdy7BWyxpSpLrlnHcYHlN_WGpYc" target="_blank" rel="noopener">YouTube</a>.</p>
   <div id="map-box">
@@ -196,14 +196,15 @@
     return selection2;
   }
 
-  // src/lingtape/map.js
+  // src/shared/map.js
   var SVG = "http://www.w3.org/2000/svg";
   var MAX_ZOOM = 24;
   var SMALL = 6;
   var MARKER_RADIUS = 4;
   var LEVELS = [1, 2, 3, 6, 10];
   var level = (n) => LEVELS.findLastIndex((min) => n >= min);
-  function createMap(svg, data, { onSelect, zoomIn, zoomOut, zoomReset }) {
+  var countLabel = (name, n) => n ? `${name}: ${n} song${n === 1 ? "" : "s"}` : name;
+  function createMap(svg, data, { onSelect, zoomIn, zoomOut, zoomReset, label = countLabel }) {
     const { width, height } = data;
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     const countries = svg.appendChild(document.createElementNS(SVG, "g"));
@@ -322,7 +323,7 @@
         const n = counts2.get(name) ?? 0;
         const cls = name === selected ? "selected active" : n ? `level${level(n)} active` : "";
         path.setAttribute("class", cls);
-        const text = n ? `${name}: ${n} song${n === 1 ? "" : "s"}` : name;
+        const text = label(name, n);
         path.querySelector("title").textContent = text;
         if (marker) {
           marker.setAttribute("class", cls);
