@@ -36,6 +36,24 @@ const ALIASES = {
   "United States of America": "USA",
   "Vatican": "Vatican City",
   "Somaliland": "Somalia",
+  // territories, drawn as part of their sovereign state, as the sheet gives that as their languages'
+  // main country (Greenlandic: Denmark)
+  "Greenland": "Denmark", "Faeroe Is.": "Denmark",
+  "Fr. Polynesia": "France", "New Caledonia": "France", "Fr. S. Antarctic Lands": "France",
+  "St-Barthélemy": "France", "St-Martin": "France", "St. Pierre and Miquelon": "France",
+  "Wallis and Futuna Is.": "France",
+  "Puerto Rico": "USA", "Guam": "USA", "American Samoa": "USA", "N. Mariana Is.": "USA",
+  "U.S. Virgin Is.": "USA",
+  "Isle of Man": "UK", "Jersey": "UK", "Guernsey": "UK", "Falkland Is.": "UK", "Bermuda": "UK",
+  "Cayman Is.": "UK", "Anguilla": "UK", "British Virgin Is.": "UK", "Montserrat": "UK",
+  "Turks and Caicos Is.": "UK", "Saint Helena": "UK", "S. Geo. and the Is.": "UK",
+  "Br. Indian Ocean Ter.": "UK", "Pitcairn Is.": "UK",
+  "Curaçao": "Netherlands", "Aruba": "Netherlands", "Sint Maarten": "Netherlands",
+  "Norfolk Island": "Australia", "Indian Ocean Ter.": "Australia",
+  "Heard I. and McDonald Is.": "Australia", "Ashmore and Cartier Is.": "Australia",
+  "Cook Is.": "New Zealand", "Niue": "New Zealand",
+  "Hong Kong": "China", "Macao": "China",
+  "Åland": "Finland",
 };
 
 const songs = [];
