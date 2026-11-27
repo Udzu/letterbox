@@ -11,7 +11,7 @@
 //   with the country, song, artist, album, ISRC and YouTube link
 // - src/countries/jazz.csv: the Jazz Countries playlist, likewise, but with a "Modern countries" column
 //   for songs named after historical countries (Abyssinia, Prussia): the modern countries they map to,
-//   separated by semicolons
+//   separated by semicolons, and a "Continents" column to override their continents (Hawaii: OC)
 // Songs without a YouTube link are left out. Writes src/countries/data.json:
 // - lists: for each playlist, its songs in order, each with the country as named (name), the modern
 //   countries it maps to (countries: just the country itself, unless it's historical) and their flags
@@ -84,7 +84,8 @@ for (const [list, file] of Object.entries(LISTS)) {
     const id = link.match(/youtu(?:\.be\/|be\.com\/watch\?v=)([\w-]{11})\b/);
     if (!id) throw new Error(`${file}: ${song}: unrecognised YouTube link ${link}`);
     lists[list].push({ name, countries, flags: countries.map((c) => places[c].flag),
-      continents: [...new Set(countries.map((c) => places[c].continent))], song, artist, album, video: id[1] });
+      continents: col(r, "Continents") ? col(r, "Continents").split(";").map((s) => s.trim())
+        : [...new Set(countries.map((c) => places[c].continent))], song, artist, album, video: id[1] });
   }
   if (unlinked) console.log(`${file}: ${unlinked} songs without a link left out`);
 }
