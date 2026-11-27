@@ -6,15 +6,15 @@ const SVG = "http://www.w3.org/2000/svg";
 const MAX_ZOOM = 24;
 const SMALL = 6; // countries whose largest part is under this many units across get a marker
 const MARKER_RADIUS = 4; // in screen pixels
-// the shading levels: the smallest count for each
+// the default shading levels: the smallest count for each
 export const LEVELS = [1, 2, 3, 6, 10];
-const level = (n) => LEVELS.findLastIndex((min) => n >= min);
 
-// Draw the map in svg; onSelect(name) is called when a country with songs is clicked, and label(name, n)
-// gives a country's hover text. Returns update(counts, selected), which reshades the map for a Map of
+// Draw the map in svg; onSelect(name) is called when a country with songs is clicked, label(name, n)
+// gives a country's hover text, and levels the smallest count for each shading level (class level0, …). Returns update(counts, selected), which reshades the map for a Map of
 // country name to count.
 const countLabel = (name, n) => (n ? `${name}: ${n} song${n === 1 ? "" : "s"}` : name);
-export function createMap(svg, data, { onSelect, zoomIn, zoomOut, zoomReset, label = countLabel }) {
+export function createMap(svg, data, { onSelect, zoomIn, zoomOut, zoomReset, label = countLabel, levels = LEVELS }) {
+  const level = (n) => levels.findLastIndex((min) => n >= min);
   const { width, height } = data;
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   const countries = svg.appendChild(document.createElementNS(SVG, "g"));

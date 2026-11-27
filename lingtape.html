@@ -202,9 +202,9 @@
   var SMALL = 6;
   var MARKER_RADIUS = 4;
   var LEVELS = [1, 2, 3, 6, 10];
-  var level = (n) => LEVELS.findLastIndex((min) => n >= min);
   var countLabel = (name, n) => n ? `${name}: ${n} song${n === 1 ? "" : "s"}` : name;
-  function createMap(svg, data, { onSelect, zoomIn, zoomOut, zoomReset, label = countLabel }) {
+  function createMap(svg, data, { onSelect, zoomIn, zoomOut, zoomReset, label = countLabel, levels = LEVELS }) {
+    const level = (n) => levels.findLastIndex((min) => n >= min);
     const { width, height } = data;
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
     const countries = svg.appendChild(document.createElementNS(SVG, "g"));

@@ -41,6 +41,9 @@
   #map circle { stroke: #fff; stroke-width: 1px; vector-effect: non-scaling-stroke; }
   #map .active { cursor: pointer; }
   #map .level0 { fill: #6baed6; }
+  #map .level1 { fill: #3182bd; }
+  #map .level2 { fill: #08519c; }
+  #map .level3 { fill: #08306b; }
   #map .selected { fill: #f28e2b; }
   #map .active:hover { fill: #fdae6b; }
   #zoom { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 4px; }
@@ -48,6 +51,17 @@
   #zoom button:hover { border-color: #06c; }
   #map-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-top: 4px; }
   #map-footer .note { margin: 0; font-size: 0.85rem; }
+  #legend { display: flex; gap: 10px; align-items: center; font-size: 0.85rem; color: #444; }
+  #legend[hidden] { display: none; }
+  #legend span { display: flex; align-items: center; gap: 3px; }
+  #legend i { display: inline-block; width: 12px; height: 12px; }
+  #legend .level0 { background: #6baed6; } #legend .level1 { background: #3182bd; }
+  #legend .level2 { background: #08519c; } #legend .level3 { background: #08306b; }
+  /* the tabs for the playlists */
+  #tabs { display: flex; gap: 6px; border-bottom: 1px solid #ccd; margin-bottom: 12px; }
+  .tab { font: inherit; font-size: 1.05rem; padding: 6px 14px; margin-bottom: -1px; border: 1px solid #ccd; border-radius: 6px 6px 0 0; background: #f4f4f8; color: #333; cursor: pointer; }
+  .tab[aria-selected="true"] { background: #fff; border-bottom-color: #fff; color: #000; font-weight: 600; }
+  .tab .count { color: #888; font-size: 0.85rem; font-weight: normal; }
 
   /* the filters: a label column and rows of toggle chips */
   #filters { display: grid; grid-template-columns: max-content 1fr; gap: 8px 12px; align-items: baseline; margin: 16px 0; }
@@ -89,7 +103,9 @@
 <body>
 <nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="ladders.html">Ladders</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="chrismukkah.html">Chrismukkah</a> · <b>Countries</b> · <a href="lingtape.html">Lingtape</a></nav>
 <main>
-  <p class="intro"><b>Independent Nations</b>: a playlist of mostly indie songs named after countries. Also on <a href="https://music.apple.com/gb/playlist/independent-nations/pl.u-gxblM4RsMXrxb3" target="_blank" rel="noopener">Apple Music</a> and <a href="https://open.spotify.com/playlist/0KHMHACboVTnFnQbVtH2lc" target="_blank" rel="noopener">Spotify</a>.</p>
+  <div id="tabs" role="tablist" aria-label="Playlist"></div>
+  <p class="intro" data-list="nations"><b>Independent Nations</b>: a playlist of mostly indie songs named after countries. Also on <a href="https://music.apple.com/gb/playlist/independent-nations/pl.u-gxblM4RsMXrxb3" target="_blank" rel="noopener">Apple Music</a> and <a href="https://open.spotify.com/playlist/0KHMHACboVTnFnQbVtH2lc" target="_blank" rel="noopener">Spotify</a>.</p>
+  <p class="intro" data-list="jazz" hidden><b>Jazz Countries</b>: a playlist of jazz tracks named after countries, including some historical ones (shown under their modern countries). Also on <a href="https://music.apple.com/gb/playlist/jazz-countries/pl.u-NpXmYAWspZbL4N" target="_blank" rel="noopener">Apple Music</a> and <a href="https://open.spotify.com/playlist/0BY3uGPo14ctfeJ9j53C06" target="_blank" rel="noopener">Spotify</a>.</p>
   <div id="map-box">
     <svg id="map" role="img" aria-label="World map of the songs' countries"></svg>
     <div id="zoom">
@@ -99,7 +115,8 @@
     </div>
   </div>
   <div id="map-footer">
-    <p class="note">Click a country to show its song; drag to move, Ctrl+scroll, double-click or pinch to zoom.</p>
+    <div id="legend" data-list="jazz" hidden aria-label="Songs per country"></div>
+    <p class="note">Click a country to show its songs; drag to move, Ctrl+scroll, double-click or pinch to zoom.</p>
   </div>
   <div id="filters">
     <span class="label">Continent</span>
