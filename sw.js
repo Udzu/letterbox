@@ -8,7 +8,7 @@ const FILES = {
   "dice.html": "2c265c28341b",
   "index.html": "1ef4cbe1d79c",
   "ladders.html": "002db04d0b0f",
-  "lingtape.html": "efb3b28acc73",
+  "lingtape.html": "d03eff56f65f",
   "lipograms.html": "6811b4b0ed76",
   "lsystems.html": "209e80bcb9a0",
   "numbers.html": "c873c7a3b455",
