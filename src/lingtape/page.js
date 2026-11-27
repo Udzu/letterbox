@@ -3,7 +3,7 @@
 
 import data from "./data.json";
 import { CONTINENTS, counts, filterSongs, fromHash, toHash } from "./filter.js";
-import { createMap, LEVELS } from "./map.js";
+import { createMap, LEVELS } from "../shared/map.js";
 import { createPlayer, el, playLinks, plural, showCards } from "../shared/songs.js";
 
 const $ = (id) => document.getElementById(id);

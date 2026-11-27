@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+  // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+</script>
+<title>Countries</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #fbeef1; box-shadow: 0 0 0 100vmax #fbeef1, 0 1px 0 100vmax #efc9d3; clip-path: inset(0 -100vmax -1px); }
+  nav a, nav b { white-space: nowrap; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+  nav img { width: 1.3em; height: 1.3em; vertical-align: -0.3em; }
+  a { color: #06c; }
+  .intro { margin: 0 0 12px; }
+  .note { font-size: 0.9rem; color: #666; }
+
+  /* the map, with zoom buttons over its top right corner and a note under it */
+  #map-box { position: relative; border: 1px solid #ccd; background: #f4f8fc; }
+  #map { display: block; width: 100%; height: auto; aspect-ratio: 1000 / 438; cursor: grab; user-select: none; -webkit-user-select: none; }
+  #map.dragging { cursor: grabbing; }
+  #map path { fill: #e4e4e4; stroke: #fff; stroke-width: 0.6px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  #map circle { stroke: #fff; stroke-width: 1px; vector-effect: non-scaling-stroke; }
+  #map .active { cursor: pointer; }
+  #map .level0 { fill: #6baed6; }
+  #map .selected { fill: #f28e2b; }
+  #map .active:hover { fill: #fdae6b; }
+  #zoom { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 4px; }
+  #zoom button { width: 32px; height: 32px; padding: 0; font-size: 1.1rem; line-height: 1; background: #fff; border: 1px solid #99a; border-radius: 4px; cursor: pointer; }
+  #zoom button:hover { border-color: #06c; }
+  #map-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-top: 4px; }
+  #map-footer .note { margin: 0; font-size: 0.85rem; }
+
+  /* the filters: a label column and rows of toggle chips */
+  #filters { display: grid; grid-template-columns: max-content 1fr; gap: 8px 12px; align-items: baseline; margin: 16px 0; }
+  #filters > label, #filters > .label { font-weight: 600; font-size: 0.95rem; }
+  #filters > [hidden] { display: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+  .chip { font: inherit; font-size: 0.9rem; padding: 2px 9px; border: 1px solid #bbc; border-radius: 999px; background: #fff; cursor: pointer; }
+  .chip:hover { border-color: #06c; }
+  .chip[aria-pressed="true"] { background: #06c; border-color: #06c; color: #fff; }
+  .chip .count { color: #888; font-size: 0.8rem; }
+  .chip[aria-pressed="true"] .count { color: #cde; }
+  #search { width: 100%; max-width: 480px; box-sizing: border-box; padding: 6px 8px; font: inherit; }
+  @media (max-width: 600px) {
+    #filters { grid-template-columns: 1fr; gap: 4px; }
+    #filters > label, #filters > .label { margin-top: 6px; }
+  }
+
+  /* the results: a header with the count and playlist links, then a grid of song cards */
+  #results-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 0; border-top: 1px solid #ccd; scroll-margin-top: 8px; }
+  #results-header button { font: inherit; font-size: 0.9rem; cursor: pointer; }
+  #play { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  #songs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 8px; }
+  .song { display: flex; flex-direction: column; border: 1px solid #dde; border-radius: 6px; overflow: hidden; background: #fff; }
+  .thumb { display: block; position: relative; width: 100%; aspect-ratio: 16 / 9; padding: 0; border: none; background: #111; cursor: pointer; }
+  .thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .thumb .play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #fff; text-shadow: 0 0 8px rgba(0, 0, 0, 0.7); opacity: 0.85; }
+  .thumb:hover .play, .thumb:focus-visible .play { opacity: 1; color: #f28e2b; }
+  iframe.thumb { cursor: auto; }
+  .info { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
+  .title { font-size: 1.05rem; }
+  .title a { color: inherit; font-weight: 600; }
+  .artist { color: #555; }
+  .where { font-size: 0.85rem; color: #666; }
+  .link { font: inherit; padding: 0; border: none; background: none; color: #06c; cursor: pointer; text-align: left; }
+  .link:hover { text-decoration: underline; }
+  #empty { color: #666; }
+</style>
+</head>
+<body>
+<nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="ladders.html">Ladders</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="chrismukkah.html">Chrismukkah</a> · <b>Countries</b> · <a href="lingtape.html">Lingtape</a></nav>
+<main>
+  <p class="intro"><b>Independent Nations</b>: a playlist of mostly indie songs named after countries. Also on <a href="https://music.apple.com/gb/playlist/independent-nations/pl.u-gxblM4RsMXrxb3" target="_blank" rel="noopener">Apple Music</a> and <a href="https://open.spotify.com/playlist/0KHMHACboVTnFnQbVtH2lc" target="_blank" rel="noopener">Spotify</a>.</p>
+  <div id="map-box">
+    <svg id="map" role="img" aria-label="World map of the songs' countries"></svg>
+    <div id="zoom">
+      <button type="button" id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+      <button type="button" id="zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+      <button type="button" id="zoom-reset" title="Show the whole world" aria-label="Show the whole world">⟲</button>
+    </div>
+  </div>
+  <div id="map-footer">
+    <p class="note">Click a country to show its song; drag to move, Ctrl+scroll, double-click or pinch to zoom.</p>
+  </div>
+  <div id="filters">
+    <span class="label">Continent</span>
+    <div id="continents" class="chips"></div>
+    <label for="search">Search</label>
+    <div><input id="search" type="search" placeholder="Country, song, artist, album…" autocomplete="off"></div>
+  </div>
+  <div id="results-header">
+    <span id="summary"></span>
+    <button type="button" id="clear" hidden>Clear filters</button>
+    <button type="button" id="random" title="Play a random song from these">Random song</button>
+    <span id="play"></span>
+  </div>
+  <p id="empty" hidden>No songs match these filters.</p>
+  <div id="songs"></div>
+</main>
+<!-- @inline page.js -->
+</body>
+</html>

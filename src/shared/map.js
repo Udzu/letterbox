@@ -1,5 +1,6 @@
-// The Lingtape world map: countries shaded by their number of songs, clickable, with markers for
-// countries too small to click, and zooming (buttons, Ctrl+wheel, double-click, pinch) and panning (drag).
+// The world map for the playlist pages (Lingtape, Countries): countries shaded by their number of songs,
+// clickable, with markers for countries too small to click, and zooming (buttons, Ctrl+wheel, double-click,
+// pinch) and panning (drag). The map data comes from scripts/world-map.mjs.
 
 const SVG = "http://www.w3.org/2000/svg";
 const MAX_ZOOM = 24;
@@ -9,9 +10,11 @@ const MARKER_RADIUS = 4; // in screen pixels
 export const LEVELS = [1, 2, 3, 6, 10];
 const level = (n) => LEVELS.findLastIndex((min) => n >= min);
 
-// Draw the map in svg; onSelect(name) is called when a country with songs is clicked.
-// Returns update(counts, selected), which reshades the map for a Map of country name to count.
-export function createMap(svg, data, { onSelect, zoomIn, zoomOut, zoomReset }) {
+// Draw the map in svg; onSelect(name) is called when a country with songs is clicked, and label(name, n)
+// gives a country's hover text. Returns update(counts, selected), which reshades the map for a Map of
+// country name to count.
+const countLabel = (name, n) => (n ? `${name}: ${n} song${n === 1 ? "" : "s"}` : name);
+export function createMap(svg, data, { onSelect, zoomIn, zoomOut, zoomReset, label = countLabel }) {
   const { width, height } = data;
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   const countries = svg.appendChild(document.createElementNS(SVG, "g"));
@@ -128,7 +131,7 @@ export function createMap(svg, data, { onSelect, zoomIn, zoomOut, zoomReset }) {
       const n = counts.get(name) ?? 0;
       const cls = name === selected ? "selected active" : n ? `level${level(n)} active` : "";
       path.setAttribute("class", cls);
-      const text = n ? `${name}: ${n} song${n === 1 ? "" : "s"}` : name;
+      const text = label(name, n);
       path.querySelector("title").textContent = text;
       if (marker) {
         marker.setAttribute("class", cls);
