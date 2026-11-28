@@ -1,5 +1,5 @@
 // The Stage page: browse a playlist with a song from a musical or opera for every year from 1637 to 2024,
-// by era (musicals, operas or baroque operas), decade and year, composer and search, newest or oldest
+// by era (musicals, operas or baroque operas), decade and year, language, composer and search, newest or oldest
 // first, and play the songs in place or on YouTube.
 
 import data from "./data.json";
@@ -7,7 +7,7 @@ import { counts, decade, ERAS, filterSongs, fromHash, KEYS, sortSongs, surname, 
 import { createPlayer, el, playLinks, plural, showCards } from "../shared/songs.js";
 
 const $ = (id) => document.getElementById(id);
-const { songs, gaps } = data; // gaps: the years without a song (1646), shown as cards with a note
+const { songs, gaps, flags } = data; // gaps: the years without a song (1646), shown as cards with a note
 
 let selection = fromHash(location.hash);
 
@@ -54,6 +54,8 @@ const { thumbnail, playRandom } = createPlayer();
 
 // a button that sets a filter and scrolls to the results
 const setFilter = (changes) => { select(changes); $("results-header").scrollIntoView({ block: "start" }); };
+// a flag that shows the songs in its language (none for English, the most common)
+const flagLink = (language) => language !== "English" && el("button", { type: "button", className: "flag", title: `${language}: show these songs`, ariaLabel: `${language}: show these songs`, onclick: () => setFilter({ language }) }, flags[language]);
 const filterLink = (text, changes, title) => el("button", { type: "button", className: "link", title, onclick: () => setFilter(changes) }, text);
 
 const cards = new Map(); // song → card, made once and reused so playing videos survive filtering
@@ -64,7 +66,8 @@ function card(song) {
   const c = el("article", { className: `song ${song.era}` },
     thumbnail(song),
     el("div", { className: "info" },
-      el("div", { className: "title" }, song.video ? el("a", { href: `https://youtu.be/${song.video}`, target: "_blank", rel: "noopener" }, song.song) : song.song),
+      el("div", { className: "title" }, song.video ? el("a", { href: `https://youtu.be/${song.video}`, target: "_blank", rel: "noopener" }, song.song) : song.song,
+        song.language !== "English" && " ", flagLink(song.language)),
       el("div", { className: "work" }, "from ", el("i", {}, song.work)),
       el("div", { className: "about" },
         filterLink(String(song.year), { era: song.era, decade: decade(song.year), year: String(song.year) }, `Show the song from ${song.year}`),
@@ -102,6 +105,10 @@ function render() {
   const years = selection.decade ? counts(songs, selection, "year") : new Map();
   for (const label of ["years-label", "years"]) $(label).hidden = !selection.decade;
   chips($("years"), [...years].sort((a, b) => a[0] - b[0]).map(([y, n]) => [y, y, n]), selection.year, (year) => select({ year }));
+
+  // languages, most songs first
+  const languages = counts(songs, selection, "language");
+  chips($("languages"), [...languages].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([l, n]) => [l, `${flags[l]} ${l}`, n]), selection.language, (language) => select({ language }));
 
   // composers with more than one song (and the selected one), most first
   const composers = counts(songs, selection, "composer");

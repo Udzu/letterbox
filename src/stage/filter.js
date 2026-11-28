@@ -1,12 +1,12 @@
 // Filtering the Stage playlist (a song from a musical or opera for every year from 1637 to 2024) by era
-// (which of the three playlists it's from), decade and year, composer and a text search, with counts for
+// (which of the three playlists it's from), decade and year, language, composer and a text search, with counts for
 // each choice given the other filters, sorting newest or oldest first, and the selection as a URL hash.
 
 // the eras, one for each playlist, newest first
 export const ERAS = { musicals: "Musicals", operas: "Operas", baroque: "Baroque operas" };
 
 // the filters, in the order they appear in the URL hash
-export const KEYS = ["era", "decade", "year", "composer", "q"];
+export const KEYS = ["era", "decade", "year", "language", "composer", "q"];
 
 export const decade = (year) => `${Math.floor(year / 10) * 10}s`;
 
@@ -29,7 +29,8 @@ export function surname(name) {
   return words.slice(words.length > 2 && /^(I+|Jr\.)$/.test(words.at(-1)) ? -2 : -1).join(" ");
 }
 
-// what the search covers: just what the cards show (not the performers or album)
+// what the search covers: just what the cards show in words (not the performers or album, or the
+// language, which only shows as a flag)
 const searchText = (song) => fold([song.song, song.work, ...song.composers, String(song.year), ERAS[song.era]].filter(Boolean).join("\n"));
 
 // whether some word in text starts with word ("kander" finds Kander but not Iskander)
@@ -37,10 +38,11 @@ const startsWord = (text, word) => new RegExp(`(?:^|[^\\p{L}\\p{N}])${word.repla
 
 // Whether a song passes the filters in selection, ignoring the one named skip (for facet counts).
 export function matches(song, selection, skip = null) {
-  const { era, composer, q } = selection;
+  const { era, language, composer, q } = selection;
   if (era && skip !== "era" && song.era !== era) return false;
   if (selection.decade && skip !== "decade" && decade(song.year) !== selection.decade) return false;
   if (selection.year && skip !== "decade" && skip !== "year" && String(song.year) !== selection.year) return false;
+  if (language && skip !== "language" && song.language !== language) return false;
   if (composer && skip !== "composer" && !song.composers.includes(composer)) return false;
   if (q && skip !== "q") {
     const text = searchText(song);
@@ -58,10 +60,11 @@ const VALUES = {
   era: (song) => [song.era],
   decade: (song) => [decade(song.year)],
   year: (song) => [String(song.year)],
+  language: (song) => [song.language],
   composer: (song) => song.composers,
 };
 
-// The number of songs for each value of a facet ("era", "decade", "year" or "composer") among the songs
+// The number of songs for each value of a facet ("era", "decade", "year", "language" or "composer") among the songs
 // that pass the other filters (for decades, ignoring the year too), counting a song for each composer.
 export function counts(songs, selection, facet) {
   const result = new Map();

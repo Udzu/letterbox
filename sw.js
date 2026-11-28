@@ -17,7 +17,7 @@ const FILES = {
   "pangrams.html": "0929608a2944",
   "patterns.html": "361a3257a50b",
   "rhymes.html": "50178d4f9a2c",
-  "stage.html": "99eb191b5289",
+  "stage.html": "873f0fe9fd60",
   "unicode.html": "429538db566e",
   "wordlists.html": "7f0efc010946",
   "words.html": "cba7933b951e",
