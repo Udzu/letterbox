@@ -8,17 +8,21 @@ name). For each song without a link, searches
 YouTube and YouTube Music (which often finds the official track when YouTube doesn't) for
 "<song> <performer>" (and YouTube for "<song> <songwriters>" if nothing matches well) and scores the
 top results:
-- the title contains the song name (ignoring case, accents and punctuation, with Cyrillic transliterated):
-  +3, or something close to it (as with variant transliterations): +2
+- the title contains the song name (ignoring case, accents and punctuation, with Cyrillic transliterated,
+  or just the part after a colon, as in "Show Boat, Act I: Can't Help Lovin' Dat Man"): +3, or something
+  close to it (as with variant transliterations): +2, or neither (probably another song): -3
 - the channel is the performer's auto-generated "<performer> - Topic" channel (official releases, so
   usually the exact recording): +5, or (close to) the performer's own channel: +4, or the performer is
   named in the title: +3
-- the album matches too (for YouTube Music results, when the sheet has albums): +3
+- the album matches too (when the sheet has albums): +3 (+1 if it matches only without its bracketed
+  part, like "(Studio Cast Recording (1955))"), or the album is different (probably a compilation
+  or reissue, even with the same ISRC): -2. YouTube Music results name their album; for the best few
+  other results, it's looked up (and one that turns out not to be from an album, an upload, gets -1)
 - words suggesting a different recording or not the song (live, cover, karaoke, lyrics, fan, ...) that
   aren't in the song name: -2 each, and -2 for videos over 8 minutes (unless the expected length is known)
 With an "ISRC" column, YouTube Music is also searched for the ISRC, which often (but not always) finds the
 exact recording: such results get +2 if their title matches too. With an "Apple ID" column, each track's
-length is looked up on Apple Music (iTunes lookup API), and results within 3 seconds of it get +3 (within 10
+length is looked up on Apple Music (iTunes lookup API), and results within a second of it get +4 (within 3 seconds: +3, within 10
 seconds: +1), and those more than 15% off get -3: this tells apart recordings of the same classical piece.
 Classical titles are written in many ways ("2. Adagio" or "II. Adagio"), so a title with at least 75% of
 the song name's words counts as close (+2).
@@ -72,6 +76,12 @@ def core(song):
     return re.sub(r"\s*[(\[][^)\]]*[)\]]", "", song).strip() or song
 
 
+def after_colon(song):
+    """The song name without a leading work, act and so on: "Show Boat, Act I: Can't Help Lovin' Dat Man" →
+    "Can't Help Lovin' Dat Man"."""
+    return song.rsplit(": ", 1)[-1].strip(" \"'") or song
+
+
 def first_act(performer):
     """The first-named act: "Cedar Walton, George Coleman & Sam Jones" → "Cedar Walton"."""
     return re.split(r"\s*(?:&|,| and | feat\.? | with )\s*", performer)[0] or performer
@@ -84,19 +94,28 @@ def overlap(title, phrase):
     return sum(w in have for w in words) / len(words) if words else 0
 
 
-def score(entry, song, performer, album="", short="", length=None):
+def score(entry, song, performer, album="", short="", length=None, full_album=""):
     title, channel = fold(entry.get("title") or ""), fold(entry.get("channel") or entry.get("uploader") or "")
     s = 0
     if contains(title, song) or contains(title, short):
         s += 3
     elif song and (close(title, song) or (short and close(title, short)) or overlap(title, short or song) >= 0.75):
         s += 2
-    if s and entry.get("isrc"):
+    titled = s > 0
+    if not titled:
+        s -= 3  # probably another song, even if by the right performer and the right length
+    if titled and entry.get("isrc"):
         s += 2
     # the same song from the same album (known for YouTube Music results): the same recording, not a
     # rerelease or another take (but not another track from that album)
-    if s and album and entry.get("album") and (fold(entry["album"]) == album or close(fold(entry["album"]), album)):
-        s += 3
+    # (and when the album is known and different, probably a compilation or reissue: the same recording
+    # perhaps, even with the same ISRC, but the original album's track is the one wanted)
+    if titled and album and entry.get("album"):
+        same = lambda a, b: a == b or close(a, b) or close(b, a)
+        s += 3 if same(fold(entry["album"]), full_album) else 1 if same(fold(core(entry["album"])), album) else -2
+    # (and when it was looked up and it's not from any album, an upload, not an official release)
+    elif titled and album and "album" in entry and entry.get("looked_up"):
+        s -= 1
     # performers like "Bing Crosby & Danny Kaye" also match channels for their first-named act
     # (performer isn't folded yet, so that it can be split at commas)
     acts = [fold(performer)] + [fold(a) for a in re.split(r"\s*(?:&|,| and | feat\.? | with )\s*", performer) if a]
@@ -112,7 +131,7 @@ def score(entry, song, performer, album="", short="", length=None):
     duration = entry.get("duration")
     if length and duration:
         off = abs(duration - length)
-        s += 3 if off <= 3 else 1 if off <= 10 else -3 if off > 0.15 * length else 0
+        s += 4 if off <= 1 else 3 if off <= 3 else 1 if off <= 10 else -3 if off > 0.15 * length else 0
     elif (duration or 0) > 8 * 60:
         s -= 2
     return s
@@ -137,6 +156,8 @@ def query(text):
 
 
 MUSIC_RESULTS = 3
+ALBUM_RESULTS = 5  # for the search that includes the album
+LOOKUPS = 6  # the best results to look up the album of, when it's not known
 
 
 def music_query(text, results=MUSIC_RESULTS):
@@ -169,8 +190,8 @@ def search(song, performer, songwriters="", previous=(), album="", isrc="", leng
     previous candidates, best first, as (score, entry)."""
     text = f"{core(song)} {first_act(performer)}"
     found = query(text)
-    for q in ([f"{text} {core(album)}"] if album else []) + [text]:
-        found += [e for e in music_query(q) if e["id"] not in {f["id"] for f in found}]
+    for q, n in ([(f"{text} {core(album)}", ALBUM_RESULTS)] if album else []) + [(text, MUSIC_RESULTS)]:
+        found += [e for e in music_query(q, n) if e["id"] not in {f["id"] for f in found}]
     if isrc:
         hits = music_query(isrc, 2)
         for e in found:  # already found by name, and by ISRC too
@@ -179,9 +200,21 @@ def search(song, performer, songwriters="", previous=(), album="", isrc="", leng
         found += [{**e, "isrc": True} for e in hits if e["id"] not in {f["id"] for f in found}]
     ids = {e["id"] for e in found}
     entries = found + [e for e in previous if e["id"] not in ids]
-    rank = lambda es: sorted(((score(e, fold(song), performer, fold(core(album)), fold(core(song)), length), e) for e in es),
+    rank = lambda es: sorted(((score(e, fold(song), performer, fold(core(album)), fold(core(after_colon(song))), length, fold(album)), e) for e in es),
                              key=lambda x: -x[0])
     results = rank(entries)
+    # plain YouTube results don't say which album they're from, so look up the best few that don't
+    if album:
+        lookup = [e for _, e in results[:LOOKUPS] if "album" not in e]
+        with yt_dlp.YoutubeDL({"quiet": True, "no_warnings": True, "skip_download": True}) as ydl:
+            for e in lookup:
+                try:
+                    e["album"] = ydl.extract_info(f"https://www.youtube.com/watch?v={e['id']}", download=False).get("album")
+                except Exception:  # noqa: BLE001
+                    e["album"] = None
+                e["looked_up"] = True
+        if lookup:
+            results = rank(entries)
     if songwriters and (not results or results[0][0] < 6):
         seen = {e["id"] for e in entries}
         results = rank(entries + [e for e in query(f"{song} {songwriters}") if e["id"] not in seen])
