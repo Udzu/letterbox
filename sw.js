@@ -3,7 +3,7 @@
 const FILES = {
   "anagrams.html": "12111cd204ad",
   "chrismukkah.html": "c968978a4ca8",
-  "countries.html": "3ebd5c75987d",
+  "countries.html": "bbfda6ae15d3",
   "dates.html": "7347e43f2ff2",
   "dice.html": "2c265c28341b",
   "index.html": "20d1e041bdff",
