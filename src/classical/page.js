@@ -26,7 +26,7 @@ function chips(container, entries, selected, onClick) {
 }
 
 // the sort order: by pop song (the default) or by when the piece was composed
-const SORTS = { song: "Pop song", year: "Year composed" };
+const SORTS = { song: "Pop song", year: "Year of piece" };
 function renderSorts() {
   const current = selection.sort ?? "song";
   $("sorts").replaceChildren(...Object.entries(SORTS).map(([sort, label]) => el("button", {
