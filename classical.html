@@ -84,7 +84,7 @@
 </style>
 </head>
 <body>
-<nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="ladders.html">Ladders</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="chrismukkah.html">Chrismukkah</a> · <b>Classical</b> · <a href="countries.html">Countries</a> · <a href="lingtape.html">Lingtape</a></nav>
+<nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="ladders.html">Ladders</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="chrismukkah.html">Chrismukkah</a> · <b>Classical</b> · <a href="countries.html">Countries</a> · <a href="lingtape.html">Lingtape</a> · <a href="stage.html">Stage</a></nav>
 <main>
   <p class="intro"><b>Classically Inspired</b>: a playlist of pop songs based on classical pieces, each followed by the piece it's based on: both adaptations (songs that take the piece's tune) and samples (songs built on a recording of it). Also on <a href="https://music.apple.com/gb/playlist/classically-inspired/pl.u-NpXmDKpFpZbL4N" target="_blank" rel="noopener">Apple Music</a>.</p>
   <div id="filters">
@@ -128,7 +128,7 @@
     const i = words.length > 2 && /^(di|de|da|del)$/.test(words.at(-2)) ? words.length - 2 : words.length - 1;
     return words.slice(i).join(" ");
   }
-  var searchText = (pair) => fold([...pair.composers, String(pair.year), ...[pair.pop, pair.piece].flatMap((t) => [t.song, t.artist, t.album])].filter(Boolean).join("\n"));
+  var searchText = (pair) => fold([...pair.composers, String(pair.year), pair.pop.song, pair.pop.artist, pair.piece.song].filter(Boolean).join("\n"));
   function matches(pair, selection2, skip = null) {
     const { section, era, composer, q } = selection2;
     if (section && skip !== "section" && pair.section !== section) return false;

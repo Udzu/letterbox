@@ -32,8 +32,8 @@ export function surname(name) {
   return words.slice(i).join(" ");
 }
 
-const searchText = (pair) => fold([...pair.composers, String(pair.year), ...[pair.pop, pair.piece].flatMap((t) => [t.song, t.artist, t.album])]
-  .filter(Boolean).join("\n"));
+// what the search covers: just what the cards show (so not the pieces' performers, or albums)
+const searchText = (pair) => fold([...pair.composers, String(pair.year), pair.pop.song, pair.pop.artist, pair.piece.song].filter(Boolean).join("\n"));
 
 // Whether a pair passes the filters in selection, ignoring the one named skip (for facet counts).
 export function matches(pair, selection, skip = null) {
