@@ -1,0 +1,364 @@
+<!doctype html>
+<!-- Generated from src/classical/classical.template.html by scripts/build.mjs: do not edit -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+  // the service worker that keeps the site working offline (see scripts/build-sw.mjs); not over file://
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js");
+</script>
+<title>Classical</title>
+<style>
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, sans-serif;
+  }
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  nav { margin: -24px 0 20px; text-align: center; font-size: 0.95rem; color: #666; padding: 10px 0; background: #e8f5f2; box-shadow: 0 0 0 100vmax #e8f5f2, 0 1px 0 100vmax #bde0d8; clip-path: inset(0 -100vmax -1px); }
+  nav a, nav b { white-space: nowrap; }
+  nav a { color: #06c; }
+  nav b { color: #000; }
+  nav img { width: 1.3em; height: 1.3em; vertical-align: -0.3em; }
+  a { color: #06c; }
+  .intro { margin: 0 0 12px; }
+
+  /* the filters: a label column and rows of toggle chips */
+  #filters { display: grid; grid-template-columns: max-content 1fr; gap: 8px 12px; align-items: baseline; margin: 16px 0; }
+  #filters > label, #filters > .label { font-weight: 600; font-size: 0.95rem; }
+  #filters > [hidden] { display: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+  .chip { font: inherit; font-size: 0.9rem; padding: 2px 9px; border: 1px solid #bbc; border-radius: 999px; background: #fff; cursor: pointer; }
+  .chip:hover { border-color: #06c; }
+  .chip[aria-pressed="true"] { background: #06c; border-color: #06c; color: #fff; }
+  .chip .count { color: #888; font-size: 0.8rem; }
+  .chip[aria-pressed="true"] .count { color: #cde; }
+  #search { width: 100%; max-width: 480px; box-sizing: border-box; padding: 6px 8px; font: inherit; }
+  @media (max-width: 600px) {
+    #filters { grid-template-columns: 1fr; gap: 4px; }
+    #filters > label, #filters > .label { margin-top: 6px; }
+  }
+
+  /* the results: a header with the count and playlist links, then a grid of pair cards */
+  #results-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 0; border-top: 1px solid #ccd; scroll-margin-top: 8px; }
+  #results-header button { font: inherit; font-size: 0.9rem; cursor: pointer; }
+  #play { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  #plays { align-items: center; font-size: 0.9rem; }
+  #results-header #plays .chip { font-size: 0.85rem; padding: 1px 8px; }
+  #pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr)); gap: 20px; margin-top: 8px; }
+  /* a pair: a tinted card holding the pop song and the classical piece side by side (stacked on narrow
+     phones) as white panels, then whether it's an adaptation or a sample, and the piece's era; samples
+     are grey */
+  .pair { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid #bcd2ea; border-radius: 8px; background: #e3edf8; }
+  .pair.sample { border-color: #d2d4d9; background: #ebecef; }
+  .tracks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; }
+  @media (max-width: 420px) {
+    .tracks { grid-template-columns: 1fr; }
+  }
+  .about { padding: 0 2px; font-size: 0.85rem; color: #444; }
+  .song { display: flex; flex-direction: column; min-width: 0; background: #fff; border-radius: 5px; overflow: hidden; }
+  .thumb { display: block; position: relative; width: 100%; aspect-ratio: 16 / 9; padding: 0; border: none; background: #111; cursor: pointer; }
+  .thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .thumb .play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #fff; text-shadow: 0 0 8px rgba(0, 0, 0, 0.7); opacity: 0.85; }
+  .thumb:hover .play, .thumb:focus-visible .play { opacity: 1; color: #f28e2b; }
+  iframe.thumb { cursor: auto; }
+  .thumb.missing { display: flex; align-items: center; justify-content: center; background: #eee; color: #888; font-size: 0.9rem; cursor: auto; }
+  .info { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
+  .title { font-size: 1rem; overflow-wrap: anywhere; }
+  .piece .title { font-size: 0.92rem; }
+  .title a { color: inherit; font-weight: 600; }
+  .artist { color: #555; font-size: 0.9rem; }
+  .link { font: inherit; padding: 0; border: none; background: none; color: #06c; cursor: pointer; text-align: left; }
+  .link:hover { text-decoration: underline; }
+  #empty { color: #666; }
+</style>
+</head>
+<body>
+<nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="ladders.html">Ladders</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="chrismukkah.html">Chrismukkah</a> · <b>Classical</b> · <a href="countries.html">Countries</a> · <a href="lingtape.html">Lingtape</a></nav>
+<main>
+  <p class="intro"><b>Classically Inspired</b>: a playlist of pop songs based on classical pieces, each followed by the piece it's based on: both adaptations (songs that take the piece's tune) and samples (songs built on a recording of it). Also on <a href="https://music.apple.com/gb/playlist/classically-inspired/pl.u-NpXmDKpFpZbL4N" target="_blank" rel="noopener">Apple Music</a>.</p>
+  <div id="filters">
+    <span class="label">Type</span>
+    <div id="sections" class="chips"></div>
+    <span class="label">Era</span>
+    <div id="eras" class="chips"></div>
+    <span class="label">Composer</span>
+    <div id="composers" class="chips"></div>
+    <label for="search">Search</label>
+    <div><input id="search" type="search" placeholder="Song, piece, performer, composer, year…" autocomplete="off"></div>
+    <span class="label">Sort by</span>
+    <div id="sorts" class="chips"></div>
+  </div>
+  <div id="results-header">
+    <span id="summary"></span>
+    <button type="button" id="clear" hidden>Clear filters</button>
+    <button type="button" id="random" title="Play a random one of these">Random song</button>
+    <span id="plays" class="chips"></span>
+    <span id="play"></span>
+  </div>
+  <p id="empty" hidden>No songs match these filters.</p>
+  <div id="pairs"></div>
+</main>
+<script>
+(() => {
+  // src/classical/data.json
+  var data_default = { pairs: [{ section: "sample", composers: ["Antonio Vivaldi"], year: 1725, era: "Baroque", pop: { song: "Addicted", artist: "Sweetbox", album: "Complete Best Classic Flavors", video: "ITKC1AqDZ2w" }, piece: { song: 'The Four Seasons, Violin Concerto No. 4 in F Minor, RV 297 "Winter": I. Allegro non molto', artist: "Francisco Fullana, Apollo's Fire & Jeannette Sorrell", album: "Vivaldi: The Four Seasons", video: "gCBm78VuSg4" } }, { section: "sample", composers: ["Vittorio Monti"], year: 1904, era: "Romantic", pop: { song: "Alejandro", artist: "Lady Gaga", album: "Alejandro - Single", video: "e6NIlIMSVdg" }, piece: { song: "Cs\xE1rd\xE1s", artist: "Nigel Kennedy & English Chamber Orchestra", album: "Classic Kennedy", video: "zozUqZch0Vo" } }, { section: "adaptation", composers: ["Sergei Rachmaninoff"], year: 1901, era: "Romantic", pop: { song: "All By Myself", artist: "Eric Carmen", album: "Eric Carmen", video: "wDfHksKVy8E" }, piece: { song: "Piano Concerto No. 2 in C Minor, Op. 18: 2. Adagio sostenuto", artist: "Lang Lang, Valery Gergiev & The Mariinsky Orchestra", album: "Rachmaninov: Piano Concerto No. 2; Paganini Rhapsody", video: "1Vkpll0jn0A" } }, { section: "adaptation", composers: ["Johann Sebastian Bach"], year: 1727, era: "Baroque", pop: { song: "American Tune", artist: "Paul Simon", album: "There Goes Rhymin' Simon (Bonus Tracks Edition)", video: "-8etrzygP_o" }, piece: { song: 'Matth\xE4us-Passion, BWV 244, Prima parte: Nr.15. Choral "Erkenne mich, mein H\xFCter"', artist: "Rapha\xEBl Pichon & Pygmalion", album: "J.S. Bach: Matth\xE4us-Passion, BWV 244", video: "8tKDe20Gd7U" } }, { section: "adaptation", composers: ["Alexander Borodin"], year: 1881, era: "Romantic", pop: { song: "And This Is My Beloved", artist: "Sarah Vaughan and Her Trio", album: "At Mister Kelly's (Original Album Plus Bonus Tracks)", video: "HBSKJ5Prn5g" }, piece: { song: "String Quartet No. 2 in D: III. Notturno", artist: "Tak\xE1cs Quartet", album: 'Borodin - Smetana: String Quartet No. 2 - String Quartet No. 1 "From My Life"', video: "i6bRpkeJqi0" } }, { section: "sample", composers: ["Claude Debussy"], year: 1890, approx: true, era: "Modern", pop: { song: "Angelica", artist: "Lamb", album: "Between Darkness and Wonder", video: "8l1xLP5ZsU4" }, piece: { song: "Suite bergamasque, L. 75: III. Clair de lune", artist: "Menahem Pressler", album: "Clair de lune", video: "b0zE3Rb4pAM" } }, { section: "adaptation", composers: ["Pyotr Ilyich Tchaikovsky"], year: 1888, era: "Romantic", pop: { song: "Annie's Song", artist: "John Denver", album: "John Denver's Greatest Hits, Vol. 2", video: "TpQQlJOQszA" }, piece: { song: "Symphony No. 5 in E Minor, Op. 64: II. Andante cantabile, con alcuna licenza", artist: "Berlin Philharmonic & Kirill Petrenko", album: "Tchaikovsky: Symphony No. 5", video: "k4ifu1KYUKc" } }, { section: "sample", composers: ["B\xE9la Bart\xF3k"], year: 1936, era: "Modern", pop: { song: "Aspiring Sociopath", artist: "Atmosphere", album: "Lucy Ford: The Atmosphere EP's", video: "OCRqef8RzJw" }, piece: { song: "Music for Strings, Percussion and Celesta: III. Adagio", artist: "Zolt\xE1n Kocsis", album: "B\xE9la Bart\xF3k: Music for Strings, Percussion and Celesta, Divertimento, Hungarian Sketches", video: "yuqLUtieGbU" } }, { section: "adaptation", composers: ["Franz Schubert"], year: 1825, era: "Romantic", pop: { song: "Ave Maria", artist: "Beyonc\xE9", album: "I AM...SASHA FIERCE (Deluxe Version)", video: "yLxK25jTzQc" }, piece: { song: "Ave Maria", artist: "Luciano Pavarotti", album: "I'll Be Home For Christmas", video: "AwGDOE_TaF8" } }, { section: "adaptation", composers: ["Wolfgang Amadeus Mozart"], year: 1788, era: "Classical", pop: { song: "Awaken The Spirit Of Christmas (feat. Samantha Sharpe)", artist: "Sharpe Family Singers", album: "A Sharpe Family Christmas", video: "GKAO_A0hxcE" }, piece: { song: "Symphony No. 40 in G Minor, K. 550: I. Molto allegro", artist: "Berlin Philharmonic & Sir Simon Rattle", album: "Mozart: Symphonies Nos. 39, 40 & 41", video: "RDAjLjvequ4" } }, { section: "adaptation", composers: ["Johannes Brahms"], year: 1883, era: "Romantic", pop: { song: "Baby Alone In Babylone", artist: "Jane Birkin", album: "Baby Alone In Babylone", video: "Qkb2uv4IZbQ" }, piece: { song: "Symphony No. 3 in F, Op. 90: III. Poco allegretto", artist: "Berlin Philharmonic & Claudio Abbado", album: "Brahms: Symphony No. 3", video: "t9ndxDhgZBM" } }, { section: "adaptation", composers: ["Erik Satie"], year: 1890, era: "Modern", pop: { song: "Battle of Trees", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "DBOW_PGNZVg" }, piece: { song: "Gnossiennes: No. 1 - Lent", artist: "Pascal Rog\xE9", album: "Satie: 3 Gymnop\xE9dies", video: "nImFFkrDv8U" } }, { section: "adaptation", composers: ["Alexander Borodin"], year: 1881, era: "Romantic", pop: { song: "Baubles, Bangles and Beads", artist: "Frank Sinatra", album: "Come Dance With Me!", video: "W0c8THJ467M" }, piece: { song: "String Quartet No. 2 in D Major: II. Scherzo. Allegro", artist: "Borodin Quartet", album: "Borodin String Quartets Nos. 1 & 2", video: "NohswNmsabQ" } }, { section: "sample", composers: ["George Gershwin"], year: 1924, era: "Modern", pop: { song: "Birthday", artist: "Red Velvet", album: "\u2018The ReVe Festival 2022 - Birthday\u2019 - EP", video: "oKpz0d9WBzE" }, piece: { song: "Rhapsody in Blue", artist: "Leonard Bernstein & Columbia Symphony Orchestra", album: "Gershwin: Rhapsody in Blue - An American in Paris", video: "7zBdVNBRsFU" } }, { section: "sample", composers: ["L\xE9o Delibes"], year: 1883, era: "Romantic", pop: { song: "Black Black Heart", artist: "David Usher", album: "Morning Orbit", video: "VyjjqLTLJh8" }, piece: { song: "Lakm\xE9: Viens, Mallika", artist: "Fran\xE7ois-Xavier Roth, Les Si\xE8cles, Marianne Crebassa & Sabine Devieilhe", album: "Mirages", video: "RGcr_hc7ffs" } }, { section: "sample", composers: ["Johann Sebastian Bach"], year: 1722, era: "Baroque", pop: { song: "BLUE", artist: "ZAYN", album: "Mind Of Mine (Deluxe Edition)", video: "Guy2nf8iELU" }, piece: { song: "The Well-Tempered Clavier, Book 1, Prelude and Fugue No. 1 in C Major, BWV 846: I. Prelude", artist: "Alexandre Tharaud", album: "Le Po\xE8te du piano", video: "kIHdxYS0v4Y" } }, { section: "adaptation", composers: ["Johann Sebastian Bach"], year: 1710, approx: true, era: "Baroque", pop: { song: "Bouree (2001 Remastered Version)", artist: "Jethro Tull", album: "50th Anniversary Collection", video: "DakAdgprg3c" }, piece: { song: "Lute Suite in E Minor, BWV 996: V. Bourr\xE9e", artist: "John Williams", album: "John Williams Plays Bach: The Complete Lute Music on Guitar", video: "bml0Ln9r6sc" } }, { section: "sample", composers: ["Johann Sebastian Bach"], year: 1723, approx: true, era: "Baroque", pop: { song: "Bum Bum Tam Tam", artist: "MC Fioti, Future, J Balvin, Stefflon Don & Juan Mag\xE1n", album: "Bum Bum Tam Tam - Single", video: "yQkWnXgtaEs" }, piece: { song: "Flute Partita in A Minor, BWV 1013: I. Allemande", artist: "Emmanuel Pahud", album: "Bach: Brandenburg Concerto No. 5 - Orchestral Suite No. 2 - Trio Sonata - Partita", video: "BQE9_Sb24io" } }, { section: "adaptation", composers: ["Fr\xE9d\xE9ric Chopin"], year: 1832, era: "Romantic", pop: { song: "Cactus Practice", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "Rud_ak3-KFk" }, piece: { song: "Nocturnes, Op. 9: No. 1 in B-Flat Minor", artist: "Arthur Rubinstein", album: "Chopin: Nocturnes", video: "Oy4bfn0tYEU" } }, { section: "adaptation", composers: ["Jean-Paul-\xC9gide Martini"], year: 1784, era: "Classical", pop: { song: "Can't Help Falling In Love", artist: "Elvis Presley", album: "Elv1s: 30 #1 Hits", video: "TlrNxJqODBc" }, piece: { song: "Plaisir d'amour", artist: "Pl\xE1cido Domingo, Patrick Messina, Gjorgi Dimcevski, Vincent Segal, Ira Coleman & Bridget Kibbey", album: "The Best of Pl\xE1cido Domingo", video: "2M4aH4kiUx4" } }, { section: "adaptation", composers: ["Claude Debussy"], year: 1910, era: "Modern", pop: { song: "Carry", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "baGT6ifFnHM" }, piece: { song: "Pr\xE9ludes, Book I, L. 117: No. 8, La Fille aux Cheveux de Lin", artist: "Krystian Zimerman", album: "Debussy: Pr\xE9ludes", video: "q15oF3q25Mw" } }, { section: "adaptation", composers: ["Modest Mussorgsky"], year: 1874, era: "Romantic", pop: { song: "The Chase", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "tU-BaubPu5k" }, piece: { song: "Pictures at an Exhibition: The Old Castle", artist: "Berlin Philharmonic & Claudio Abbado", album: "Mussorgsky: Pictures at an Exhibition (Live from Philharmonie, Berlin / 1993)", video: "BjpVjT5o8VU" } }, { section: "adaptation", composers: ["Jacques Offenbach"], year: 1858, era: "Romantic", pop: { song: "The Christmas Can-Can", artist: "Straight No Chaser", album: "Christmas Cheers (Deluxe Version)", video: "S83FcYtlJr4" }, piece: { song: 'Orph\xE9e aux enfers, Act II: Menuet et galop infernal "Can-Can"', artist: "Philip Ellis & Royal Philharmonic Orchestra", album: "Last Night of the Proms", video: "XmLKXWecr_4" } }, { section: "adaptation", composers: ["Dmitri Shostakovich"], year: 1956, approx: true, era: "Modern", pop: { song: "Come Waltz with Me", artist: "Demi Roussos", album: "Demis Roussos Greatest Hits - Forever and Ever", video: "xad2hSEFtYM" }, piece: { song: "Jazz Suite No. 2: 6. Waltz II", artist: "Royal Concertgebouw Orchestra & Riccardo Chailly", album: "Shostakovich: the Jazz Album", video: "WaKdPgkTZ7M" } }, { section: "adaptation", composers: ["Fr\xE9d\xE9ric Chopin"], year: 1839, era: "Romantic", pop: { song: "Could It Be Magic", artist: "Barry Manilow", album: "Ultimate Manilow", video: "Vc5XtkZSH-Q" }, piece: { song: "24 Pr\xE9ludes, Op. 28: 20. in C Minor", artist: "Maurizio Pollini", album: "Chopin: Preludes, Op. 28", video: "Q_pu6Wb_yW8" } }, { section: "adaptation", composers: ["Pyotr Ilyich Tchaikovsky"], year: 1876, era: "Romantic", pop: { song: "Daydream", artist: "Wallace Collection", album: "Laughing Cavalier", video: "4Xis3dXKgS4" }, piece: { song: "Swan Lake, Op. 20, Act 2: No. 14, Moderato", artist: "Andr\xE9 Previn & London Symphony Orchestra", album: "Tchaikovsky: Swan Lake", video: "ofOhRUfazns" } }, { section: "adaptation", composers: ["Giacomo Puccini"], year: 1896, era: "Romantic", pop: { song: "Don't You Know?", artist: "Della Reese", album: "A Bronx Tale (Music from the Motion Picture)", video: "b3N0FITZ6e0" }, piece: { song: "La boh\xE8me: Quando me'n v\xF2 (Musette's Waltz)", artist: "Anna Netrebko, Vienna Philharmonic & Gianandrea Noseda", album: "Opera", video: "Hmax_i26Umo" } }, { section: "sample", composers: ["Samuel Barber"], year: 1936, era: "Modern", pop: { song: "Down For You", artist: "Mobb Deep, Nas & Jorja Smith", album: "Infinite", video: "Engvxca61SI" }, piece: { song: "Adagio for strings (or string quartet; arr. from 2nd mvt. of String Quartet), Op. 11", artist: "St. Louis Symphony Orchestra", album: "Barber: Adagio for Strings, Op. 11 - Orchestral Music", video: "vLODynfFu8M" } }, { section: "adaptation", composers: ["Johann Sebastian Bach"], year: 1734, approx: true, era: "Baroque", pop: { song: "Edge of the Moon", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "TYd75Ev7xp4" }, piece: { song: "Flute Sonata in E-Flat Major, BWV 1031: II. Siciliano", artist: "Paul Nicholson & Lisa Beznosiuk", album: "Bach: The Complete Flute Sonatas", video: "pJrPHtIzUjE" } }, { section: "sample", composers: ["Gy\xF6rgy Ligeti"], year: 1965, era: "Modern", pop: { song: "Ego", artist: "A Tribe Called Quest", album: "We Got It from Here... Thank You 4 Your Service", video: "PNoVzY7zEo4" }, piece: { song: "Requiem II. Kyrie. molto espressivo", artist: "Asko Ensemble, Caroline Stein, Heinz Holliger, London Voices, Sch\xF6nberg Ensemble & Terry Edwards", album: "Ligeti: Hamburg Concerto, Double Concerto, Requiem, Ramifications", video: "jqaGdIIUUQY" } }, { section: "adaptation", composers: ["Arthur Sullivan"], year: 1879, era: "Romantic", pop: { song: "The Elements", artist: "Tom Lehrer", album: "Another Wasted Evening", video: "ISwL-XWnxYA" }, piece: { song: "The Pirates of Penzance: I Am the Model of a Modern Major General", artist: "Peter Pratt, D'Oyle Carte Orchestra, D'Oyle Carte Chorus & Isidore Godfrey", album: "Gilbert & Sullivan - The Best Of", video: "FoUWTKkpbnU" } }, { section: "adaptation", composers: ["Fr\xE9d\xE9ric Chopin"], year: 1839, era: "Romantic", pop: { song: "Exit Music (For a Film)", artist: "Radiohead", album: "OK Computer", video: "Bf01riuiJWA" }, piece: { song: "Preludes, Op. 28: No. 4 in E Minor. Largo", artist: "Daniel Barenboim", album: "Classical for the Background", video: "QKZY55qlkMQ" } }, { section: "adaptation", composers: ["Aaron Copland"], year: 1942, era: "Modern", pop: { song: "Fanfare for the Common Man (Single Edit)", artist: "Emerson, Lake & Palmer", album: "The Best of Emerson Lake & Palmer", video: "v7c6IZ7I4dQ" }, piece: { song: "Fanfare for the Common Man", artist: "London Symphony Orchestra & Aaron Copland", album: "Copland Conducts Copland (Expanded Edition)", video: "RAKEnIqa2Tg" } }, { section: "adaptation", composers: ["Enrique Granados"], year: 1890, approx: true, era: "Romantic", pop: { song: "Fearlessness", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "7ySg5MxlL1o" }, piece: { song: 'Spanish Dance, Op. 37, No. 2 - "Oriental"', artist: "Alicia de Larrocha", album: "Granados: Danzas Espa\xF1olas", video: "LbpuNNb_RN0" } }, { section: "adaptation", composers: ["Joaqu\xEDn Rodrigo"], year: 1939, era: "Modern", pop: { song: "Follow Me", artist: "Demis Roussos", album: "Greater Love", video: "fzPmicLXM5w" }, piece: { song: "Conc de Aranjuez: II. Adagio", artist: "Andr\xE9 Previn & London Symphony Orchestra", album: "Rodrigo: Concierto de Aranjuez, Fantasia & Elogio de Guitarra", video: "5hUZIkseSQE" } }, { section: "adaptation", composers: ["Fr\xE9d\xE9ric Chopin"], year: 1844, era: "Romantic", pop: { song: "For the Damaged Coda", artist: "Blonde Redhead", album: "Melody of Certain Damaged Lemons", video: "5SSdvNcAagI" }, piece: { song: "Nocturne in F Minor, Op. 55 No. 1", artist: "Maurizio Pollini", album: "Chopin: Nocturnes, Mazurkas, Berceuse, Sonata, Op. 55-58", video: "EsJU7qMyGzw" } }, { section: "sample", composers: ["Hector Berlioz"], year: 1830, era: "Romantic", pop: { song: "four ethers", artist: "serpentwithfeet", album: "blisters - EP", video: "4rjP8e3paYk" }, piece: { song: "Symphonie fantastique, Op. 14, H 48: IV. Marche au supplice", artist: "London Symphony Orchestra & Sir Colin Davis", album: "Berlioz: Symphonie fantastique", video: "qFilUMr80Vg" } }, { section: "adaptation", composers: ["Sergei Rachmaninoff"], year: 1901, era: "Romantic", pop: { song: "Full Moon And Empty Arms (78 rpm Version)", artist: "Frank Sinatra & Axel Stordahl", album: "The Columbia Years 1943-1952: The Complete Recordings", video: "PsmX51i_jTY" }, piece: { song: "Piano Concerto No. 2 in C Minor, Op. 18: 3. Allegro scherzando", artist: "Lang Lang, Valery Gergiev & The Mariinsky Orchestra", album: "Rachmaninov: Piano Concerto No. 2; Paganini Rhapsody", video: "V-kXjQw1kdE" } }, { section: "sample", composers: ["Bernard Herrmann"], year: 1960, era: "Modern", pop: { song: "Gimme Some More", artist: "Busta Rhymes", album: "Extinction Level Event: The Final World Front", video: "R0A60eEllZc" }, piece: { song: "Prelude", artist: "Bernard Herrmann, Joel McNeely & Royal Scottish National Orchestra", album: "Psycho (The Complete Original Motion Picture Score)", video: "w5Sqv_45A5c" } }, { section: "sample", composers: ["Henryk G\xF3recki"], year: 1976, era: "Modern", pop: { song: "Gorecki", artist: "Lamb", album: "Lamb", video: "cfsmETjZhwY" }, piece: { song: "Symphony No. 3, Op. 36: II. Lento E Largo \u2014 Tranquillissimo", artist: "Lisa Gerrard, Yordan Kamdzhalov & Genesis Orchestra", album: "Go\u0301recki Symphony No. 3: Symphony of Sorrowful Songs", video: "V-3ND_VSXpE" } }, { section: "adaptation", composers: ["Gioachino Rossini"], year: 1816, era: "Classical", pop: { song: "Grace Kelly", artist: "MIKA", album: "Life In Cartoon Motion", video: "OAX4nJAK_wg" }, piece: { song: 'Il barbiere di Siviglia, Act I: "Largo al factotum"', artist: "Sherrill Milnes, London Philharmonic Orchestra & Silvio Varviso", album: "50 Opera Classics (By Classic FM)", video: "xb98wKXvr3c" } }, { section: "adaptation", composers: ["Muzio Clementi"], year: 1797, era: "Classical", pop: { song: "A Groovy Kind of Love", artist: "Phil Collins", album: "The Singles (Remastered)", video: "6dRCxhN6YrQ" }, piece: { song: "Sonatina No. 1 in C Major, Op. 36: III. Vivace", artist: "Lang Lang", album: "Clementi: Sonatina No. 1 in C Major, Op. 36 - Single", video: "Kie9CFbcCP8" } }, { section: "sample", composers: ["George Frideric Handel"], year: 1741, era: "Baroque", pop: { song: "Hallelujah (I Don't Think About You)", artist: "Kevin Olusola", album: "Dawn of a Misfit", video: "MCX_a0RHZkw" }, piece: { song: 'Messiah: 42. Chorus: "Hallelujah"', artist: "The English Concert, Trevor Pinnock & The English Concert Choir", album: "Handel: Messiah", video: "kUY2jDHeaFQ" } }, { section: "sample", composers: ["Carl Orff"], year: 1936, era: "Modern", pop: { song: "Hate Me Now (feat. Diddy)", artist: "Nas", album: "I Am...", video: "Vjhcq3pSsp0" }, piece: { song: "Carmina Burana: I. O Fortuna", artist: "London Symphony Chorus, London Symphony Orchestra & Richard Hickox", album: "Orff: Carmina Burana", video: "1064fRvl-G8" } }, { section: "adaptation", composers: ["Amilcare Ponchielli"], year: 1876, era: "Romantic", pop: { song: "Hello Muddah, Hello Faddah (A Letter from Camp)", artist: "Allan Sherman", album: "Rhino Hi-Five: Allan Sherman - EP", video: "ddF9Utpw0oU" }, piece: { song: "La Gioconda, Act III: Dance Of The Hours", artist: "Gothenburg Symphony Orchestra & Neeme J\xE4rvi", album: "Ballet Highlights - The Nutcracker, Romeo & Juliet, Swan Lake", video: "EbLtezObvAM" } }, { section: "adaptation", composers: ["Giuseppe Verdi"], year: 1851, era: "Romantic", pop: { song: "Here", artist: "Robert Goulet", album: "Always You", video: "YVZjSlKw-yA" }, piece: { song: "Rigoletto, Act I: Caro nome", artist: "Alida Ferrarini, Alexander Rahbari & Slovak Radio Symphony Orchestra", album: "Opera - 50 of the Best", video: "SKgBTYbRKX8" } }, { section: "adaptation", composers: ["George Frideric Handel"], year: 1713, era: "Baroque", pop: { song: "Hold On", artist: "Pet Shop Boys", album: "Elysium: Further Listening 2011-2012 (Deluxe Edition) [2017 Remaster]", video: "8W42G-I3Amw" }, piece: { song: "Ode for the Birthday of Queen Anne (Eternal source of light divine): 1. Eternal source of light divine", artist: "Alastair Ross, Daniel Hyde, The Choir of King's College, Cambridge, Robin Blaze, Sir Stephen Cleobury & Susan Gritton", album: "Handel: Coronation Anthems", video: "rOsLJwtX6R4" } }, { section: "adaptation", composers: ["Emmanuel Chabrier"], year: 1883, era: "Romantic", pop: { song: "Hot Diggity (Dog Ziggity Boom) [Remastered February 1992]", artist: "Perry Como", album: "Magic Moments - The Very Best of Perry Como", video: "nhyQFFhMVxc" }, piece: { song: "Espa\xF1a", artist: "John Wilson & Sinfonia of London", album: "Escales: French Orchestral Works", video: "87mdAzkZMRs" } }, { section: "sample", composers: ["Wolfgang Amadeus Mozart"], year: 1791, era: "Classical", pop: { song: "Human Sadness", artist: "The Voidz", album: "Tyranny", video: "mckYvBze9YA" }, piece: { song: "Requiem in D Minor K. 626: I. Introitus", artist: "Anna Maria Panzarella, Christoph Pr\xE9gardien, Les Arts Florissants, Nathalie Stutzmann, Nathan Berg & William Christie", album: "Mozart: Requiem in D Minor", video: "ZykvObuxZMA" } }, { section: "sample", composers: ["Sergei Prokofiev"], year: 1934, era: "Modern", pop: { song: "I Believe in Father Christmas", artist: "Greg Lake", album: "I Believe in Father Christmas - Single", video: "IyD_aXpn-Xc" }, piece: { song: "Lieutenant Kij\xE9 Suite, Op. 60: IV. Troika", artist: "Cincinnati Symphony Orchestra & Paavo J\xE4rvi", album: "Prokofiev: Lieutenant Kij\xE9 Suite, Op. 60 & Symphony No. 5 in B-Flat Major, Op. 100", video: "w0yFBioDWe4" } }, { section: "sample", composers: ["Ludwig van Beethoven"], year: 1810, era: "Classical", pop: { song: "I Can", artist: "Nas", album: "God's Son", video: "AHfrY4FfD-8" }, piece: { song: 'F\xFCr Elise, WoO 59 "Bagatelle in A Minor"', artist: "Lang Lang", album: "Piano Book (Encore Edition)", video: "k_ZLxAPro3w" } }, { section: "adaptation", composers: ["Felix Mendelssohn"], year: 1844, era: "Romantic", pop: { song: "I Don't Know How To Love Him", artist: "Yvonne Elliman", album: "Jesus Christ Superstar (Original Motion Picture Soundtrack)", video: "ry3Q1wFClu8" }, piece: { song: "Violin Concerto in E Minor, Op. 64: II. Andante", artist: "Nicola Benedetti", album: "Mendelssohn: Violin Concerto", video: "APFtX0lgNFI" } }, { section: "adaptation", composers: ["Sergei Rachmaninoff"], year: 1901, era: "Romantic", pop: { song: "I Think of You", artist: "Frank Sinatra", album: "Where Are You?", video: "ONEme_RfFbY" }, piece: { song: "Piano Concerto No. 2 in C Minor, Op. 18: 1. Moderato", artist: "Lang Lang, Valery Gergiev & The Mariinsky Orchestra", album: "Rachmaninov: Piano Concerto No. 2; Paganini Rhapsody", video: "_QILAENiyjY" } }, { section: "adaptation", composers: ["Fr\xE9d\xE9ric Chopin"], year: 1834, era: "Romantic", pop: { song: "I'm Always Chasing Rainbows", artist: "Perry Como", album: "The Essential Perry Como", video: "zANcE4QCD0k" }, piece: { song: "Fantaisie-Impromptu in C-Sharp Minor, Op. 66", artist: "Daniil Trifonov", album: "Chopin Evocations", video: "mJgGusU3krU" } }, { section: "sample", composers: ["Alessandro Marcello"], year: 1717, approx: true, era: "Baroque", pop: { song: "I'mma Shine", artist: "YoungBloodZ", album: "Step Up (Original Soundtrack)", video: "Ac8KO0FEe5s" }, piece: { song: "Oboe Concerto in D Minor: I. Andante e spiccato", artist: "Heinz Holliger & I Musici", album: "Albinoni, Cimarosa, Marcello, Sammartini, Lotti: Oboe Concertos", video: "iiwNn2O8SGs" } }, { section: "adaptation", composers: ["Camille Saint-Sa\xEBns"], year: 1886, era: "Romantic", pop: { song: "If I Had Words", artist: "Scott Fitzgerald & Yvonne Keeley", album: "If I Had Words: 70s Hit Wonders", video: "oNEHwsDQ1Hg" }, piece: { song: 'Symphony No. 3 in C Minor, Op. 78 - "Organ Symphony": II.ii. Maestoso - Pi\xF9 Allegro - Molto Allegro', artist: "Simon Preston, James Levine & Berlin Philharmonic", album: 'Saint-Sa\xEBns: Symphony No. 3 "Organ"', video: "3vipdmXX8CI" } }, { section: "sample", composers: ["Dmitri Shostakovich"], year: 1941, era: "Modern", pop: { song: "ill Manors", artist: "Plan B", album: "ill Manors", video: "PKavmFkuIN0" }, piece: { song: 'Symphony No. 7 in C Major, Op. 60 "Leningrad" (1941): IV. Allegro non troppo', artist: "New York Philharmonic & Leonard Bernstein", album: 'Shostakovich: Symphony No. 7 in C major, op. 60 "Leningrad"', video: "nqBSjUGWHN4" } }, { section: "adaptation", composers: ["Wolfgang Amadeus Mozart"], year: 1786, era: "Classical", pop: { song: "Ill Wind (After Mozart's Horn Concerto No. 4 in E-Flat Major, K. 495)", artist: "Scottish Chamber Orchestra, Sir Charles Mackerras & Richard Stuart", album: "Mozart: Horn Concerti", video: "VBhm-6vHFBI" }, piece: { song: "Horn Concerto No. 4 in E-Flat, K. 495: III. Rondo (Allegro Vivace)", artist: "G\xFCnter H\xF6gner, Karl B\xF6hm & Vienna Philharmonic", album: "Mozart: Horn Concertos", video: "7ZNrLilfRJE" } }, { section: "sample", composers: ["George Gershwin"], year: 1926, era: "Modern", pop: { song: "In This Life", artist: "Madonna", album: "Erotica", video: "tEZ1oEc50gQ" }, piece: { song: "3 Preludes for Piano Solo: II. Andante Con Moto e Poco Rubato", artist: "Leonard Bernstein", album: "Gershwin: Rhapsody in Blue", video: "AM8nVCmsR4s" } }, { section: "adaptation", composers: ["Eduardo di Capua"], year: 1898, era: "Romantic", pop: { song: "It's Now or Never", artist: "Elvis Presley", album: "Elv1s: 30 #1 Hits", video: "BJ7Vdj46hlc" }, piece: { song: "'O sole mio", artist: "Luciano Pavarotti, National Philharmonic Orchestra & Giancarlo Chiaramello", album: "Luciano Pavarotti: The Best + Bonus Track", video: "d_mLFHLSULw" } }, { section: "adaptation", composers: ["Leo\u0161 Jan\xE1\u010Dek"], year: 1926, era: "Modern", pop: { song: "Knife-Edge (2012 Remaster)", artist: "Emerson, Lake & Palmer", album: "Emerson, Lake & Palmer (Deluxe)", video: "OLhQaIko4AY" }, piece: { song: "Sinfonietta: I. Allegretto - Allegro - Maestoso", artist: "Vienna Philharmonic & Sir Charles Mackerras", album: "Jan\xE1cek: Sinfonietta - Taras Bulba- Ml\xE1di, Etc.", video: "g3rxlTk-LWE" } }, { section: "adaptation", composers: ["Georg Philipp Telemann"], year: 1720, approx: true, era: "Baroque", pop: { song: "La canzone dell'amore perduto", artist: "Fabrizio De Andr\xE9", album: "La canzone di Marinella", video: "3jqjyJEfYC4" }, piece: { song: "Concerto in D Major, TWV 51:D7: I. Adagio", artist: "Rex Richardson, Classic FM Radio Orchestra & Grigor Palikarov", album: "Foundation: The Trumpet Concertos", video: "pUke9_X738s" } }, { section: "sample", composers: ["Wolfgang Amadeus Mozart"], year: 1791, era: "Classical", pop: { song: "Lacrymosa", artist: "Evanescence", album: "The Open Door", video: "rCVCzdtukfE" }, piece: { song: "Requiem in D Minor K. 626: VIII. Lacrimosa", artist: "Anna Maria Panzarella, Christoph Pr\xE9gardien, Les Arts Florissants, Nathalie Stutzmann, Nathan Berg & William Christie", album: "Mozart: Requiem in D Minor", video: "QPy-pQfeJ_Y" } }, { section: "adaptation", composers: ["Johann Sebastian Bach"], year: 1723, era: "Baroque", pop: { song: "Lady Lynda", artist: "The Beach Boys", album: "L.A. (Light Album)", video: "6i86jmFE8dc" }, piece: { song: 'Herz und Mund und Tat und Leben, BWV 147, Pt. 2: No. 10, "Jesus bleibet meine Freude" (Chorus)', artist: "The Choir of King's College, Cambridge, Sir David Willcocks & Academy of St Martin in the Fields", album: "Classical Chillout", video: "BB3kqTfsCBg" } }, { section: "adaptation", composers: ["Maurice Ravel"], year: 1899, era: "Modern", pop: { song: "The Lamp is Low", artist: "Naama & Steve Nelson", album: "The Lamp is Low - Single", video: "ZwEJJzgPZq0" }, piece: { song: "Pavane pour une infante d\xE9funte, M. 19", artist: "Bertrand Chamayou", album: "Ravel: Complete Works for Solo Piano", video: "TfF4qywNJUc" } }, { section: "adaptation", composers: ["Antonio Vivaldi"], year: 1725, era: "Baroque", pop: { song: "Lawn Chair", artist: "Weezer", album: "SZNZ: Summer", video: "XITUY1z-OpI" }, piece: { song: 'The Four Seasons, Violin Concerto No. 4 in F Minor, RV 297 "Winter": II. Largo', artist: "Francisco Fullana, Apollo's Fire & Jeannette Sorrell", album: "Vivaldi: The Four Seasons", video: "XORkwpqHq3o" } }, { section: "sample", composers: ["Claude Debussy"], year: 1891, era: "Modern", pop: { song: "Like the Sea", artist: "Alicia Keys", album: "The Element of Freedom", video: "EOXQqO-Y3KU" }, piece: { song: "Deux Arabesques, L. 66, CD 74: No. 1 in E Major", artist: "Jean-Efflam Bavouzet", album: "Debussy: Complete Works for Piano", video: "bCkRquSEso8" } }, { section: "sample", composers: ["Wolfgang Amadeus Mozart"], year: 1791, era: "Classical", pop: { song: "Like You", artist: "Kelis", album: "Kelis Was Here", video: "gIItwkyBiGQ" }, piece: { song: 'Die Zauberfl\xF6te, K. 620, Act II: "Der H\xF6lle Rache" (K\xF6nigin der Nacht)', artist: "Diana Damrau, Le Cercle de l'Harmonie & J\xE9r\xE9mie Rhorer", album: "Mozart, Righini, Salieri: Arie di bravura", video: "Th9bXOQmvkI" } }, { section: "adaptation", composers: ["Sergei Rachmaninoff"], year: 1902, era: "Romantic", pop: { song: "Lilacs", artist: "Preludes Original Cast", album: "Preludes (Original Cast Recording)", video: "JBLgOBno7AE" }, piece: { song: "Lilacs (Siren'), Op. 21, No. 5", artist: "Vladimir Ashkenazy & Elisabeth S\xF6derstr\xF6m", album: "Rachmaninov: Songs for Voice", video: "lhO8laVgOI4" } }, { section: "sample", composers: ["Steve Reich"], year: 1987, era: "Modern", pop: { song: "Little Fluffy Clouds", artist: "The Orb", album: "The Orb's Adventures Beyond the Ultraworld", video: "KNfjpmvbQG0" }, piece: { song: "Electric Counterpoint: III. Fast", artist: "Pat Metheny", album: "Steve Reich: Different Trains & Electric Counterpoint", video: "e4JVz5dsHpY" } }, { section: "sample", composers: ["Gabriel Faur\xE9"], year: 1887, era: "Romantic", pop: { song: "Little Me", artist: "Little Mix", album: "Salute (Deluxe Edition)", video: "aNP0YXIEi4I" }, piece: { song: "Pavane", artist: "Royal Liverpool Philharmonic Orchestra & Libor Pe\u0161ek", album: "Relaxing Classics", video: "393z9p-g-eE" } }, { section: "adaptation", composers: ["Johann Sebastian Bach"], year: 1738, approx: true, era: "Baroque", pop: { song: "Look at Me (feat. Gil Dor)", artist: "Noa", album: "Letters to Bach (feat. Gil Dor)", video: "Kin8Z9GZwSA" }, piece: { song: "Concerto for Harpsichord in F Minor, BWV 1056: II. Largo", artist: "Anne Akiko Meyers, English Chamber Orchestra & Steven Mercurio", album: "Air - The Bach Album", video: "2Dsj8yp2PnM" } }, { section: "adaptation", composers: ["Michael Nyman"], year: 1982, era: "Modern", pop: { song: "Love is a Bourgeois Construct", artist: "Pet Shop Boys", album: "Electric", video: "hRssCOH0kY4" }, piece: { song: "Chasing Sheep Is Best Left to Shepherds", artist: "Michael Nyman", album: "The Draughtsman's Contract (Soundtrack from the Motion Picture) [2004 Remaster]", video: "OSBYT_pCgmE" } }, { section: "sample", composers: ["Steve Reich"], year: 1972, era: "Modern", pop: { song: "Love Is Lost (Hello Steve Reich Mix by James Murphy for the DFA Edit)", artist: "David Bowie", album: "Nothing Has Changed (The Best of David Bowie) [Deluxe Edition]", video: "kTAwDnu6jks" }, piece: { song: "Clapping Music (1972)", artist: "Steve Reich & Russ Hartenberger", album: "Early Works", video: "WxcNjkA4sS0" } }, { section: "adaptation", composers: ["Johannes Brahms"], year: 1883, era: "Romantic", pop: { song: "Love of My Life (feat. Dave Matthews & Carter Beauford)", artist: "Santana", album: "Supernatural (Remastered) [Bonus Track Version]", video: "5VRQbN94mhQ" }, piece: { song: "Symphony No. 3 in F Major, Op. 90: III. Poco allegretto", artist: "Nikolaus Harnoncourt & Berlin Philharmonic", album: "The Revolutionary Spirit: Rediscovering the True Sound", video: "25HrafgWDxA" } }, { section: "adaptation", composers: ["Christian Petzold"], year: 1725, era: "Baroque", pop: { song: "A Lover's Concerto", artist: "The Toys", album: "US Pop Bands of the 1960s", video: "e5FHKjTR_F0" }, piece: { song: "Minuet No. 1 in G Major (Formerly Attrib. J.S. Bach as BWV Anh. 114)", artist: "Lang Lang", album: "Piano Book (Deluxe Edition)", video: "LPpfXF4RYXA" } }, { section: "adaptation", composers: ["Johannes Brahms"], year: 1869, era: "Romantic", pop: { song: "Lovesick", artist: "Alan Walker & Sophie Simmons", album: "Lovesick - Single", video: "Xjv74ueJDqg" }, piece: { song: "Hungarian Dance No. 5 in G Minor", artist: "London Philharmonic Orchestra & David Parry", album: "The 50 Greatest Pieces of Classical Music", video: "PzcxBP_6Cvc" } }, { section: "adaptation", composers: ["Giacomo Puccini"], year: 1904, era: "Romantic", pop: { song: "Madam Butterfly (Un bel di vedremo)", artist: "Malcolm McLaren", album: "Fans", video: "OJ0ohma987g" }, piece: { song: "Un Bel Di Vedremo (from Madam Butterfly)", artist: "Renata Tebaldi, Alberto Erede & L'Orchestra De La Suisse Romande", album: "Voce d'Angelo", video: "LKDoGwtnv5A" } }, { section: "sample", composers: ["Niccol\xF2 Paganini"], year: 1817, approx: true, era: "Romantic", pop: { song: "Maestro of My Heart", artist: "KISS OF LIFE", album: "STAGE FIGHTER(STF) Original, Vol. 1 (Original Television Soundtrack) - Single", video: "chZwM-GrYyU" }, piece: { song: "24 Caprices, Op. 1: No. 24 in A Minor", artist: "Itzhak Perlman", album: "Paganini: 24 Caprices", video: "YxPTb0I3SrU" } }, { section: "sample", composers: ["Dmitri Shostakovich"], year: 1960, era: "Modern", pop: { song: "Map Your Psyche (feat. Abstract Rude & Ellay Khule)", artist: "BUSDRIVER", album: "Fear of a Black Tangent", video: "VEx4wqt9GI8" }, piece: { song: "String Quartet No. 8 in C Minor, Op. 110: III. Allegretto", artist: "Emerson String Quartet", album: "Shostakovich: The String Quartets", video: "OE9kCKg-Chs" } }, { section: "adaptation", composers: ["Wolfgang Amadeus Mozart"], year: 1783, approx: true, era: "Classical", pop: { song: "Me - Time (With The Pulmonary Palimpsest)", artist: "BUSDRIVER", album: "Jhelli Beam", video: "YGNJC0CUoa0" }, piece: { song: "Piano Sonata No. 11 in A Major, K. 331: III. Rondo alla Turca (Allegretto)", artist: "Andr\xE1s Schiff", album: "Mozart: 50 Classics (By Classic FM)", video: "lfAw693rYRQ" } }, { section: "adaptation", composers: ["Johann Pachelbel"], year: 1690, approx: true, era: "Baroque", pop: { song: "Memories", artist: "Maroon 5", album: "Memories - Single", video: "OtvsttdrvaQ" }, piece: { song: "Pachelbel: Canon in D", artist: "Stuttgart Chamber Orchestra & Karl M\xFCnchinger", album: "The Essential Wedding Collection", video: "zSX2o9I4slQ" } }, { section: "adaptation", composers: ["Friedrich von Flotow"], year: 1847, era: "Romantic", pop: { song: "Mostly Martha", artist: "The Crew Cuts", album: "The Best of the Crew Cuts: The Mercury Years", video: "igmkh--TITw" }, piece: { song: "Martha: M'appari tutt'amor", artist: "Jussi Bj\xF6rling, Nils Grevillius & Orchestra", album: "Hit Men", video: "wjuZmvpOLYU" } }, { section: "adaptation", composers: ["Sergei Rachmaninoff"], year: 1896, era: "Romantic", pop: { song: "Mountains / The Second Piano Concerto", artist: "Preludes Original Cast", album: "Preludes (Original Cast Recording)", video: "u31QywjOshI" }, piece: { song: "I Was with Her (Ya bil u ney), Op. 14, No. 4", artist: "Vladimir Ashkenazy & Elisabeth S\xF6derstr\xF6m", album: "Rachmaninov: Songs for Voice", video: "kH_sJD9PmYA" } }, { section: "sample", composers: ["Wolfgang Amadeus Mozart"], year: 1789, era: "Classical", pop: { song: "Mozart's House", artist: "Clean Bandit", album: "Mozart's House - EP", video: "qjFHV2lss-k" }, piece: { song: "String Quartet No. 21 in D Major, K. 575: I. Allegretto", artist: "Alban Berg Quartett", album: "Mozart: String Quartets Nos. 18, 19, 21, 22 & 23", video: "7EzVqTXHMMc" } }, { section: "adaptation", composers: ["Claude Debussy"], year: 1890, era: "Modern", pop: { song: "My Reverie", artist: "Ella Fitzgerald", album: "Clap Hands, Here Comes Charlie! (Expanded Edition)", video: "RBBG1fFnuNA" }, piece: { song: "Reverie", artist: "Fran\xE7ois-Jo\xEBl Thiollier", album: "Debussy: Clair de Lune and Other Piano Favorites", video: "VKGRssiqKV0" } }, { section: "adaptation", composers: ["Felix Mendelssohn"], year: 1834, approx: true, era: "Romantic", pop: { song: "Nautical Twilight", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "2Ua5SlEkCmU" }, piece: { song: 'Lieder Ohne Worte, Op. 30: No. 6. Allegretto in F-Sharp Minor "Venetian Gondola Song"', artist: "Andr\xE1s Schiff", album: "Mendelssohn: Piano Concertos 1 & 2", video: "foBJHzbVtTU" } }, { section: "adaptation", composers: ["Sergei Rachmaninoff"], year: 1907, era: "Romantic", pop: { song: "Never Gonna Fall in Love Again (Remastered)", artist: "Eric Carmen", album: "The Essential Eric Carmen", video: "y-a2BuF1yF4" }, piece: { song: "Symphony No. 2 in E Minor, Op. 27: III. Adagio", artist: "London Symphony Orchestra & Andr\xE9 Previn", album: "Rachmaninoff: Symphony No. 2", video: "a6t9r6M7A2M" } }, { section: "adaptation", composers: ["Maurice Ravel"], year: 1899, era: "Modern", pop: { song: 'Never Say Goodbye (Adapted from "Pavane")', artist: "Hayley Westenra", album: "Pure", video: "yKkr46HYsbw" }, piece: { song: "Pavane pour une infante d\xE9funte", artist: "Berlin Philharmonic & Herbert von Karajan", album: "Debussy: La Mer, Pr\xE9lude \xE0 l'apr\xE8s-midi - Ravel: Pavane, Daphnis et Chlo\xE9 No. 2", video: "R2aqZ0bvx_0" } }, { section: "sample", composers: ["Felix Mendelssohn"], year: 1842, era: "Romantic", pop: { song: "Never Worn White", artist: "Katy Perry", album: "Never Worn White - Single", video: "12JUt1gCInE" }, piece: { song: `A Midsummer Night's Dream, Incidental Music, Op. 61: No. 9, Hochzeitmarsch "Wedding March" - No. 12, Allegro vivace come primo`, artist: "London Symphony Orchestra, John Eliot Gardiner & Alexander Knox", album: "Mendelssohn: A Midsummer Night's Dream", video: "RZbsq64GE0w" } }, { section: "adaptation", composers: ["Fr\xE9d\xE9ric Chopin"], year: 1832, era: "Romantic", pop: { song: "No Other Love", artist: "Jo Stafford", album: "Starring Jo Stafford", video: "7zF4It7QoVg" }, piece: { song: '12 \xC9tudes, Op. 10: No. 3 in E Major "Tristesse"', artist: "Maurizio Pollini", album: "Chopin: \xC9tudes", video: "8KopXqfZVXI" } }, { section: "adaptation", composers: ["Johann Sebastian Bach"], year: 1739, approx: true, era: "Baroque", pop: { song: "No, Baby (feat. Gil Dor)", artist: "Noa", album: "Letters to Bach (feat. Gil Dor)", video: "bbX1RbtjVuA" }, piece: { song: "Suite No. 2: Badinerie", artist: "Cologne Chamber Orchestra & Helmut M\xFCller-Br\xFChl", album: "The Very Best of Bach", video: "U9FqdqzQGY4" } }, { section: "sample", composers: ["Georges Bizet"], year: 1875, era: "Romantic", pop: { song: "Nxde", artist: "i-dle", album: "I love - EP", video: "RdU3F5vN3_s" }, piece: { song: `Carmen, Act I: "L'amour est un oiseau rebelle" (Havanaise)`, artist: "Marilyn Horne, Wiener Opernchor, Wiener Opernorchester & Henry Lewis", album: "50 Opera Classics (By Classic FM)", video: "qB9xaCuXOG4" } }, { section: "adaptation", composers: ["Pyotr Ilyich Tchaikovsky"], year: 1876, era: "Romantic", pop: { song: "Ode To Freedom", artist: "ABBA", album: "Voyage", video: "mrA7ld0eVvc" }, piece: { song: "Swan Lake, Op. 20, Act 1: No. 2, Valse in A-Flat Major (Tempo di valse) [Corps de Ballet]", artist: "Andr\xE9 Previn & London Symphony Orchestra", album: "Tchaikovsky: Swan Lake", video: "1TPW0k8QD1w" } }, { section: "sample", composers: ["Maurice Ravel"], year: 1928, era: "Modern", pop: { song: "Oh What a World", artist: "Rufus Wainwright", album: "Want One", video: "XR8nHEoiyZA" }, piece: { song: "Bol\xE9ro, M. 81", artist: "Berlin Philharmonic & Pierre Boulez", album: "Ravel: Bol\xE9ro, Rapsodie espagnole & Ma m\xE8re l'Oye", video: "1I5bGRz5tGQ" } }, { section: "adaptation", composers: ["Pyotr Ilyich Tchaikovsky"], year: 1889, era: "Romantic", pop: { song: "Once Upon a Dream", artist: "Mary Costa, Disney Characters & Bill Shirley", album: "Disney Greatest Musicals", video: "4GWV7sn-8T8" }, piece: { song: "Sleeping Beauty, Op. 66, Act I, Scene 1: Grande valse villageoise", artist: 'State Academic Symphony Orchestra "Evgeny Svetlanov", Evgeny Svetlanov, Heinrich Friedheim, Fyodor Luzanov, Nadezhda Tolstaya, Vladimir Sokolov & Anatoli Liubimov', album: "Sleeping Beauty", video: "q5H4n3htT9E" } }, { section: "adaptation", composers: ["Pyotr Ilyich Tchaikovsky"], year: 1880, era: "Romantic", pop: { song: "Our Love", artist: "Tommy Dorsey and His Orchestra & Jack Leonard", album: "Greatest Hits", video: "nfW5G5vbvZU" }, piece: { song: "Romeo and Juliet - Fantasy Overture (after Shakespeare)", artist: "Claudio Abbado & Chicago Symphony Orchestra", album: "Absolute Masterworks - Romantic", video: "SuluOpiHLAg" } }, { section: "sample", composers: ["Sergei Prokofiev"], year: 1935, era: "Modern", pop: { song: "Party Like a Russian", artist: "Robbie Williams", album: "The Heavy Entertainment Show (Deluxe)", video: "cMO-djZfRLg" }, piece: { song: "Romeo and Juliet, Op. 64, Act I: No. 13, Dance of the Knights", artist: "London Symphony Orchestra & Andr\xE9 Previn", album: "Prokofiev: Romeo and Juliet, Op. 64", video: "IhVtglR8lkI" } }, { section: "adaptation", composers: ["Edvard Grieg"], year: 1875, era: "Romantic", pop: { song: "Queen Almighty", artist: "Alessandra", album: "Queen Almighty - Single", video: "SyDK9Stoa6E" }, piece: { song: "Peer Gynt Suite No. 1, Op. 46: IV. In the Hall of the Mountain King", artist: "London Philharmonic Orchestra & David Parry", album: "The 50 Greatest Pieces of Classical Music", video: "gi5k9w_NGTA" } }, { section: "sample", composers: ["Johann Sebastian Bach"], year: 1705, approx: true, era: "Baroque", pop: { song: "The Real Thing", artist: "2 Unlimited", album: "Real Things", video: "GbvG3EMqO1Q" }, piece: { song: "Toccata and Fugue in D Minor, BWV 565: I. Toccata", artist: "Simon Preston", album: "J.S. Bach: Toccata and Fugue BWV 565", video: "z_ECn-LVb9o" } }, { section: "sample", composers: ["Isaac Alb\xE9niz"], year: 1892, era: "Romantic", pop: { song: "Right in the Night (Fall in Love with Music) [feat. Plavka] [Radio Edit]", artist: "Jam & Spoon", album: "Right in the Night (Fall in Love with Music) - EP", video: "HMeN6AEdHbU" }, piece: { song: "Leyenda", artist: "Andr\xE9s Segovia", album: "Segovia Collection, Vol. 3", video: "BH13PbQwOLE" } }, { section: "adaptation", composers: ["Sergei Prokofiev"], year: 1934, era: "Modern", pop: { song: "Russians", artist: "Sting", album: "Fields of Gold: The Best of Sting 1984-1994", video: "wy_iiPTP4tk" }, piece: { song: "Lieutenant Kij\xE9. Symphonic Suite, Op. 60: II. Romance", artist: "Yuri Temirkanov & St Petersburg Philharmonic Orchestra", album: "Classical Music for a Picnic", video: "IySbeaSmq_o" } }, { section: "adaptation", composers: ["Aram Khachaturian"], year: 1942, era: "Modern", pop: { song: "Sabre Dance (1963 Version)", artist: "The Andrews Sisters", album: "Greatest Hits, Vol. II (1963 Version)", video: "qCVOeh-KdpE" }, piece: { song: "Sabre Dance", artist: "Aram Khachaturian & Vienna Philharmonic", album: "Excerpts from Spartacus and Gayaneh", video: "tlZoVDhbk08" } }, { section: "adaptation", composers: ["Charles-Valentin Alkan"], year: 1847, era: "Romantic", pop: { song: "Shattering Sea", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "zA0B8-g8cXM" }, piece: { song: "Preludes, Op. 31: No. 8 la Chanson de la Folle Au Bord de la Mer: Lentement", artist: "Laurent Martin", album: "Alkan: Preludes, Op. 31", video: "Kjj0tTjH14s" } }, { section: "sample", composers: ["Franz Liszt"], year: 1851, era: "Romantic", pop: { song: "Shut Down", artist: "BLACKPINK", album: "BORN PINK", video: "950BdJKBhGo" }, piece: { song: 'La campanella in G-Sharp Minor (From "Grandes \xE9tudes de Paganini", S. 141 / 3)', artist: "Lang Lang", album: "Piano Magic", video: "PLd1BGgFgzs" } }, { section: "adaptation", composers: ["Enrique Granados"], year: 1900, approx: true, era: "Romantic", pop: { song: "SnowBlind", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "W3un6njTaBg" }, piece: { song: "6 Pieces on Spanish Folksongs: 1. A\xF1oranza", artist: "Alicia de Larrocha", album: "Granados: Seis piezas sobre cantos populares espa\xF1olas; Escenas Rom\xE1nticas; Allegro de Concierto", video: "7V4NjNCvI9w" } }, { section: "sample", composers: ["Erik Satie"], year: 1888, era: "Modern", pop: { song: "Someone To Call My Lover", artist: "Janet Jackson", album: "All For You", video: "JNIBB6I0_vI" }, piece: { song: "3 Gymnop\xE9dies: No. 1", artist: "Pascal Rog\xE9", album: "Satie: 3 Gymnop\xE9dies", video: "Ey0l-4aGn34" } }, { section: "adaptation", composers: ["Nikolai Rimsky-Korsakov"], year: 1896, era: "Romantic", pop: { song: "Song of India", artist: "Ted Heath and His Music", album: "Swing Is King (Vol.1)", video: "5ZgSwoIgD6c" }, piece: { song: 'Sadko, Scene 4: Song of the Indian Guest "Ne schest almazov v kamennykh peshcherakh"', artist: "Lev Kuznetsov, Bolshoi Theatre Choir, Yuri Simonov & Bolshoi Theatre Orchestra", album: "Rimsky-Korsakov: Sadko Highlights", video: "gUR-SJ75Dhs" } }, { section: "adaptation", composers: ["Ludwig van Beethoven"], year: 1824, era: "Romantic", pop: { song: "Song of Joy (Himno a la alegr\xEDa)", artist: "Miguel R\xEDos", album: "Mira hacia ti", video: "hBLCzHnnj10" }, piece: { song: 'Symphony No. 9 in D Minor, Op. 125 "Choral": IV. Presto - Allegro assai', artist: "Leonard Bernstein, Bavarian Radio Symphony Orchestra & others", album: `Ode to Freedom - Bernstein in Berlin: Beethoven's Symphony No. 9 in D Minor, Op. 125 "Choral"`, video: "ZyoIGS5GuUQ" } }, { section: "adaptation", composers: ["Wolfgang Amadeus Mozart"], year: 1785, era: "Classical", pop: { song: "Song Sung Blue", artist: "Neil Diamond", album: "All-Time Greatest Hits", video: "1cqy4bmYOBI" }, piece: { song: "Piano Concerto No. 21 in C Major, K. 467: II. Andante", artist: "Friedrich Gulda, Vienna Philharmonic & Claudio Abbado", album: "Mozart: Piano Concertos Nos. 20 & 21", video: "2lsUrXG0iKc" } }, { section: "adaptation", composers: ["Franz Schubert"], year: 1828, era: "Romantic", pop: { song: "Star Whisperer", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "RfVRWKj0T1g" }, piece: { song: "Piano Sonata No. 20 in A, D. 959: II. Andantino", artist: "Alfred Brendel", album: "Schubert: The Last Three Piano Sonatas", video: "9U7gwOEl4D0" } }, { section: "adaptation", composers: ["Alexander Borodin"], year: 1875, approx: true, era: "Romantic", pop: { song: 'Stranger In Paradise (From "Kismet")', artist: "Tony Bennett", album: "Mr. Broadway: Tony's Greatest Broadway Hits (Remastered)", video: "_MF2Ijvg4ws" }, piece: { song: "Prince Igor, Act 2, Polovtsian Dances: Pt. 5. Gliding Dance of The Maidens", artist: "Beecham Choral Society, Sir Thomas Beecham & Royal Philharmonic Orchestra", album: "Borodin: Polovtsian Dances - Balakirev: Symphony No. 1 in C Major", video: "bxcQMSOqkxY" } }, { section: "sample", composers: ["Johann Sebastian Bach"], year: 1721, era: "Baroque", pop: { song: "Symphony In X Major (feat. Dr. Dre)", artist: "Xzibit", album: "Man vs. Machine", video: "O59_6aGWe1c" }, piece: { song: "Brandenburg Concerto No. 3 in G Major, BWV 1048: I. \u2014", artist: "Ton Koopman & Amsterdam Baroque Orchestra", album: "Ton Koopman Conducts Bach", video: "qcBUtKvtcAo" } }, { section: "sample", composers: ["Dmitri Shostakovich"], year: 1937, era: "Modern", pop: { song: "The Teachers Are Afraid of the Pupils", artist: "Morrissey", album: "Southpaw Grammar", video: "Jo96eaNNTzI" }, piece: { song: "Symphony No. 5 in D Minor, Op. 47: I. Moderato", artist: "Royal Concertgebouw Orchestra & Bernard Haitink", album: "Shostakovich: Symphony No. 5", video: "fJaWGQr3cNY" } }, { section: "adaptation", composers: ["Felix Mendelssohn"], year: 1842, era: "Romantic", pop: { song: "That Mesmerizing Mendelssohn Tune", artist: "The Paragon Ragtime Orchestra, Rick Benjamin & Bernadette Boerckel", album: 'Irving Berlin - "This Is the Life!"', video: "DnHaDE5ms_o" }, piece: { song: 'Songs without Words, Op. 62: No. 6 in A Major "Fr\xFChlingslied"', artist: "Philippe Cassard", album: "Mendelssohn", video: "58o1XOLMNUU" } }, { section: "sample", composers: ["Johann Sebastian Bach"], year: 1742, approx: true, era: "Baroque", pop: { song: "They", artist: "Jem", album: "Finally Woken", video: "kkIZqLDDHBA" }, piece: { song: "Prelude in F Minor", artist: "Edward Aldwell", album: "J.S. Bach: The Well-Tempered Clavier, Book II, Preludes and Fugues, S. 870-893", video: "TXHKAlGcwBk" } }, { section: "adaptation", composers: ["Ludwig van Beethoven"], year: 1798, era: "Classical", pop: { song: "This Night", artist: "Billy Joel", album: "An Innocent Man", video: "BRcLfI_I0oM" }, piece: { song: 'Piano Sonata No. 8 in C Minor, Op. 13 "Path\xE9tique": II. Adagio cantabile', artist: "Daniel Barenboim", album: "Beethoven: Piano Sonatas (Moonlight, Path\xE9tique & Appassionata)", video: "H98Ms1wex2Y" } }, { section: "adaptation", composers: ["Richard Wagner"], year: 1848, era: "Romantic", pop: { song: "Tie the Knot", artist: "Digital Underground", album: "This Is an E.P. Release", video: "5S6_yZ98OZ8" }, piece: { song: "Lohengrin: Act III: Scene 1: Treulich gef\xFChrt ziehet dahin", artist: "Sir Colin Davis, Bavarian Radio Symphony Orchestra, Bavarian Radio Chorus & Bayerische Staatsopernchor", album: "Wagner: Lohengrin", video: "WM86W4A4o-0" } }, { section: "adaptation", composers: ["Fr\xE9d\xE9ric Chopin"], year: 1842, era: "Romantic", pop: { song: "Till the End of Time", artist: "Perry Como", album: "Today & Yesterday", video: "iqG_mHnl1mU" }, piece: { song: "Polonaise In a Flat Major, Op. 53", artist: "Alfred Brendel", album: "Chopin: Recital", video: "OC8i_0pKD00" } }, { section: "sample", composers: ["Edvard Grieg"], year: 1868, era: "Romantic", pop: { song: "Time to Rock", artist: "Jedi Mind Tricks, Army of the Pharaohs, Celph Titled, Demoz & Vinnie Paz", album: "Ritual of Battle", video: "KBLdW0WrLjk" }, piece: { song: "Piano Concerto in A Minor, Op. 16: I. Allegro molto moderato", artist: "Javier Perianes, BBC Symphony Orchestra & Sakari Oramo", album: "Grieg: Piano Concerto & Lyric Pieces", video: "LTGYupGbnzs" } }, { section: "adaptation", composers: ["Jacques Offenbach"], year: 1881, era: "Romantic", pop: { song: "Tonight Is So Right for Love", artist: "Elvis Presley", album: "G.I. Blues (Original Soundtrack)", video: "DIOh9CC7klo" }, piece: { song: "Les contes d'Hoffmann: Barcarolle", artist: "Anna Netrebko, El\u012Bna Garan\u010Da, PKF - Prague Philharmonia, Emmanuel Villaume & Prague Philharmonic Choir", album: "Souvenirs", video: "Qxszk0_yOhc" } }, { section: "sample", composers: ["Edvard Grieg"], year: 1875, era: "Romantic", pop: { song: "Trying to Be Me", artist: "Sweetbox", album: "Classified", video: "5qwA6wjFohs" }, piece: { song: "Peer Gynt, Op. 23: Solveig's Song", artist: "Anna Netrebko, PKF - Prague Philharmonia & Emmanuel Villaume", album: "Souvenirs", video: "5J-kpS3fpSw" } }, { section: "sample", composers: ["Maurice Ravel"], year: 1908, era: "Modern", pop: { song: "Unravel (Remastered)", artist: "Oceansize", album: "Effloresce (Remastered)", video: "O74rnis_TUQ" }, piece: { song: "Gaspard de la nuit, M. 55: II. Le gibet", artist: "Martha Argerich", album: "Prokofiev: Piano Concerto No. 3 in C Major, Op. 26 - Ravel: Piano Concerto in G Major, M. 83 & Gaspard de la nuit, M. 55", video: "5ZS7ANOQYpM" } }, { section: "sample", composers: ["Wolfgang Amadeus Mozart"], year: 1773, era: "Classical", pop: { song: "Velocity", artist: "Extended Famm", album: "Happy F*ck You Songs", video: "WZK7_-MRFWs" }, piece: { song: "Symphony No. 25 in G Minor, K. 183: I. Allegro con brio", artist: "Royal Concertgebouw Orchestra & Josef Krips", album: "Mozart: 50 Classics (By Classic FM)", video: "cDuEzWOtuaY" } }, { section: "sample", composers: ["Ludwig van Beethoven"], year: 1808, era: "Classical", pop: { song: "When I Get You Alone", artist: "Robin Thicke", album: "A Beautiful World", video: "mxe515cnm4o" }, piece: { song: "Symphony No. 5 in C Minor, Op. 67: I. Allegro con brio", artist: "Vienna Philharmonic & Carlos Kleiber", album: "Beethoven: Symphony No. 5 (The Works)", video: "Xg5gIv72-DA" } }, { section: "adaptation", composers: ["Johann Sebastian Bach"], year: 1730, approx: true, era: "Baroque", pop: { song: "A Whiter Shade of Pale (Original Single Version)", artist: "Procol Harum", album: "Hits'n'Flips", video: "hxa6GUIkNac" }, piece: { song: "Orchestral Suite No. 3 in D Major, BWV 1068: II. Air", artist: "Royal Philharmonic Orchestra & Frank Shipway", album: "Grandes Maestros Del Barroco - Johann S. Bach", video: "YEj2hYOyndk" } }, { section: "adaptation", composers: ["Gustav Holst"], year: 1916, era: "Modern", pop: { song: "World in Union (English Version)", artist: "Hayley Westenra", album: "World in Union 2011 - The Official Album", video: "LbPFdvu8ADU" }, piece: { song: "The Planets, Op. 32: IV. Jupiter, the Bringer of Jollity", artist: "Berlin Philharmonic & Sir Simon Rattle", album: "Holst: The Planets", video: "W5t4e1kr-RM" } }, { section: "adaptation", composers: ["Robert Schumann"], year: 1854, era: "Romantic", pop: { song: "Your Ghost", artist: "Tori Amos", album: "Night of Hunters (Deluxe Version)", video: "Ii_JFY3hzBU" }, piece: { song: 'Theme & Variations in E-Flat Major, WoO 24, "Ghost Variations": I. Theme', artist: "Eric Lu", album: "Chopin: 24 Pr\xE9ludes - Brahms: Intermezzo, Op. 117 No. 1 - Schumann: Ghost Variations", video: "Wu2lQuTEKOI" } }] };
+
+  // src/classical/filter.js
+  var SECTIONS = { adaptation: "Adaptations", sample: "Samples" };
+  var PLAYS = { pop: "Pop songs", piece: "Pieces" };
+  var playVideos = (pairs2, play) => pairs2.flatMap((p) => play === "pop" ? [p.pop] : play === "piece" ? [p.piece] : [p.pop, p.piece]).map((t) => t.video).filter(Boolean);
+  var ERAS = { Baroque: [1600, 1750], Classical: [1750, 1820], Romantic: [1820, 1910], Modern: [1910, null] };
+  var eraYears = (era) => `${ERAS[era][0]}\u2013${ERAS[era][1] ?? ""}`;
+  var KEYS = ["section", "era", "composer", "q"];
+  var yearText = (pair) => `${pair.approx ? "~" : ""}${pair.year}`;
+  var fold = (s) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  function surname(name) {
+    const words = name.split(" ");
+    const i = words.length > 2 && /^(di|de|da|del)$/.test(words.at(-2)) ? words.length - 2 : words.length - 1;
+    return words.slice(i).join(" ");
+  }
+  var searchText = (pair) => fold([...pair.composers, String(pair.year), ...[pair.pop, pair.piece].flatMap((t) => [t.song, t.artist, t.album])].filter(Boolean).join("\n"));
+  function matches(pair, selection2, skip = null) {
+    const { section, era, composer, q } = selection2;
+    if (section && skip !== "section" && pair.section !== section) return false;
+    if (era && skip !== "era" && pair.era !== era) return false;
+    if (composer && skip !== "composer" && !pair.composers.includes(composer)) return false;
+    if (q && skip !== "q") {
+      const text = searchText(pair);
+      if (!fold(q).split(/\s+/).filter(Boolean).every((word) => text.includes(word))) return false;
+    }
+    return true;
+  }
+  var filterPairs = (pairs2, selection2) => pairs2.filter((pair) => matches(pair, selection2));
+  var sortPairs = (pairs2, sort) => sort === "year" ? [...pairs2].sort((a, b) => a.year - b.year) : pairs2;
+  function counts(pairs2, selection2, facet) {
+    const result = /* @__PURE__ */ new Map();
+    for (const pair of pairs2) {
+      if (!matches(pair, selection2, facet)) continue;
+      for (const value of facet === "composer" ? pair.composers : [pair[facet]]) result.set(value, (result.get(value) ?? 0) + 1);
+    }
+    return result;
+  }
+  function toHash(selection2) {
+    const params = new URLSearchParams();
+    for (const key of KEYS) if (selection2[key]) params.set(key, selection2[key]);
+    if (selection2.sort) params.set("sort", selection2.sort);
+    if (selection2.play) params.set("play", selection2.play);
+    const s = params.toString();
+    return s ? `#${s}` : "";
+  }
+  function fromHash(hash) {
+    const params = new URLSearchParams(hash.replace(/^#/, ""));
+    const selection2 = {};
+    for (const key of KEYS) selection2[key] = params.get(key) || null;
+    selection2.sort = params.get("sort") === "year" ? "year" : null;
+    selection2.play = params.get("play") in PLAYS ? params.get("play") : null;
+    if (selection2.section && !(selection2.section in SECTIONS)) selection2.section = null;
+    if (selection2.era && !(selection2.era in ERAS)) selection2.era = null;
+    return selection2;
+  }
+
+  // src/shared/songs.js
+  var el = (tag, props = {}, ...children) => {
+    const e = Object.assign(document.createElement(tag), props);
+    e.append(...children.filter((c) => c != null && c !== false));
+    return e;
+  };
+  var plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+  var PLAYLIST_LIMIT = 50;
+  function playlistLinks(videos) {
+    const links = [];
+    for (let i = 0; i < videos.length; i += PLAYLIST_LIMIT) {
+      const chunk = videos.slice(i, i + PLAYLIST_LIMIT);
+      links.push({ from: i + 1, to: i + chunk.length, url: `https://www.youtube.com/watch_videos?video_ids=${chunk.join(",")}` });
+    }
+    return links;
+  }
+  function playLinks(videos) {
+    const links = playlistLinks(videos);
+    return links.map(({ from, to, url }, i) => el(
+      "a",
+      { href: url, target: "_blank", rel: "noopener", className: "play-link" },
+      links.length === 1 ? "\u25B6 Play on YouTube" : `${i ? "" : "\u25B6 Play on YouTube: "}${from}\u2013${to}`
+    ));
+  }
+  function createPlayer({ missing = () => el("div", { className: "thumb missing" }, "Not on YouTube") } = {}) {
+    let playing = null;
+    function thumbnail2(song) {
+      if (!song.video) return missing(song);
+      const button = el(
+        "button",
+        { type: "button", className: "thumb", title: `Play ${song.song}`, onclick: () => play(button.closest(".song")) },
+        el("img", { src: `https://i.ytimg.com/vi/${song.video}/mqdefault.jpg`, alt: "", loading: "lazy" }),
+        el("span", { className: "play", ariaHidden: "true" }, "\u25B6")
+      );
+      return button;
+    }
+    function play(card2) {
+      if (playing && playing !== card2) stop(playing);
+      playing = card2;
+      const song = card2.song;
+      card2.querySelector(".thumb").replaceWith(el("iframe", {
+        className: "thumb",
+        src: `https://www.youtube-nocookie.com/embed/${song.video}?autoplay=1&rel=0`,
+        title: `${song.song} by ${song.artist}`,
+        allow: "autoplay; encrypted-media; picture-in-picture; fullscreen",
+        allowFullscreen: true
+      }));
+    }
+    function stop(card2) {
+      card2.querySelector(".thumb").replaceWith(thumbnail2(card2.song));
+      if (playing === card2) playing = null;
+    }
+    function playRandom2(cards2) {
+      const playable = cards2.filter((c) => c.song.video);
+      if (!playable.length) return;
+      const card2 = playable[Math.floor(Math.random() * playable.length)];
+      card2.scrollIntoView({ block: "center", behavior: "smooth" });
+      play(card2);
+    }
+    return { thumbnail: thumbnail2, play, playRandom: playRandom2 };
+  }
+  function showCards(list, wanted) {
+    const keep = new Set(wanted);
+    for (const c of [...list.children]) if (!keep.has(c)) c.remove();
+    let next = list.firstElementChild;
+    for (const c of wanted) {
+      if (c === next) next = next.nextElementSibling;
+      else list.insertBefore(c, next);
+    }
+  }
+
+  // src/classical/page.js
+  var $ = (id) => document.getElementById(id);
+  var { pairs } = data_default;
+  var selection = fromHash(location.hash);
+  function select(changes) {
+    selection = { ...selection, ...changes };
+    history.replaceState(null, "", toHash(selection) || location.pathname + location.search);
+    render();
+  }
+  function chips(container, entries, selected, onClick) {
+    container.replaceChildren(...entries.filter(([value, , n]) => n || value === selected).map(([value, label, n, title]) => el(
+      "button",
+      { type: "button", className: "chip", ariaPressed: String(value === selected), title: title ?? "", onclick: () => onClick(value === selected ? null : value) },
+      label,
+      " ",
+      el("span", { className: "count" }, String(n))
+    )));
+  }
+  var SORTS = { song: "Pop song", year: "Year composed" };
+  function renderSorts() {
+    const current = selection.sort ?? "song";
+    $("sorts").replaceChildren(...Object.entries(SORTS).map(([sort, label]) => el("button", {
+      type: "button",
+      className: "chip",
+      ariaPressed: String(sort === current),
+      onclick: () => select({ sort: sort === "song" ? null : sort })
+    }, label)));
+  }
+  function renderPlays() {
+    const current = selection.play ?? "pairs";
+    $("plays").replaceChildren("Play: ", ...Object.entries({ pairs: "Pairs", ...PLAYS }).map(([play, label]) => el("button", {
+      type: "button",
+      className: "chip",
+      ariaPressed: String(play === current),
+      onclick: () => select({ play: play === "pairs" ? null : play })
+    }, label)));
+  }
+  var search = $("search");
+  search.value = selection.q ?? "";
+  search.addEventListener("input", () => select({ q: search.value.trim() || null }));
+  $("clear").addEventListener("click", () => {
+    search.value = "";
+    select(Object.fromEntries(KEYS.map((k) => [k, null])));
+  });
+  window.addEventListener("hashchange", () => {
+    selection = fromHash(location.hash);
+    search.value = selection.q ?? "";
+    render();
+  });
+  var { thumbnail, playRandom } = createPlayer();
+  var setFilter = (changes) => {
+    select(changes);
+    $("results-header").scrollIntoView({ block: "start" });
+  };
+  var filterLink = (text, changes, title) => el("button", { type: "button", className: "link", title, onclick: () => setFilter(changes) }, text);
+  function half(track, kind, ...byline) {
+    const h = el(
+      "div",
+      { className: `song ${kind}` },
+      thumbnail(track),
+      el(
+        "div",
+        { className: "info" },
+        el("div", { className: "title" }, track.video ? el("a", { href: `https://youtu.be/${track.video}`, target: "_blank", rel: "noopener" }, track.song) : track.song),
+        el("div", { className: "artist" }, ...byline)
+      )
+    );
+    h.song = track;
+    return h;
+  }
+  var cards = /* @__PURE__ */ new Map();
+  function card(pair) {
+    if (cards.has(pair)) return cards.get(pair);
+    const composers = pair.composers.flatMap((name, i) => [i ? " & " : "", filterLink(name, { composer: name }, `Show pieces by ${name}`)]);
+    const c = el(
+      "article",
+      { className: `pair ${pair.section}` },
+      el(
+        "div",
+        { className: "tracks" },
+        half(pair.pop, "pop", "by ", pair.pop.artist),
+        half(pair.piece, "piece", "by ", ...composers, ` (${yearText(pair)})`)
+      ),
+      el(
+        "div",
+        { className: "about" },
+        filterLink(pair.section === "sample" ? "Samples" : "Adaptation", { section: pair.section }, `Show these ${SECTIONS[pair.section].toLowerCase()}`),
+        " \xB7 ",
+        filterLink(pair.era, { era: pair.era }, `Show pieces from the ${pair.era} era (${eraYears(pair.era)})`)
+      )
+    );
+    c.pair = pair;
+    cards.set(pair, c);
+    return c;
+  }
+  $("random").addEventListener("click", () => playRandom(filterPairs(pairs, selection).map((p) => card(p).querySelector(selection.play === "piece" ? ".piece" : ".pop"))));
+  function render() {
+    const results = sortPairs(filterPairs(pairs, selection), selection.sort);
+    const sections = counts(pairs, selection, "section");
+    chips($("sections"), Object.entries(SECTIONS).map(([s, label]) => [s, label, sections.get(s) ?? 0]), selection.section, (section) => select({ section }));
+    const eras = counts(pairs, selection, "era");
+    chips($("eras"), Object.keys(ERAS).map((e) => [e, e, eras.get(e) ?? 0, eraYears(e)]), selection.era, (era) => select({ era }));
+    renderSorts();
+    const composers = counts(pairs, selection, "composer");
+    const all = counts(pairs, { ...selection, section: null, era: null, q: null }, "composer");
+    const shown = [...composers].filter(([c]) => (all.get(c) ?? 0) > 1 || c === selection.composer).sort((a, b) => b[1] - a[1] || surname(a[0]).localeCompare(surname(b[0])));
+    if (selection.composer && !composers.has(selection.composer)) shown.unshift([selection.composer, 0]);
+    chips($("composers"), shown.map(([c, n]) => [c, surname(c), n, c]), selection.composer, (composer) => select({ composer }));
+    $("summary").replaceChildren(el("b", {}, results.length === pairs.length ? `All ${plural(pairs.length, "pair")}` : plural(results.length, "pair")));
+    $("clear").hidden = !KEYS.some((k) => selection[k]);
+    $("random").disabled = results.length === 0;
+    $("random").textContent = selection.play === "piece" ? "Random piece" : "Random song";
+    renderPlays();
+    $("play").replaceChildren(...playLinks(playVideos(results, selection.play)));
+    showCards($("pairs"), results.map(card));
+    $("empty").hidden = results.length > 0;
+  }
+  render();
+})();
+</script>
+</body>
+</html>
