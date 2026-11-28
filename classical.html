@@ -258,7 +258,7 @@
       el("span", { className: "count" }, String(n))
     )));
   }
-  var SORTS = { song: "Pop song", year: "Year composed" };
+  var SORTS = { song: "Pop song", year: "Year of piece" };
   function renderSorts() {
     const current = selection.sort ?? "song";
     $("sorts").replaceChildren(...Object.entries(SORTS).map(([sort, label]) => el("button", {
