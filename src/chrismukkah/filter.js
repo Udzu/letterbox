@@ -22,8 +22,9 @@ export const yearText = (song) => `${song.approx ? "~" : ""}${song.year}`;
 // lower case without accents, so "noel" finds Noël
 export const fold = (s) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 
-const searchText = (song) =>
-  fold([song.song, song.artist, ...song.writers, song.note, song.language, song.nationality, yearText(song)].filter(Boolean).join("\n"));
+// what the search covers: just what the cards show in words (the language and nationality only show as
+// flags, so are left to the filters)
+const searchText = (song) => fold([song.song, song.artist, ...song.writers, song.note, yearText(song)].filter(Boolean).join("\n"));
 
 // "A, B & C Smith (a note)" → { writers: ["A", "B Smith", "C Smith"], note: "(a note)" }: songwriters
 // as written in the sheet, split into names, with any note in brackets at the end kept apart

@@ -102,7 +102,7 @@
 </style>
 </head>
 <body>
-<nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="ladders.html">Ladders</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="chrismukkah.html">Chrismukkah</a> · <a href="classical.html">Classical</a> · <b>Countries</b> · <a href="lingtape.html">Lingtape</a></nav>
+<nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="ladders.html">Ladders</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="chrismukkah.html">Chrismukkah</a> · <a href="classical.html">Classical</a> · <b>Countries</b> · <a href="lingtape.html">Lingtape</a> · <a href="stage.html">Stage</a></nav>
 <main>
   <div id="tabs" role="tablist" aria-label="Playlist"></div>
   <p class="intro" data-list="nations"><b>Independent Nations</b>: a playlist of mostly indie songs that namecheck countries. Also on <a href="https://music.apple.com/gb/playlist/independent-nations/pl.u-gxblM4RsMXrxb3" target="_blank" rel="noopener">Apple Music</a> and <a href="https://open.spotify.com/playlist/0KHMHACboVTnFnQbVtH2lc" target="_blank" rel="noopener">Spotify</a>.</p>
@@ -123,7 +123,7 @@
     <span class="label">Continent</span>
     <div id="continents" class="chips"></div>
     <label for="search">Search</label>
-    <div><input id="search" type="search" placeholder="Country, song, artist, album…" autocomplete="off"></div>
+    <div><input id="search" type="search" placeholder="Country, song, artist…" autocomplete="off"></div>
   </div>
   <div id="results-header">
     <span id="summary"></span>
@@ -150,7 +150,7 @@
   };
   var KEYS = ["continent", "country", "q"];
   var fold = (s) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
-  var searchText = (song) => fold([song.name, ...song.countries, song.song, song.artist, song.album].filter(Boolean).join("\n"));
+  var searchText = (song) => fold([song.name, ...song.countries, song.song, song.artist].filter(Boolean).join("\n"));
   function matches(song, selection2, skip = null) {
     const { continent, country, q } = selection2;
     if (continent && skip !== "continent" && !song.continents.includes(continent)) return false;

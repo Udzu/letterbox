@@ -18,7 +18,8 @@ export const KEYS = ["continent", "country", "q"];
 // lower case without accents, so "sao tome" finds São Tomé
 export const fold = (s) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 
-const searchText = (song) => fold([song.name, ...song.countries, song.song, song.artist, song.album].filter(Boolean).join("\n"));
+// what the search covers: just what the cards show (not the album)
+const searchText = (song) => fold([song.name, ...song.countries, song.song, song.artist].filter(Boolean).join("\n"));
 
 // Whether a song passes the filters in selection, ignoring the one named skip (for facet counts).
 export function matches(song, selection, skip = null) {

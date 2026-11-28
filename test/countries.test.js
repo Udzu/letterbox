@@ -18,7 +18,8 @@ test("filters combine, and search ignores case and accents", () => {
   assert.deepEqual(names({ continent: "AF" }), ["Ivory Coast", "São Tomé and Príncipe"]);
   assert.deepEqual(names({ continent: "AF", q: "rancid" }), ["Ivory Coast"]);
   assert.deepEqual(names({ q: "sao tome" }), ["São Tomé and Príncipe"]);
-  assert.deepEqual(names({ q: "viva" }), ["Japan"]);
+  assert.deepEqual(names({ q: "viva" }), []); // albums aren't shown, so aren't searched
+  assert.deepEqual(names({ q: "coldplay" }), ["Japan"]);
   assert.deepEqual(names({ country: "Japan" }), ["Japan"]);
 });
 

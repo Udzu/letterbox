@@ -70,7 +70,7 @@ function half(track, kind, ...byline) {
 const cards = new Map(); // pair → card, made once and reused so playing videos survive filtering
 function card(pair) {
   if (cards.has(pair)) return cards.get(pair);
-  // the piece is credited to its composers (its performers are only in the search, and the video's title)
+  // the piece is credited to its composers (its performers are only in the video's title)
   const composers = pair.composers.flatMap((name, i) => [i ? " & " : "", filterLink(name, { composer: name }, `Show pieces by ${name}`)]);
   const c = el("article", { className: `pair ${pair.section}` },
     el("div", { className: "tracks" }, half(pair.pop, "pop", "by ", pair.pop.artist),
