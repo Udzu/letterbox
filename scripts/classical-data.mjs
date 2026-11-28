@@ -6,14 +6,18 @@
 // The playlist is kept in this repo, as src/classical/classical.csv, to edit directly. Its rows come in
 // pairs, in playlist order: a pop song, then the classical piece it's based on. Each row has the section
 // ("Adaptation" or "Sample", the same for both rows of a pair), song, artist, album, ISRC, Apple Music ID
-// and YouTube link, and the piece's row has its composer (or composers, separated by semicolons).
-// Writes src/classical/data.json: pairs (sorted by pop song), each with its section, composers, and the
-// pop song and piece (song, artist, album and YouTube video ID, or null without a link). The build fails
-// on an odd number of rows, a pair whose rows have different sections, a piece without a composer, or a
-// link it can't read.
+// and YouTube link, and the piece's row has its composer (or composers, separated by semicolons), the
+// year it was composed (or completed; "~1710" for an approximate one) and optionally its era, for pieces
+// whose year puts them in the wrong one (Debussy's 1890s pieces are Modern, not Romantic).
+// Writes src/classical/data.json: pairs (sorted by pop song), each with its section, composers, year
+// (and approx: true if approximate), era (see ERAS in src/classical/filter.js), and the pop song and
+// piece (song, artist, album and YouTube video ID, or null without a link). The build fails on an odd
+// number of rows, a pair whose rows have different sections, a piece without a composer or year, an
+// unknown era, or a link it can't read.
 
 import { readFile, writeFile } from "node:fs/promises";
 import { parseCsv } from "./csv.mjs";
+import { ERAS, eraOf } from "../src/classical/filter.js";
 
 const SECTIONS = ["Adaptation", "Sample"];
 const src = (file) => new URL(`../src/classical/${file}`, import.meta.url);
@@ -36,7 +40,12 @@ for (let i = 0; i < rows.length; i += 2) {
   if (!SECTIONS.includes(section) || col(piece, "Section") !== section) throw new Error(`classical.csv: ${col(pop, "Song")}: bad section`);
   const composers = col(piece, "Composer").split(";").map((s) => s.trim()).filter(Boolean);
   if (!composers.length) throw new Error(`classical.csv: ${col(piece, "Song")}: no composer`);
-  pairs.push({ section: section.toLowerCase(), composers, pop: track(pop), piece: track(piece) });
+  const year = col(piece, "Year").match(/^(~?)(\d{4})$/);
+  if (!year) throw new Error(`classical.csv: ${col(piece, "Song")}: bad or missing year`);
+  const era = col(piece, "Era") || eraOf(Number(year[2]));
+  if (!(era in ERAS)) throw new Error(`classical.csv: ${col(piece, "Song")}: unknown era ${era}`);
+  pairs.push({ section: section.toLowerCase(), composers, year: Number(year[2]), ...(year[1] && { approx: true }), era,
+    pop: track(pop), piece: track(piece) });
 }
 
 // sorted by pop song, ignoring a leading "The", "A" or "An", case and accents (as the playlist sorts

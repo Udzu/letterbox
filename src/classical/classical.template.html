@@ -52,10 +52,14 @@
   #results-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 0; border-top: 1px solid #ccd; scroll-margin-top: 8px; }
   #results-header button { font: inherit; font-size: 0.9rem; cursor: pointer; }
   #play { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  #plays { align-items: center; font-size: 0.9rem; }
+  #results-header #plays .chip { font-size: 0.85rem; padding: 1px 8px; }
   #pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr)); gap: 20px; margin-top: 8px; }
   /* a pair: a tinted card holding the pop song and the classical piece side by side (stacked on narrow
-     phones) as white panels, then whether it's an adaptation or a sample */
+     phones) as white panels, then whether it's an adaptation or a sample, and the piece's era; samples
+     are grey */
   .pair { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid #bcd2ea; border-radius: 8px; background: #e3edf8; }
+  .pair.sample { border-color: #d2d4d9; background: #ebecef; }
   .tracks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; }
   @media (max-width: 420px) {
     .tracks { grid-template-columns: 1fr; }
@@ -81,19 +85,24 @@
 <body>
 <nav><a href="index.html" title="Letterbox"><img src="icons/icon.svg" alt="Letterbox"></a> &nbsp;|&nbsp; <a href="anagrams.html">Anagrams</a> · <a href="lipograms.html">Lipograms</a> · <a href="palindromes.html">Palindromes</a> · <a href="pangrams.html">Pangrams</a> · <a href="patterns.html">Patterns</a> · <a href="rhymes.html">Rhymes</a> · <a href="unicode.html">Unicode</a> · <a href="wordlists.html">Wordlists</a> · <a href="ladders.html">Ladders</a> · <a href="words.html">Words</a> &nbsp;|&nbsp; <a href="dates.html">Dates</a> · <a href="dice.html">Dice</a> · <a href="lsystems.html">L-Systems</a> · <a href="numbers.html">Numbers</a> &nbsp;|&nbsp; <a href="chrismukkah.html">Chrismukkah</a> · <b>Classical</b> · <a href="countries.html">Countries</a> · <a href="lingtape.html">Lingtape</a></nav>
 <main>
-  <p class="intro"><b>Classically Inspired</b>: a playlist of pop songs based on classical pieces, each followed by the piece it's based on: both adaptations (songs that take the piece's tune) and samples (songs built on a recording of it).</p>
+  <p class="intro"><b>Classically Inspired</b>: a playlist of pop songs based on classical pieces, each followed by the piece it's based on: both adaptations (songs that take the piece's tune) and samples (songs built on a recording of it). Also on <a href="https://music.apple.com/gb/playlist/classically-inspired/pl.u-NpXmDKpFpZbL4N" target="_blank" rel="noopener">Apple Music</a>.</p>
   <div id="filters">
     <span class="label">Type</span>
     <div id="sections" class="chips"></div>
+    <span class="label">Era</span>
+    <div id="eras" class="chips"></div>
     <span class="label">Composer</span>
     <div id="composers" class="chips"></div>
     <label for="search">Search</label>
-    <div><input id="search" type="search" placeholder="Song, piece, performer, composer…" autocomplete="off"></div>
+    <div><input id="search" type="search" placeholder="Song, piece, performer, composer, year…" autocomplete="off"></div>
+    <span class="label">Sort by</span>
+    <div id="sorts" class="chips"></div>
   </div>
   <div id="results-header">
     <span id="summary"></span>
     <button type="button" id="clear" hidden>Clear filters</button>
-    <button type="button" id="random" title="Play a random pop song from these">Random song</button>
+    <button type="button" id="random" title="Play a random one of these">Random song</button>
+    <span id="plays" class="chips"></span>
     <span id="play"></span>
   </div>
   <p id="empty" hidden>No songs match these filters.</p>

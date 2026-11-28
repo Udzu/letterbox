@@ -1,9 +1,9 @@
 // The Classical page: browse a playlist of pop songs based on classical pieces, each shown with the
-// piece it's based on, by section (adaptations or samples), composer and search, and play them in place
-// or on YouTube.
+// piece it's based on, by section (adaptations or samples), era, composer and search, sorted by pop song
+// or by when the piece was composed, and play them in place or on YouTube.
 
 import data from "./data.json";
-import { counts, filterPairs, fromHash, KEYS, SECTIONS, surname, toHash } from "./filter.js";
+import { counts, ERAS, eraYears, filterPairs, fromHash, KEYS, PLAYS, playVideos, SECTIONS, sortPairs, surname, toHash, yearText } from "./filter.js";
 import { createPlayer, el, playLinks, plural, showCards } from "../shared/songs.js";
 
 const $ = (id) => document.getElementById(id);
@@ -23,6 +23,23 @@ function chips(container, entries, selected, onClick) {
   container.replaceChildren(...entries.filter(([value, , n]) => n || value === selected).map(([value, label, n, title]) =>
     el("button", { type: "button", className: "chip", ariaPressed: String(value === selected), title: title ?? "", onclick: () => onClick(value === selected ? null : value) },
       label, " ", el("span", { className: "count" }, String(n)))));
+}
+
+// the sort order: by pop song (the default) or by when the piece was composed
+const SORTS = { song: "Pop song", year: "Year composed" };
+function renderSorts() {
+  const current = selection.sort ?? "song";
+  $("sorts").replaceChildren(...Object.entries(SORTS).map(([sort, label]) => el("button", {
+    type: "button", className: "chip", ariaPressed: String(sort === current), onclick: () => select({ sort: sort === "song" ? null : sort }),
+  }, label)));
+}
+
+// what the play links and random button play: pairs (the default), or just the pop songs or the pieces
+function renderPlays() {
+  const current = selection.play ?? "pairs";
+  $("plays").replaceChildren("Play: ", ...Object.entries({ pairs: "Pairs", ...PLAYS }).map(([play, label]) => el("button", {
+    type: "button", className: "chip", ariaPressed: String(play === current), onclick: () => select({ play: play === "pairs" ? null : play }),
+  }, label)));
 }
 
 const search = $("search");
@@ -55,26 +72,33 @@ function card(pair) {
   if (cards.has(pair)) return cards.get(pair);
   // the piece is credited to its composers (its performers are only in the search, and the video's title)
   const composers = pair.composers.flatMap((name, i) => [i ? " & " : "", filterLink(name, { composer: name }, `Show pieces by ${name}`)]);
-  const c = el("article", { className: "pair" },
-    el("div", { className: "tracks" }, half(pair.pop, "pop", "by ", pair.pop.artist), half(pair.piece, "piece", "by ", ...composers)),
+  const c = el("article", { className: `pair ${pair.section}` },
+    el("div", { className: "tracks" }, half(pair.pop, "pop", "by ", pair.pop.artist),
+      half(pair.piece, "piece", "by ", ...composers, ` (${yearText(pair)})`)),
     el("div", { className: "about" },
-      filterLink(pair.section === "sample" ? "Samples" : "Adaptation", { section: pair.section }, `Show these ${SECTIONS[pair.section].toLowerCase()}`)));
+      filterLink(pair.section === "sample" ? "Samples" : "Adaptation", { section: pair.section }, `Show these ${SECTIONS[pair.section].toLowerCase()}`),
+      " · ", filterLink(pair.era, { era: pair.era }, `Show pieces from the ${pair.era} era (${eraYears(pair.era)})`)));
   c.pair = pair;
   cards.set(pair, c);
   return c;
 }
 
-$("random").addEventListener("click", () => playRandom(filterPairs(pairs, selection).map((p) => card(p).querySelector(".pop"))));
+// a random pop song (or piece, when just playing pieces)
+$("random").addEventListener("click", () =>
+  playRandom(filterPairs(pairs, selection).map((p) => card(p).querySelector(selection.play === "piece" ? ".piece" : ".pop"))));
 
 // --- rendering ---
 function render() {
-  const results = filterPairs(pairs, selection);
+  const results = sortPairs(filterPairs(pairs, selection), selection.sort);
   const sections = counts(pairs, selection, "section");
   chips($("sections"), Object.entries(SECTIONS).map(([s, label]) => [s, label, sections.get(s) ?? 0]), selection.section, (section) => select({ section }));
+  const eras = counts(pairs, selection, "era");
+  chips($("eras"), Object.keys(ERAS).map((e) => [e, e, eras.get(e) ?? 0, eraYears(e)]), selection.era, (era) => select({ era }));
+  renderSorts();
 
   // composers with more than one pair (and the selected one), most first
   const composers = counts(pairs, selection, "composer");
-  const all = counts(pairs, { ...selection, section: null, q: null }, "composer");
+  const all = counts(pairs, { ...selection, section: null, era: null, q: null }, "composer");
   const shown = [...composers].filter(([c]) => (all.get(c) ?? 0) > 1 || c === selection.composer)
     .sort((a, b) => b[1] - a[1] || surname(a[0]).localeCompare(surname(b[0])));
   if (selection.composer && !composers.has(selection.composer)) shown.unshift([selection.composer, 0]);
@@ -83,7 +107,9 @@ function render() {
   $("summary").replaceChildren(el("b", {}, results.length === pairs.length ? `All ${plural(pairs.length, "pair")}` : plural(results.length, "pair")));
   $("clear").hidden = !KEYS.some((k) => selection[k]);
   $("random").disabled = results.length === 0;
-  $("play").replaceChildren(...playLinks(results.flatMap((p) => [p.pop.video, p.piece.video]).filter(Boolean)));
+  $("random").textContent = selection.play === "piece" ? "Random piece" : "Random song";
+  renderPlays();
+  $("play").replaceChildren(...playLinks(playVideos(results, selection.play)));
 
   showCards($("pairs"), results.map(card));
   $("empty").hidden = results.length > 0;
